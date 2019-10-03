@@ -1,0 +1,12 @@
+version: '3.2'
+services:
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 80:4000
+    command: npm start
+    environment:
+      - NODE_ENV=production
