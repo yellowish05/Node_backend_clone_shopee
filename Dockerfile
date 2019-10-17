@@ -12,6 +12,7 @@ COPY ./package* ./
 RUN npm install --only=production && \
     npm cache clean --force
 
+COPY ./config ./config
 COPY ./src ./src
 COPY ./server.js ./server.js
 
