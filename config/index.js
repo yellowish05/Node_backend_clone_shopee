@@ -15,8 +15,11 @@ module.exports = {
   port: 4000,
   corsDomain: process.env.CORS_DOMAIN || '*',
   apolloEngineApiKey: process.env.ENGINE_API_KEY || null,
-
   mongo: {
     uri: process.env.MONGO_URI,
+  },
+  i18n: {
+    defaultLocale: 'EN',
+    locales: ['EN'],
   },
 };
