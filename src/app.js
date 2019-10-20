@@ -9,10 +9,10 @@ const apollo = require('./graphql');
 const { corsDomain } = require('../config');
 
 // Mongo connection
-const { mongoClientCloseConnection: userCloseConnection } = require('./datasource/user');
+const { mongoClientCloseConnection } = require('../config/mongoConnection');
 
 process.on('SIGINT', () => {
-  userCloseConnection();
+  mongoClientCloseConnection();
 });
 
 const app = express();

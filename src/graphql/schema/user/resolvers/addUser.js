@@ -4,12 +4,11 @@ const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 
 const errorHandler = new ErrorHandler();
 
-module.exports = async function register(obj, args, { dataSources: { api } }) {
-  const validator = new Validator(args.input, {
+module.exports = async (obj, args, { dataSources: { repository } }) => {
+  const validator = new Validator(args.data, {
     email: 'required|email',
     password: 'required|minLength:6',
   });
-  
 
   return validator.check()
     .then((matched) => {
@@ -17,10 +16,10 @@ module.exports = async function register(obj, args, { dataSources: { api } }) {
         throw errorHandler.build(validator.errors);
       }
 
-      return api.auth.create({
+      return repository.user.create({
         id: uuid(),
-        email: args.input.email,
-        password: args.input.password,
-      });
-    })
+        email: args.data.email,
+        password: args.data.password,
+      }, { roles: ['USER'] });
+    });
 };

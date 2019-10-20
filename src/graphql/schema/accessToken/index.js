@@ -1,11 +1,11 @@
-const { gql } = require('apollo-server');
+const { gql, UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
 const { ErrorHandler } = require('../../../lib/ErrorHandler');
 
 const errorHandler = new ErrorHandler();
 
 const schema = gql`
-  input AuthGenTokenByPwdInput {
+  input LoginInput {
     email: String!
     password: String!
     ip: String
@@ -13,11 +13,7 @@ const schema = gql`
   }
 
   extend type Mutation {
-    auth: AuthMutation!
-  }
-
-  type AuthMutation {
-    genTokenByPwd(input: AuthGenTokenByPwdInput!): String!
+    generateAccessToken(data: LoginInput!): String!
   }
 `;
 
@@ -25,13 +21,8 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Mutation: {
-    auth() {
-      return {};
-    },
-  },
-  AuthMutation: {
-    async genTokenByPwd(obj, args, { dataSources: { api } }) {
-      const validator = new Validator(args.input, {
+    async generateAccessToken(obj, { data }, { dataSources: { repository } }) {
+      const validator = new Validator(data, {
         email: 'required|email',
         password: 'required|minLength:6',
       });
@@ -42,8 +33,18 @@ module.exports.resolvers = {
             throw errorHandler.build(validator.errors);
           }
 
-          return api.auth.genTokenByPwd(args.input);
+          return repository.user.findByEmailAndPassword(data);
         })
-    }
+        .then((user) => {
+          if (user === null) {
+            throw new UserInputError('Invalid login or password');
+          }
+
+          return repository.accessToken.create(user, {
+            ip: data.ip || null,
+            userAgent: data.userAgent || null,
+          });
+        });
+    },
   },
 };

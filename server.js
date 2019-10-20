@@ -1,6 +1,7 @@
 const http = require('http');
 const app = require('./src/app');
 const config = require('./config');
+const logger = require('./config/logger');
 
 /**
  * Event listener for HTTP server "error" event.
@@ -18,11 +19,11 @@ function generateOnErrorFn(usedPost) {
     // handle specific listen errors with friendly messages
     switch (error.code) {
       case 'EACCES':
-        console.error(`${bind} requires elevated privileges`);
+        logger.error(`${bind} requires elevated privileges`);
         process.exit(1);
         break;
       case 'EADDRINUSE':
-        console.error(`${bind} is already in use`);
+        logger.error(`${bind} is already in use`);
         process.exit(1);
         break;
       default:
@@ -40,7 +41,7 @@ function generateOnListeningFn(server) {
     const bind = typeof addr === 'string'
       ? `pipe ${addr}`
       : `port ${addr.port}`;
-    console.log(`🚀 Listening on ${bind}`);
+    logger.info(`🚀 Listening on ${bind}`);
   };
 }
 
