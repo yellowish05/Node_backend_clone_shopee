@@ -1,36 +1,35 @@
 const { gql } = require('apollo-server');
 
-const register = require('./resolvers/register');
+const addUser = require('./resolvers/addUser');
 
 const schema = gql`
     type User {
       id: ID!
-      email: String
+      email: String!
+      roles: [String]! @auth(requires: ADMIN) 
     }
 
-    input UserInput {
+    input RegistrationInput {
       email: String!
       password: String!
     }
 
-    extend type Mutation {
-      user: UserMutation!
+    extend type Query {
+      me: User! @auth(requires: USER) 
     }
 
-    type UserMutation {
-      register (input: UserInput!): User!
+    extend type Mutation {
+      addUser (data: RegistrationInput!): User!
     }
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-  Mutation: {
-    user() {
-      return {};
-    },
+  Query: {
+    me: async (obj, args, { user }) => user,
   },
-  UserMutation: {
-    register,
+  Mutation: {
+    addUser,
   },
 };

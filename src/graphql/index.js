@@ -5,36 +5,28 @@ const { AuthenticationError } = require('apollo-server');
 const config = require('../../config');
 const logger = require('../../config/logger');
 const createSchema = require('./schema');
-const AccessControl = require('../lib/AccessControl');
-const userRepos = require('../datasource/user/repositories');
-const authApi = require('../apisource/auth');
-
-const schema = createSchema();
-
-const databases = {
-  user: userRepos,
-};
-
-const api = {
-  auth: authApi,
-};
+const repositoryFactory = require('../lib/RepositoryFactory');
 
 module.exports = (app) => {
   const router = express.Router();
 
+  // Dir paths are relative for "lib" dir
+  const repository = repositoryFactory('../model', '../repository');
+
   router.use('/', jwt({
+    // eslint-disable-next-line consistent-return
     secret: (req, payload, done) => {
       if (payload === undefined) {
         return done(new AuthenticationError('Missing secret'));
       }
 
-      //   repositories.token.load(payload.id).then((res) => {
-      //     if (res === null || res.secret === null) {
-      //       return done(new AuthenticationError('Invalid token'));
-      //     }
+      repository.accessToken.load(payload.id).then((res) => {
+        if (res === null || res.secret === null) {
+          return done(new AuthenticationError('Invalid token'));
+        }
 
-    //     return done(null, res.secret);
-    //   });
+        return done(null, res.secret);
+      });
     },
     credentialsRequired: false,
   }));
@@ -44,7 +36,7 @@ module.exports = (app) => {
   });
 
   const server = new ApolloServer({
-    schema,
+    schema: createSchema(),
     formatError: (error) => {
       const sendError = error;
       if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
@@ -59,16 +51,21 @@ module.exports = (app) => {
       return sendError;
     },
     context: async ({ req }) => {
-      const user = req.user ? await repositories.user.load(req.user.user_id) : null;
-      const roles = user !== null ? user.roles : [];
-      return { user, access: new AccessControl(roles) };
+      const user = req.user ? await repository.user.load(req.user.user_id) : null;
+      return { user };
     },
     introspection: true,
-    playground: true,
+    playground: {
+      settings: {
+        'editor.theme': 'light',
+      },
+    },
     engine: {
       apiKey: config.env === 'production' ? config.apolloEngineApiKey : null,
+      useUnifiedTopology: true,
     },
     generateClientInfo: ({ request }) => {
+      // eslint-disable-next-line no-bitwise
       const headers = request.http & request.http.headers;
       if (headers) {
         return {
@@ -82,8 +79,7 @@ module.exports = (app) => {
       };
     },
     dataSources: () => ({
-      databases,
-      api,
+      repository,
     }),
   });
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const config = require('../../../config');
-const logger= require('../../../config/logger');
+const { mongo } = require('./index');
+const logger = require('./logger');
 
 module.exports.mongoClientCloseConnection = () => {
   mongoose.connection.close(() => {
@@ -8,8 +8,9 @@ module.exports.mongoClientCloseConnection = () => {
   });
 };
 
-module.exports.mongoClientConnection = mongoose.connect(config.user.mongo.url, {
+module.exports.mongoClientConnection = mongoose.connect(mongo.uri, {
   useCreateIndex: true,
+  useUnifiedTopology: true,
   useNewUrlParser: true,
   reconnectTries: 10,
   reconnectInterval: 100,

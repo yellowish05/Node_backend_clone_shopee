@@ -1,11 +1,12 @@
 const { makeExecutableSchema, mergeSchemas } = require('graphql-tools');
-const { AuthInjection } = require('../../lib/AuthInjection');
+const { merge } = require('lodash');
 
 const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./common');
+const { typeDefs: authTypeDefs, auth } = require('./common/authDirective');
 const { typeDefs: addressTypeDefs, resolvers: addressResolvers } = require('./common/address');
 
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require('./user');
-const { typeDefs: authTypeDefs, resolvers: authResolvers } = require('./auth');
+const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = require('./accessToken');
 const { typeDefs: scTypeDefs, resolvers: scResolvers } = require('./shippingCourier');
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
@@ -13,8 +14,9 @@ const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = req
 
 const typeDefs = [].concat(
   commonTypeDefs,
-  userTypeDefs,
   authTypeDefs,
+  userTypeDefs,
+  accessTokenTypeDefs,
   scTypeDefs,
   countryTypeDefs,
   regionTypeDefs,
@@ -22,10 +24,10 @@ const typeDefs = [].concat(
   organizationTypeDefs,
 );
 
-const authInjection = new AuthInjection([
+const resolvers = merge([
   commonResolvers,
   userResolvers,
-  authResolvers,
+  accessTokenResolvers,
   scResolvers,
   countryResolvers,
   regionResolvers,
@@ -35,7 +37,10 @@ const authInjection = new AuthInjection([
 
 const schema = makeExecutableSchema({
   typeDefs,
-  resolvers: authInjection.buildApolloResolvers(),
+  resolvers,
+  schemaDirectives: {
+    auth,
+  },
 });
 
 module.exports = () => mergeSchemas({

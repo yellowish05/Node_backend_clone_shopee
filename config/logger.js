@@ -17,7 +17,7 @@ if (logs.cloudWatchEnabled) {
   transport =  new WinstonCloudWatch({
     name: logs.name,
     logGroupName: 'api',
-    logStreamName: 'gateway',
+    logStreamName: 'api',
     awsRegion: 'eu-central-1'
   })
 } else {
