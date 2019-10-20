@@ -1,14 +1,17 @@
 const { merge } = require('lodash');
 
-const { typeDefs: lseTypeDefs, resolvers: lseResolvers } = require('./liveStreamExperience');
+const { typeDefs: experienceTypeDefs, resolvers: experienceResolvers } = require('./liveStreamExperience');
+const { typeDefs: categoryTypeDefs, resolvers: categoryResolvers } = require('./liveStreamCategory');
 
 
 const typeDefs = [].concat(
-  lseTypeDefs,
+  experienceTypeDefs,
+  categoryTypeDefs,
 );
 
 const resolvers = merge(
-  lseResolvers,
+  experienceResolvers,
+  categoryResolvers,
 );
 
 module.exports = {
