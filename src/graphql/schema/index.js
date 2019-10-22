@@ -14,6 +14,7 @@ const { typeDefs: scTypeDefs, resolvers: scResolvers } = require('./shippingCour
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
+const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset');
 
 const typeDefs = [].concat(
   commonTypeDefs,
@@ -28,6 +29,7 @@ const typeDefs = [].concat(
   addressTypeDefs,
   dateTypeDefs,
   organizationTypeDefs,
+  assetTypeDefs,
 );
 
 const resolvers = merge(
@@ -42,6 +44,7 @@ const resolvers = merge(
   addressResolvers,
   dateResolvers,
   organizationResolvers,
+  assetResolvers,
 );
 
 const schema = makeExecutableSchema({
