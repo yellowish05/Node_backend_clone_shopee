@@ -1,33 +1,43 @@
 // HTTP SERVER
 const express = require('express');
 const cors = require('cors');
-
-// GraphQL - Apollo
-const apollo = require('./graphql');
-
-// Config
+const { createServer } = require('http');
+const repositoryFactory = require('./lib/RepositoryFactory');
 const { corsDomain } = require('../config');
-
-// Mongo connection
+const secureMiddlewareFactory = require('./secureMiddleware');
+const apolloServerFactory = require('./graphql');
 const { mongoClientCloseConnection } = require('../config/mongoConnection');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();
 });
 
+// Dir paths are relative for "lib" dir
+const repository = repositoryFactory('../model', '../repository');
+
 const app = express();
 
-app.use(cors({
-  origin: corsDomain, // Be sure to switch to your production domain
-  optionsSuccessStatus: 200,
-}));
-
-// Endpoint to check if the API is running
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
 
-// Append apollo to our API
-apollo(app);
+app.use(cors({
+  origin: corsDomain,
+  optionsSuccessStatus: 200,
+}));
 
-module.exports = app;
+app.use('/graphql', secureMiddlewareFactory({ repository }));
+
+const apolloServer = apolloServerFactory({ repository });
+
+apolloServer.applyMiddleware({
+  app,
+  path: '/graphql',
+  cors: corsDomain,
+  disableHealthCheck: true,
+});
+
+const httpServer = createServer(app);
+apolloServer.installSubscriptionHandlers(httpServer);
+
+module.exports.httpServer = httpServer;

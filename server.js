@@ -1,5 +1,4 @@
-const http = require('http');
-const app = require('./src/app');
+const { httpServer } = require('./src/app');
 const config = require('./config');
 const logger = require('./config/logger');
 
@@ -33,26 +32,8 @@ function generateOnErrorFn(usedPost) {
 }
 
 /**
- * Event listener for HTTP server "listening" event.
- */
-function generateOnListeningFn(server) {
-  return () => {
-    const addr = server.address();
-    const bind = typeof addr === 'string'
-      ? `pipe ${addr}`
-      : `port ${addr.port}`;
-    logger.info(`🚀 Listening on ${bind}`);
-  };
-}
-
-/**
- * Create HTTPS servers.
- */
-const server = http.createServer(app);
-
-/**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(config.port);
-server.on('error', generateOnErrorFn(config.port));
-server.on('listening', generateOnListeningFn(server));
+httpServer.listen(config.port);
+httpServer.on('error', generateOnErrorFn(config.port));
+httpServer.on('listening', () => logger.info('🚀 API server started'));
