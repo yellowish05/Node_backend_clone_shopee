@@ -22,4 +22,14 @@ module.exports = {
     defaultLocale: 'EN',
     locales: ['EN'],
   },
+  cdn: {
+    url: process.env.CDN_URL,
+  },
+  assets: {
+    types: {
+      IMAGE: 'IMAGE',
+      VIDEO: 'VIDEO',
+      PDF: 'PDF',
+    },
+  },
 };
