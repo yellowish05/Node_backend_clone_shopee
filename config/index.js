@@ -25,6 +25,11 @@ module.exports = {
   cdn: {
     url: process.env.CDN_URL,
   },
+  geocoder: {
+    google: {
+      api_key: process.env.GOOGLE_GEOCODING_API_KEY || null,
+    },
+  },
   assets: {
     types: {
       IMAGE: 'IMAGE',

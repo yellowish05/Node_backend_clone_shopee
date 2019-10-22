@@ -1,6 +1,8 @@
 const { Schema, model } = require('mongoose');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
+const LatitudeLongitudeSchema = require('./LatitudeLongitudeModel');
+const AddressSchema = require('./AddressModel');
 
 const schema = new Schema({
   ...uuidField,
@@ -15,6 +17,22 @@ const schema = new Schema({
   },
   password: {
     type: String,
+    required: false,
+  },
+  phone: {
+    type: String,
+    required: false,
+  },
+  name: {
+    type: String,
+    required: false,
+  },
+  address: {
+    type: AddressSchema,
+    required: false,
+  },
+  location: {
+    type: LatitudeLongitudeSchema,
     required: false,
   },
   roles: {
