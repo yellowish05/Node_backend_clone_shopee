@@ -31,7 +31,8 @@ const schema = new Schema({
     required: true,
   },
   preview: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'Asset',
     required: true,
   },
   startAt: {

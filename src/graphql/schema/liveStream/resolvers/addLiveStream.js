@@ -12,7 +12,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   });
 
   return validator.check()
-    .then((matched) => {
+    .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
@@ -30,20 +30,28 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         return categoryObject;
       });
 
-      return repository.liveStream.create({
+      // todo need remove when implementing ticket MVP-279
+      const asset = await repository.asset.load(args.data.preview);
+
+      const liveStreamData = {
         id: uuid(),
         streamer: user,
         title: args.data.title,
         experience: args.data.experience,
         categories: args.data.categories,
-        preview: args.data.preview,
-      }).then((liveStream) => {
-        const liveStreamObject = liveStream.toObject();
-        liveStreamObject.experience = experience;
-        liveStreamObject.categories = categories;
-        return liveStreamObject;
-      }).catch((error) => {
-        throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
-      });
+        preview: asset,
+      };
+
+      return repository.liveStream
+        .create(liveStreamData)
+        .then((liveStream) => {
+          const liveStreamObject = liveStream.toObject();
+          liveStreamObject.experience = experience;
+          liveStreamObject.categories = categories;
+          return liveStreamObject;
+        })
+        .catch((error) => {
+          throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
+        });
     });
 };

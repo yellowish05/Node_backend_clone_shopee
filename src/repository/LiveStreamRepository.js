@@ -15,11 +15,11 @@ class LiveStreamRepository {
   }
 
   async getAll() {
-    return this.model.find().populate('streamer viewers');
+    return this.model.find().populate('streamer viewers preview');
   }
 
   async getById(id) {
-    return this.model.findById({ id }).populate('streamer viewers');
+    return this.model.findById({ id }).populate('streamer viewers preview');
   }
 }
 
