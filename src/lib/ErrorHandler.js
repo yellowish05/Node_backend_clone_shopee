@@ -5,7 +5,7 @@ class ErrorHandler {
   build(errors) {
     const res = [];
     Object.keys(errors).forEach((key) => {
-      res.push(new UserInputError(errors[key].message), { invalidArgs: key });
+      res.push(new UserInputError(errors[key].message, { invalidArgs: key }));
     });
 
     return res[0];

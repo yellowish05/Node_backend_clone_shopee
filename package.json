@@ -22,6 +22,7 @@
     "apollo-boost": "^0.4.4",
     "apollo-server": "^2.9.4",
     "apollo-server-express": "^2.9.4",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -31,15 +32,14 @@
     "graphql-tools": "^4.0.5",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
+    "md5": "^2.2.1",
     "mongoose": "^5.7.5",
     "node-fetch": "^2.6.0",
     "node-input-validator": "^4.1.0",
+    "require-dir": "^1.2.0",
     "uuid": "^3.3.3",
-    "md5": "^2.2.1",
-    "bcryptjs": "^2.4.3",
     "winston": "^3.2.1",
-    "winston-cloudwatch": "^2.0.9",
-    "require-dir": "^1.2.0"
+    "winston-cloudwatch": "^2.0.9"
   },
   "devDependencies": {
     "jest": "^24.9.0",
