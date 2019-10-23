@@ -11,6 +11,7 @@ const schema = gql`
       phone: String
       address: Address
       location: LatLng
+      photo: Asset
       roles: [String]! @auth(requires: ADMIN) 
     }
 
@@ -24,6 +25,7 @@ const schema = gql`
       phone: String
       address: AddressInput
       location: LatLngInput
+      photo: ID
     }
 
     extend type Query {
@@ -45,5 +47,10 @@ module.exports.resolvers = {
   Mutation: {
     addUser,
     updateUser,
+  },
+  User: {
+    photo(user, args, { dataSources: { repository } }) {
+      return repository.asset.load(user.photo);
+    },
   },
 };

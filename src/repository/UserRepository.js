@@ -41,6 +41,7 @@ class UserRepository {
 
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
+    user.photo = data.photo || user.photo;
     user.location = data.location || user.location;
     user.address = data.address || user.address;
 
