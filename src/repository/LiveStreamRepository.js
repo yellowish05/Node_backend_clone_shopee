@@ -14,12 +14,12 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
-  async getAll() {
-    return this.model.find().populate('streamer viewers preview');
+  async getAll(query = {}) {
+    return this.model.find(query).populate('streamer viewers preview');
   }
 
   async getById(id) {
-    return this.model.findById({ id }).populate('streamer viewers preview');
+    return this.model.findOne({ id }).populate('streamer viewers preview');
   }
 }
 

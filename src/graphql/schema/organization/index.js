@@ -1,5 +1,8 @@
 const { gql } = require('apollo-server');
 
+const addOrganization = require('./resolvers/addOrganization');
+const updateOrganization = require('./resolvers/updateOrganization');
+
 const schema = gql`
     enum OrganizationType {
       privatePerson
@@ -26,7 +29,6 @@ const schema = gql`
     }
 
     input OrganizationInput {
-      ownerId: ID
       name: String
       type: OrganizationType
       address: AddressInput
@@ -39,13 +41,13 @@ const schema = gql`
     }
 
     extend type Query {
-      organizations: [Organization]
-      organization(id: ID!): Organization
+      organizations: [Organization] @auth(requires: USER)
+      organization(id: ID!): Organization @auth(requires: USER)
     }
 
     extend type Mutation {
-      addOrganization(data: OrganizationInput): Organization!
-      updateOrganization(id: ID, data: OrganizationInput): Organization!
+      addOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
+      updateOrganization(id: ID, data: OrganizationInput): Organization! @auth(requires: USER)
     }
 `;
 
@@ -53,6 +55,15 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-
+    organizations(_, args, { dataSources: { repository }, user }) {
+      return repository.organization.getAll({ owner: user._id });
+    },
+    organization(_, { id }, { dataSources: { repository } }) {
+      return repository.organization.getById(id);
+    },
+  },
+  Mutation: {
+    addOrganization,
+    updateOrganization,
   },
 };

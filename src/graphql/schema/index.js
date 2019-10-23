@@ -5,6 +5,7 @@ const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./comm
 const { typeDefs: authTypeDefs, auth } = require('./common/authDirective');
 const { typeDefs: i18nTypeDefs, resolvers: i18nResolvers } = require('./common/i18n');
 const { typeDefs: addressTypeDefs, resolvers: addressResolvers } = require('./common/address');
+const { typeDefs: latLngTypeDefs, resolvers: latLngResolvers } = require('./common/latLng');
 const { typeDefs: dateTypeDefs, resolvers: dateResolvers } = require('./common/date');
 
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require('./user');
@@ -27,6 +28,7 @@ const typeDefs = [].concat(
   countryTypeDefs,
   regionTypeDefs,
   addressTypeDefs,
+  latLngTypeDefs,
   dateTypeDefs,
   organizationTypeDefs,
   assetTypeDefs,
@@ -42,6 +44,7 @@ const resolvers = merge(
   countryResolvers,
   regionResolvers,
   addressResolvers,
+  latLngResolvers,
   dateResolvers,
   organizationResolvers,
   assetResolvers,

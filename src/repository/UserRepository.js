@@ -33,6 +33,20 @@ class UserRepository {
     return user.save();
   }
 
+  async update(id, data) {
+    const user = await this.model.findOne({ id });
+    if (!user) {
+      throw Error(`User "${id}" does not exist!`);
+    }
+
+    user.name = data.name || user.name;
+    user.phone = data.phone || user.phone;
+    user.location = data.location || user.location;
+    user.address = data.address || user.address;
+
+    return user.save();
+  }
+
   async findByEmailAndPassword({ email, password }) {
     const query = {
       password: md5(password),
@@ -44,6 +58,10 @@ class UserRepository {
 
   async findByEmail(email) {
     return this.model.findOne({ email });
+  }
+
+  async getById(id) {
+    return this.model.findOne({ id });
   }
 
   async changePassword(userId, password) {
