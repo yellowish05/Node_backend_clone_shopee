@@ -1,6 +1,5 @@
-const uuid = require('uuid/v4');
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 
 const errorHandler = new ErrorHandler();

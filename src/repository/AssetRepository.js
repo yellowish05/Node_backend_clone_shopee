@@ -6,7 +6,7 @@ class AssetRepository {
   }
 
   async load(id) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   async create(data) {

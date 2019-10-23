@@ -6,7 +6,7 @@ class UserRepository {
   }
 
   async load(id) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   async create(data, options = {}) {
@@ -24,7 +24,7 @@ class UserRepository {
 
 
     const user = new this.model({
-      id: data.id,
+      _id: data._id,
       email: data.email,
       password: md5(data.password),
       roles: options.roles || [],
@@ -34,7 +34,7 @@ class UserRepository {
   }
 
   async update(id, data) {
-    const user = await this.model.findOne({ id });
+    const user = await this.load(id);
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
     }
@@ -58,10 +58,6 @@ class UserRepository {
 
   async findByEmail(email) {
     return this.model.findOne({ email });
-  }
-
-  async getById(id) {
-    return this.model.findOne({ id });
   }
 
   async changePassword(userId, password) {

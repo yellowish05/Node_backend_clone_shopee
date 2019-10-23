@@ -22,7 +22,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Live Stream Experience ${args.data.experience} does not exist`, { invalidArgs: 'experience' });
       }
 
-      const categories = args.data.categories.map((category) => {
+      args.data.categories.map((category) => {
         const categoryObject = repository.liveStreamCategory.getById(category);
         if (!categoryObject) {
           throw new UserInputError(`Live Stream Category ${category} does not exist`, { invalidArgs: 'categories' });
@@ -30,11 +30,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         return categoryObject;
       });
 
-      // todo need remove when implementing ticket MVP-279
       const asset = await repository.asset.load(args.data.preview);
+      if (!asset) {
+        throw new UserInputError(`Asset ${args.data.preview} does not exist`, { invalidArgs: 'preview' });
+      }
 
       const liveStreamData = {
-        id: uuid(),
+        _id: uuid(),
         streamer: user,
         title: args.data.title,
         experience: args.data.experience,
@@ -44,12 +46,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return repository.liveStream
         .create(liveStreamData)
-        .then((liveStream) => {
-          const liveStreamObject = liveStream.toObject();
-          liveStreamObject.experience = experience;
-          liveStreamObject.categories = categories;
-          return liveStreamObject;
-        })
         .catch((error) => {
           throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
         });

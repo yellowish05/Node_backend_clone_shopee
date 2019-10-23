@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 const { cdn } = require('../../../../../config');
 const MIMEAssetTypes = require('../../../../lib/MIMEAssetTypes');
@@ -28,9 +28,9 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
       const { mimetype, size } = data;
       const { ext, type } = MIMEAssetTypes.detect(mimetype);
       const id = uuid();
-      const path = `${user.id}/${id}.${ext}`;
+      const path = `${user._id}/${id}.${ext}`;
       const assetData = {
-        id,
+        _id: id,
         owner: user,
         path,
         url: `${cdn.url}/${path}`,
@@ -41,7 +41,6 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
 
       return repository.asset
         .create(assetData)
-        .then((asset) => asset.toObject())
         .catch((error) => {
           throw new ApolloError(`Failed to add Asset. Original error: ${error.message}`, 400);
         });

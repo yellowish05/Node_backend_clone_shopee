@@ -8,7 +8,7 @@ const schema = new Schema({
   ...createdAtField,
 
   owner: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
   },
   name: String,

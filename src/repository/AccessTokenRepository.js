@@ -8,12 +8,12 @@ class AccessTokenRepository {
   }
 
   async load(id) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   async create(user, data = {}) {
     const token = new this.model({
-      id: uuid(),
+      _id: uuid(),
       user: user._id,
       ip: data.ip || null,
       secret: bcrypt.genSaltSync(64),
@@ -25,8 +25,8 @@ class AccessTokenRepository {
 
     return token.save()
       .then(() => jsonwebtoken.sign({
-        id: token.id,
-        user_id: user.id,
+        id: token._id,
+        user_id: user._id,
       }, token.secret, { expiresIn: data.expiresIn || '1w' }));
   }
 }

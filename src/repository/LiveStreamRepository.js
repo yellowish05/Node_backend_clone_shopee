@@ -5,7 +5,7 @@ class LiveStreamRepository {
   }
 
   async load(id) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   async create(data) {
@@ -19,7 +19,7 @@ class LiveStreamRepository {
   }
 
   async getById(id) {
-    return this.model.findOne({ id }).populate('streamer viewers preview');
+    return this.model.findOne({ _id: id }).populate('streamer viewers preview');
   }
 }
 

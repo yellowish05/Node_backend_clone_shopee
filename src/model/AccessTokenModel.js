@@ -7,7 +7,7 @@ const schema = new Schema({
   ...createdAtField,
 
   user: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
   },
   secret: {
