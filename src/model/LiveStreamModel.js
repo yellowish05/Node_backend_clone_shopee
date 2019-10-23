@@ -33,7 +33,6 @@ const schema = new Schema({
   preview: {
     type: String,
     ref: 'Asset',
-    required: true,
   },
   startAt: {
     type: Date,

@@ -8,7 +8,6 @@ const errorHandler = new ErrorHandler();
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
     title: 'required',
-    preview: 'required',
   });
 
   return validator.check()
@@ -31,7 +30,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       });
 
       const asset = await repository.asset.load(args.data.preview);
-      if (!asset) {
+      if (args.data.preview && !asset) {
         throw new UserInputError(`Asset ${args.data.preview} does not exist`, { invalidArgs: 'preview' });
       }
 
@@ -41,7 +40,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         title: args.data.title,
         experience: args.data.experience,
         categories: args.data.categories,
-        preview: asset,
+        preview: args.data.preview,
       };
 
       return repository.liveStream
