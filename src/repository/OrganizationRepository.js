@@ -5,7 +5,7 @@ class OrganizationRepository {
   }
 
   async load(id) {
-    return this.model.findOne({ id });
+    return this.model.findOne({ _id: id });
   }
 
   async create(data) {
@@ -13,25 +13,13 @@ class OrganizationRepository {
       throw Error('Owner is required!');
     }
 
-    const organization = new this.model({
-      id: data.id,
-      owner: data.owner,
-      name: data.name,
-      type: data.type,
-      address: data.address,
-      billingAddress: data.billingAddress,
-      payoutInfo: data.payoutInfo,
-      sellingTo: data.sellingTo,
-      domesticShippingCourier: data.domesticShippingCourier,
-      internationalShippingCourier: data.internationalShippingCourier,
-      returnPolicy: data.returnPolicy,
-    });
+    const organization = new this.model(data);
 
     return organization.save();
   }
 
   async update(id, data) {
-    const organization = await this.model.findOne({ id }).populate('owner');
+    const organization = await this.getById(id);
     if (!organization) {
       throw Error(`Organization "${id}" does not exist!`);
     }
@@ -47,7 +35,7 @@ class OrganizationRepository {
   }
 
   async getById(id) {
-    return this.model.findOne({ id }).populate('owner');
+    return this.model.findOne({ _id: id }).populate('owner');
   }
 }
 

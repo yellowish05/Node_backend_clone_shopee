@@ -2,15 +2,6 @@ const { gql } = require('apollo-server');
 
 const addLiveStream = require('./resolvers/addLiveStream');
 
-function populateLiveStream(liveStream, repository) {
-  const liveStreamObject = liveStream.toObject();
-  liveStreamObject.experience = repository.liveStreamExperience.getById(liveStream.experience);
-  liveStreamObject.categories = liveStream.categories.map(
-    (category) => repository.liveStreamCategory.getById(category),
-  );
-  return liveStreamObject;
-}
-
 const schema = gql`
     type LiveStream {
         id: ID!
@@ -45,16 +36,24 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    liveStream: async (_, { id }, { dataSources: { repository } }) => {
-      const liveStream = await repository.liveStream.getById(id);
-      return populateLiveStream(liveStream, repository);
+    liveStream(_, { id }, { dataSources: { repository } }) {
+      return repository.liveStream.getById(id);
     },
-    liveStreams: async (_, args, { dataSources: { repository } }) => {
-      const liveStreams = await repository.liveStream.getAll();
-      return liveStreams.map((liveStream) => populateLiveStream(liveStream, repository));
+    liveStreams(_, args, { dataSources: { repository } }) {
+      return repository.liveStream.getAll();
     },
   },
   Mutation: {
     addLiveStream,
+  },
+  LiveStream: {
+    experience(liveStream, args, { dataSources: { repository } }) {
+      return repository.liveStreamExperience.getById(liveStream.experience);
+    },
+    categories(liveStream, args, { dataSources: { repository } }) {
+      return liveStream.categories.map(
+        (category) => repository.liveStreamCategory.getById(category),
+      );
+    },
   },
 };

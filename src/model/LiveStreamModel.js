@@ -7,13 +7,13 @@ const schema = new Schema({
   ...createdAtField,
 
   streamer: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'User',
     required: true,
   },
   viewers: {
     type: [{
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
     }],
     default: [],
@@ -31,7 +31,7 @@ const schema = new Schema({
     required: true,
   },
   preview: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: 'Asset',
     required: true,
   },

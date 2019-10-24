@@ -27,7 +27,6 @@ const shoppingCouriers = [
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
-    ownerId: 'required',
     name: 'required',
     type: 'required',
   });
@@ -63,7 +62,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         : null;
 
       return repository.organization.create({
-        id: uuid(),
+        _id: uuid(),
         owner: user,
         name: args.data.name,
         type: args.data.type,
@@ -74,6 +73,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         domesticShippingCourier,
         internationalShippingCourier,
         returnPolicy: args.data.returnPolicy,
-      }, { roles: ['USER'] });
+      });
     });
 };

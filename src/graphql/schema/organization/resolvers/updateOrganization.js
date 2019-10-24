@@ -28,5 +28,5 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
   return repository.organization.update(args.id, {
     address,
     billingAddress,
-  }, { roles: ['USER'] });
+  });
 };

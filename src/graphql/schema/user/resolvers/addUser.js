@@ -17,7 +17,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       }
 
       return repository.user.create({
-        id: uuid(),
+        _id: uuid(),
         email: args.data.email,
         password: args.data.password,
       }, { roles: ['USER'] });
