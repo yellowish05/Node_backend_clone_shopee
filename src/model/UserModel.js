@@ -27,6 +27,10 @@ const schema = new Schema({
     type: String,
     required: false,
   },
+  photo: {
+    type: String,
+    ref: 'Asset',
+  },
   address: {
     type: AddressSchema,
     required: false,

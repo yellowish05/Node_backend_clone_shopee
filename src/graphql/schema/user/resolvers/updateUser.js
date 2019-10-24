@@ -1,5 +1,5 @@
 const { Validator } = require('node-input-validator');
-const { ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 const { Geocoder } = require('../../../../lib/Geocoder');
 
@@ -29,6 +29,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
 
+      if (args.data.photo) {
+        const asset = await repository.asset.load(args.data.photo);
+        if (!asset) {
+          throw new UserInputError(`Asset ${args.data.photo} does not exist`, { invalidArgs: 'photo' });
+        }
+      }
+
       let { location } = args.data;
       let address = args.data.address ? {
         ...args.data.address,
@@ -49,6 +56,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       return repository.user.update(user._id, {
         name: args.data.name,
         phone: args.data.phone,
+        photo: args.data.photo,
         location,
         address,
       });
