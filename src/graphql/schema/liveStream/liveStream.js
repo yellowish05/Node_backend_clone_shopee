@@ -55,5 +55,8 @@ module.exports.resolvers = {
         (category) => repository.liveStreamCategory.getById(category),
       );
     },
+    preview(liveStream, args, { dataSources: { repository } }) {
+      return repository.asset.load(liveStream.preview);
+    },
   },
 };
