@@ -10,7 +10,7 @@ const schema = gql`
         viewers: [User]!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
-        preview: Asset!
+        preview: Asset
         startAt: Date
         finishAt: Date
     }
@@ -19,7 +19,7 @@ const schema = gql`
         title: String!
         experience: ID!
         categories: [ID]!
-        preview: ID!
+        preview: ID
     }
 
     extend type Query {
