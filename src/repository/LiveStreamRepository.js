@@ -53,12 +53,28 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
+  async update(id, data) {
+    const liveStream = await this.load(id);
+    if (!liveStream) {
+      throw Error(`Live Stream "${id}" does not exist!`);
+    }
+
+    liveStream.title = data.title || liveStream.title;
+    liveStream.statistics = data.statistics || liveStream.statistics;
+
+    return liveStream.save();
+  }
+
   async getAll(query = {}) {
-    return this.model.find(query).populate('streamer viewers preview');
+    return this.model.find(query).populate('streamer preview');
+  }
+
+  async getOne(query = {}) {
+    return this.model.findOne(query).populate('streamer preview');
   }
 
   async getById(id) {
-    return this.model.findOne({ _id: id }).populate('streamer viewers preview');
+    return this.model.findOne({ _id: id }).populate('streamer preview');
   }
 
   async get({ filter, sort, page }) {

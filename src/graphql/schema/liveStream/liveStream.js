@@ -1,19 +1,25 @@
 const { gql } = require('apollo-server');
 
+const { StreamChannelStatus } = require('../../../lib/Enums');
 const addLiveStream = require('./resolvers/addLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 
 const schema = gql`
+    type LiveStreamStats {
+      duration: Int!
+      likes: Int!
+      viewers: Int!
+    }
+
     type LiveStream {
         id: ID!
         title: String!
         streamer: User!
-        viewers: [User]!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
         preview: Asset
-        startAt: Date
-        finishAt: Date
+        channel: StreamChannel!
+        statistics: LiveStreamStats!
     }
 
     input LiveStreamInput {
@@ -76,6 +82,17 @@ module.exports.resolvers = {
     },
     preview(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.load(liveStream.preview);
+    },
+    channel(liveStream, args, { dataSources: { repository } }) {
+      return repository.streamChannel.load(liveStream.channel);
+    },
+    statistics(liveStream) {
+      return liveStream.channel.status === StreamChannelStatus.STREAMING
+        ? {
+          ...liveStream.statistics,
+          duration: Math.floor((Date.now() - liveStream.channel.startedAt.getTime()) / 1000),
+        }
+        : liveStream.statistics;
     },
   },
 };
