@@ -49,7 +49,7 @@ const schema = gql`
       
       participants: [StreamParticipant]! 
       
-      record: StreamRecord!
+      record: StreamRecord
 
       startedAt: Date
 
@@ -103,7 +103,7 @@ module.exports.resolvers = {
       return repository.streamChannelParticipant.getChannelParticipants(streamChannel._id);
     },
     token(streamChannel, args, { user, dataSources: { repository } }) {
-      return repository.streamChannelParticipant.load(streamChannel._id, user ? user.id : null)
+      return repository.streamChannelParticipant.load(streamChannel._id, user ? user._id : null)
         .then((paticipant) => (paticipant ? paticipant.token : null));
     },
   },
