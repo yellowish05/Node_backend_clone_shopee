@@ -12,20 +12,20 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
   });
 
   return validator.check()
-    .then((matched) => {
+    .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
-
-      const existingUser = repository.user.findByEmail(args.data.email);
+    })
+    .then(() => repository.user.findByEmail(args.data.email))
+    .then((existingUser) => {
       if (existingUser) {
         throw new UserInputError('Email already taken', { invalidArgs: 'email' });
       }
-
-      return repository.user.create({
-        _id: uuid(),
-        email: args.data.email,
-        password: args.data.password,
-      }, { roles: ['USER'] });
-    });
+    })
+    .then(() => repository.user.create({
+      _id: uuid(),
+      email: args.data.email,
+      password: args.data.password,
+    }, { roles: ['USER'] }));
 };
