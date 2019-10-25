@@ -1,4 +1,5 @@
 const uuid = require('uuid/v4');
+const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 
@@ -14,6 +15,11 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
     .then((matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
+      }
+
+      const existingUser = repository.user.findByEmail(args.data.email);
+      if (existingUser) {
+        throw new UserInputError('Email already taken', { invalidArgs: 'email' });
       }
 
       return repository.user.create({
