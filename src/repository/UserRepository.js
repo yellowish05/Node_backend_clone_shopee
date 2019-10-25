@@ -18,7 +18,7 @@ class UserRepository {
       throw Error('Password is required!');
     }
 
-    if (data.email && await this.model.findOne({ email: data.email })) {
+    if (data.email && await this.findByEmail(data.email)) {
       throw Error(`Email "${data.email}" is already taken!`);
     }
 
