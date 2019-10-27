@@ -25,22 +25,16 @@ const schema = new Schema({
   experience: {
     type: String,
     required: true,
+    index: true,
   },
   categories: {
     type: [String],
     required: true,
+    index: true,
   },
   preview: {
     type: String,
     ref: 'Asset',
-  },
-  startAt: {
-    type: Date,
-    default: null,
-  },
-  finishAt: {
-    type: Date,
-    default: null,
   },
 });
 

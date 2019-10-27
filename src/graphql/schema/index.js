@@ -7,6 +7,8 @@ const { typeDefs: i18nTypeDefs, resolvers: i18nResolvers } = require('./common/i
 const { typeDefs: addressTypeDefs, resolvers: addressResolvers } = require('./common/address');
 const { typeDefs: latLngTypeDefs, resolvers: latLngResolvers } = require('./common/latLng');
 const { typeDefs: dateTypeDefs, resolvers: dateResolvers } = require('./common/date');
+const { typeDefs: pagerTypeDefs } = require('./common/pager');
+const { typeDefs: sortTypeDefs } = require('./common/sort');
 
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require('./user');
 const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = require('./accessToken');
@@ -30,6 +32,8 @@ const typeDefs = [].concat(
   addressTypeDefs,
   latLngTypeDefs,
   dateTypeDefs,
+  pagerTypeDefs,
+  sortTypeDefs,
   organizationTypeDefs,
   assetTypeDefs,
 );

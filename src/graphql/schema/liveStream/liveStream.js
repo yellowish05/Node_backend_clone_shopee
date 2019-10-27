@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 
 const addLiveStream = require('./resolvers/addLiveStream');
+const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 
 const schema = gql`
     type LiveStream {
@@ -22,8 +23,28 @@ const schema = gql`
         preview: ID
     }
 
+    type LiveStreamCollection {
+      collection: [LiveStream]!
+      pager: Pager
+    }
+
+    input LiveStreamFilterInput {
+      experiences: [ID] = []
+      categories: [ID] = []
+      cities: [ID] = []
+    }
+
+    enum LiveStreamSortFeature {
+      CREATED_AT
+    }
+
+    input LiveStreamSortInput {
+      feature: LiveStreamSortFeature! = CREATED_AT
+      type: SortTypeEnum! = ASC
+    }
+
     extend type Query {
-        liveStreams: [LiveStream]!
+        liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID!): LiveStream
     }
   
@@ -39,9 +60,7 @@ module.exports.resolvers = {
     liveStream(_, { id }, { dataSources: { repository } }) {
       return repository.liveStream.getById(id);
     },
-    liveStreams(_, args, { dataSources: { repository } }) {
-      return repository.liveStream.getAll();
-    },
+    liveStreams: getLiveStreamCollection,
   },
   Mutation: {
     addLiveStream,
