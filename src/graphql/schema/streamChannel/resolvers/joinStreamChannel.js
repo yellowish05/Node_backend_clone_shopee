@@ -30,7 +30,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             if (anonimuseParticipant) {
               return streamChannel;
             }
-            const token = AgoraService.buildTokenWithAccount(streamChannel._id, uuid(), StreamRole.SUBSCRIBER);
+            const token = AgoraService.buildTokenWithAccount(streamChannel._id, 'guest', StreamRole.SUBSCRIBER);
             return repository.streamChannelParticipant.create({
               _id: uuid(),
               channel: args.id,
