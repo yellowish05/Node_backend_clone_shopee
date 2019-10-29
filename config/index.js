@@ -30,6 +30,11 @@ module.exports = {
       api_key: process.env.GOOGLE_GEOCODING_API_KEY || null,
     },
   },
+  agora: {
+    uri: process.env.AGORA_URI,
+    app_id: process.env.AGORA_APP_ID || null,
+    app_cert: process.env.AGORA_APP_CERT || null,
+  },
   assets: {
     types: {
       IMAGE: 'IMAGE',

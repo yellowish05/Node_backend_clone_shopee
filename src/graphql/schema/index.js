@@ -18,6 +18,7 @@ const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./co
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
 const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset');
+const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 
 const typeDefs = [].concat(
   commonTypeDefs,
@@ -36,6 +37,7 @@ const typeDefs = [].concat(
   sortTypeDefs,
   organizationTypeDefs,
   assetTypeDefs,
+  streamChannelTypeDefs,
 );
 
 const resolvers = merge(
@@ -52,6 +54,7 @@ const resolvers = merge(
   dateResolvers,
   organizationResolvers,
   assetResolvers,
+  streamChannelResolvers,
 );
 
 const schema = makeExecutableSchema({

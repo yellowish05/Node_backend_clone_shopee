@@ -11,13 +11,6 @@ const schema = new Schema({
     ref: 'User',
     required: true,
   },
-  viewers: {
-    type: [{
-      type: String,
-      ref: 'User',
-    }],
-    default: [],
-  },
   title: {
     type: String,
     required: true,
@@ -35,6 +28,27 @@ const schema = new Schema({
   preview: {
     type: String,
     ref: 'Asset',
+  },
+  channel: {
+    type: String,
+    ref: 'StreamChannel',
+  },
+  statistics: {
+    type: {
+      duration: {
+        type: Number,
+        default: 0,
+      },
+      likes: {
+        type: Number,
+        defaut: 0,
+      },
+      viewers: {
+        type: Number,
+        default: 0,
+      },
+    },
+    default: { duration: 0, viewers: 0, likes: 0 },
   },
 });
 
