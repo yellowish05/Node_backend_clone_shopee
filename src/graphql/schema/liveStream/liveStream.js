@@ -38,6 +38,7 @@ const schema = gql`
       experiences: [ID] = []
       categories: [ID] = []
       cities: [ID] = []
+      streamStatus: StreamChannelStatus = null
     }
 
     enum LiveStreamSortFeature {
@@ -64,7 +65,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     liveStream(_, { id }, { dataSources: { repository } }) {
-      return repository.liveStream.getById(id);
+      return repository.liveStream.load(id);
     },
     liveStreams: getLiveStreamCollection,
   },
@@ -82,6 +83,9 @@ module.exports.resolvers = {
     },
     preview(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.load(liveStream.preview);
+    },
+    streamer(liveStream, args, { dataSources: { repository } }) {
+      return repository.user.load(liveStream.streamer);
     },
     channel(liveStream, args, { dataSources: { repository } }) {
       return repository.streamChannel.load(liveStream.channel);

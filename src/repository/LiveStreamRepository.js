@@ -19,8 +19,11 @@ function transformSortInput({ feature, type }) {
   return { [availableFeatures[feature]]: availableTypes[type] };
 }
 
-function transformFilter({ experiences, categories, cities }) {
+function transformFilter({
+  experiences, categories, cities, streamStatus,
+}) {
   const query = {};
+  const populate = [];
 
   if (experiences.length > 0) {
     query.experience = { $in: experiences };
@@ -34,7 +37,21 @@ function transformFilter({ experiences, categories, cities }) {
     // TODO: Need implement cities
   }
 
-  return query;
+  if (streamStatus != null) {
+    populate.push({
+      $lookup:
+      {
+        from: 'streamchannels',
+        localField: 'channel',
+        foreignField: '_id',
+        as: 'channel',
+      },
+    },
+    { $unwind: '$channel' });
+    query['channel.status'] = streamStatus;
+  }
+
+  return { query, populate };
 }
 
 
@@ -66,36 +83,41 @@ class LiveStreamRepository {
   }
 
   async getAll(query = {}) {
-    return this.model.find(query).populate('streamer preview');
+    return this.model.find(query);
   }
 
   async getOne(query = {}) {
-    return this.model.findOne(query).populate('streamer preview');
+    return this.model.findOne(query);
   }
 
-  async getById(id) {
-    return this.model.findOne({ _id: id }).populate('streamer preview');
-  }
-
+  // returns {total: Number, collection: <T>[]}
   async get({ filter, sort, page }) {
-    return this.model
-      .find(
-        transformFilter(filter),
-        null,
-        {
-          sort: transformSortInput(sort),
-          limit: page.limit,
-          skip: page.skip,
-        },
-      )
-      .populate('streamer viewers preview');
-  }
+    const { query, populate } = transformFilter(filter);
+    return this.model.aggregate([
+      ...populate,
 
-  async getTotal(filter) {
-    return this.model
-      .countDocuments(
-        transformFilter(filter),
-      );
+      { $match: query },
+      { $sort: transformSortInput(sort) },
+      {
+        $addFields: { id: '$_id' },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          collection: { $push: '$$ROOT' },
+        },
+      },
+      {
+        $project: {
+          total: 1,
+          collection: {
+            $slice: ['$collection', page.skip, page.limit],
+          },
+        },
+      },
+
+    ]).exec().then((result) => (result.length > 0 ? result[0] : { collection: [], total: 0 }));
   }
 }
 
