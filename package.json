@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node ./server.js",
-    "dev": "nodemon -L --inspect=0.0.0.0 ./server.js"
+    "dev": "nodemon -L --inspect=0.0.0.0 ./server.js",
+    "test": "jest",
+    "fixtures": "node bin/fixtures.js"
   },
   "repository": {
     "type": "git",
@@ -45,11 +47,18 @@
   },
   "devDependencies": {
     "jest": "^24.9.0",
+    "@types/jest": "^24.0.20",
     "nodemon": "^1.19.4",
     "eslint": "^6.5.1",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "^7.16.0"
+    "eslint-plugin-react": "^7.16.0",
+    "apollo-client": "^2.6.4",
+    "apollo-cache-inmemory": "^1.6.3",
+    "apollo-link-error": "^1.1.12",
+    "apollo-link": "^1.2.13",
+    "bluebird": "^3.7.1",
+    "faker": "^4.1.0"
   }
 }
