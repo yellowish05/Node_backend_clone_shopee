@@ -33,23 +33,6 @@ const schema = new Schema({
     type: String,
     ref: 'StreamChannel',
   },
-  statistics: {
-    type: {
-      duration: {
-        type: Number,
-        default: 0,
-      },
-      likes: {
-        type: Number,
-        defaut: 0,
-      },
-      viewers: {
-        type: Number,
-        default: 0,
-      },
-    },
-    default: { duration: 0, viewers: 0, likes: 0 },
-  },
 });
 
 module.exports = new model('LifeStream', schema);

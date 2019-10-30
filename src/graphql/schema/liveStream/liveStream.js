@@ -1,14 +1,17 @@
-const { gql } = require('apollo-server');
+const { gql, withFilter } = require('apollo-server');
 
-const { StreamChannelStatus } = require('../../../lib/Enums');
 const addLiveStream = require('./resolvers/addLiveStream');
+const likeLiveStream = require('./resolvers/likeLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
+const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
+
+const pubsub = require('../common/pubsub');
 
 const schema = gql`
     type LiveStreamStats {
-      duration: Int!
-      likes: Int!
-      viewers: Int!
+      duration: Int
+      likes: Int
+      viewers: Int
     }
 
     type LiveStream {
@@ -19,6 +22,7 @@ const schema = gql`
         categories: [LiveStreamCategory]!
         preview: Asset
         channel: StreamChannel!
+        isLiked: Boolean! @auth(requires: USER)
         statistics: LiveStreamStats!
     }
 
@@ -57,6 +61,11 @@ const schema = gql`
   
     extend type Mutation {
       addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
+      likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+    }
+
+    extend type Subscription {
+      liveStream(id: ID!): LiveStream
     }
 `;
 
@@ -71,6 +80,16 @@ module.exports.resolvers = {
   },
   Mutation: {
     addLiveStream,
+    likeLiveStream,
+  },
+  Subscription: {
+    liveStream: {
+      resolve: (payload) => payload,
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(['LIVE_STREAM_CHANGE']),
+        (payload, variables) => payload.id === variables.id,
+      ),
+    },
   },
   LiveStream: {
     experience(liveStream, args, { dataSources: { repository } }) {
@@ -90,13 +109,20 @@ module.exports.resolvers = {
     channel(liveStream, args, { dataSources: { repository } }) {
       return repository.streamChannel.load(liveStream.channel);
     },
+    isLiked(liveStream, args, { user, dataSources: { repository } }) {
+      return repository.like.load(liveStream._id, user._id).then((like) => !!like);
+    },
     statistics(liveStream) {
-      return liveStream.channel.status === StreamChannelStatus.STREAMING
-        ? {
-          ...liveStream.statistics,
-          duration: Math.floor((Date.now() - liveStream.channel.startedAt.getTime()) / 1000),
-        }
-        : liveStream.statistics;
+      return liveStream;
+    },
+  },
+  LiveStreamStats: {
+    duration: getLiveStreamDuration,
+    likes(liveStream, args, { dataSources: { repository } }) {
+      return repository.like.getLikesCount(liveStream.id);
+    },
+    viewers(liveStream, args, { dataSources: { repository } }) {
+      return repository.streamChannelParticipant.getViewersCount(liveStream.channel);
     },
   },
 };

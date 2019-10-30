@@ -1,4 +1,6 @@
 
+const { StreamChannelStatus } = require('../lib/Enums');
+
 class StreamChannelRepository {
   constructor(model) {
     this.model = model;
@@ -29,6 +31,32 @@ class StreamChannelRepository {
     channel.finishedAt = data.finishedAt || channel.finishedAt;
 
     return channel.save();
+  }
+
+  async start(id) {
+    return this.model.findOneAndUpdate({
+      _id: id,
+    },
+    {
+      status: StreamChannelStatus.STREAMING,
+      startedAt: Date.now(),
+    },
+    {
+      new: true,
+    });
+  }
+
+  async finish(id) {
+    return this.model.findOneAndUpdate({
+      _id: id,
+    },
+    {
+      status: StreamChannelStatus.FINISHED,
+      finishedAt: Date.now(),
+    },
+    {
+      new: true,
+    });
   }
 }
 

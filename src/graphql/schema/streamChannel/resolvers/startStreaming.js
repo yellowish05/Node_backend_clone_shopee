@@ -2,6 +2,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 const { StreamChannelStatus } = require('../../../../lib/Enums');
+const pubsub = require('../../common/pubsub');
 
 const errorHandler = new ErrorHandler();
 
@@ -36,9 +37,12 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
         throw new ApolloError('Only streamer can start the stream', 403);
       }
 
-      return repository.streamChannel.update(args.id, {
-        status: StreamChannelStatus.STREAMING,
-        startedAt: Date.now(),
-      });
+      return repository.streamChannel.start(args.id)
+        .then((channel) => {
+          repository.liveStream.load(args.id).then((liveStream) => {
+            pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+          });
+          return channel;
+        });
     });
 };

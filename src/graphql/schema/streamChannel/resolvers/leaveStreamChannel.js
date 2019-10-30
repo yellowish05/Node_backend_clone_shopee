@@ -1,6 +1,7 @@
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
+const pubsub = require('../../common/pubsub');
 
 const errorHandler = new ErrorHandler();
 
@@ -26,7 +27,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       return repository.streamChannelParticipant.leaveStream(args.id, user._id)
-        .then(() => true).catch((error) => {
+        .then(() => {
+          repository.liveStream.load(args.id).then((liveStream) => {
+            pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+          });
+          return true;
+        }).catch((error) => {
           throw new ApolloError(`Failed to leave Stream Channel. Original error: ${error.message}`, 400);
         });
     });

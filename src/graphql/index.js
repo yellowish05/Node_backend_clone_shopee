@@ -20,7 +20,7 @@ module.exports = ({ repository }) => new ApolloServer({
   },
   context: async ({ req, connection }) => {
     if (connection) {
-      return connection.context;
+      return { ...connection.context, dataSources: { repository } };
     }
 
     const user = req.user ? await repository.user.load(req.user.user_id) : null;

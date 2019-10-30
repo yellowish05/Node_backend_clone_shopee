@@ -1,4 +1,6 @@
 
+const uuid = require('uuid/v4');
+
 class StreamChannelParticipantRepository {
   constructor(model) {
     this.model = model;
@@ -9,7 +11,7 @@ class StreamChannelParticipantRepository {
   }
 
   async create(data) {
-    const participant = new this.model(data);
+    const participant = new this.model({ _id: uuid(), ...data });
 
     return participant.save();
   }
@@ -18,12 +20,20 @@ class StreamChannelParticipantRepository {
     return this.model.find({ channel: channelId });
   }
 
-  async getActiveChannelParticipants(userId) {
+  async getParticipantActiveChannels(userId) {
     return this.model.find({ user: userId, leavedAt: null });
   }
 
+  async getViewersCount(channelId) {
+    return this.model.count({ channel: channelId, leavedAt: null, isPublisher: false });
+  }
+
   async leaveStream(channelId, userId) {
-    return this.model.findOneAndUpdate({ channel: channelId, user: userId }, { leavedAt: Date.now() });
+    return this.model.findOneAndUpdate(
+      { channel: channelId, user: userId },
+      { leavedAt: Date.now() },
+      { new: true },
+    );
   }
 }
 
