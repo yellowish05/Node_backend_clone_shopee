@@ -20,7 +20,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function transformFilter({
-  experiences, categories, cities, streamStatus,
+  experiences, categories, cities, statuses,
 }) {
   const query = {};
   const populate = [];
@@ -37,7 +37,7 @@ function transformFilter({
     // TODO: Need implement cities
   }
 
-  if (streamStatus != null) {
+  if (statuses.length > 0) {
     populate.push({
       $lookup:
       {
@@ -48,7 +48,7 @@ function transformFilter({
       },
     },
     { $unwind: '$channel' });
-    query['channel.status'] = streamStatus;
+    query['channel.status'] = { $in: statuses };
   }
 
   return { query, populate };
