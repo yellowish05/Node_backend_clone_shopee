@@ -1,6 +1,9 @@
-const env = process.env.NODE_ENV.trim() || 'development';
+/* eslint-disable global-require */
+/* eslint-disable eqeqeq */
 
-if (env === 'development') {
+const env = (process.env.NODE_ENV || 'development').trim();
+
+if (env === 'development' || env === 'test') {
   require('dotenv').config({ path: `${__dirname}/../.env` });
 }
 
@@ -8,8 +11,8 @@ module.exports = {
   domain: process.env.DOMAIN || 'localhost',
   logs: {
     name: 'api',
-    level: process.env.LOGS_DEBUG_MODE.trim() == '1' ? 'debug' : 'info',
-    cloudWatchEnabled: process.env.LOGS_CLOUD_WATCH.trim() == '1' || false,
+    level: (process.env.LOGS_DEBUG_MODE || '').trim() == '1' ? 'debug' : 'info',
+    cloudWatchEnabled: (process.env.LOGS_CLOUD_WATCH || '').trim() == '1' || false,
   },
   env,
   port: 4000,
@@ -41,5 +44,8 @@ module.exports = {
       VIDEO: 'VIDEO',
       PDF: 'PDF',
     },
+  },
+  tests: {
+    entrypoint: process.env.TEST_ENTRYPOINT || null,
   },
 };

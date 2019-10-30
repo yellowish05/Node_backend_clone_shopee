@@ -1,0 +1,5 @@
+[
+    "src/graphql/schema/user/fixtures",
+    "src/graphql/schema/accessToken/fixtures",
+    "src/graphql/schema/asset/fixtures"
+]
