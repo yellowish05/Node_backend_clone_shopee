@@ -38,7 +38,7 @@ const schema = gql`
       experiences: [ID] = []
       categories: [ID] = []
       cities: [ID] = []
-      streamStatus: StreamChannelStatus = null
+      statuses: [StreamChannelStatus] = []
     }
 
     enum LiveStreamSortFeature {
