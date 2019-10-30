@@ -97,7 +97,7 @@ class UserRepository {
   async changePassword(userId, password) {
     return this.model.findOneAndUpdate(
       { _id: userId },
-      { $set: { password } },
+      { $set: { password: md5(password) } },
       { new: true },
     );
   }

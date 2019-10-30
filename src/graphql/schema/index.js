@@ -20,6 +20,7 @@ const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./co
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
 const { typeDefs: cityTypeDefs, resolvers: cityResolvers } = require('./city');
+const { typeDefs: verificationCodeTypeDefs, resolvers: verificationCodeResolvers } = require('./verificationCode');
 const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset');
 const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./message');
@@ -45,6 +46,7 @@ const typeDefs = [].concat(
   sortTypeDefs,
   organizationTypeDefs,
   cityTypeDefs,
+  verificationCodeTypeDefs,
   assetTypeDefs,
   streamChannelTypeDefs,
   messageTypeDefs,
@@ -67,6 +69,7 @@ const resolvers = merge(
   dateResolvers,
   organizationResolvers,
   cityResolvers,
+  verificationCodeResolvers,
   assetResolvers,
   streamChannelResolvers,
   messageResolvers,

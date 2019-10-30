@@ -2,6 +2,7 @@ const { gql } = require('apollo-server');
 
 const addUser = require('./resolvers/addUser');
 const updateUser = require('./resolvers/updateUser');
+const changePassword = require('./resolvers/changePassword');
 
 const schema = gql`
     type User {
@@ -35,7 +36,8 @@ const schema = gql`
 
     extend type Mutation {
       addUser (data: RegistrationInput!): User!
-      updateUser (data: UserInput!): User! @auth(requires: USER) 
+      updateUser (data: UserInput!): User! @auth(requires: USER)
+      changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
     }
 `;
 
@@ -48,6 +50,7 @@ module.exports.resolvers = {
   Mutation: {
     addUser,
     updateUser,
+    changePassword,
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {

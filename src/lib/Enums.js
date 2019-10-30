@@ -64,6 +64,11 @@ const InventoryLogType = EnumFactory({
   REFUND: 'REFUND',
 });
 
+const VerificationEmailTemplate = EnumFactory({
+  RESET_PASSWORD: 'RESET_PASSWORD',
+  CONFIRM_EMAIL: 'CONFIRM_EMAIL',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -76,4 +81,5 @@ module.exports = {
   MetricSystem,
   Currency,
   InventoryLogType,
+  VerificationEmailTemplate,
 };
