@@ -21,6 +21,14 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       if (!streamChannel) {
         throw new UserInputError(`Stream Channel ${args.id} does not exist`, { invalidArgs: 'id' });
       }
+
+      if (streamChannel.status === StreamChannelStatus.STREAMING) {
+        throw new ApolloError('Stream is already started', 400);
+      }
+
+      if (streamChannel.status === StreamChannelStatus.FINISHED) {
+        throw new ApolloError('You cannot start finished stream', 400);
+      }
     })
     .then(() => repository.streamChannelParticipant.load(args.id, user._id))
     .then((participant) => {

@@ -1,5 +1,5 @@
 const { Validator } = require('node-input-validator');
-const { UserInputError } = require('apollo-server');
+const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 const { StreamChannelStatus } = require('../../../../lib/Enums');
 
@@ -20,6 +20,14 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
     .then((streamChannel) => {
       if (!streamChannel) {
         throw new UserInputError(`Stream Channel ${args.data.experience} does not exist`, { invalidArgs: 'id' });
+      }
+
+      if (streamChannel.status === StreamChannelStatus.FINISHED) {
+        throw new ApolloError('Stream is already finished', 400);
+      }
+
+      if (streamChannel.status === StreamChannelStatus.PENDING) {
+        throw new ApolloError('You can finish only started stream', 400);
       }
 
       const finishedAt = Date.now();

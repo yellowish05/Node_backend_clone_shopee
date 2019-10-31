@@ -44,22 +44,29 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           });
       }
 
-      return repository.streamChannelParticipant.getActiveChannelParticipants(user._id)
-        .then((channels) => Promise.all(
-          channels.map((c) => repository.streamChannelParticipant.leaveStream(c.id, user._id)),
-        )).then(() => {
-          const token = AgoraService.buildTokenWithAccount(streamChannel._id, user._id, StreamRole.SUBSCRIBER);
+      return repository.streamChannelParticipant.load(args.id, user._id)
+        .then((existingParticipant) => {
+          if (existingParticipant) {
+            return streamChannel;
+          }
 
-          return repository.streamChannelParticipant.create({
-            _id: uuid(),
-            channel: args.id,
-            token,
-            user,
-            isPublisher: false,
-          }).then(() => repository.liveStream.getOne({ channel: args.id })
-            .then((liveStream) => repository.liveStream.update(liveStream._id, {
-              statistics: { ...liveStream.statistics, viewers: liveStream.statistics.viewers + 1 },
-            })).then(() => streamChannel));
+          return repository.streamChannelParticipant.getActiveChannelParticipants(user._id)
+            .then((channels) => Promise.all(
+              channels.map((c) => repository.streamChannelParticipant.leaveStream(c.id, user._id)),
+            )).then(() => {
+              const token = AgoraService.buildTokenWithAccount(streamChannel._id, user._id, StreamRole.SUBSCRIBER);
+
+              return repository.streamChannelParticipant.create({
+                _id: uuid(),
+                channel: args.id,
+                token,
+                user,
+                isPublisher: false,
+              }).then(() => repository.liveStream.getOne({ channel: args.id })
+                .then((liveStream) => repository.liveStream.update(liveStream._id, {
+                  statistics: { ...liveStream.statistics, viewers: liveStream.statistics.viewers + 1 },
+                })).then(() => streamChannel));
+            });
         });
     });
 };
