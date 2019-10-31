@@ -5,8 +5,8 @@ const schema = gql`
         label: String
         street: String
         city: String
-        regionId: ID
-        countryId: ID
+        region: ID!
+        country: ID!
         zipCode: String
     }
 
@@ -14,8 +14,8 @@ const schema = gql`
         label: String
         street: String
         city: String
-        region: Region
-        country: Country
+        region: Region!
+        country: Country!
         zipCode: String
     }
 `;

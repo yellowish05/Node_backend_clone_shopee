@@ -12,6 +12,7 @@ const schema = gql`
       address: Address
       location: LatLng
       photo: Asset
+      organization: Organization
       roles: [String]! @auth(requires: ADMIN) 
     }
 
@@ -51,6 +52,9 @@ module.exports.resolvers = {
   User: {
     photo(user, args, { dataSources: { repository } }) {
       return repository.asset.load(user.photo);
+    },
+    organization(user, args, { dataSources: { repository } }) {
+      return repository.organization.getByUser(user);
     },
   },
 };

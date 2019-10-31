@@ -12,20 +12,23 @@ const regions = [
   { id: 'uk-3', code: 3, name: 'Oddeskaya obl.' },
 ];
 
-module.exports = async (obj, args, { dataSources: { repository } }) => {
+module.exports = async (obj, args, { user, dataSources: { repository } }) => {
   const address = args.data.address ? {
     ...args.data.address,
-    region: regions.find((r) => r.id === args.data.address.regionId),
-    country: countries.find((c) => c.id === args.data.address.countryId),
+    region: regions.find((r) => r.id === args.data.address.region),
+    country: countries.find((c) => c.id === args.data.address.country),
   } : null;
 
-  const billingAddress = args.data.address ? {
-    ...args.data.address,
-    region: regions.find((r) => r.id === args.data.billingAddress.regionId),
-    country: countries.find((c) => c.id === args.data.billingAddress.countryId),
+  const billingAddress = args.data.billingAddress ? {
+    ...args.data.billingAddress,
+    region: regions.find((r) => r.id === args.data.billingAddress.region),
+    country: countries.find((c) => c.id === args.data.billingAddress.country),
   } : null;
 
-  return repository.organization.update(args.id, {
+  const organization = await repository.organization.getByUser(user);
+  return repository.organization.update(organization, {
+    ...args.data,
+    owner: user,
     address,
     billingAddress,
   });

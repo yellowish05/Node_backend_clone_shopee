@@ -22,17 +22,6 @@ const schema = new Schema({
     required: false,
   },
   payoutInfo: String,
-  sellingTo: String,
-  domesticShippingCourier: {
-    id: String,
-    name: String,
-    type: { type: [String] },
-  },
-  internationalShippingCourier: {
-    id: String,
-    name: String,
-    type: { type: [String] },
-  },
   returnPolicy: String,
 });
 
