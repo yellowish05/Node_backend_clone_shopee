@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+const uuid = require('uuid/v4');
 
 class OrganizationRepository {
   constructor(model) {
@@ -13,29 +15,37 @@ class OrganizationRepository {
       throw Error('Owner is required!');
     }
 
-    const organization = new this.model(data);
+    const organization = new this.model({
+      ...data,
+      _id: uuid(),
+    });
 
     return organization.save();
   }
 
-  async update(id, data) {
-    const organization = await this.getById(id);
+  async update(organization, data) {
     if (!organization) {
-      throw Error(`Organization "${id}" does not exist!`);
+      return this.create(data);
     }
 
     organization.billingAddress = data.billingAddress || organization.billingAddress;
     organization.address = data.address || organization.address;
+    organization.payoutInfo = data.payoutInfo || organization.payoutInfo;
+    organization.returnPolicy = data.returnPolicy || organization.returnPolicy;
 
     return organization.save();
   }
 
   async getAll(query = {}) {
-    return this.model.find(query).populate('owner');
+    return this.model.find(query);
   }
 
   async getById(id) {
-    return this.model.findOne({ _id: id }).populate('owner');
+    return this.model.findOne({ _id: id });
+  }
+
+  async getByUser({ _id }) {
+    return this.model.findOne({ owner: _id });
   }
 }
 
