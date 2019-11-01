@@ -28,7 +28,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return repository.streamChannelParticipant.leaveStream(args.id, user._id)
         .then(() => {
-          repository.liveStream.load(args.id).then((liveStream) => {
+          repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
             pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
           });
           return true;

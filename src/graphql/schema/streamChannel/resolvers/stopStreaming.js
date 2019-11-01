@@ -33,7 +33,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
 
       return repository.streamChannel.finish(args.id)
         .then((channel) => {
-          repository.liveStream.load(args.id).then((liveStream) => {
+          repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
             pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
           });
           return channel;
