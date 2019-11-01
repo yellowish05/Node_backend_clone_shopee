@@ -77,7 +77,6 @@ class LiveStreamRepository {
     }
 
     liveStream.title = data.title || liveStream.title;
-    liveStream.statistics = data.statistics || liveStream.statistics;
 
     return liveStream.save();
   }

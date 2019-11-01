@@ -1,0 +1,24 @@
+const { Validator } = require('node-input-validator');
+const { ErrorHandler } = require('../../../../lib/ErrorHandler');
+const pubsub = require('../../common/pubsub');
+
+const errorHandler = new ErrorHandler();
+
+module.exports = async (obj, args, { dataSources: { repository }, user }) => {
+  const validator = new Validator(args, {
+    id: 'required',
+  });
+
+  return validator.check()
+    .then(async (matched) => {
+      if (!matched) {
+        throw errorHandler.build(validator.errors);
+      }
+    })
+    .then(() => repository.like.toggleLike(args.id, user.id))
+    .then(() => repository.liveStream.load(args.id))
+    .then((liveStream) => {
+      pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+      return liveStream;
+    });
+};
