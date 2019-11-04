@@ -40,6 +40,8 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       return repository.streamChannel.start(args.id)
         .then((channel) => {
           repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
+            liveStream.status = StreamChannelStatus.STREAMING;
+            liveStream.save();
             pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
           });
           return channel;

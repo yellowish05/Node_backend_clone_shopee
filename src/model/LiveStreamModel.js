@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const { StreamChannelStatus } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
@@ -14,6 +15,10 @@ const schema = new Schema({
   title: {
     type: String,
     required: true,
+  },
+  status: {
+    type: String,
+    enum: StreamChannelStatus.toList(),
   },
   experience: {
     type: String,
@@ -35,4 +40,4 @@ const schema = new Schema({
   },
 });
 
-module.exports = new model('LifeStream', schema);
+module.exports = new model('LiveStream', schema);

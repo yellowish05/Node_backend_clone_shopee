@@ -7,9 +7,20 @@ module.exports = async (_, { filter, page, sort }, { dataSources: { repository }
   };
 
   return repository.liveStream
-    .get({ filter, page, sort })
-    .then(({ total, collection }) => ({
-      collection,
-      pager: { ...pager, total },
-    }));
+     .get({ filter, page, sort })
+     .then((collection) => {
+       if (collection.length < page.limit) {
+         return {
+           collection,
+           pager: { ...pager, total: collection.length },
+         };
+       }
+
+       return repository.liveStream
+         .getTotal(filter)
+         .then((total) => ({
+           collection,
+           pager: { ...pager, total },
+         }));
+     });
 };
