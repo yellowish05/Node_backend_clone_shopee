@@ -17,6 +17,7 @@ const { typeDefs: scTypeDefs, resolvers: scResolvers } = require('./shippingCour
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
+const { typeDefs: cityTypeDefs, resolvers: cityResolvers } = require('./city');
 const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset');
 const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./message');
@@ -37,6 +38,7 @@ const typeDefs = [].concat(
   pagerTypeDefs,
   sortTypeDefs,
   organizationTypeDefs,
+  cityTypeDefs,
   assetTypeDefs,
   streamChannelTypeDefs,
   messageTypeDefs,
@@ -55,6 +57,7 @@ const resolvers = merge(
   latLngResolvers,
   dateResolvers,
   organizationResolvers,
+  cityResolvers,
   assetResolvers,
   streamChannelResolvers,
   messageResolvers,

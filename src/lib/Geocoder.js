@@ -1,16 +1,16 @@
 const NodeGeocoder = require('node-geocoder');
-const { geocoder } = require('../../config');
+const { google } = require('../../config');
 const logger = require('../../config/logger');
 
 const provider = 'google';
 
-if (geocoder[provider].api_key == null) {
+if (google.api_key == null) {
   logger.warn("You didn't provided API_KEY for Google Geocoder. You will not be able to decode latitude longitude");
 }
 
 const options = {
   provider,
-  apiKey: geocoder[provider].api_key,
+  apiKey: google.api_key,
   formatter: null,
 };
 

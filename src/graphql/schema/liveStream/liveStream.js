@@ -20,6 +20,7 @@ const schema = gql`
         streamer: User!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
+        city: City
         preview: Asset
         channel: StreamChannel!
         isLiked: Boolean! @auth(requires: USER)
@@ -32,6 +33,7 @@ const schema = gql`
         title: String!
         experience: ID!
         categories: [ID]!
+        city: String
         preview: ID
     }
 
@@ -101,6 +103,9 @@ module.exports.resolvers = {
       return liveStream.categories.map(
         (category) => repository.liveStreamCategory.getById(category),
       );
+    },
+    city(liveStream, args, { dataSources: { repository } }) {
+      return repository.city.load(liveStream.city);
     },
     preview(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.load(liveStream.preview);

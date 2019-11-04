@@ -33,7 +33,7 @@ function transformFilter({
   }
 
   if (cities.length > 0) {
-    // TODO: Need implement cities
+    query.city = { $in: cities };
   }
 
   if (statuses.length > 0) {
