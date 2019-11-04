@@ -23,7 +23,6 @@ function transformFilter({
   experiences, categories, cities, statuses,
 }) {
   const query = {};
-  const populate = [];
 
   if (experiences.length > 0) {
     query.experience = { $in: experiences };
@@ -38,20 +37,10 @@ function transformFilter({
   }
 
   if (statuses.length > 0) {
-    populate.push({
-      $lookup:
-      {
-        from: 'streamchannels',
-        localField: 'channel',
-        foreignField: '_id',
-        as: 'channel',
-      },
-    },
-    { $unwind: '$channel' });
-    query['channel.status'] = { $in: statuses };
+    query.status = { $in: statuses };
   }
 
-  return { query, populate };
+  return query;
 }
 
 
@@ -77,6 +66,7 @@ class LiveStreamRepository {
     }
 
     liveStream.title = data.title || liveStream.title;
+    liveStream.status = data.title || liveStream.status;
 
     return liveStream.save();
   }
@@ -89,34 +79,24 @@ class LiveStreamRepository {
     return this.model.findOne(query);
   }
 
-  // returns {total: Number, collection: <T>[]}
   async get({ filter, sort, page }) {
-    const { query, populate } = transformFilter(filter);
-    return this.model.aggregate([
-      ...populate,
-
-      { $match: query },
-      { $sort: transformSortInput(sort) },
-      {
-        $addFields: { id: '$_id' },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: 1 },
-          collection: { $push: '$$ROOT' },
+    return this.model
+      .find(
+        transformFilter(filter),
+        null,
+        {
+          sort: transformSortInput(sort),
+          limit: page.limit,
+          skip: page.skip,
         },
-      },
-      {
-        $project: {
-          total: 1,
-          collection: {
-            $slice: ['$collection', page.skip, page.limit],
-          },
-        },
-      },
+      );
+  }
 
-    ]).exec().then((result) => (result.length > 0 ? result[0] : { collection: [], total: 0 }));
+  async getTotal(filter) {
+    return this.model
+      .countDocuments(
+        transformFilter(filter),
+      );
   }
 }
 
