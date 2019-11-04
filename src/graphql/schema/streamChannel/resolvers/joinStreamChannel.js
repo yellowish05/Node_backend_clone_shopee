@@ -30,7 +30,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             return streamChannel;
           }
 
-          return (user ? repository.streamChannelParticipant.getActiveChannelParticipants(user._id) : Promise.resolve([]))
+          return (user ? repository.streamChannelParticipant.getParticipantActiveChannels(user._id) : Promise.resolve([]))
             .then((channels) => {
               channels.forEach((c) => repository.streamChannelParticipant.leaveStream(c.id, user._id));
 
