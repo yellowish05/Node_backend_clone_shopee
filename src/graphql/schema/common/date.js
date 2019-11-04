@@ -25,22 +25,6 @@ const resolvers = {
       return null;
     },
   }),
-  DateNullable: new GraphQLScalarType({
-    name: 'DateNullable',
-    description: 'Date custom scalar type allowing null values',
-    parseValue(value) {
-      return (value && new Date(value)) || null;
-    },
-    serialize(value) {
-      return value || null;
-    },
-    parseLiteral(ast) {
-      if (ast.kind === Kind.INT) {
-        return parseInt(ast.value, 10);
-      }
-      return null;
-    },
-  }),
 };
 
 module.exports.typeDefs = [schema];

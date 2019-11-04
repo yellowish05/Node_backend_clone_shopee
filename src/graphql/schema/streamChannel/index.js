@@ -100,10 +100,10 @@ module.exports.resolvers = {
   },
   StreamChannel: {
     participants(streamChannel, args, { dataSources: { repository } }) {
-      return repository.streamChannelParticipant.getChannelParticipants(streamChannel._id);
+      return repository.streamChannelParticipant.getChannelParticipants(streamChannel.id);
     },
     token(streamChannel, args, { user, dataSources: { repository } }) {
-      return repository.streamChannelParticipant.load(streamChannel._id, user ? user._id : null)
+      return repository.streamChannelParticipant.load(streamChannel.id, user ? user.id : null)
         .then((paticipant) => (paticipant ? paticipant.token : null));
     },
   },

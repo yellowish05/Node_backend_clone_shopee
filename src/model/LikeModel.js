@@ -1,9 +1,7 @@
 const { Schema, model } = require('mongoose');
-const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
 const schema = new Schema({
-  ...uuidField,
   ...createdAtField,
 
   entity: {
@@ -15,7 +13,7 @@ const schema = new Schema({
     ref: 'User',
     required: true,
   },
-}, { _id: false });
+});
 
 schema.index({ entity: 1, user: 1 }, { unique: true });
 

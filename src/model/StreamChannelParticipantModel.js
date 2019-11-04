@@ -1,9 +1,6 @@
 const { Schema, model } = require('mongoose');
-const uuidField = require('./commonFields/UUIDField');
 
 const schema = new Schema({
-  ...uuidField,
-
   joinedAt: {
     type: Date,
     default: Date.now,
@@ -23,6 +20,6 @@ const schema = new Schema({
     required: true,
   },
   isPublisher: Boolean,
-}, { _id: false });
+});
 
 module.exports = new model('StreamChannelParticipant', schema);

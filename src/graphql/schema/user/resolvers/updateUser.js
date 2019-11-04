@@ -53,7 +53,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
 
-      return repository.user.update(user._id, {
+      return repository.user.update(user.id, {
         name: args.data.name,
         phone: args.data.phone,
         photo: args.data.photo,

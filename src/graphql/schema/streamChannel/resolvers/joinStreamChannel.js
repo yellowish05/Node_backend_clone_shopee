@@ -24,22 +24,22 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Stream Channel ${args.id} does not exist`, { invalidArgs: 'id' });
       }
 
-      return repository.streamChannelParticipant.load(args.id, user ? user._id : null)
+      return repository.streamChannelParticipant.load(args.id, user ? user.id : null)
         .then((existingParticipant) => {
           if (existingParticipant) {
             return streamChannel;
           }
 
-          return (user ? repository.streamChannelParticipant.getParticipantActiveChannels(user._id) : Promise.resolve([]))
+          return (user ? repository.streamChannelParticipant.getParticipantActiveChannels(user.id) : Promise.resolve([]))
             .then((channels) => {
-              channels.forEach((c) => repository.streamChannelParticipant.leaveStream(c.id, user._id));
+              channels.forEach((c) => repository.streamChannelParticipant.leaveStream(c.id, user.id));
 
-              const token = AgoraService.buildTokenWithAccount(streamChannel._id, user ? user._id : 'guest', StreamRole.SUBSCRIBER);
+              const token = AgoraService.buildTokenWithAccount(streamChannel.id, user ? user.id : 'guest', StreamRole.SUBSCRIBER);
 
               return repository.streamChannelParticipant.create({
                 channel: args.id,
                 token,
-                user: user ? user._id : null,
+                user: user ? user.id : null,
                 isPublisher: false,
               })
                 .then(() => {

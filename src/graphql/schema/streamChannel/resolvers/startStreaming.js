@@ -31,7 +31,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
         throw new ApolloError('You cannot start finished stream', 400);
       }
     })
-    .then(() => repository.streamChannelParticipant.load(args.id, user._id))
+    .then(() => repository.streamChannelParticipant.load(args.id, user.id))
     .then((participant) => {
       if (!participant.isPublisher) {
         throw new ApolloError('Only streamer can start the stream', 403);

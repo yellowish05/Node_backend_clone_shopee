@@ -28,7 +28,7 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
       const { mimetype, size } = data;
       const { ext, type } = MIMEAssetTypes.detect(mimetype);
       const id = uuid();
-      const path = `${user._id}/${id}.${ext}`;
+      const path = `${user.id}/${id}.${ext}`;
       const assetData = {
         _id: id,
         owner: user,

@@ -1,6 +1,4 @@
 
-const uuid = require('uuid/v4');
-
 class StreamChannelParticipantRepository {
   constructor(model) {
     this.model = model;
@@ -11,7 +9,7 @@ class StreamChannelParticipantRepository {
   }
 
   async create(data) {
-    const participant = new this.model({ _id: uuid(), ...data });
+    const participant = new this.model(data);
 
     return participant.save();
   }

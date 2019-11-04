@@ -110,7 +110,7 @@ module.exports.resolvers = {
       return repository.streamChannel.load(liveStream.channel);
     },
     isLiked(liveStream, args, { user, dataSources: { repository } }) {
-      return repository.like.load(liveStream._id, user._id).then((like) => !!like);
+      return repository.like.load(liveStream.id, user.id).then((like) => !!like);
     },
     statistics(liveStream) {
       return liveStream;

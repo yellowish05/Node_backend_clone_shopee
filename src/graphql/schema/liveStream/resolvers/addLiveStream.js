@@ -41,7 +41,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => {
       // Generate agora token
       const id = uuid();
-      const token = AgoraService.buildTokenWithAccount(id, user._id, StreamRole.PUBLISHER);
+      const token = AgoraService.buildTokenWithAccount(id, user.id, StreamRole.PUBLISHER);
 
       return repository.streamChannelParticipant.create({
         channel: id,
