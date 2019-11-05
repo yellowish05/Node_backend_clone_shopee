@@ -1,3 +1,4 @@
+const { StreamChannelStatus } = require('../lib/Enums');
 
 class StreamChannelParticipantRepository {
   constructor(model) {
@@ -23,13 +24,38 @@ class StreamChannelParticipantRepository {
   }
 
   async getViewersCount(channelId) {
-    return this.model.count({ channel: channelId, leavedAt: null, isPublisher: false });
+    return this.model.aggregate([
+      {
+        $match: { channel: channelId, isPublisher: false },
+      }, {
+        $lookup: {
+          from: 'streamchannels',
+          localField: 'channel',
+          foreignField: '_id',
+          as: 'streamchannel',
+        },
+      }, {
+        $match: {
+          $or: [
+            { 'streamchannel.0.status': StreamChannelStatus.FINISHED },
+            { 'streamchannel.0.status': { $ne: StreamChannelStatus.FINISHED }, leavedAt: null },
+          ],
+        },
+      }, { $count: 'count' }]).then((data) => (data.length === 0 ? 0 : data[0].count));
   }
 
   async leaveStream(channelId, userId) {
     return this.model.findOneAndUpdate(
       { channel: channelId, user: userId },
       { leavedAt: Date.now() },
+      { new: true },
+    );
+  }
+
+  async rejoinStream(channelId, userId) {
+    return this.model.findOneAndUpdate(
+      { channel: channelId, user: userId },
+      { leavedAt: null },
       { new: true },
     );
   }
