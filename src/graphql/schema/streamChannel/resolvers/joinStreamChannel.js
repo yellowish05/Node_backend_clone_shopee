@@ -26,13 +26,17 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return repository.streamChannelParticipant.load(args.id, user ? user.id : null)
         .then((existingParticipant) => {
-          if (existingParticipant) {
+          if (existingParticipant && !existingParticipant.leavedAt) {
             return streamChannel;
           }
 
           return (user ? repository.streamChannelParticipant.getParticipantActiveChannels(user.id) : Promise.resolve([]))
             .then((channels) => {
               channels.forEach((c) => repository.streamChannelParticipant.leaveStream(c.id, user.id));
+
+              if (existingParticipant) {
+                return repository.streamChannelParticipant.rejoinStream(streamChannel.id, user.id);
+              }
 
               const token = AgoraService.buildTokenWithAccount(streamChannel.id, user ? user.id : 'guest', StreamRole.SUBSCRIBER);
 
@@ -41,13 +45,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
                 token,
                 user: user ? user.id : null,
                 isPublisher: false,
-              })
-                .then(() => {
-                  repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
-                    pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
-                  });
-                  return streamChannel;
-                });
+              });
+            }).then(() => {
+              repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
+                pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+              });
+              return streamChannel;
             });
         });
     });
