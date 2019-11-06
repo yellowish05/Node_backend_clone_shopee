@@ -33,7 +33,7 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
         _id: id,
         owner: user,
         path,
-        url: `${cdn.url}/${path}`,
+        url: `${cdn.userAssets}/${path}`,
         type,
         size,
         mimetype,

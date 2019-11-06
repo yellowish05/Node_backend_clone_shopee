@@ -26,7 +26,9 @@ module.exports = {
     locales: ['EN'],
   },
   cdn: {
-    url: process.env.CDN_URL,
+    appAssets: process.env.CDN_APP_ASSETS_DOMAIN,
+    media: process.env.CDN_MEDIA_DOMAIN,
+    userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
   },
   geocoder: {
     google: {
