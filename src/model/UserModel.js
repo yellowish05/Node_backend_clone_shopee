@@ -4,8 +4,10 @@ const uuidField = require('./commonFields/UUIDField');
 const LatitudeLongitudeSchema = require('./LatitudeLongitudeModel');
 const AddressSchema = require('./AddressModel');
 
+const collectionName = 'User';
+
 const schema = new Schema({
-  ...uuidField,
+  ...uuidField(collectionName),
   ...createdAtField,
 
   email: {
@@ -48,4 +50,4 @@ const schema = new Schema({
   },
 });
 
-module.exports = new model('User', schema);
+module.exports = new model(collectionName, schema);

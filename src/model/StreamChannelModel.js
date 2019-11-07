@@ -19,8 +19,10 @@ const streamRecordSchema = new Schema({
   },
 });
 
+const collectionName = 'StreamChannel';
+
 const schema = new Schema({
-  ...uuidField,
+  ...uuidField(collectionName),
   ...createdAtField,
 
   type: {
@@ -42,4 +44,4 @@ const schema = new Schema({
   },
 });
 
-module.exports = new model('StreamChannel', schema);
+module.exports = new model(collectionName, schema);

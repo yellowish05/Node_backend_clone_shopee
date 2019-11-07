@@ -3,8 +3,10 @@ const AddressSchema = require('./AddressModel');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
+const collectionName = 'Organization';
+
 const schema = new Schema({
-  ...uuidField,
+  ...uuidField(collectionName),
   ...createdAtField,
 
   owner: {
@@ -25,4 +27,4 @@ const schema = new Schema({
   returnPolicy: String,
 });
 
-module.exports = new model('Organization', schema);
+module.exports = new model(collectionName, schema);

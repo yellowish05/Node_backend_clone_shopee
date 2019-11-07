@@ -3,8 +3,10 @@ const { StreamChannelStatus } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
+const collectionName = 'LiveStream';
+
 const schema = new Schema({
-  ...uuidField,
+  ...uuidField(collectionName),
   ...createdAtField,
 
   streamer: {
@@ -38,6 +40,15 @@ const schema = new Schema({
     type: String,
     ref: 'StreamChannel',
   },
+  publicMessageThread: {
+    type: String,
+    ref: 'MessageThread',
+    required: true,
+  },
+  privatMessageThread: [{
+    type: String,
+    ref: 'MessageThread',
+  }],
 });
 
-module.exports = new model('LiveStream', schema);
+module.exports = new model(collectionName, schema);

@@ -39,27 +39,38 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
     })
     .then(() => {
-      // Generate agora token
-      const id = uuid();
-      const token = AgoraService.buildTokenWithAccount(id, user.id, StreamRole.PUBLISHER);
+      const channelId = uuid();
+      const liveStreamId = uuid();
+      const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
 
-      return repository.streamChannelParticipant.create({
-        channel: id,
-        token,
+      const channel = {
+        _id: channelId,
+        type: StreamChannelType.BROADCASTING,
+        status: StreamChannelStatus.PENDING,
+      };
+
+      const messageThread = {
+        tags: [`LiveStream:${liveStreamId}`],
+        participants: [user],
+      };
+
+      const participant = {
+        channel: channelId,
+        token: agoraToken,
         user,
         isPublisher: true,
-      }).then(() => repository.streamChannel
-        .create({
-          _id: id,
-          type: StreamChannelType.BROADCASTING,
-          status: StreamChannelStatus.PENDING,
-        }).catch((error) => {
-          throw new ApolloError(`Failed to add Stream Channel. Original error: ${error.message}`, 400);
-        }));
+      };
+
+      return Promise.all([
+        liveStreamId,
+        repository.streamChannel.create(channel),
+        repository.messageThread.create(messageThread),
+        repository.streamChannelParticipant.create(participant),
+      ]);
     })
-    .then((streamChannel) => repository.liveStream
-      .create({
-        _id: uuid(),
+    .then(([_id, streamChannel, messageThread]) => (
+      repository.liveStream.create({
+        _id,
         streamer: user,
         title: args.data.title,
         status: StreamChannelStatus.PENDING,
@@ -67,8 +78,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         categories: args.data.categories,
         preview: args.data.preview,
         channel: streamChannel,
+        publicMessageThread: messageThread,
       })
-      .catch((error) => {
-        throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
-      }));
+    ))
+    .catch((error) => {
+      throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
+    });
 };

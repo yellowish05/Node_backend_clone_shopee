@@ -9,6 +9,10 @@ class UserRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async loadList(ids) {
+    return this.model.find({ _id: { $in: ids } });
+  }
+
   async create(data, options = {}) {
     if (!data.email) {
       throw Error('Email is required!');

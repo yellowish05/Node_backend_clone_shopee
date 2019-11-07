@@ -2,6 +2,7 @@
 /* eslint-disable global-require */
 
 const Promise = require('bluebird');
+const fs = require('fs');
 const client = require('../config/graphqlTestClient')();
 const { env } = require('../config');
 const fixtureFiles = require('../fixtures.json');
@@ -23,5 +24,11 @@ Promise.each(
   { concurrency: 1 },
 )
   .then(() => {
-    console.log(context);
+    const json = JSON.stringify({
+      data: fixtureData,
+      context,
+    });
+    fs.writeFile('fixtures-lock.json', json, 'utf8', () => {
+      console.log('Fixture lock file saved!');
+    });
   });

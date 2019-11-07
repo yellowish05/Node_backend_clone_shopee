@@ -24,6 +24,8 @@ const schema = gql`
         channel: StreamChannel!
         isLiked: Boolean! @auth(requires: USER)
         statistics: LiveStreamStats!
+        publicMessageThread: MessageThread!
+        # privateMessageThreads: [MessageThread]!
     }
 
     input LiveStreamInput {
@@ -114,6 +116,9 @@ module.exports.resolvers = {
     },
     statistics(liveStream) {
       return liveStream;
+    },
+    publicMessageThread(liveStream, _, { dataSources: { repository } }) {
+      return repository.messageThread.load(liveStream.publicMessageThread);
     },
   },
   LiveStreamStats: {
