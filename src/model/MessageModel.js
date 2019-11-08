@@ -1,43 +1,29 @@
 const { Schema, model } = require('mongoose');
+const { MessageType } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
-const collectionName = 'Asset';
+const collectionName = 'Message';
 
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
-  owner: {
+  author: {
     type: String,
     ref: 'User',
     required: true,
   },
-  path: {
+  thread: {
     type: String,
+    ref: 'MessageThread',
     required: true,
-    index: { unique: true },
-  },
-  url: {
-    type: String,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ['UPLOADING', 'UPLOADED', 'FAILED', 'CANCELED'],
-    required: true,
-    default: 'UPLOADING',
   },
   type: {
     type: String,
-    enum: ['IMAGE', 'VIDEO', 'PDF'],
-    required: true,
+    enum: MessageType.toList(),
   },
-  size: {
-    type: Number,
-    required: true,
-  },
-  mimetype: {
+  data: {
     type: String,
     required: true,
   },

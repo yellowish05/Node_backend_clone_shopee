@@ -6,21 +6,12 @@ module.exports = async (_, { filter, page, sort }, { dataSources: { repository }
     total: 0,
   };
 
-  return repository.liveStream
-     .get({ filter, page, sort })
-     .then((collection) => {
-       if (collection.length < page.limit) {
-         return {
-           collection,
-           pager: { ...pager, total: collection.length },
-         };
-       }
-
-       return repository.liveStream
-         .getTotal(filter)
-         .then((total) => ({
-           collection,
-           pager: { ...pager, total },
-         }));
-     });
+  return Promise.all([
+    repository.liveStream.get({ filter, page, sort }),
+    repository.liveStream.getTotal(filter),
+  ])
+    .then(([collection, total]) => ({
+      collection,
+      pager: { ...pager, total },
+    }));
 };

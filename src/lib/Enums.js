@@ -30,9 +30,16 @@ const StreamRole = EnumFactory({
   SUBSCRIBER: 2,
 });
 
+const MessageType = EnumFactory({
+  TEXT: 'TEXT',
+  STICKER: 'STICKER',
+  ASSET: 'ASSET',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
   StreamChannelStatus,
   StreamRole,
+  MessageType,
 };

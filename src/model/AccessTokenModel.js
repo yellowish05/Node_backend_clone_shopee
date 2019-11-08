@@ -2,8 +2,10 @@ const { Schema, model } = require('mongoose');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
+const collectionName = 'AccessToken';
+
 const schema = new Schema({
-  ...uuidField,
+  ...uuidField(collectionName),
   ...createdAtField,
 
   user: {
@@ -24,4 +26,4 @@ const schema = new Schema({
   },
 });
 
-module.exports = new model('AccessToken', schema);
+module.exports = new model(collectionName, schema);
