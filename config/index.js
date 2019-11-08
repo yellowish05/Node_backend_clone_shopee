@@ -34,6 +34,8 @@ module.exports = {
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
   },
   aws: {
+    agora_api_key: process.env.AWS_AGORA_ACCESS_KEY_ID || null,
+    agora_api_secret: process.env.AWS_AGORA_SECRET_ACCESS_KEY || null,
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
   },
@@ -45,6 +47,8 @@ module.exports = {
     uri: process.env.AGORA_URI,
     app_id: process.env.AGORA_APP_ID || null,
     app_cert: process.env.AGORA_APP_CERT || null,
+    api_key: process.env.AGORA_API_KEY || null,
+    api_cert: process.env.AGORA_API_CERT || null,
   },
   assets: {
     types: {

@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const { StreamChannelStatus, StreamRecordStatus } = require(path.resolve('src/lib/Enums'));
 
 class StreamChannelRepository {
   constructor(model) {
@@ -54,6 +54,51 @@ class StreamChannelRepository {
     {
       status: StreamChannelStatus.FINISHED,
       finishedAt: Date.now(),
+    },
+    {
+      new: true,
+    });
+  }
+
+  async startRecording(id, recordInfo) {
+    return this.model.findOneAndUpdate({
+      _id: id,
+    },
+    {
+      $set: {
+        'record.resourceId': recordInfo.resourceId,
+        'record.sid': recordInfo.sid,
+        'record.status': StreamRecordStatus.RECORDING,
+      },
+    },
+    {
+      new: true,
+    });
+  }
+
+  async finishRecording(id, sources) {
+    return this.model.findOneAndUpdate({
+      _id: id,
+    },
+    {
+      $set: {
+        'record.sources': sources,
+        'record.status': StreamRecordStatus.FINISHED,
+      },
+    },
+    {
+      new: true,
+    });
+  }
+
+  async failRecording(id) {
+    return this.model.findOneAndUpdate({
+      _id: id,
+    },
+    {
+      $set: {
+        'record.status': StreamRecordStatus.FAILED,
+      },
     },
     {
       new: true,

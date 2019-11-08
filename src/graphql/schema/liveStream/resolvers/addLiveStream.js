@@ -3,7 +3,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
-const { StreamChannelStatus, StreamChannelType, StreamRole } = require(path.resolve('src/lib/Enums'));
+const { StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 
@@ -49,6 +49,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
         status: StreamChannelStatus.PENDING,
+        record: {
+          enabled: true,
+          status: StreamRecordStatus.PENDING,
+        },
       };
 
       const messageThread = {

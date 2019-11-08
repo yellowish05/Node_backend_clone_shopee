@@ -3,7 +3,9 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
+const { StreamChannelStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
+const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
@@ -32,21 +34,31 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       if (streamChannel.status === StreamChannelStatus.FINISHED) {
         throw new ApolloError('You cannot start finished stream', 400);
       }
+      return repository.streamChannelParticipant.load(args.id, user.id);
     })
-    .then(() => repository.streamChannelParticipant.load(args.id, user.id))
     .then((participant) => {
       if (!participant.isPublisher) {
         throw new ApolloError('Only streamer can start the stream', 403);
       }
 
-      return repository.streamChannel.start(args.id)
-        .then((channel) => {
-          repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
-            liveStream.status = StreamChannelStatus.STREAMING;
-            liveStream.save();
-            pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+      return repository.streamChannel.start(args.id);
+    })
+    .then((channel) => {
+      if (channel.record.enabled) {
+        AgoraService.recording.acquire(args.id, '1')
+          .then(({ resourceId }) => AgoraService.recording.start(args.id, '1', resourceId, AgoraService.buildTokenWithAccount(args.id, '1', StreamRole.SUBSCRIBER)))
+          .then(({ resourceId, sid }) => repository.streamChannel.startRecording(args.id, { resourceId, sid }))
+          .catch((error) => {
+            logger.error(`Failed to start record StreamChannel(${args.id}). Original error: ${error}`);
+            repository.streamChannel.failRecording(args.id);
           });
-          return channel;
-        });
+      }
+
+      repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
+        liveStream.status = StreamChannelStatus.STREAMING;
+        liveStream.save();
+        pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+      });
+      return channel;
     });
 };

@@ -3,12 +3,14 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const { StreamChannelStatus, SourceType } = require(path.resolve('src/lib/Enums'));
+const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
+const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
 
-module.exports = async (obj, args, { dataSources: { repository } }) => {
+module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args, {
     id: 'required',
   });
@@ -32,9 +34,29 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       if (streamChannel.status === StreamChannelStatus.PENDING) {
         throw new ApolloError('You can finish only started stream', 400);
       }
+      return repository.streamChannelParticipant.load(args.id, user.id)
+        .then((participant) => {
+          if (!participant.isPublisher) {
+            throw new ApolloError('Only streamer can stop the stream', 403);
+          }
 
-      return repository.streamChannel.finish(args.id)
+          return repository.streamChannel.finish(args.id);
+        })
         .then((channel) => {
+          if (channel.record.enabled) {
+            AgoraService.recording.stop(args.id, '1', streamChannel.record.resourceId, streamChannel.record.sid)
+              .then(({ serverResponse }) => Promise.all(serverResponse.fileList.map((f) => repository.streamSource.create({
+                source: f.filename,
+                type: f.filename.includes('video') ? SourceType.VIDEO : SourceType.AUDIO,
+                user,
+              }))))
+              .then((sources) => repository.streamChannel.finishRecording(args.id, sources))
+              .catch((error) => {
+                logger.error(`Failed to stop record StreamChannel(${args.id}). Original error: ${error}`);
+                repository.streamChannel.failRecording(args.id);
+              });
+          }
+
           repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
             liveStream.status = StreamChannelStatus.FINISHED;
             liveStream.save();
