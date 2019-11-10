@@ -30,10 +30,13 @@ module.exports = {
     media: process.env.CDN_MEDIA_DOMAIN,
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
   },
-  geocoder: {
-    google: {
-      api_key: process.env.GOOGLE_GEOCODING_API_KEY || null,
-    },
+  aws: {
+    app_bucket: process.env.AWS_APP_BUCKET,
+    media_bucket: process.env.AWS_MEDIA_BUCKET,
+  },
+  google: {
+    places_uri: process.env.GOOGLE_PLACES_URI,
+    api_key: process.env.GOOGLE_API_KEY || null,
   },
   agora: {
     uri: process.env.AGORA_URI,

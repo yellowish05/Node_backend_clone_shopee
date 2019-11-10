@@ -32,6 +32,10 @@ const schema = new Schema({
     required: true,
     index: true,
   },
+  city: {
+    type: String,
+    ref: 'City',
+  },
   preview: {
     type: String,
     ref: 'Asset',
