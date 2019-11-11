@@ -4,7 +4,6 @@ const cors = require('cors');
 const { createServer } = require('http');
 const repositoryFactory = require('./lib/RepositoryFactory');
 const { corsDomain } = require('../config');
-const secureMiddlewareFactory = require('./secureMiddleware');
 const apolloServerFactory = require('./graphql');
 const { mongoClientCloseConnection } = require('../config/mongoConnection');
 
@@ -25,8 +24,6 @@ app.use(cors({
   origin: corsDomain,
   optionsSuccessStatus: 200,
 }));
-
-app.use('/graphql', secureMiddlewareFactory({ repository }));
 
 const apolloServer = apolloServerFactory({ repository });
 

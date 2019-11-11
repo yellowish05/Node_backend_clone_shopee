@@ -14,12 +14,12 @@ const myFormat = printf(({
 
 let transport = null;
 if (logs.cloudWatchEnabled) {
-  transport =  new WinstonCloudWatch({
+  transport = new WinstonCloudWatch({
     name: logs.name,
     logGroupName: 'api',
     logStreamName: 'api',
-    awsRegion: 'eu-central-1'
-  })
+    awsRegion: 'eu-central-1',
+  });
 } else {
   transport = new transports.Console();
 }
@@ -27,11 +27,11 @@ if (logs.cloudWatchEnabled) {
 module.exports = createLogger({
   level: logs.level,
   format: combine(
-    label({ label: '['+logs.name+']' }),
+    label({ label: `[${logs.name}]` }),
     timestamp(),
     myFormat,
   ),
   transports: [
-    transport
+    transport,
   ],
 });

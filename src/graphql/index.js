@@ -2,6 +2,7 @@ const { ApolloServer } = require('apollo-server-express');
 const config = require('../../config');
 const logger = require('../../config/logger');
 const createSchema = require('./schema');
+const secureContextMiddlewareFactory = require('../lib/ApolloSecureContextMiddleware');
 
 module.exports = ({ repository }) => new ApolloServer({
   schema: createSchema(),
@@ -18,13 +19,12 @@ module.exports = ({ repository }) => new ApolloServer({
 
     return sendError;
   },
-  context: async ({ req, connection }) => {
-    if (connection) {
-      return { ...connection.context, dataSources: { repository } };
+  context: async (request) => {
+    const context = await secureContextMiddlewareFactory(repository)(request);
+    if (request.connection) {
+      context.dataSources = { repository };
     }
-
-    const user = req.user ? await repository.user.load(req.user.user_id) : null;
-    return { user };
+    return context;
   },
   subscriptions: {
     keepAlive: 10000,

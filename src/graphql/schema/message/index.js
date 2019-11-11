@@ -51,7 +51,7 @@ const schema = gql`
     }
 
     extend type Subscription {
-      messageAdded(threads: [ID!], threadTags: [String!]): Message! 
+      messageAdded(threads: [ID!], threadTags: [String!]): Message! @auth(requires: USER)
     }
 
 `;
@@ -72,25 +72,33 @@ module.exports.resolvers = {
       resolve: (payload) => payload,
       subscribe: withFilter(
         () => pubsub.asyncIterator(['MESSAGE_ADDED']),
-        ({ thread }, { threads, threadTags }) => {
-          if (threads && threads.length) {
-            if (threads.includes(thread.id)) {
-              return true;
+        ({ thread }, { threads, threadTags }, { user }) => {
+          if (!thread.participants.includes(user.id)) {
+            return false;
+          }
+
+          if (threads || threadTags) {
+            if (threads && threads.length) {
+              if (threads.includes(thread.id)) {
+                return true;
+              }
             }
+
+            if (threadTags && threadTags.length && thread.tags.length) {
+              return thread.tags.reduce((acc, tag) => (acc || threadTags.includes(tag)), false);
+            }
+
+            return false;
           }
 
-          if (threadTags && threadTags.length && thread.tags.length) {
-            return thread.tags.reduce((acc, tag) => (acc || threadTags.includes(tag)), false);
-          }
-
-          return false;
+          return true;
         },
       ),
     },
   },
   Message: {
     thread(message, _, { dataSources: { repository } }) {
-      return repository.messageThread.load(message.thread);
+      return repository.messageThread.findOne(message.thread);
     },
     author(message, _, { dataSources: { repository } }) {
       return repository.user.load(message.author);
