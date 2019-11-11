@@ -26,6 +26,9 @@ module.exports = ({ repository }) => new ApolloServer({
     const user = req.user ? await repository.user.load(req.user.user_id) : null;
     return { user };
   },
+  subscriptions: {
+    keepAlive: 10000,
+  },
   introspection: true,
   playground: {
     settings: {
