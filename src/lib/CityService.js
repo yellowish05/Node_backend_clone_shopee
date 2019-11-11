@@ -58,7 +58,7 @@ module.exports.CityService = {
           if (response.statusCode === 403) {
             reject(new Error('Your available quota request exceeds'));
           }
-          const fileType = response.headers['content-type'].replace('image/', '');
+          let fileType = response.headers['content-type'].replace('image/', '');
           if (fileType === 'jpeg') {
             fileType = 'jpg';
           }
