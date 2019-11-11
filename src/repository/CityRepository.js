@@ -40,7 +40,7 @@ class CityRepository {
         _id: id,
         name: city.name,
         location: city.location,
-        photo: `cities/${id}.${photo.type}`,
+        photo: `/cities/${id}.${photo.type}`,
       })]).then(([, savedCity]) => savedCity);
   }
 
