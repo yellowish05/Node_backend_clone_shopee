@@ -29,7 +29,7 @@ const activity = {
   async createChannelParticipant({ liveStream, user }, repository) {
     return repository.streamChannelParticipant.create({
       channel: liveStream.channel,
-      token: AgoraService.buildTokenWithAccount(liveStream.id, user.id, StreamRole.SUBSCRIBER),
+      token: AgoraService.buildTokenWithAccount(liveStream.channel, user.id, StreamRole.SUBSCRIBER),
       user,
       isPublisher: false,
     });
