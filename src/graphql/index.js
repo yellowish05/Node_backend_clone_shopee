@@ -8,9 +8,12 @@ module.exports = ({ repository }) => new ApolloServer({
   schema: createSchema(),
   formatError: (error) => {
     const sendError = error;
+
     if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
       logger.error(JSON.stringify(error));
       sendError.message = 'Internal server error';
+    } else if (config.isDebugMode) {
+      logger.debug(JSON.stringify(error));
     }
 
     if (config.env === 'production') {
