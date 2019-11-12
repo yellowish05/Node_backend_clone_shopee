@@ -5,9 +5,12 @@ const addressSchema = new Schema({
   street: String,
   city: String,
   region: {
-    id: String,
-    code: Number,
-    name: String,
+    type: {
+      id: String,
+      code: Number,
+      name: String,
+    },
+    required: false,
   },
   country: {
     id: String,
