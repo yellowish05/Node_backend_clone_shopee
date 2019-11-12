@@ -49,10 +49,14 @@ const schema = new Schema({
     ref: 'MessageThread',
     required: true,
   },
-  privatMessageThread: [{
+  privateMessageThreads: [{
     type: String,
     ref: 'MessageThread',
   }],
 });
+
+schema.methods.getTagName = function getTagName() {
+  return `LiveStream:${this._id}`;
+};
 
 module.exports = new model(collectionName, schema);

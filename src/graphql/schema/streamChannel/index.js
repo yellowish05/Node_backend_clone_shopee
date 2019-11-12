@@ -65,12 +65,12 @@ const schema = gql`
         When user try join the API generates token for this user and channel
         Pass ID of the Stream Channel created for Live Stream
         """
-        joinStreamChannel(id: ID!): StreamChannel!
+        joinStreamChannel(id: ID!): StreamChannel! @deprecated(reason: "Use 'joinLiveStream' instead")
 
         """
         Pass ID of the Stream Channel created for Live Stream
         """
-        leaveStreamChannel(id: ID!): Boolean!
+        leaveStreamChannel(id: ID!): Boolean! @deprecated(reason: "Use 'leaveLiveStream' instead")
 
         """
         Pass ID of the Stream Channel created for Live Stream

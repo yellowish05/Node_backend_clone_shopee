@@ -52,6 +52,9 @@ class StreamChannelParticipantRepository {
     );
   }
 
+  /**
+   * @deprecated
+   */
   async rejoinStream(channelId, userId) {
     return this.model.findOneAndUpdate(
       { channel: channelId, user: userId },

@@ -2,6 +2,8 @@ const { gql, withFilter } = require('apollo-server');
 
 const addLiveStream = require('./resolvers/addLiveStream');
 const likeLiveStream = require('./resolvers/likeLiveStream');
+const joinLiveStream = require('./resolvers/joinLiveStream');
+const leaveLiveStream = require('./resolvers/leaveLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
 
@@ -26,7 +28,7 @@ const schema = gql`
         isLiked: Boolean! @auth(requires: USER)
         statistics: LiveStreamStats!
         publicMessageThread: MessageThread!
-        # privateMessageThreads: [MessageThread]!
+        privateMessageThreads: [MessageThread]!
     }
 
     input LiveStreamInput {
@@ -65,11 +67,25 @@ const schema = gql`
   
     extend type Mutation {
       addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
+
       likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+      
+      """
+      When user join LiveStream next things executed:
+      1. StreamChannel Token generation for this User and LiveStream
+      2. Created MessageThread for User and Streamer
+      Pass ID of the Live Stream
+      """
+      joinLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+
+      """
+      Pass ID of the Live Stream
+      """
+      leaveLiveStream(id: ID!): Boolean! @auth(requires: USER)
     }
 
     extend type Subscription {
-      liveStream(id: ID!): LiveStream
+      liveStream(id: ID!): LiveStream @auth(requires: USER)
     }
 `;
 
@@ -85,6 +101,8 @@ module.exports.resolvers = {
   Mutation: {
     addLiveStream,
     likeLiveStream,
+    joinLiveStream,
+    leaveLiveStream,
   },
   Subscription: {
     liveStream: {
@@ -122,8 +140,29 @@ module.exports.resolvers = {
     statistics(liveStream) {
       return liveStream;
     },
+    /**
+      Any user allows receive Public Thread
+    */
     publicMessageThread(liveStream, _, { dataSources: { repository } }) {
-      return repository.messageThread.load(liveStream.publicMessageThread);
+      if (typeof liveStream.publicMessageThread === 'object') {
+        return liveStream.publicMessageThread;
+      }
+      return repository.messageThread.findOne(liveStream.publicMessageThread);
+    },
+    /**
+      User allows receive all private threads if he is a Streamer.
+      Overwise User receive only private one thread with Streamer.
+    */
+    privateMessageThreads(liveStream, _, { dataSources: { repository }, user }) {
+      if (user.id === liveStream.streamer) {
+        return repository.messageThread.findByIds(liveStream.privateMessageThreads);
+      }
+
+      return repository.messageThread.findByIdsAndParticipants(
+        liveStream.privateMessageThreads,
+        [user, liveStream.streamer],
+      )
+        .then((thread) => (!thread ? [] : [thread]));
     },
   },
   LiveStreamStats: {

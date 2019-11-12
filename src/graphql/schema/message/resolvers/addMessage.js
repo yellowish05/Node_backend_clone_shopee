@@ -1,5 +1,5 @@
 const { Validator } = require('node-input-validator');
-const { UserInputError } = require('apollo-server');
+const { UserInputError, ForbiddenError } = require('apollo-server');
 const { MessageType } = require('../../../../lib/Enums');
 const { ErrorHandler } = require('../../../../lib/ErrorHandler');
 const pubsub = require('../../common/pubsub');
@@ -20,10 +20,14 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
     })
-    .then(() => repository.messageThread.load(input.thread))
+    .then(() => repository.messageThread.findOne(input.thread))
     .then((thread) => {
       if (!thread) {
         throw new UserInputError('Thread does not exist', { invalidArgs: 'thread' });
+      }
+
+      if (!thread.participants.includes(user.id)) {
+        throw new ForbiddenError('You can not write to this thread');
       }
 
       return repository.message
