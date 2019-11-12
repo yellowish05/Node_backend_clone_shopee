@@ -14,7 +14,7 @@ const schema = gql`
         label: String
         street: String
         city: String
-        region: Region!
+        region: Region
         country: Country!
         zipCode: String
     }
