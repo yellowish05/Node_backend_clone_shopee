@@ -36,4 +36,10 @@ function generateOnErrorFn(usedPost) {
  */
 httpServer.listen(config.port);
 httpServer.on('error', generateOnErrorFn(config.port));
-httpServer.on('listening', () => logger.info('🚀 API server started'));
+httpServer.on('listening', () => {
+  logger.info('🚀 API server started');
+  if (config.isDebugMode) {
+    logger.info('[DEBUG MODE] Enabled. Next message should be debug message!');
+    logger.debug('[DEBUG MODE] If you see it, debug mode works!');
+  }
+});

@@ -2,6 +2,7 @@
 /* eslint-disable eqeqeq */
 
 const env = (process.env.NODE_ENV || 'development').trim();
+const isDebugMode = (process.env.DEBUG_MODE || '').trim() == '1';
 
 if (env === 'development' || env === 'test') {
   require('dotenv').config({ path: `${__dirname}/../.env` });
@@ -11,10 +12,11 @@ module.exports = {
   domain: process.env.DOMAIN || 'localhost',
   logs: {
     name: 'api',
-    level: (process.env.LOGS_DEBUG_MODE || '').trim() == '1' ? 'debug' : 'info',
+    level: isDebugMode ? 'debug' : 'info',
     cloudWatchEnabled: (process.env.LOGS_CLOUD_WATCH || '').trim() == '1' || false,
   },
   env,
+  isDebugMode,
   port: 4000,
   corsDomain: process.env.CORS_DOMAIN || '*',
   apolloEngineApiKey: process.env.ENGINE_API_KEY || null,
