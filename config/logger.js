@@ -2,6 +2,7 @@
 const { createLogger, format, transports } = require('winston');
 const WinstonCloudWatch = require('winston-cloudwatch');
 const { logs } = require('./index');
+const { env } = require('./index');
 
 const {
   combine, timestamp, label, printf,
@@ -15,8 +16,9 @@ const myFormat = printf(({
 let transport = null;
 if (logs.cloudWatchEnabled) {
   transport = new WinstonCloudWatch({
+    level: logs.level,
     name: logs.name,
-    logGroupName: 'api',
+    logGroupName: env,
     logStreamName: 'api',
     awsRegion: 'eu-central-1',
   });
