@@ -2,6 +2,7 @@ const { makeExecutableSchema, mergeSchemas } = require('graphql-tools');
 const { merge } = require('lodash');
 
 const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./common');
+const { typeDefs: testErrorsTypeDefs, resolvers: testErrorsResolvers } = require('./common/testErrors');
 const { typeDefs: authTypeDefs, auth } = require('./common/authDirective');
 const { typeDefs: i18nTypeDefs, resolvers: i18nResolvers } = require('./common/i18n');
 const { typeDefs: addressTypeDefs, resolvers: addressResolvers } = require('./common/address');
@@ -24,6 +25,7 @@ const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./me
 
 const typeDefs = [].concat(
   commonTypeDefs,
+  testErrorsTypeDefs,
   authTypeDefs,
   i18nTypeDefs,
   userTypeDefs,
@@ -46,6 +48,7 @@ const typeDefs = [].concat(
 
 const resolvers = merge(
   commonResolvers,
+  testErrorsResolvers,
   userResolvers,
   i18nResolvers,
   accessTokenResolvers,
