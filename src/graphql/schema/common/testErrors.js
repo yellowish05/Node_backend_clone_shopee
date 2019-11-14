@@ -1,8 +1,10 @@
+const path = require('path');
 const { gql } = require('apollo-server');
 const {
   AuthenticationError, ForbiddenError, UserInputError, ApolloError,
 } = require('apollo-server');
-const config = require('../../../../config');
+
+const config = require(path.resolve('config'));
 
 const schema = gql`
     extend type Query {

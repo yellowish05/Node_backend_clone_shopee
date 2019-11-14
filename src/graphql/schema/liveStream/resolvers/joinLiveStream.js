@@ -1,9 +1,11 @@
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError } = require('apollo-server');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const { AgoraService } = require('../../../../lib/AgoraService');
-const { StreamRole } = require('../../../../lib/Enums');
-const pubsub = require('../../common/pubsub');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
+const { StreamRole } = require(path.resolve('src/lib/Enums'));
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

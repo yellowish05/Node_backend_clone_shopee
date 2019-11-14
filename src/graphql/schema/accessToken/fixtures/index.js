@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
+const path = require('path');
 const { gql } = require('apollo-server');
-const logger = require('../../../../../config/logger');
+
+const logger = require(path.resolve('config/logger'));
 
 const mutation = gql`
     mutation generateAccessToken($email: String!, $password: String!) {

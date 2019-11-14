@@ -1,18 +1,20 @@
 // HTTP SERVER
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { createServer } = require('http');
-const repositoryFactory = require('./lib/RepositoryFactory');
-const { corsDomain } = require('../config');
-const apolloServerFactory = require('./graphql');
-const { mongoClientCloseConnection } = require('../config/mongoConnection');
+
+const repositoryFactory = require(path.resolve('src/lib/RepositoryFactory'));
+const { corsDomain } = require(path.resolve('config'));
+const apolloServerFactory = require(path.resolve('src/graphql'));
+const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();
 });
 
 // Dir paths are relative for "lib" dir
-const repository = repositoryFactory('../model', '../repository');
+const repository = repositoryFactory(path.resolve('src/model'), path.resolve('src/repository'));
 
 const app = express();
 

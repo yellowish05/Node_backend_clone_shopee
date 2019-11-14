@@ -1,4 +1,6 @@
-const { assets: { types } } = require('../../config');
+const path = require('path');
+
+const { assets: { types } } = require(path.resolve('config'));
 
 class MIMEAssetTypes {
   constructor(map) {

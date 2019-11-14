@@ -1,9 +1,11 @@
 const uuid = require('uuid/v4');
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { ApolloError } = require('apollo-server');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const { cdn } = require('../../../../../config');
-const MIMEAssetTypes = require('../../../../lib/MIMEAssetTypes');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { cdn } = require(path.resolve('config'));
+const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
 
 const errorHandler = new ErrorHandler();
 

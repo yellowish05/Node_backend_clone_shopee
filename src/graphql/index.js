@@ -1,8 +1,11 @@
 const { ApolloServer } = require('apollo-server-express');
-const config = require('../../config');
-const logger = require('../../config/logger');
+const path = require('path');
+
+const config = require(path.resolve('config'));
+const logger = require(path.resolve('config/logger'));
 const createSchema = require('./schema');
-const secureContextMiddlewareFactory = require('../lib/ApolloSecureContextMiddleware');
+
+const secureContextMiddlewareFactory = require(path.resolve('src/lib/ApolloSecureContextMiddleware'));
 
 module.exports = ({ repository }) => new ApolloServer({
   schema: createSchema(),

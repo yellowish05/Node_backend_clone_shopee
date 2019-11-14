@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 const { gql } = require('apollo-server');
-const logger = require('../../../../../config/logger');
+const path = require('path');
+
+const logger = require(path.resolver('config/logger'));
 
 const mutation = gql`
     mutation registerUser($email: String!, $password: String!) {

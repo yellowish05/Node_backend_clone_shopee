@@ -1,6 +1,8 @@
+const path = require('path');
 const { gql, UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
-const { ErrorHandler } = require('../../../lib/ErrorHandler');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
 const errorHandler = new ErrorHandler();
 
