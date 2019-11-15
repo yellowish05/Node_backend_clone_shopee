@@ -7,6 +7,7 @@ const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 
 const addMessage = require('./resolvers/addMessage');
+const markMessageThreadReadBy = require('./resolvers/markMessageThreadReadBy');
 
 const schema = gql`
     enum MessageSortFeature {
@@ -35,6 +36,7 @@ const schema = gql`
       type: MessageTypeEnum!
       data: String!
       createdAt: Date!
+      isRead: Boolean
     }
 
     type MessageThread {
@@ -50,6 +52,7 @@ const schema = gql`
 
     extend type Mutation {
       addMessage(input: MessageInput!): Message! @auth(requires: USER)
+      markMessageThreadReadBy(thread: ID!, time: Date!): MessageThread! @auth(requires: USER)
     }
 
     extend type Subscription {
@@ -68,6 +71,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     addMessage,
+    markMessageThreadReadBy,
   },
   Subscription: {
     messageAdded: {
@@ -104,6 +108,14 @@ module.exports.resolvers = {
     },
     author(message, _, { dataSources: { repository } }) {
       return repository.user.load(message.author);
+    },
+    isRead(message, _, { dataSources: { repository }, user }) {
+      if (!user) {
+        return null;
+      }
+      return repository.userHasMessageThread.findOne(message.thread, user.id).then(
+        (threadRead) => (threadRead ? message.createdAt.getTime() <= threadRead.readBy.getTime() : false),
+      );
     },
   },
   MessageThread: {

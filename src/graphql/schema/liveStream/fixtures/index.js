@@ -5,33 +5,70 @@ const faker = require('faker');
 
 const logger = require(path.resolve('config/logger'));
 
-const mutation = gql`
-  mutation addLiveStream($title: String!, $experience: ID!, $categories: [ID!]!, $preview: ID!, $city: String!) {
-    addLiveStream(data: {
-      title: $title,
-      experience: $experience,
-      categories: $categories,
-      preview: $preview,
-      city: $city
-    }) {
-    id
-    city {
-      id
-      name
+const addMutation = gql`
+    mutation addLiveStream($title: String!, $experience: ID!, $categories: [ID!]!, $preview: ID!, $city: String!) {
+        addLiveStream(data: {
+            title: $title,
+            experience: $experience,
+            categories: $categories,
+            preview: $preview,
+            city: $city
+        }) {
+            id
+            city {
+                id
+                name
+            }
+            channel {
+                id
+            }
+            publicMessageThread {
+                id
+                tags
+            }
+            privateMessageThreads {
+                id
+                tags
+            }
+        }
     }
-    channel {
-      id
+`;
+
+const joinMutation = gql`
+    mutation joinLiveStream($id: ID!) {
+        joinLiveStream(id: $id) {
+            id
+            city {
+                id
+                name
+            }
+            channel {
+                id
+                participants {
+                    user {
+                        id
+                        email
+                    }
+                }
+            }
+            publicMessageThread {
+                id
+                tags
+                participants {
+                    id
+                    email
+                }
+            }
+            privateMessageThreads {
+                id
+                tags
+                participants {
+                    id
+                    email
+                }
+            }
+        }
     }
-    publicMessageThread {
-      id
-      tags
-    }
-    privateMessageThreads {
-      id
-      tags
-    }
-  }
-  }
 `;
 
 const liveStreamData = [
@@ -67,7 +104,7 @@ module.exports.handler = async (client, context) => {
     const { accessToken, assets } = context.users[email];
     return client
       .mutate({
-        mutation,
+        mutation: addMutation,
         variables: {
           ...variables,
           preview: assets[0].id,
@@ -76,12 +113,27 @@ module.exports.handler = async (client, context) => {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
       })
-      .then(({ data: { addLiveStream } }) => {
-        if (typeof context.users[email].liveStreams === 'undefined') {
-          context.users[email].liveStreams = [];
+      .then(({ data: { addLiveStream } }) => addLiveStream);
+  }))
+  .then((liveStreams) => Promise.all(liveStreams.map((variables, index) => {
+    const localIndex = index + 1 < userEmails.length ? index + 1 : 0;
+    const subscriberEmail = userEmails[localIndex];
+    const streamerEmail = userEmails[index];
+    const { accessToken } = context.users[subscriberEmail];
+    return client
+      .mutate({
+        mutation: joinMutation,
+        variables,
+        context: {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      })
+      .then(({ data: { joinLiveStream } }) => {
+        if (typeof context.users[streamerEmail].liveStreams === 'undefined') {
+          context.users[streamerEmail].liveStreams = [];
         }
-        context.users[email].liveStreams.push(addLiveStream);
-        context.liveStreams.push(addLiveStream);
+        context.users[streamerEmail].liveStreams.push(joinLiveStream);
+        context.liveStreams.push(joinLiveStream);
       });
-  }));
+  })));
 };

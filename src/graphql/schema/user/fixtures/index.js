@@ -2,7 +2,7 @@
 const { gql } = require('apollo-server');
 const path = require('path');
 
-const logger = require(path.resolver('config/logger'));
+const logger = require(path.resolve('config/logger'));
 
 const mutation = gql`
     mutation registerUser($email: String!, $password: String!) {
@@ -14,10 +14,10 @@ const mutation = gql`
 `;
 
 const userData = [
-  { email: 'test1@domain.com', password: '123456' },
-  { email: 'test2@domain.com', password: '123456' },
-  { email: 'test3@domain.com', password: '123456' },
-  { email: 'test4@domain.com', password: '123456' },
+  { email: 'bob@domain.com', password: '123456' },
+  { email: 'john@domain.com', password: '123456' },
+  { email: 'bill@domain.com', password: '123456' },
+  { email: 'esrael@domain.com', password: '123456' },
 ];
 
 module.exports.data = {
