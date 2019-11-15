@@ -25,7 +25,7 @@ const schema = gql`
         city: City
         preview: Asset
         channel: StreamChannel!
-        isLiked: Boolean! @auth(requires: USER)
+        isLiked: Boolean
         statistics: LiveStreamStats!
         publicMessageThread: MessageThread!
         privateMessageThreads: [MessageThread]!
@@ -135,6 +135,9 @@ module.exports.resolvers = {
       return repository.streamChannel.load(liveStream.channel);
     },
     isLiked(liveStream, args, { user, dataSources: { repository } }) {
+      if (!user) {
+        return null;
+      }
       return repository.like.load(liveStream.id, user.id).then((like) => !!like);
     },
     statistics(liveStream) {
