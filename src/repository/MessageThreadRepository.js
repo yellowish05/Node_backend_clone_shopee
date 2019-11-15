@@ -6,9 +6,6 @@ class MessageThreadRepository {
   }
 
   async findOne(id) {
-    if (typeof id !== 'string') {
-      throw new Error(`MessageThread.findOne expected id as String, but got "${typeof id}"`);
-    }
     return this.model.findOne({ _id: id });
   }
 
