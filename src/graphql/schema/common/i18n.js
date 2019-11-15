@@ -1,5 +1,7 @@
+const path = require('path');
 const { gql } = require('apollo-server');
-const { i18n: { locales } } = require('../../../../config');
+
+const { i18n: { locales } } = require(path.resolve('config'));
 
 const schema = gql`
     enum LOCALE {

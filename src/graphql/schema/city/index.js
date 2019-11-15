@@ -1,5 +1,7 @@
+const path = require('path');
 const { gql } = require('apollo-server');
-const { cdn } = require('../../../../config');
+
+const { cdn } = require(path.resolve('config'));
 
 const schema = gql`
 

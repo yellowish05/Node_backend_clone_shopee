@@ -1,5 +1,7 @@
+const path = require('path');
 const { gql } = require('apollo-server');
-const { StreamChannelType, StreamRecordStatus, StreamChannelStatus } = require('../../../lib/Enums');
+
+const { StreamChannelType, StreamRecordStatus, StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 const joinStreamChannel = require('./resolvers/joinStreamChannel');
 const leaveStreamChannel = require('./resolvers/leaveStreamChannel');
 const startStreaming = require('./resolvers/startStreaming');

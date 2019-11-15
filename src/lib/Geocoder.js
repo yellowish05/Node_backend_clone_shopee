@@ -1,6 +1,8 @@
 const NodeGeocoder = require('node-geocoder');
-const { google } = require('../../config');
-const logger = require('../../config/logger');
+const path = require('path');
+
+const { google } = require(path.resolve('config'));
+const logger = require(path.resolve('config/logger'));
 
 const provider = 'google';
 

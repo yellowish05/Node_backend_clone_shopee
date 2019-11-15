@@ -1,8 +1,10 @@
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ForbiddenError } = require('apollo-server');
-const { MessageType } = require('../../../../lib/Enums');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const pubsub = require('../../common/pubsub');
+
+const { MessageType } = require(path.resolve('src/lib/Enums'));
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

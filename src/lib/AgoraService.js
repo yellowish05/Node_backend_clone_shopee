@@ -1,9 +1,11 @@
 const { AccessToken } = require('agora-access-token');
+const path = require('path');
 
 const { Token, Priviledges } = AccessToken;
 const { StreamRole } = require('./Enums');
-const { agora } = require('../../config');
-const logger = require('../../config/logger');
+
+const { agora } = require(path.resolve('config'));
+const logger = require(path.resolve('config/logger'));
 
 if (agora.app_id == null) {
   logger.warn("You didn't provided APP_ID for Agora. You will not be able to work with streams");

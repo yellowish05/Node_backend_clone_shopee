@@ -1,3 +1,4 @@
+const path = require('path');
 const { gql, withFilter } = require('apollo-server');
 
 const addLiveStream = require('./resolvers/addLiveStream');
@@ -7,7 +8,7 @@ const leaveLiveStream = require('./resolvers/leaveLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
 
-const pubsub = require('../common/pubsub');
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const schema = gql`
     type LiveStreamStats {

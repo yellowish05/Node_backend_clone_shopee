@@ -1,8 +1,10 @@
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const { StreamChannelStatus } = require('../../../../lib/Enums');
-const pubsub = require('../../common/pubsub');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

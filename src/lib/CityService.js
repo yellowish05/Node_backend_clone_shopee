@@ -1,8 +1,9 @@
 const request = require('request');
 const querystring = require('querystring');
+const path = require('path');
 
-const { google } = require('../../config');
-const logger = require('../../config/logger');
+const { google } = require(path.resolve('config'));
+const logger = require(path.resolve('config/logger'));
 
 if (google.api_key == null) {
   logger.warn("You didn't provided APP_ID for Google Places API. You will not be able to work with cities");

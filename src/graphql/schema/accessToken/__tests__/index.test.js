@@ -1,7 +1,9 @@
+const path = require('path');
 const { gql } = require('apollo-server');
 const faker = require('faker');
-const clientFactory = require('../../../../../config/graphqlTestClient');
-const { data: { users: userFixtures } } = require('../../user/fixtures');
+
+const clientFactory = require(path.resolve('config/graphqlTestClient'));
+const { data: { users: userFixtures } } = require(path.resolve('src/graphql/schema/user/fixtures'));
 
 const mutation = gql`
     mutation generateAccessToken($email: String!, $password: String!) {

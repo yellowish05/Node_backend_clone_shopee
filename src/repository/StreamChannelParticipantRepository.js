@@ -1,4 +1,6 @@
-const { StreamChannelStatus } = require('../lib/Enums');
+const path = require('path');
+
+const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
 class StreamChannelParticipantRepository {
   constructor(model) {

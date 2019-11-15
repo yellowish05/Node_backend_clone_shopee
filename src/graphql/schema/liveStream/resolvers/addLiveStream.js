@@ -1,9 +1,11 @@
 const uuid = require('uuid/v4');
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
-const { StreamChannelStatus, StreamChannelType, StreamRole } = require('../../../../lib/Enums');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const { AgoraService } = require('../../../../lib/AgoraService');
+
+const { StreamChannelStatus, StreamChannelType, StreamRole } = require(path.resolve('src/lib/Enums'));
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 
 const errorHandler = new ErrorHandler();
 

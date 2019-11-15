@@ -1,7 +1,9 @@
+const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const { Geocoder } = require('../../../../lib/Geocoder');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 
 const errorHandler = new ErrorHandler();
 

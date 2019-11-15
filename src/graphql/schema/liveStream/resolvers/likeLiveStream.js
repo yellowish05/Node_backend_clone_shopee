@@ -1,6 +1,8 @@
+const path = require('path');
 const { Validator } = require('node-input-validator');
-const { ErrorHandler } = require('../../../../lib/ErrorHandler');
-const pubsub = require('../../common/pubsub');
+
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

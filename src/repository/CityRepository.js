@@ -1,9 +1,11 @@
 const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
-const { aws } = require('../../config');
+const path = require('path');
+
+const { aws } = require(path.resolve('config'));
 
 const s3 = new AWS.S3();
-const { CityService } = require('../lib/CityService');
+const { CityService } = require(path.resolve('src/lib/CityService'));
 
 class CityRepository {
   constructor(model) {

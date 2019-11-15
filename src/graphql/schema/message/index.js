@@ -1,7 +1,9 @@
+const path = require('path');
 const { gql, withFilter } = require('apollo-server');
-const { MessageType } = require('../../../lib/Enums');
 
-const pubsub = require('../common/pubsub');
+const { MessageType } = require(path.resolve('src/lib/Enums'));
+
+const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 
 const addMessage = require('./resolvers/addMessage');
