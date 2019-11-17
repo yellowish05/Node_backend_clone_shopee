@@ -15,6 +15,10 @@ class ProductCategoryRepository {
     return this.model.find({ parent: id });
   }
 
+  async findByIds(ids) {
+    return this.model.find({ _id: ids });
+  }
+
   async searchByName(query, { skip, limit }) {
     return this.model.find(
       getSearchQueryByName(query),

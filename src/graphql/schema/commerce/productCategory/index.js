@@ -3,7 +3,7 @@ const { gql } = require('apollo-server');
 const schema = gql`
     type ProductCategory {
         id: ID!
-        name: String
+        name: String!
         level: Int!
         parent: ProductCategory
         liveStreamCategory: LiveStreamCategory

@@ -3,7 +3,8 @@ const { gql } = require('apollo-server');
 const schema = gql`
     type Brand {
         id: ID!
-        name: String
+        name: String!
+        categories: [ProductCategory]!
     }
 
     type BrandCollection {
@@ -42,6 +43,14 @@ module.exports.resolvers = {
           result.pager.total = total;
           return result;
         });
+    },
+  },
+  Brand: {
+    categories: async (brand, _, { dataSources: { repository } }) => {
+      if (!brand.productCategories.length) {
+        return [];
+      }
+      return repository.productCategory.findByIds(brand.productCategories);
     },
   },
 };

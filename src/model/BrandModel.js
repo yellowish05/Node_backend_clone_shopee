@@ -11,7 +11,13 @@ const schema = new Schema({
   name: {
     type: String,
     required: true,
+    index: true,
   },
+  productCategories: [{
+    type: String,
+    ref: 'ProductCategory',
+    index: true,
+  }],
 });
 
 module.exports = new model(collectionName, schema);
