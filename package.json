@@ -7,7 +7,9 @@
     "start": "node ./server.js",
     "dev": "nodemon -L --inspect=0.0.0.0 ./server.js",
     "test": "jest",
-    "fixtures": "node bin/fixtures.js"
+    "fixtures": "node bin/fixtures.js",
+    "migrate-up": "./node_modules/.bin/migrate up",
+    "migrate-down": "./node_modules/.bin/migrate down"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,7 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
+    "migrate-mongoose": "^4.0.0",
     "mongoose": "^5.7.5",
     "node-fetch": "^2.6.0",
     "node-geocoder": "^3.24.0",

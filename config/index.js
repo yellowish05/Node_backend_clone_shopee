@@ -22,6 +22,7 @@ module.exports = {
   apolloEngineApiKey: process.env.ENGINE_API_KEY || null,
   mongo: {
     uri: process.env.MONGO_URI,
+    migrateUri: env === 'development' ? process.env.MONGO_MIGRATE_URI : process.env.MONGO_URI,
   },
   i18n: {
     defaultLocale: 'EN',

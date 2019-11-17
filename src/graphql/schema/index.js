@@ -23,6 +23,8 @@ const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset'
 const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./message');
 
+const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
+
 const typeDefs = [].concat(
   commonTypeDefs,
   testErrorsTypeDefs,
@@ -44,6 +46,7 @@ const typeDefs = [].concat(
   assetTypeDefs,
   streamChannelTypeDefs,
   messageTypeDefs,
+  commerceTypeDefs,
 );
 
 const resolvers = merge(
@@ -64,6 +67,7 @@ const resolvers = merge(
   assetResolvers,
   streamChannelResolvers,
   messageResolvers,
+  commerceResolvers,
 );
 
 const schema = makeExecutableSchema({
