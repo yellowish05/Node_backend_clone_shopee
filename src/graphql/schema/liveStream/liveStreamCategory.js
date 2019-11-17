@@ -1,4 +1,7 @@
+const path = require('path');
 const { gql } = require('apollo-server');
+
+const { cdn } = require(path.resolve('config'));
 
 const schema = gql`
     type LiveStreamCategory {
@@ -23,5 +26,8 @@ module.exports.resolvers = {
     liveStreamCategories(_, args, { dataSources: { repository } }) {
       return repository.liveStreamCategory.getAll();
     },
+  },
+  LiveStreamCategory: {
+    image: async (liveStreamCategory) => `${cdn.appAssets}${liveStreamCategory.imagePath}`,
   },
 };
