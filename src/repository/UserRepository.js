@@ -37,6 +37,27 @@ class UserRepository {
     return user.save();
   }
 
+  async createByProvider(data, options = {}) {
+    if (!data.email) {
+      throw Error('Email is required!');
+    }
+
+    if (data.email && await this.findByEmail(data.email)) {
+      throw Error(`Email "${data.email}" is already taken!`);
+    }
+
+    const user = new this.model({
+      _id: data._id,
+      email: data.email,
+      name: data.name,
+      photo: data.photo,
+      roles: options.roles || [],
+      providers: { [data.provider]: data.providerId },
+    });
+
+    return user.save();
+  }
+
   async update(id, data) {
     const user = await this.load(id);
     if (!user) {
@@ -48,6 +69,10 @@ class UserRepository {
     user.photo = data.photo || user.photo;
     user.location = data.location || user.location;
     user.address = data.address || user.address;
+
+    if (data.provider && data.providerId) {
+      user.provider[data.provider] = data.providerId;
+    }
 
     return user.save();
   }
@@ -63,6 +88,10 @@ class UserRepository {
 
   async findByEmail(email) {
     return this.model.findOne({ email });
+  }
+
+  async findByProvider(provider, value) {
+    return this.model.findOne({ [`providers.${provider}`]: value });
   }
 
   async changePassword(userId, password) {

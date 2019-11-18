@@ -38,10 +38,16 @@ module.exports = {
     agora_api_secret: process.env.AWS_AGORA_SECRET_ACCESS_KEY || null,
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
+    user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
   },
   google: {
     places_uri: process.env.GOOGLE_PLACES_URI,
     api_key: process.env.GOOGLE_API_KEY || null,
+  },
+  facebook: {
+    api_uri: process.env.FACEBOOK_URI,
+    app_id: process.env.FACEBOOK_APP_ID,
+    app_secret: process.env.FACEBOOK_APP_SECRET,
   },
   agora: {
     uri: process.env.AGORA_URI,

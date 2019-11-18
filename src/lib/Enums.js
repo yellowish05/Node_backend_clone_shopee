@@ -41,6 +41,12 @@ const MessageType = EnumFactory({
   ASSET: 'ASSET',
 });
 
+const LoginProvider = EnumFactory({
+  FACEBOOK: 'FACEBOOK',
+  GOOGLE: 'GOOGLE',
+  WE_CHAT: 'WE_CHAT',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -48,4 +54,5 @@ module.exports = {
   StreamRole,
   SourceType,
   MessageType,
+  LoginProvider,
 };
