@@ -113,7 +113,7 @@ module.exports.resolvers = {
       if (!user) {
         return null;
       }
-      return repository.userHasMessageThread.findOne(message.thread, user.id).then(
+      return repository.userHasMessageThread.findOne(typeof message.thread === 'object' ? message.thread.id : message.thread, user.id).then(
         (threadRead) => (threadRead ? message.createdAt.getTime() <= threadRead.readBy.getTime() : false),
       );
     },

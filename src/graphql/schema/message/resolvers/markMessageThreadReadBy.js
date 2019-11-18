@@ -22,7 +22,7 @@ module.exports = (_, args, { dataSources: { repository }, user }) => {
         return repository.userHasMessageThread.create({
           thread: args.thread,
           user: user.id,
-          readBy: args.time
+          readBy: args.time,
         });
       }
 

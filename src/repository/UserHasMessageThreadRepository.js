@@ -1,4 +1,5 @@
 const uuid = require('uuid/v4');
+const { Types } = require('mongoose');
 
 class UserHasMessageThreadRepository {
   constructor(model) {
@@ -26,10 +27,10 @@ class UserHasMessageThreadRepository {
 
   async updateTime(threadId, userId, time) {
     if (typeof threadId !== 'string') {
-      throw new Error(`UserHasMessageThread.findOne expected id as String, but got "${typeof threadId}"`);
+      throw new Error(`UserHasMessageThread.updateTime expected id as String, but got "${typeof threadId}"`);
     }
     if (typeof userId !== 'string') {
-      throw new Error(`UserHasMessageThread.findOne expected id as String, but got "${typeof userId}"`);
+      throw new Error(`UserHasMessageThread.updateTime expected id as String, but got "${typeof userId}"`);
     }
 
     return this.model.findOneAndUpdate(
