@@ -52,13 +52,28 @@ const MetricSystem = EnumFactory({
   SI: 'SI',
 });
 
+const Currency = EnumFactory({
+  USD: 'USD',
+  GBP: 'GBP',
+  INR: 'INR',
+});
+
+const InventoryLogType = EnumFactory({
+  USER_ACTION: 'USER_ACTION',
+  PURCHASE: 'PURCHASE',
+  REFUND: 'REFUND',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
   StreamChannelStatus,
   StreamRole,
+
   SourceType,
   MessageType,
   LoginProvider,
   MetricSystem,
+  Currency,
+  InventoryLogType,
 };

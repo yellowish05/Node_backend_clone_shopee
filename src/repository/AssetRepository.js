@@ -17,6 +17,10 @@ class AssetRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getByIds(ids) {
+    return this.model.find({ _id: ids });
+  }
+
   async create(data) {
     const asset = new this.model(data);
     return asset.save();
