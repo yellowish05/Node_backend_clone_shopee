@@ -14,6 +14,7 @@ RUN npm install --only=production && \
 
 COPY ./config ./config
 COPY ./src ./src
+COPY ./migrate.js ./migrate.js
 COPY ./server.js ./server.js
 
 EXPOSE 4000
