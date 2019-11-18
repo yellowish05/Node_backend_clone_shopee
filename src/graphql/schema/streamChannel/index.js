@@ -1,7 +1,10 @@
 const path = require('path');
 const { gql } = require('apollo-server');
 
-const { StreamChannelType, StreamRecordStatus, StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const { cdn } = require(path.resolve('config'));
+const {
+  StreamChannelType, StreamRecordStatus, StreamChannelStatus, SourceType,
+} = require(path.resolve('src/lib/Enums'));
 const joinStreamChannel = require('./resolvers/joinStreamChannel');
 const leaveStreamChannel = require('./resolvers/leaveStreamChannel');
 const startStreaming = require('./resolvers/startStreaming');
@@ -20,8 +23,13 @@ const schema = gql`
       ${StreamChannelStatus.toGQL()}
     }
 
+    enum SourceType {
+      ${SourceType.toGQL()}
+    }
+
     type StreamRecordSource {
       user: User!
+      type: SourceType!
       source: String!
     }
 
@@ -112,6 +120,16 @@ module.exports.resolvers = {
   StreamParticipant: {
     user(participant, args, { dataSources: { repository } }) {
       return participant.user == null ? null : repository.user.load(participant.user);
+    },
+  },
+  StreamRecord: {
+    sources(streamRecord, args, { dataSources: { repository } }) {
+      return repository.streamSource.getAll({ _id: streamRecord.sources });
+    },
+  },
+  StreamRecordSource: {
+    source(recordSource) {
+      return cdn.media + recordSource.source;
     },
   },
 };

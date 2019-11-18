@@ -46,8 +46,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           if (channel.record.enabled) {
             AgoraService.recording.stop(args.id, '1', streamChannel.record.resourceId, streamChannel.record.sid)
               .then(({ serverResponse }) => Promise.all(serverResponse.fileList.map((f) => repository.streamSource.create({
-                source: f.filename,
-                type: f.filename.includes('video') ? SourceType.VIDEO : SourceType.AUDIO,
+                source: `/${f.fileName}`,
+                type: (f.fileName.includes('video') ? SourceType.VIDEO : SourceType.AUDIO),
                 user,
               }))))
               .then((sources) => repository.streamChannel.finishRecording(args.id, sources))

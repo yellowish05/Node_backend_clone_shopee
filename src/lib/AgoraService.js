@@ -94,7 +94,7 @@ module.exports.AgoraService = {
                   bucket: aws.media_bucket,
                   accessKey: aws.agora_api_key,
                   secretKey: aws.agora_api_secret,
-                  fileNamePrefix: ['streamrecords', 'livestream'],
+                  fileNamePrefix: [channelName.replace(/-/g, '')],
                 },
               },
             },
