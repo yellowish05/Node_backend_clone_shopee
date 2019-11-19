@@ -63,6 +63,17 @@ class MessageRepository {
         },
       );
   }
+
+  async getUnreadByTime({ blackList, thread, time }) {
+    const query = {
+      thread,
+      createdAt: { $gt: time },
+    };
+    if (blackList && blackList.length > 0) {
+      query.author = { $nin: blackList };
+    }
+    return this.model.find(query);
+  }
 }
 
 module.exports = MessageRepository;

@@ -33,6 +33,9 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         throw new ForbiddenError('You can not write to this thread');
       }
 
+      return repository.messageThread.updateTime(thread.id);
+    })
+    .then((thread) => {
       return Promise.all([repository.message
         .addMessage({
           author: user.id,

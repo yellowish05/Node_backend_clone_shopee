@@ -20,10 +20,17 @@ const schema = new Schema({
   readBy: {
     type: Date,
     required: true,
+    index: true,
   },
   muted: {
     type: Boolean,
     default: false,
+    index: true,
+  },
+  hidden: {
+    type: Boolean,
+    default: false,
+    index: true,
   },
 });
 

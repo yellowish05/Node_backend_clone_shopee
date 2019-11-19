@@ -13,6 +13,12 @@ const schema = new Schema({
     required: true,
   }],
   tags: [String],
+  lastUpdate: {
+    type: Date,
+    default: Date.now,
+    required: true,
+    index: true,
+  },
 });
 
 module.exports = new model(collectionName, schema);

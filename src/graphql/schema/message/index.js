@@ -8,6 +8,7 @@ const pubsub = require(path.resolve('config/pubsub'));
 
 const addMessage = require('./resolvers/addMessage');
 const markMessageThreadReadBy = require('./resolvers/markMessageThreadReadBy');
+const getMessageThreadCollection = require('./resolvers/getMessageThreadCollection');
 
 const schema = gql`
     enum MessageSortFeature {
@@ -44,11 +45,22 @@ const schema = gql`
       tags: [String]!
       participants: [User!]!
       messages(limit: Int! = 10, sort: MessageSortInput = {}): [Message]!
+      unreadMessages: Int!
+    }
+
+    type MessageThreadCollection {
+      collection: [MessageThread]!
+      pager: Pager
+    }
+
+    input MessageThreadFilterInput {
+      hasUnreads: Boolean = null
     }
 
     extend type Query {
       """Allows: authorized user"""
       messages(thread: ID!, skip: Date, limit: Int! = 10, sort: MessageSortInput = {}): [Message]! @auth(requires: USER)
+      messageThreads(filter: MessageThreadFilterInput = {}, page: PageInput = {}): MessageThreadCollection! @auth(requires: USER)
     }
 
     extend type Mutation {
@@ -62,7 +74,6 @@ const schema = gql`
       """Allows: authorized user"""
       messageAdded(threads: [ID!], threadTags: [String!]): Message! @auth(requires: USER)
     }
-
 `;
 
 module.exports.typeDefs = [schema];
@@ -75,6 +86,7 @@ module.exports.resolvers = {
         ...args,
       });
     },
+    messageThreads: getMessageThreadCollection,
   },
   Mutation: {
     addMessage,
@@ -136,6 +148,16 @@ module.exports.resolvers = {
       return repository.message.get({
         blackList: user.blackList, thread, limit, sort,
       });
+    },
+    unreadMessages(thread, _, { dataSources: { repository }, user }) {
+      return repository.userHasMessageThread.findOne(thread.id, user.id)
+        .then((threadRead) => {
+          if (threadRead) {
+            return repository.message.getUnreadByTime({ blackList: user.blackList, thread: thread.id, time: threadRead.readBy });
+          }
+          return repository.message.get({ blackList: user.blackList, thread: thread.id });
+        })
+        .then((unreadMessages) => unreadMessages.length);
     },
   },
 };

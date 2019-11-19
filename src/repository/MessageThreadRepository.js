@@ -53,6 +53,92 @@ class MessageThreadRepository {
     });
     return message.save();
   }
+
+  async updateTime(threadId) {
+    return this.model.findOneAndUpdate(
+      { _id: threadId },
+      { lastUpdate: Date.now() },
+      { new: true },
+    );
+  }
+
+  async getWithTotal({ filter, page }) {
+    let filterQuery = {};
+    if (filter.hasUnreads == null) {
+      filterQuery = {
+        $or: [
+          { 'userhasmessagethread.hidden': false },
+          { userhasmessagethread: null, 'messages.0': { $exists: true } },
+        ],
+      };
+    } else if (filter.hasUnreads) {
+      filterQuery = {
+        $or: [
+          { 'userhasmessagethread.hidden': false, unreadMessages: { $exists: true, $ne: [] } },
+          { userhasmessagethread: null, 'messages.0': { $exists: true } },
+        ],
+      };
+    } else {
+      filterQuery = { 'userhasmessagethread.hidden': false, unreadMessages: [] };
+    }
+
+    return this.model.aggregate([
+      {
+        $match: { participants: filter.user },
+      },
+      {
+        $lookup: {
+          from: 'messages',
+          localField: '_id',
+          foreignField: 'thread',
+          as: 'messages',
+        },
+      },
+      {
+        $lookup: {
+          from: 'userhasmessagethreads',
+          localField: '_id',
+          foreignField: 'thread',
+          as: 'userhasmessagethread',
+        },
+      },
+      {
+        $addFields: {
+          id: '$_id',
+          userhasmessagethread: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$userhasmessagethread',
+                  as: 'hasthread',
+                  cond: {
+                    $eq: ['$$hasthread.user', filter.user],
+                  },
+                },
+              }, 0],
+          },
+        },
+      },
+      {
+        $addFields: {
+          unreadMessages: {
+            $filter: {
+              input: '$messages',
+              as: 'message',
+              cond: {
+                $gt: ['$$message.createdAt', '$userhasmessagethread.readBy'],
+              },
+            },
+          },
+        },
+      },
+      {
+        $match: filterQuery,
+      },
+      { $group: { _id: null, total: { $sum: 1 }, collection: { $push: '$$ROOT' } } },
+      { $skip: page.skip },
+      { $limit: page.limit }]).then((data) => (data.length > 0 ? data[0] : { collection: [], total: 0 }));
+  }
 }
 
 module.exports = MessageThreadRepository;

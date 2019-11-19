@@ -73,6 +73,18 @@ const activity = {
         return thread.save();
       });
   },
+
+  async mutePublicMessageThread({id, user}, repository) {
+    return repository.userHasMessageThread.create({
+      thread: id,
+      user: user.id,
+      readBy: Date.now(),
+      muted: true,
+      hidden: true,
+    }).catch((error) => {
+      logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
+    });
+  }
 };
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -107,6 +119,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         })
         .then(() => activity.createPrivateMessageThread({ liveStream, user }, repository))
         .then(() => activity.addParticipantToMessageThread({ id: liveStream.publicMessageThread, user }, repository))
+        .then(() => activity.mutePublicMessageThread({ id: liveStream.publicMessageThread, user }, repository))
         .then(() => {
           pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
           return liveStream;

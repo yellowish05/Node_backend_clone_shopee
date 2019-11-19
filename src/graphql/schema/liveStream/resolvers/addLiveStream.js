@@ -96,8 +96,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         user: user.id,
         readBy: Date.now(),
         muted: true,
+        hidden: true,
       }).catch((error) => {
-        logger.error(`Failed to update User Thread on Add Message for user "${user.id}". Original error: ${error}`);
+        logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
 
       return repository.liveStream.create({
