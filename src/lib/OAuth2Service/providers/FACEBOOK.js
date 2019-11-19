@@ -1,5 +1,3 @@
-'/me?fields=id&access_token="xxxxx"';
-
 const axios = require('axios');
 const querystring = require('querystring');
 const path = require('path');
@@ -13,19 +11,15 @@ module.exports = {
       access_token: token,
     };
 
-    return new Promise((resolve, reject) => {
-      axios.get(`${facebook.api_uri}/me?${querystring.stringify(parameters)}`)
-        .then(({ data }) => {
-          resolve({
-            id: data.id,
-            email: data.email,
-            name: data.name,
-            photo: data.picture.data.url,
-          });
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+    return axios.get(`${facebook.api_uri}/me?${querystring.stringify(parameters)}`)
+      .then(({ data }) => ({
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        photo: data.picture.data.url,
+      }))
+      .catch((error) => {
+        throw new Error(error);
+      });
   },
 };

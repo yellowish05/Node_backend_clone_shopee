@@ -45,9 +45,7 @@ module.exports = {
     api_key: process.env.GOOGLE_API_KEY || null,
   },
   facebook: {
-    api_uri: process.env.FACEBOOK_URI,
-    app_id: process.env.FACEBOOK_APP_ID,
-    app_secret: process.env.FACEBOOK_APP_SECRET,
+    api_uri: 'https://graph.facebook.com',
   },
   agora: {
     uri: process.env.AGORA_URI,

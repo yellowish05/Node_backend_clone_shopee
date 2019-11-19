@@ -23,32 +23,31 @@ class AssetRepository {
   }
 
   async createFromUri(data) {
-    return new Promise((resolve, reject) => {
-      axios.get(data.url, { responseType: 'arraybuffer' })
-        .then((response) => {
-          const id = uuid();
-          const { ext, type } = MIMEAssetTypes.detect(response.headers['content-type']);
-          const imgPath = `${data.userId}/${id}.${ext}`;
-          return Promise.all([
-            s3.upload({
-              Bucket: aws.user_bucket,
-              Key: imgPath,
-              Body: response.data,
-            }).promise(),
-            this.model.create({
-              _id: id,
-              owner: data.userId,
-              path: imgPath,
-              url: `${cdn.userAssets}/${imgPath}`,
-              type,
-              size: response.data.length * 8,
-              mimetype: response.headers['content-type'],
-            })]).then(([, asset]) => resolve(asset));
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+    return axios.get(data.url, { responseType: 'arraybuffer' })
+      .then((response) => {
+        const id = uuid();
+        const { ext, type } = MIMEAssetTypes.detect(response.headers['content-type']);
+        const imgPath = `${data.userId}/${id}.${ext}`;
+        return Promise.all([
+          s3.upload({
+            Bucket: aws.user_bucket,
+            Key: imgPath,
+            Body: response.data,
+          }).promise(),
+          this.model.create({
+            _id: id,
+            owner: data.userId,
+            path: imgPath,
+            url: `${cdn.userAssets}/${imgPath}`,
+            type,
+            size: response.data.length * 8,
+            mimetype: response.headers['content-type'],
+          })]);
+      })
+      .then(([, asset]) => asset)
+      .catch((error) => {
+        throw new Error(error);
+      });
   }
 }
 
