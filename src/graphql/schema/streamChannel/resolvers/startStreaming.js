@@ -3,7 +3,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
+const { AgoraService, ForbiddenError } = require(path.resolve('src/lib/AgoraService'));
 const { StreamChannelStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
@@ -38,7 +38,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
     })
     .then((participant) => {
       if (!participant.isPublisher) {
-        throw new ApolloError('Only streamer can start the stream', 403);
+        throw new ForbiddenError('Only streamer can start the stream', 403);
       }
 
       return repository.streamChannel.start(args.id);

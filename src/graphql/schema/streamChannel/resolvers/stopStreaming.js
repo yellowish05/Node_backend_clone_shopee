@@ -1,6 +1,6 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { StreamChannelStatus, SourceType } = require(path.resolve('src/lib/Enums'));
@@ -37,7 +37,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       return repository.streamChannelParticipant.load(args.id, user.id)
         .then((participant) => {
           if (!participant.isPublisher) {
-            throw new ApolloError('Only streamer can stop the stream', 403);
+            throw new ForbiddenError('Only streamer can stop the stream', 403);
           }
 
           return repository.streamChannel.finish(args.id);
