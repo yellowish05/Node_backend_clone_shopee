@@ -4,5 +4,6 @@
     "src/graphql/schema/shippingBox/fixtures",
     "src/graphql/schema/asset/fixtures",
     "src/graphql/schema/liveStream/fixtures",
+    "src/graphql/schema/commerce/product/fixtures",
     "src/graphql/schema/message/fixtures"
 ]

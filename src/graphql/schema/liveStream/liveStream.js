@@ -7,6 +7,8 @@ const joinLiveStream = require('./resolvers/joinLiveStream');
 const leaveLiveStream = require('./resolvers/leaveLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
+const addProductToLiveStream = require('./resolvers/addProductToLiveStream');
+const removeProductFromLiveStream = require('./resolvers/removeProductFromLiveStream');
 
 const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
@@ -30,6 +32,7 @@ const schema = gql`
         statistics: LiveStreamStats!
         publicMessageThread: MessageThread!
         privateMessageThreads: [MessageThread]!
+        products: [Product]!
     }
 
     input LiveStreamInput {
@@ -83,6 +86,14 @@ const schema = gql`
       Pass ID of the Live Stream
       """
       leaveLiveStream(id: ID!): Boolean! @auth(requires: USER)
+      """
+      Pass ID of the Live Stream and list of Product IDs. Make sure to set Error Policy to 'all'
+      """
+      addProductToLiveStream(liveStream: ID!, productIds: [ID]!): LiveStream! @auth(requires: USER)
+      """
+      Pass ID of the Live Stream and ID of the Product
+      """
+      removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
     }
 
     extend type Subscription {
@@ -104,6 +115,8 @@ module.exports.resolvers = {
     likeLiveStream,
     joinLiveStream,
     leaveLiveStream,
+    addProductToLiveStream,
+    removeProductFromLiveStream,
   },
   Subscription: {
     liveStream: {
@@ -167,6 +180,9 @@ module.exports.resolvers = {
         [user, liveStream.streamer],
       )
         .then((thread) => (!thread ? [] : [thread]));
+    },
+    products(liveStream, _, { dataSources: { repository } }) {
+      return repository.product.loadList(liveStream.products);
     },
   },
   LiveStreamStats: {

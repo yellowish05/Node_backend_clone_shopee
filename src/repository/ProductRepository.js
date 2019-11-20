@@ -110,6 +110,10 @@ class ProductRepository {
     applyFilter(query, filter);
     return this.model.countDocuments(query);
   }
+
+  async loadList(ids) {
+    return this.model.find({ _id: { $in: ids } });
+  }
 }
 
 module.exports = ProductRepository;

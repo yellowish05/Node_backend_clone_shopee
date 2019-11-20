@@ -115,25 +115,25 @@ module.exports.handler = async (client, context) => {
       })
       .then(({ data: { addLiveStream } }) => addLiveStream);
   }))
-  .then((liveStreams) => Promise.all(liveStreams.map((variables, index) => {
-    const localIndex = index + 1 < userEmails.length ? index + 1 : 0;
-    const subscriberEmail = userEmails[localIndex];
-    const streamerEmail = userEmails[index];
-    const { accessToken } = context.users[subscriberEmail];
-    return client
-      .mutate({
-        mutation: joinMutation,
-        variables,
-        context: {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        },
-      })
-      .then(({ data: { joinLiveStream } }) => {
-        if (typeof context.users[streamerEmail].liveStreams === 'undefined') {
-          context.users[streamerEmail].liveStreams = [];
-        }
-        context.users[streamerEmail].liveStreams.push(joinLiveStream);
-        context.liveStreams.push(joinLiveStream);
-      });
-  })));
+    .then((liveStreams) => Promise.all(liveStreams.map((variables, index) => {
+      const localIndex = index + 1 < userEmails.length ? index + 1 : 0;
+      const subscriberEmail = userEmails[localIndex];
+      const streamerEmail = userEmails[index];
+      const { accessToken } = context.users[subscriberEmail];
+      return client
+        .mutate({
+          mutation: joinMutation,
+          variables,
+          context: {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          },
+        })
+        .then(({ data: { joinLiveStream } }) => {
+          if (typeof context.users[streamerEmail].liveStreams === 'undefined') {
+            context.users[streamerEmail].liveStreams = [];
+          }
+          context.users[streamerEmail].liveStreams.push(joinLiveStream);
+          context.liveStreams.push(joinLiveStream);
+        });
+    })));
 };

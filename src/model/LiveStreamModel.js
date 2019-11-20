@@ -53,6 +53,10 @@ const schema = new Schema({
     type: String,
     ref: 'MessageThread',
   }],
+  products: [{
+    type: String,
+    ref: 'Product',
+  }],
 });
 
 schema.methods.getTagName = function getTagName() {
