@@ -1,6 +1,7 @@
 [
     "src/graphql/schema/user/fixtures",
     "src/graphql/schema/accessToken/fixtures",
+    "src/graphql/schema/shippingBox/fixtures",
     "src/graphql/schema/asset/fixtures",
     "src/graphql/schema/liveStream/fixtures",
     "src/graphql/schema/message/fixtures"

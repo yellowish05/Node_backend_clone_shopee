@@ -47,6 +47,11 @@ const LoginProvider = EnumFactory({
   WE_CHAT: 'WE_CHAT',
 });
 
+const MetricSystem = EnumFactory({
+  USC: 'USC',
+  SI: 'SI',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -55,4 +60,5 @@ module.exports = {
   SourceType,
   MessageType,
   LoginProvider,
+  MetricSystem,
 };
