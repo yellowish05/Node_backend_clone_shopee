@@ -19,7 +19,7 @@ const schema = gql`
   }
 
   input OAuth2LoginInput {
-    provider: LoginProvider
+    provider: LoginProvider!
     token: String!
   }
 
