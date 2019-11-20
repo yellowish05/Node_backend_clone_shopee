@@ -71,7 +71,7 @@ class UserRepository {
     user.address = data.address || user.address;
 
     if (data.provider && data.providerId) {
-      user.provider[data.provider] = data.providerId;
+      user.providers[data.provider] = data.providerId;
     }
 
     return user.save();
