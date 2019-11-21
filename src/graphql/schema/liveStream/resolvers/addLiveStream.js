@@ -3,7 +3,10 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
-const { StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
+const {
+  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,
+} = require(path.resolve('src/lib/Enums'));
+const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 
@@ -75,8 +78,17 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         repository.city.findByName(args.data.city || user.address.city),
       ]);
     })
-    .then(([_id, streamChannel, messageThread, , city]) => (
-      repository.liveStream.create({
+    .then(([_id, streamChannel, messageThread, , city]) => {
+      repository.userHasMessageThread.create({
+        thread: messageThread.id,
+        user: user.id,
+        readBy: Date.now(),
+        muted: true,
+      }).catch((error) => {
+        logger.error(`Failed to update User Thread on Add Message for user "${user.id}". Original error: ${error}`);
+      });
+
+      return repository.liveStream.create({
         _id,
         streamer: user,
         title: args.data.title,
@@ -87,8 +99,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,
-      })
-    ))
+      });
+    })
     .catch((error) => {
       throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
     });

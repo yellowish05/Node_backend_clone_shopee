@@ -29,12 +29,17 @@ const mutation = gql`
 
 const messagesData = [
   {
-    email: 'bob@domain.com',
+    email: 'john@domain.com',
     type: MessageType.TEXT,
     data: faker.lorem.sentence(),
   },
   {
-    email: 'john@domain.com',
+    email: 'bill@domain.com',
+    type: MessageType.TEXT,
+    data: faker.lorem.sentence(),
+  },
+  {
+    email: 'bob@domain.com',
     type: MessageType.TEXT,
     data: faker.lorem.sentence(),
   },

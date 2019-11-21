@@ -24,6 +24,8 @@ const { typeDefs: verificationCodeTypeDefs, resolvers: verificationCodeResolvers
 const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset');
 const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./message');
+const { typeDefs: notificationTypeDefs, resolvers: notificationResolvers } = require('./notification');
+const { typeDefs: notificationDataTypeDefs, resolvers: notificationDataResolvers } = require('./notification/notificationTypes');
 
 const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
 
@@ -51,6 +53,8 @@ const typeDefs = [].concat(
   streamChannelTypeDefs,
   messageTypeDefs,
   commerceTypeDefs,
+  notificationDataTypeDefs,
+  notificationTypeDefs,
 );
 
 const resolvers = merge(
@@ -74,6 +78,8 @@ const resolvers = merge(
   streamChannelResolvers,
   messageResolvers,
   commerceResolvers,
+  notificationDataResolvers,
+  notificationResolvers,
 );
 
 const schema = makeExecutableSchema({

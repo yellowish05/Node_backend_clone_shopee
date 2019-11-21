@@ -69,6 +69,13 @@ const VerificationEmailTemplate = EnumFactory({
   CONFIRM_EMAIL: 'CONFIRM_EMAIL',
 });
 
+const NotificationType = EnumFactory({
+  SYSTEM: 'SYSTEM',
+  MESSAGE: 'MESSAGE',
+  SELLER_ORDER: 'SELLER_ORDER',
+  BUYER_ORDER: 'BUYER_ORDER',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -82,4 +89,5 @@ module.exports = {
   Currency,
   InventoryLogType,
   VerificationEmailTemplate,
+  NotificationType,
 };

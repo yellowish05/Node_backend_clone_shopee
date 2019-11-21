@@ -90,6 +90,12 @@ const liveStreamData = [
     categories: ['e516cb92-7a9b-4618-93ef-ad8b535c7b60'],
     city: 'Lviv',
   },
+  {
+    title: faker.lorem.words(5),
+    experience: '68252d52-3195-43c4-8c83-39f3bbbdb1c5',
+    categories: ['d713ee93-60b7-479f-ae39-b4e554495a29', 'e516cb92-7a9b-4618-93ef-ad8b535c7b60', '906d886f-6183-4071-809c-f56585367404'],
+    city: 'Dnipro',
+  },
 ];
 
 module.exports.data = { liveStream: liveStreamData };

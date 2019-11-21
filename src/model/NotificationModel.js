@@ -1,32 +1,37 @@
+const path = require('path');
 const { Schema, model } = require('mongoose');
+
+const { NotificationType } = require(path.resolve('src/lib/Enums'));
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
-const collectionName = 'UserHasMessageThread';
+const collectionName = 'Notification';
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
-  thread: {
+  type: {
     type: String,
-    ref: 'MessageThread',
-    required: true,
+    enum: NotificationType.toList(),
+  },
+  isRead: {
+    type: Boolean,
+    default: false,
   },
   user: {
     type: String,
     ref: 'User',
     required: true,
   },
-  readBy: {
-    type: Date,
-    required: true,
+  data: {
+    type: Schema.Types.Mixed,
   },
-  muted: {
-    type: Boolean,
-    default: false,
-  },
+  tags: [String],
 });
 
-schema.index({ thread: 1, user: 1 }, { unique: true });
+schema.methods.markRead = function () {
+  this.isRead = true;
+  return this.save();
+};
 
 module.exports = new model(collectionName, schema);

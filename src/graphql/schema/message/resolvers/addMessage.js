@@ -2,8 +2,9 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ForbiddenError } = require('apollo-server');
 
-const { MessageType } = require(path.resolve('src/lib/Enums'));
+const { MessageType, NotificationType } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
 
 const errorHandler = new ErrorHandler();
@@ -47,6 +48,24 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
             id: message.id,
             thread: { ...thread.toObject(), id: thread.id },
           });
+
+          // TODO: we need to add queue here
+          thread.participants.forEach((uId) => {
+            if (uId !== user.id) {
+              repository.notification.create({
+                type: NotificationType.MESSAGE,
+                user: uId,
+                data: {
+                  text: message.data,
+                  author: user.id,
+                },
+                tags: ['Message:message.id'],
+              }).catch((error) => {
+                logger.error(`Failed to create Notification on Add Message for user "${uId}", Original error: ${error}`);
+              });
+            }
+          });
+
           return message;
         });
     });
