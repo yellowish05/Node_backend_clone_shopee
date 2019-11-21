@@ -26,25 +26,19 @@ class UserHasMessageThreadRepository {
   }
 
   async updateTime(threadId, userId, time) {
-    if (typeof threadId !== 'string') {
-      throw new Error(`UserHasMessageThread.updateTime expected id as String, but got "${typeof threadId}"`);
-    }
-    if (typeof userId !== 'string') {
-      throw new Error(`UserHasMessageThread.updateTime expected id as String, but got "${typeof userId}"`);
-    }
+    return this.findOne(threadId, userId)
+      .then((userHasMessageThread) => {
+        if (!userHasMessageThread) {
+          return this.create({
+            thread: threadId,
+            user: userId,
+            readBy: time,
+          });
+        }
 
-    return this.model.findOneAndUpdate(
-      {
-        thread: threadId,
-        user: userId,
-      },
-      {
-        readBy: time,
-      },
-      {
-        new: true,
-      },
-    );
+        userHasMessageThread.readBy = time;
+        return userHasMessageThread.save();
+      });
   }
 }
 

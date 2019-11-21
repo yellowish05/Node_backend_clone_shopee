@@ -32,14 +32,16 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         throw new ForbiddenError('You can not write to this thread');
       }
 
-      return repository.message
+      return Promise.all([repository.message
         .addMessage({
           author: user.id,
           thread: thread.id,
           type: input.type,
           data: input.data,
-        })
-        .then((message) => {
+        }),
+      repository.userHasMessageThread.updateTime(thread.id, user.id, Date.now()),
+      ])
+        .then(([message, _]) => {
           pubsub.publish('MESSAGE_ADDED', {
             ...message.toObject(),
             id: message.id,

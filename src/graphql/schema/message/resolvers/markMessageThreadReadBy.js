@@ -16,17 +16,6 @@ module.exports = (_, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
     })
-    .then(() => repository.userHasMessageThread.findOne(args.thread, user.id))
-    .then((threadUserRead) => {
-      if (!threadUserRead) {
-        return repository.userHasMessageThread.create({
-          thread: args.thread,
-          user: user.id,
-          readBy: args.time,
-        });
-      }
-
-      return repository.userHasMessageThread.updateTime(args.thread, user.id, args.time);
-    })
+    .then(() => repository.userHasMessageThread.updateTime(args.thread, user.id, args.time))
     .then((threadUserRead) => repository.messageThread.findOne(threadUserRead.thread));
 };
