@@ -68,12 +68,12 @@ module.exports = {
     TTL: 1800,
   },
   email: {
-    emailFrom: process.env.ELASTIC_EMAIL_VALUE,
+    emailFrom: process.env.ELASTIC_EMAIL_FROM,
     emailBodyType: 'Plain',
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
-      apiUri: process.env.ELASTIC_EMAIL_URI,
-      apiVersion: process.env.ELASTIC_EMAIL_VERSION,
+      apiUri: 'https://api.elasticemail.com/',
+      apiVersion: 'v2',
     },
   },
 };
