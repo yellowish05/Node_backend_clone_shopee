@@ -16,7 +16,7 @@ const schema = gql`
 
     extend type Query {
         searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
-        productCategories(parent: ID, page: PageInput = {}): ProductCategoryCollection!
+        productCategories(parent: ID): [ProductCategory]!
     }
 `;
 
@@ -53,12 +53,8 @@ module.exports.resolvers = {
       ])
         .then(composeTypeResult(page));
     },
-    productCategories: async (_, { parent = null, page }, { dataSources: { repository } }) => (
-      Promise.all([
-        repository.productCategory.getByParent(parent, page),
-        repository.productCategory.getCountByParent(parent),
-      ])
-        .then(composeTypeResult(page))
+    productCategories: async (_, { parent = null }, { dataSources: { repository } }) => (
+      repository.productCategory.getByParent(parent)
     ),
   },
   ProductCategory: {
