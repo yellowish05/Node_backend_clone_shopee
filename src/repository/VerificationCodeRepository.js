@@ -8,11 +8,11 @@ class VerificationCodeRepository {
   }
 
   async create(data) {
-    if (!data.userId) {
-      throw Error('User id is required!');
+    if (!data.user) {
+      throw Error('User is required!');
     }
     let code = '';
-    for (let i = 0; i < this.codeLength; i++) {
+    for (let i = 0; i < this.codeLength; i += 1) {
       code += this.candidates.charAt(Math.floor(Math.random() * this.candidates.length));
     }
 
@@ -25,19 +25,18 @@ class VerificationCodeRepository {
     return verificationCode.save();
   }
 
-
   async deactivate(id) {
     if (!id) {
-      throw Error('User id deactivateis is required!');
+      throw Error('User id for deactivate codes is required!');
     }
-    return this.model.updateMany({ userId: id, isActive: true }, { isActive: false });
+    return this.model.updateMany({ user: id, isActive: true }, { isActive: false });
   }
 
-  async getByCodeAndUser(code, userId) {
-    if (!userId && !code) {
+  async getByCodeAndUser(code, user) {
+    if (!user && !code) {
       throw Error('User id and verifiction code is required!');
     }
-    return this.model.findOne({ userId, code, isActive: true });
+    return this.model.findOne({ user, code, isActive: true });
   }
 }
 
