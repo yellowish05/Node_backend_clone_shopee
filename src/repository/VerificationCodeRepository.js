@@ -7,8 +7,8 @@ class VerificationCodeRepository {
     this.codeLength = 6;
   }
 
-  async create(data) {
-    if (!data.user) {
+  async create({ user }) {
+    if (!user) {
       throw Error('User is required!');
     }
     let code = '';
@@ -17,7 +17,7 @@ class VerificationCodeRepository {
     }
 
     const verificationCode = new this.model({
-      ...data,
+      user,
       code,
       _id: uuid(),
     });

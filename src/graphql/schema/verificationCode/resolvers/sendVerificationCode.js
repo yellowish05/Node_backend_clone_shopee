@@ -1,11 +1,12 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
-const { UserInputError } = require('apollo-server');
+const { UserInputError, ApolloError } = require('apollo-server');
 const requireDir = require('require-dir');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { email } = require(path.resolve('config'));
-const EE = require(path.resolve('config/emailProvider'));
+const logger = require(path.resolve('config/logger'));
+const EmailProvider = require(path.resolve('config/emailProvider'));
 
 const errorHandler = new ErrorHandler();
 
@@ -24,35 +25,35 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       }
     })
     .then(() => repository.user.findByEmail(args.email))
-    .then((existingUser) => {
-      if (!existingUser) {
+    .then((user) => {
+      if (!user) {
         throw new UserInputError('User does not exists');
       }
-      return existingUser;
+      return user;
     })
-    .then((user) => {
-      repository.verificationCode.deactivate(user.id);
-      EE.Account.Load();
-      return repository.verificationCode.create({ user: user.id })
+    .then((user) => (
+      repository.verificationCode.deactivate(user.id)
+        .then(() => repository.verificationCode.create({ user: user.id }))
         .then((newCode) => {
           const template = templates[args.template];
           if (!template) {
             throw new UserInputError('Template does not exists', { invalidArgs: 'template' });
           }
 
-          const emailBody = template.build({ code: newCode.code, user });
-          const emailParams = {
+          const params = {
             subject: template.subject,
             to: args.email,
-            from: email.emailFrom,
-            body: emailBody,
-            bodyType: email.emailBodyType,
+            from: email.from,
+            body: template.build({ code: newCode.code, user }),
+            bodyType: email.bodyType,
           };
-          return EE.Email.Send(emailParams)
-            .catch((err) => {
-              throw new Error(err);
-            })
-            .then(() => true);
-        });
-    });
+
+          logger.debug(`[EMAIL] try send email ${JSON.stringify(params)}`);
+          return EmailProvider.Email.Send(params);
+        })
+        .catch((err) => {
+          throw new ApolloError(err);
+        })
+        .then(() => true)
+    ));
 };

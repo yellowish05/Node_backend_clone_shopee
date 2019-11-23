@@ -9,7 +9,7 @@ if (env === 'development' || env === 'test') {
 }
 
 module.exports = {
-  domain: process.env.DOMAIN || 'localhost',
+  domain: 'localhost',
   logs: {
     name: 'api',
     level: isDebugMode ? 'debug' : 'info',
@@ -41,14 +41,14 @@ module.exports = {
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
   },
   google: {
-    places_uri: process.env.GOOGLE_PLACES_URI,
+    places_uri: 'https://maps.googleapis.com/maps/api/place',
     api_key: process.env.GOOGLE_API_KEY || null,
   },
   facebook: {
     api_uri: 'https://graph.facebook.com',
   },
   agora: {
-    uri: process.env.AGORA_URI,
+    uri: 'https://api.agora.io/v1/apps',
     app_id: process.env.AGORA_APP_ID || null,
     app_cert: process.env.AGORA_APP_CERT || null,
     api_key: process.env.AGORA_API_KEY || null,
@@ -68,8 +68,8 @@ module.exports = {
     TTL: 1800,
   },
   email: {
-    emailFrom: process.env.ELASTIC_EMAIL_FROM,
-    emailBodyType: 'Plain',
+    from: process.env.ELASTIC_EMAIL_FROM,
+    bodyType: 'Plain',
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
       apiUri: 'https://api.elasticemail.com/',
