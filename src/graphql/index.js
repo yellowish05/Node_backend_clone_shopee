@@ -12,7 +12,7 @@ module.exports = ({ repository }) => new ApolloServer({
   formatError: (error) => {
     const sendError = error;
 
-    if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
+    if (error.extensions && error.extensions.code === 'INTERNAL_SERVER_ERROR') {
       logger.error(JSON.stringify(error));
       sendError.message = 'Internal server error';
     } else if (config.isDebugMode) {

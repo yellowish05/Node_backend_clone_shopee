@@ -19,7 +19,7 @@ class LiveStreamCategoryRepository {
   }
 
   async getCountBySearch(query) {
-    return this.model.count(getSearchQueryByName(query));
+    return this.model.countDocuments(getSearchQueryByName(query));
   }
 
   async getById(id) {

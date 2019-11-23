@@ -13,7 +13,7 @@ class LikeRepository {
   }
 
   async getLikesCount(entityId) {
-    return this.model.count({ entity: entityId });
+    return this.model.countDocuments({ entity: entityId });
   }
 }
 
