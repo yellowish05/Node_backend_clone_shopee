@@ -43,6 +43,7 @@ const schema = gql`
 
     extend type Mutation {
       """
+      Allows: authorized user
       Asset is a file. It can be an Image, Video or PDF file. So any file.
       When you need upload assets you should go through next steps:
       1. use this entrypoint and register the asset what you going to upload

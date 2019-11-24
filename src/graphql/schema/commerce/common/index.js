@@ -16,8 +16,15 @@ const schema = gql`
         min: Int
         max: Int
     }
+
+    type AmountOfMoney {
+      """In cents"""
+      amount: Int!
+      currency: CURRENCY!
+    }
 `;
 
 module.exports.typeDefs = [schema];
 
-module.exports.resolvers = {};
+module.exports.resolvers = {
+};

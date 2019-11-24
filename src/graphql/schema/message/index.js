@@ -47,15 +47,19 @@ const schema = gql`
     }
 
     extend type Query {
+      """Allows: authorized user"""
       messages(thread: ID!, skip: Date, limit: Int! = 10, sort: MessageSortInput = {}): [Message]! @auth(requires: USER)
     }
 
     extend type Mutation {
+      """Allows: authorized user"""
       addMessage(input: MessageInput!): Message! @auth(requires: USER)
+      """Allows: authorized user"""
       markMessageThreadReadBy(thread: ID!, time: Date!): MessageThread! @auth(requires: USER)
     }
 
     extend type Subscription {
+      """Allows: authorized user"""
       messageAdded(threads: [ID!], threadTags: [String!]): Message! @auth(requires: USER)
     }
 

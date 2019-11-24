@@ -83,11 +83,13 @@ const schema = gql`
         leaveStreamChannel(id: ID!): Boolean! @deprecated(reason: "Use 'leaveLiveStream' instead")
 
         """
+        Allows: authorized user
         Pass ID of the Stream Channel created for Live Stream
         """
         startStreaming(id: ID!): StreamChannel! @auth(requires: USER)
 
         """
+        Allows: authorized user
         Pass ID of the Stream Channel created for Live Stream
         """
         stopStreaming(id: ID!): StreamChannel! @auth(requires: USER)

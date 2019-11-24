@@ -30,12 +30,14 @@ const schema = gql`
       photo: ID
     }
 
+    """Allows: authorized user"""
     extend type Query {
       me: User! @auth(requires: USER) 
     }
 
     extend type Mutation {
       addUser (data: RegistrationInput!): User!
+      """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
     }

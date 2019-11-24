@@ -28,12 +28,15 @@ const schema = gql`
     }
 
     extend type Query {
+      """Allows: authorized user"""
       shippingBoxes: [ShippingBox]! @auth(requires: USER)
     }
 
     extend type Mutation {
-        addShippingBox(data: ShippingBoxInput!): ShippingBox! @auth(requires: USER)
-        removeShippingBox(id: ID!): Boolean! @auth(requires: USER)
+      """Allows: authorized user"""
+      addShippingBox(data: ShippingBoxInput!): ShippingBox! @auth(requires: USER)
+      """Allows: authorized user"""
+      removeShippingBox(id: ID!): Boolean! @auth(requires: USER)
     }
 `;
 

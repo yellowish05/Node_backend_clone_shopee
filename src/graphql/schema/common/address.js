@@ -10,13 +10,30 @@ const schema = gql`
         zipCode: String
     }
 
-    type Address {
+    interface AddressInterface {
+        street: String
+        city: String
+        region: Region
+        country: Country!
+        zipCode: String
+    }
+
+    type Address implements AddressInterface {
+        street: String
+        city: String
+        region: Region
+        country: Country!
+        zipCode: String
+    }
+
+    type DeliveryAddress implements AddressInterface {
         label: String
         street: String
         city: String
         region: Region
         country: Country!
         zipCode: String
+        isDeliveryAvailable: Boolean!
     }
 `;
 

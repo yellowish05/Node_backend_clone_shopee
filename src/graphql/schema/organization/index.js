@@ -29,10 +29,12 @@ const schema = gql`
     }
 
     extend type Query {
+      """Allows: authorized user"""
       organization: Organization @auth(requires: USER)
     }
 
     extend type Mutation {
+      """Allows: authorized user"""
       updateOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
     }
 `;

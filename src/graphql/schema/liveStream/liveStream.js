@@ -72,11 +72,14 @@ const schema = gql`
     }
   
     extend type Mutation {
+      """Allows: authorized user"""
       addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
 
+      """Allows: authorized user"""
       likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
       
       """
+      Allows: authorized user
       When user join LiveStream next things executed:
       1. StreamChannel Token generation for this User and LiveStream
       2. Created MessageThread for User and Streamer
@@ -85,20 +88,24 @@ const schema = gql`
       joinLiveStream(id: ID!): LiveStream! @auth(requires: USER)
 
       """
+      Allows: authorized user
       Pass ID of the Live Stream
       """
       leaveLiveStream(id: ID!): Boolean! @auth(requires: USER)
       """
+      Allows: authorized user
       Pass ID of the Live Stream and list of Product IDs. Make sure to set Error Policy to 'all'
       """
       addProductToLiveStream(liveStream: ID!, productIds: [ID]!): LiveStream! @auth(requires: USER)
       """
+      Allows: authorized user
       Pass ID of the Live Stream and ID of the Product
       """
       removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
     }
 
     extend type Subscription {
+      """Allows: authorized user"""
       liveStream(id: ID!): LiveStream @auth(requires: USER)
     }
 `;
