@@ -30,11 +30,11 @@ const activity = {
       .then((products) => {
         products.forEach((product) => {
           if (!product) {
-            throw new Error('Product can not be addded to the Live Stream, because of Product does not exist!');
+            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
           }
 
           if (product.seller !== liveStream.streamer) {
-            throw new ForbiddenError('You cannot add products to this Live Stream');
+            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
           }
 
           if (liveStream.products.some((pId) => pId === product.id)) {

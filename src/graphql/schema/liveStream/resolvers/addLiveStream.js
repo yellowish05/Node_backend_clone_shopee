@@ -1,7 +1,7 @@
 const uuid = require('uuid/v4');
 const path = require('path');
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const {
   StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,
@@ -43,6 +43,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Asset ${args.data.preview} does not exist`, { invalidArgs: 'preview' });
       }
     })
+    .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
+      .then((products) => {
+        products.forEach((product) => {
+          if (!product) {
+            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+          }
+
+          if (product.seller !== user.id) {
+            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+          }
+        });
+      }))
     .then(() => {
       const channelId = uuid();
       const liveStreamId = uuid();
@@ -99,6 +111,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,
+        products: args.data.products,
       });
     })
     .catch((error) => {

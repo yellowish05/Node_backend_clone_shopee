@@ -41,6 +41,8 @@ const schema = gql`
         categories: [ID]!
         city: String
         preview: ID
+        products: [ID] = []
+
     }
 
     type LiveStreamCollection {
