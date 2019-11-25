@@ -72,7 +72,7 @@ module.exports.AgoraService = {
           });
       });
     },
-    start(channelName, uid, resourceId, token, mode = 'individual') {
+    start(channelName, uid, resourceId, token, mode = 'mix') {
       return new Promise((resolve, reject) => {
         request.post(`${agora.uri}/${agora.app_id}/cloud_recording/resourceid/${resourceId}/mode/${mode}/start`,
           {
@@ -113,7 +113,7 @@ module.exports.AgoraService = {
           });
       });
     },
-    stop(channelName, uid, resourceId, sid, mode = 'individual') {
+    stop(channelName, uid, resourceId, sid, mode = 'mix') {
       return new Promise((resolve, reject) => {
         request.post(`${agora.uri}/${agora.app_id}/cloud_recording/resourceid/${resourceId}/sid/${sid}/mode/${mode}/stop`,
           {

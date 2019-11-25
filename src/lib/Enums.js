@@ -33,6 +33,7 @@ const StreamRole = EnumFactory({
 const SourceType = EnumFactory({
   VIDEO: 'VIDEO',
   AUDIO: 'AUDIO',
+  VIDEO_AUDIO: 'VIDEO_AUDIO',
 });
 
 const MessageType = EnumFactory({

@@ -45,11 +45,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         .then((channel) => {
           if (channel.record.enabled) {
             AgoraService.recording.stop(args.id, '1', streamChannel.record.resourceId, streamChannel.record.sid)
-              .then(({ serverResponse }) => Promise.all(serverResponse.fileList.map((f) => repository.streamSource.create({
-                source: `/${f.fileName}`,
-                type: (f.fileName.includes('video') ? SourceType.VIDEO : SourceType.AUDIO),
+              .then(({ serverResponse }) => repository.streamSource.create({
+                source: `/${serverResponse.fileList}`,
+                type: SourceType.VIDEO_AUDIO,
                 user,
-              }))))
+              }))
               .then((sources) => repository.streamChannel.finishRecording(args.id, sources))
               .catch((error) => {
                 logger.error(`Failed to stop record StreamChannel(${args.id}). Original error: ${error}`);
