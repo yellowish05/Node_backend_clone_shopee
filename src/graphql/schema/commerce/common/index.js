@@ -11,20 +11,26 @@ const schema = gql`
     enum WeightUnitSystem {
       ${WeightUnitSystem.toGQL()}
     }
-
-    input IntRangeInput {
-        min: Int
-        max: Int
-    }
-
+    
     type AmountOfMoney {
       """In cents"""
       amount: Int!
       currency: Currency!
+      formatted: String!
+    }
+
+    input IntRangeInput {
+        min: Int
+        max: Int
     }
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  AmountOfMoney: {
+    amount: async (amount) => amount.getCentsAmount(),
+    currency: async (amount) => amount.getCurrency(),
+    formatted: async (amount) => amount.getFormatted(),
+  },
 };

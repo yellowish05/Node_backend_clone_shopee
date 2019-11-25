@@ -1,5 +1,9 @@
+const path = require('path');
+
 const { gql } = require('apollo-server');
 
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
@@ -17,13 +21,12 @@ const schema = gql`
         """
             Price in cents. Use the Currency for show it in correct format
         """
-        price: Int!
+        price(currency: Currency): AmountOfMoney!
         """
             Price in cents. Use the Currency for show it in correct format
         """
-        oldPrice: Int
+        oldPrice(currency: Currency): AmountOfMoney
         quantity: Int!
-        currency: Currency!
         assets: [Asset!]!
         category: ProductCategory!
         weight: Weight!
@@ -77,12 +80,7 @@ const schema = gql`
         products(
             filter: ProductFilterInput = {},
             sort: ProductSortInput = {},
-            page: PageInput = {},
-            """
-                The Currency in which do you want to see price.
-                Usually, this is the user active currency
-            """
-            currency: Currency
+            page: PageInput = {}
         ): ProductCollection!
 
         product(id: ID!): Product
@@ -92,13 +90,13 @@ const schema = gql`
         title: String!
         description: String!
         """
-            Price in cents. Use the Currency for convert user input in cents
+            Price in dollars. Use the Currency for convert user input in cents
         """
-        price: Int!
+        price: Float!
         """
-            Price in cents. Use the Currency for convert user input in cents
+            Price in dollars. Use the Currency for convert user input in cents
         """
-        discountPrice: Int
+        discountPrice: Float
         quantity: Int!
         """
             The Active User Currency
@@ -158,5 +156,23 @@ module.exports.resolvers = {
     shippingBox: async ({ shippingBox }, _, { dataSources: { repository } }) => (
       repository.shippingBox.findOne(shippingBox)
     ),
+    price: async ({ price, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    oldPrice: async ({ oldPrice, currency }, args) => {
+      if (!oldPrice) {
+        return null;
+      }
+
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: oldPrice, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
   },
 };

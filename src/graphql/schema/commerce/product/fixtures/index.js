@@ -9,8 +9,8 @@ const logger = require(path.resolve('config/logger'));
 const mutation = gql`
   mutation addProduct($title: String!
     $description: String!
-    $price: Int!
-    $discountPrice: Int
+    $price: Float!
+    $discountPrice: Float
     $quantity: Int!
     $currency: Currency!
     $assets: [ID!]!
@@ -38,10 +38,17 @@ const mutation = gql`
         id
         title
         description
-        price
-        oldPrice
+        price {
+          amount
+          currency
+          formated
+        }
+        oldPrice {
+          amount
+          currency
+          formated
+        }
         quantity
-        currency
         weight {
           value
           unit
@@ -77,7 +84,7 @@ const productsData = [
     price: 1000,
     discountPrice: 500,
     quantity: 50,
-    currency: Currency.USD,
+    currency: Currency.GBP,
     category: 'c9202423-11b3-4e40-bc37-5b89ba610d10',
     brand: 'ffaf6b2d-0b21-45d2-842f-79e4b0825c4e',
     weight_value: 10000,
@@ -88,9 +95,8 @@ const productsData = [
     title: faker.name.title(),
     description: faker.lorem.sentence(),
     price: 777,
-    discountPrice: 666,
     quantity: 50,
-    currency: Currency.USD,
+    currency: Currency.INR,
     category: 'eb18acb5-280c-453f-91be-eae3e1641fd5',
     brand: 'ff2f4542-a8ec-4e13-81b2-e5860f8e8a1e',
     weight_value: 200,

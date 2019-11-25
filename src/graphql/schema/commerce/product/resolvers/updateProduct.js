@@ -4,6 +4,7 @@ const { Validator } = require('node-input-validator');
 const { ForbiddenError } = require('apollo-server');
 
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
@@ -69,8 +70,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
       product.title = productData.title;
       product.description = productData.description;
-      product.price = discountPrice || price;
-      product.oldPrice = discountPrice ? price : null;
+      product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
+      product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
+
       product.category = productData.category;
       product.brand = productData.brand;
       product.currency = productData.currency;

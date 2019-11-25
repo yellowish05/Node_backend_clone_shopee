@@ -67,6 +67,9 @@ module.exports = {
   verificationCode: {
     TTL: 1800,
   },
+  exchangeCurrencyRates: {
+    TTL: 10 * 60 * 1000,
+  },
   email: {
     from: process.env.ELASTIC_EMAIL_FROM,
     bodyType: 'Plain',

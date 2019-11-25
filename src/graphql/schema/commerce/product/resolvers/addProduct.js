@@ -4,6 +4,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
@@ -16,7 +17,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     shippingBox: 'required',
     'weight.value': 'required|decimal',
     'weight.unit': 'required',
-    price: 'required|integer',
+    price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',
@@ -46,8 +47,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
-    })
-    .then(() => {
+
       const productId = uuid();
       const inventoryId = uuid();
 
@@ -56,10 +56,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       } = data;
       productData._id = productId;
       productData.seller = user.id;
-      productData.price = discountPrice || price;
-      productData.oldPrice = discountPrice ? price : null;
       productData.shippingBox = data.shippingBox;
       productData.weight = data.weight;
+      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
+      productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
 
       const inventoryLog = {
         _id: inventoryId,
