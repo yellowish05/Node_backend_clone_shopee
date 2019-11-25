@@ -14,10 +14,10 @@ const mutation = gql`
 `;
 
 const userData = [
-  { email: 'bob@domain.com', password: '123456' },
-  { email: 'john@domain.com', password: '123456' },
-  { email: 'bill@domain.com', password: '123456' },
-  { email: 'esrael@domain.com', password: '123456' },
+  { email: 'bob@domain.com', password: 'Test123456' },
+  { email: 'john@domain.com', password: 'Test123456' },
+  { email: 'bill@domain.com', password: 'Test123456' },
+  { email: 'esrael@domain.com', password: 'Test123456' },
 ];
 
 module.exports.data = {

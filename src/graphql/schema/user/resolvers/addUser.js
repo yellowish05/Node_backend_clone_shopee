@@ -10,7 +10,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (obj, args, { dataSources: { repository } }) => {
   const validator = new Validator(args.data, {
     email: 'required|email',
-    password: 'required|minLength:6',
+    password: 'required|minLength:6|regex:^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])',
   });
 
   return validator.check()
