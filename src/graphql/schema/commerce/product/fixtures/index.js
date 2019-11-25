@@ -3,7 +3,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 const faker = require('faker');
 
-const { Currency } = require(path.resolve('src/lib/Enums'));
+const { Currency, WeightUnitSystem } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 
 const mutation = gql`
@@ -15,6 +15,9 @@ const mutation = gql`
     $currency: CURRENCY!
     $assets: [ID!]!
     $category: ID!
+    $weight_value: Float!
+    $weight_unit: WeightUnitSystem!
+    $shippingBox: ID!
     $brand: ID!) {
     addProduct(data: {
         title: $title
@@ -25,6 +28,11 @@ const mutation = gql`
         currency: $currency
         assets: $assets
         category: $category
+        weight: {
+          value: $weight_value
+          unit: $weight_unit
+        }
+        shippingBox: $shippingBox
         brand: $brand
     }) {
         id
@@ -34,6 +42,16 @@ const mutation = gql`
         oldPrice
         quantity
         currency
+        weight {
+          value
+          unit
+        }
+        shippingBox {
+          width
+          length
+          height
+          label
+        }
     }
   }
 `;
@@ -49,6 +67,8 @@ const productsData = [
     currency: Currency.USD,
     category: 'd4e53814-d59e-46cb-8f7d-fb957a859478',
     brand: 'fff806b0-5a56-4563-bd8a-dad5c6d621e9',
+    weight_value: 123.34,
+    weight_unit: WeightUnitSystem.OUNCE,
   },
   {
     email: 'john@domain.com',
@@ -60,6 +80,8 @@ const productsData = [
     currency: Currency.USD,
     category: 'c9202423-11b3-4e40-bc37-5b89ba610d10',
     brand: 'ffaf6b2d-0b21-45d2-842f-79e4b0825c4e',
+    weight_value: 10000,
+    weight_unit: WeightUnitSystem.GRAM,
   },
   {
     email: 'esrael@domain.com',
@@ -71,6 +93,8 @@ const productsData = [
     currency: Currency.USD,
     category: 'eb18acb5-280c-453f-91be-eae3e1641fd5',
     brand: 'ff2f4542-a8ec-4e13-81b2-e5860f8e8a1e',
+    weight_value: 200,
+    weight_unit: WeightUnitSystem.GRAM,
   },
 ];
 
@@ -79,15 +103,16 @@ module.exports.data = { messages: productsData };
 module.exports.handler = async (client, context) => {
   logger.info('[fixture] Products execution!');
   context.products = [];
-  return Promise.all(productsData.map((variables) => {
+  return Promise.all(productsData.map((variables, index) => {
     const user = context.users[variables.email];
-
+    const shippingBox = context.shippingBoxes[index];
     return client
       .mutate({
         mutation,
         variables: {
           ...variables,
           assets: [user.assets[0].id],
+          shippingBox: shippingBox.id,
         },
         context: {
           headers: { Authorization: `Bearer ${user.accessToken}` },

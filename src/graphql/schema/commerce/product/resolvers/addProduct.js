@@ -13,6 +13,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(data, {
     title: 'required',
     description: 'required',
+    shippingBox: 'required',
+    'weight.value': 'required|decimal',
+    'weight.unit': 'required',
     price: 'required|integer',
     quantity: 'required|integer',
     currency: 'required',
@@ -22,14 +25,19 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   validator.addPostRule(async (provider) => Promise.all([
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
+    repository.shippingBox.findOne(provider.inputs.shippingBox),
   ])
-    .then(([category, brand]) => {
+    .then(([category, brand, shippingBox]) => {
       if (!category) {
-        provider.error('category', 'custom', `Category with id "${provider.inputs.category}" doen not exist!`);
+        provider.error('category', 'custom', `Category with id "${provider.inputs.category}" does not exist!`);
       }
 
       if (!brand) {
-        provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" doen not exist!`);
+        provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" does not exist!`);
+      }
+
+      if (!shippingBox) {
+        provider.error('shippingBox', 'custom', `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
       }
     }));
 
@@ -50,6 +58,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.seller = user.id;
       productData.price = discountPrice || price;
       productData.oldPrice = discountPrice ? price : null;
+      productData.shippingBox = data.shippingBox;
+      productData.weight = data.weight;
 
       const inventoryLog = {
         _id: inventoryId,

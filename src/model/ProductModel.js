@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { Currency } = require('../lib/Enums');
+const { Currency, WeightUnitSystem } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -48,6 +48,23 @@ const schema = new Schema({
     type: String,
     ref: 'Brand',
     index: true,
+  },
+  weight: {
+    type: {
+      value: {
+        type: Number,
+        required: true,
+      },
+      unit: {
+        type: String,
+        enum: WeightUnitSystem.toList(),
+        required: true,
+      },
+    },
+  },
+  shippingBox: {
+    type: String,
+    ref: 'ShippingBox',
   },
   isDeleted: {
     type: Boolean,

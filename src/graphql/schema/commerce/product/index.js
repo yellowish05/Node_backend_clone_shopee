@@ -26,7 +26,19 @@ const schema = gql`
         currency: CURRENCY!
         assets: [Asset!]!
         category: ProductCategory!
+        weight: Weight!
+        shippingBox: ShippingBox!
         brand: Brand!
+    }
+
+    type Weight {
+      value: Float!
+      unit: WeightUnitSystem!
+    }
+
+    input WeightInput {
+      value: Float!
+      unit: WeightUnitSystem!
     }
 
     type ProductCollection {
@@ -94,6 +106,8 @@ const schema = gql`
         currency: CURRENCY!
         assets: [ID!]!
         category: ID!
+        weight: WeightInput!
+        shippingBox: ID!
         brand: ID!
     }
 
@@ -140,6 +154,9 @@ module.exports.resolvers = {
     ),
     quantity: async ({ id }, _, { dataSources: { repository } }) => (
       repository.productInventoryLog.getQuantityByProductId(id)
+    ),
+    shippingBox: async ({ shippingBox }, _, { dataSources: { repository } }) => (
+      repository.shippingBox.findOne(shippingBox)
     ),
   },
 };

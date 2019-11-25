@@ -53,6 +53,11 @@ const MetricSystem = EnumFactory({
   SI: 'SI',
 });
 
+const WeightUnitSystem = EnumFactory({
+  OUNCE: 'OUNCE',
+  GRAM: 'GRAM',
+});
+
 const Currency = EnumFactory({
   USD: 'USD',
   GBP: 'GBP',
@@ -91,4 +96,5 @@ module.exports = {
   InventoryLogType,
   VerificationEmailTemplate,
   NotificationType,
+  WeightUnitSystem,
 };
