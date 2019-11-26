@@ -1,7 +1,7 @@
 const path = require('path');
 const { Schema, model } = require('mongoose');
 
-const { MetricSystem } = require(path.resolve('src/lib/Enums'));
+const { SizeUnitSystem } = require(path.resolve('src/lib/Enums'));
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -32,9 +32,9 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
-  system: {
+  unit: {
     type: String,
-    enum: MetricSystem.toList(),
+    enum: SizeUnitSystem.toList(),
   },
 });
 

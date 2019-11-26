@@ -3,24 +3,24 @@ const path = require('path');
 const { gql } = require('apollo-server');
 const faker = require('faker');
 
-const { MetricSystem } = require(path.resolve('src/lib/Enums'));
+const { SizeUnitSystem } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 
 const mutation = gql`
-  mutation addShippingBox($label: String!, $width: Float!, $height: Float!, $length: Float!, $system: MetricSystemEnum!) {
+  mutation addShippingBox($label: String!, $width: Float!, $height: Float!, $length: Float!, $unit: SizeUnitSystem!) {
     addShippingBox(data: {
         label: $label,
         width: $width,
         height: $height,
         length: $length,
-        system: $system,
+        unit: $unit,
     }) {
         id
         label
         width
         height
         length
-        system
+        unit
     }
   }
 `;
@@ -32,7 +32,7 @@ const shippingBoxesData = [
     width: faker.random.number(100),
     height: faker.random.number(100),
     length: faker.random.number(100),
-    system: MetricSystem.USC,
+    unit: SizeUnitSystem.INCH,
   },
   {
     email: 'bill@domain.com',
@@ -40,7 +40,7 @@ const shippingBoxesData = [
     width: faker.random.number(100),
     height: faker.random.number(100),
     length: faker.random.number(100),
-    system: MetricSystem.USC,
+    unit: SizeUnitSystem.INCH,
   },
   {
     email: 'john@domain.com',
@@ -48,7 +48,7 @@ const shippingBoxesData = [
     width: faker.random.number(100),
     height: faker.random.number(100),
     length: faker.random.number(100),
-    system: MetricSystem.SI,
+    unit: SizeUnitSystem.CENTIMETER,
   },
   {
     email: 'esrael@domain.com',
@@ -56,7 +56,7 @@ const shippingBoxesData = [
     width: faker.random.number(100),
     height: faker.random.number(100),
     length: faker.random.number(100),
-    system: MetricSystem.SI,
+    unit: SizeUnitSystem.CENTIMETER,
   },
 ];
 

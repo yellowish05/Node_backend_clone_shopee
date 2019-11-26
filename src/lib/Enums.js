@@ -48,9 +48,9 @@ const LoginProvider = EnumFactory({
   WE_CHAT: 'WE_CHAT',
 });
 
-const MetricSystem = EnumFactory({
-  USC: 'USC',
-  SI: 'SI',
+const SizeUnitSystem = EnumFactory({
+  INCH: 'INCH',
+  CENTIMETER: 'CENTIMETER',
 });
 
 const WeightUnitSystem = EnumFactory({
@@ -91,7 +91,7 @@ module.exports = {
   SourceType,
   MessageType,
   LoginProvider,
-  MetricSystem,
+  SizeUnitSystem,
   Currency,
   InventoryLogType,
   VerificationEmailTemplate,

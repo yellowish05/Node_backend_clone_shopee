@@ -12,7 +12,7 @@ module.exports = async (obj, { data }, { dataSources: { repository }, user }) =>
     width: 'required|min:0|decimal',
     height: 'required|min:0|decimal',
     length: 'required|min:0|decimal',
-    system: 'required',
+    unit: 'required',
   });
 
   return validator.check()
@@ -27,7 +27,7 @@ module.exports = async (obj, { data }, { dataSources: { repository }, user }) =>
       width: data.width,
       height: data.height,
       length: data.length,
-      system: data.system,
+      unit: data.unit,
     }))
     .catch((error) => {
       throw new ApolloError(`Failed to add Shipping Box. Original error: ${error.message}`, 400);
