@@ -119,7 +119,10 @@ module.exports.resolvers = {
     },
   },
   MessageThread: {
-    participants(thread, _, { dataSources: { repository } }) {
+    participants(thread, _, { dataSources: { repository }, user }) {
+      if (!thread.participants.includes(user.id)) {
+        return [];
+      }
       return repository.user.loadList(thread.participants);
     },
     messages(thread, { limit, sort }, { dataSources: { repository } }) {

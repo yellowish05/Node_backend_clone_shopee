@@ -30,7 +30,7 @@ const schema = gql`
         channel: StreamChannel!
         isLiked: Boolean
         statistics: LiveStreamStats!
-        publicMessageThread: MessageThread!
+        publicMessageThread: MessageThread
         privateMessageThreads: [MessageThread]!
         products: [Product]!
     }
@@ -162,7 +162,10 @@ module.exports.resolvers = {
     /**
       Any user allows receive Public Thread
     */
-    publicMessageThread(liveStream, _, { dataSources: { repository } }) {
+    publicMessageThread(liveStream, _, { dataSources: { repository }, user }) {
+      if (!user) {
+        return null;
+      }
       if (typeof liveStream.publicMessageThread === 'object') {
         return liveStream.publicMessageThread;
       }
@@ -173,6 +176,9 @@ module.exports.resolvers = {
       Overwise User receive only private one thread with Streamer.
     */
     privateMessageThreads(liveStream, _, { dataSources: { repository }, user }) {
+      if (!user) {
+        return [];
+      }
       if (user.id === liveStream.streamer) {
         return repository.messageThread.findByIds(liveStream.privateMessageThreads);
       }
