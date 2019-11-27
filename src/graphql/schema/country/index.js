@@ -3,7 +3,8 @@ const { gql } = require('apollo-server');
 const schema = gql`
     type Country {
       id: ID!
-      name: String
+      name(locale: Locale): String
+      currency: Currency!
     }
 
     extend type Query {
@@ -15,11 +16,8 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    countries: () => ([
-      { id: 'US', name: 'USA' },
-      { id: 'CH', name: 'China' },
-      { id: 'UK', name: 'Ukraine' },
-      { id: 'GB', name: 'United Kingdom' },
-    ]),
+    countries(_, args, { dataSources: { repository } }) {
+      return repository.country.getAll();
+    },
   },
 };

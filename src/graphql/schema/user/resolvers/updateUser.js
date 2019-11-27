@@ -7,13 +7,6 @@ const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 
 const errorHandler = new ErrorHandler();
 
-const countries = [
-  { id: 'US', name: 'USA' },
-  { id: 'CH', name: 'China' },
-  { id: 'UK', name: 'Ukraine' },
-  { id: 'GB', name: 'United Kingdom' },
-];
-
 const regions = [
   { id: 'uk-1', code: 1, name: 'Kyivskay obl.' },
   { id: 'uk-2', code: 2, name: 'Zhitomirskay obl.' },
@@ -39,15 +32,28 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       let { location } = args.data;
-      let address = args.data.address ? {
-        ...args.data.address,
-        region: regions.find((r) => r.id === args.data.address.regionId),
-        country: countries.find((c) => c.id === args.data.address.countryId),
-      } : null;
+      let address = null;
+      if (args.data.address) {
+        const addressCountry = await repository.country.getById(args.data.address.country);
+        if (!addressCountry) {
+          throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
+        }
+
+        address = {
+          ...args.data.address,
+          region: regions.find((r) => r.id === args.data.address.region),
+          country: addressCountry,
+        };
+      }
 
       try {
         if (location && !address) {
           address = await Geocoder.reverse(location);
+          const geocodedCountry = await repository.country.getById(address.country.id);
+          if (!geocodedCountry) {
+            throw new UserInputError('Country does not exists', { invalidArgs: 'location' });
+          }
+          address.country = geocodedCountry.id;
         } else if (!args.location && address) {
           location = await Geocoder.geocode(address);
         }

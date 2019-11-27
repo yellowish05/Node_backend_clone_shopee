@@ -13,8 +13,8 @@ const addressSchema = new Schema({
     required: false,
   },
   country: {
-    id: String,
-    name: String,
+    type: String,
+    ref: 'Country',
   },
   zipCode: String,
 }, { _id: false });

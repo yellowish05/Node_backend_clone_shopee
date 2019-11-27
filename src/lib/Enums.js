@@ -66,6 +66,11 @@ const WeightUnitSystem = EnumFactory({
 const Currency = EnumFactory({
   USD: 'USD',
   GBP: 'GBP',
+  CAD: 'CAD',
+  AUD: 'AUD',
+  SGD: 'SGD',
+  EUR: 'EUR',
+  NZD: 'NZD',
   INR: 'INR',
 });
 

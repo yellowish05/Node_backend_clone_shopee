@@ -39,4 +39,10 @@ const schema = gql`
 
 module.exports.typeDefs = [schema];
 
-module.exports.resolvers = {};
+module.exports.resolvers = {
+  Address: {
+    country({ country }, args, { dataSources: { repository } }) {
+      return repository.country.getById(typeof country === 'object' ? country.id : country);
+    },
+  },
+};
