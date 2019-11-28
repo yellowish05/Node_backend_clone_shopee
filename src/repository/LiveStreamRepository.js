@@ -20,7 +20,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function transformFilter({
-  experiences, categories, cities, statuses,
+  experiences, categories, cities, statuses, streamers,
 }) {
   const query = {};
 
@@ -38,6 +38,10 @@ function transformFilter({
 
   if (statuses.length > 0) {
     query.status = { $in: statuses };
+  }
+
+  if (streamers.length > 0) {
+    query.streamer = { $in: streamers };
   }
 
   return query;

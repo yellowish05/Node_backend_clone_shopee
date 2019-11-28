@@ -6,6 +6,7 @@ const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 const LatitudeLongitudeSchema = require('./LatitudeLongitudeModel');
 const AddressSchema = require('./AddressModel');
+const UserSettingsSchema = require('./UserSettingsModel');
 
 const collectionName = 'User';
 
@@ -60,6 +61,10 @@ const schema = new Schema({
   isApprovedEmail: {
     type: Boolean,
     default: false,
+  },
+  settings: {
+    type: UserSettingsSchema,
+    required: true,
   },
   providers: {
     type: providerObject,

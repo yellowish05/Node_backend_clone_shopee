@@ -14,6 +14,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
     title: 'required',
     description: 'required',
+    shippingBox: 'required',
+    'weight.value': 'required|decimal',
+    'weight.unit': 'required',
     price: 'required|integer',
     quantity: 'required|integer',
     currency: 'required',
@@ -26,8 +29,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     repository.product.getById(provider.inputs.id),
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
+    repository.shippingBox.findOne(provider.inputs.shippingBox),
   ])
-    .then(([foundProduct, category, brand]) => {
+    .then(([foundProduct, category, brand, shippingBox]) => {
       if (!foundProduct) {
         provider.error('id', 'custom', `Product with id "${provider.inputs.id}" doen not exist!`);
       }
@@ -38,6 +42,10 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
       if (!brand) {
         provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" doen not exist!`);
+      }
+
+      if (!shippingBox) {
+        provider.error('shippingBox', 'custom', `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
       }
 
       product = foundProduct;
@@ -66,6 +74,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.category = productData.category;
       product.brand = productData.brand;
       product.currency = productData.currency;
+      product.shippingBox = data.shippingBox;
+      product.weight = data.weight;
 
       return Promise.all([
         product.save(),
