@@ -2,6 +2,7 @@ const uuid = require('uuid/v4');
 const path = require('path');
 const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
+const logger = require('../../../../../config/logger');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { OAuth2Service } = require(path.resolve('src/lib/OAuth2Service'));
@@ -23,48 +24,56 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
       const provider = OAuth2Service.getStrategy(data.provider);
       return provider.getUserProfile(data.token);
     })
-    .then((user) => {
-      if (user === null) {
+    .then((socialUserData) => {
+      if (socialUserData === null) {
         throw new UserInputError(`User not found by ${data.provider} provider`);
       }
 
-      return (user.email ? repository.user.findByEmail(user.email) : repository.user.findByProvider(data.provider, user.id))
-        .then((existingUser) => {
-          if (!existingUser) {
+      logger.debug(JSON.stringify(socialUserData));
+
+      return repository.user.findByProvider(data.provider, socialUserData.id)
+        .then((user) => {
+          if (!user && socialUserData.email) {
+            return repository.user.findByEmail(socialUserData.email);
+          }
+          return user;
+        })
+        .then((user) => {
+          if (!user) {
             const userId = uuid();
             return repository.asset.createFromUri({
               userId,
-              url: user.photo,
+              url: socialUserData.photo,
             })
               .then((asset) => repository.user.createByProvider({
                 _id: userId,
-                email: user.email || `${userId}@tempmail.tmp`,
-                name: user.name,
+                email: socialUserData.email || `${userId}@tempmail.tmp`,
+                name: socialUserData.name,
                 photo: asset,
                 provider: data.provider,
-                providerId: user.id,
+                providerId: socialUserData.id,
               }, { roles: ['USER'] }));
           }
 
-          if (!existingUser.photo) {
+          if (!user.photo) {
             return repository.asset.createFromUri({
-              userId: existingUser.id,
-              url: user.photo,
+              userId: user.id,
+              url: socialUserData.photo,
             })
               .then((asset) => {
-                repository.user.update(existingUser.id, {
-                  name: existingUser.name || user.name,
+                repository.user.update(user.id, {
+                  name: user.name || socialUserData.name,
                   photo: asset,
                   provider: data.provider,
-                  providerId: user.id,
+                  providerId: socialUserData.id,
                 });
               });
           }
 
-          return repository.user.update(existingUser.id, {
-            name: existingUser.name || user.name,
+          return repository.user.update(user.id, {
+            name: user.name || socialUserData.name,
             provider: data.provider,
-            providerId: user.id,
+            providerId: socialUserData.id,
           });
         });
     })
