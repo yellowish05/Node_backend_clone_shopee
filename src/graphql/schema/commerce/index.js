@@ -8,9 +8,7 @@ const { typeDefs: productCategoryTypeDefs, resolvers: productCategoryResolvers }
 const { typeDefs: productTypeDefs, resolvers: productResolvers } = require('./product');
 const { typeDefs: purchaseOrderTypeDefs, resolvers: purchaseOrderResolvers } = require('./purchaseOrder');
 const { typeDefs: shippingOrderTypeDefs, resolvers: shippingOrderResolvers } = require('./deliveryOrder');
-const { typeDefs: paymentTransactionTypeDefs, resolvers: paymentTransactionResolvers } = require('./paymentTransaction');
 const { typeDefs: payoutOrderTypeDefs, resolvers: payoutOrderResolvers } = require('./payoutOrder');
-const { typeDefs: paymentMethodTypeDefs, resolvers: paymentMethodResolvers } = require('./paymentMethod');
 const { typeDefs: orderItemTypeDefs, resolvers: orderItemResolvers } = require('./orderItem');
 
 
@@ -22,9 +20,7 @@ const typeDefs = [].concat(
   commonTypeDefs,
   purchaseOrderTypeDefs,
   shippingOrderTypeDefs,
-  paymentTransactionTypeDefs,
   payoutOrderTypeDefs,
-  paymentMethodTypeDefs,
   orderItemTypeDefs,
   carrierTypeDefs,
 );
@@ -37,9 +33,7 @@ const resolvers = merge(
   commonResolvers,
   purchaseOrderResolvers,
   shippingOrderResolvers,
-  paymentTransactionResolvers,
   payoutOrderResolvers,
-  paymentMethodResolvers,
   orderItemResolvers,
   carrierResolvers,
 );

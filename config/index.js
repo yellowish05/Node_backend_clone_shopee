@@ -79,4 +79,7 @@ module.exports = {
       apiVersion: 'v2',
     },
   },
+  payment: {
+    testMode: (process.env.PAYMENT_TEST_MODE || null) !== 'disabled',
+  },
 };

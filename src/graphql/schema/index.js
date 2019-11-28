@@ -29,6 +29,7 @@ const { typeDefs: notificationTypeDefs, resolvers: notificationResolvers } = req
 const { typeDefs: notificationDataTypeDefs, resolvers: notificationDataResolvers } = require('./notification/notificationTypes');
 
 const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
+const { typeDefs: paymentTypeDefs, resolvers: paymentResolvers } = require('./payment');
 
 const typeDefs = [].concat(
   commonTypeDefs,
@@ -57,6 +58,7 @@ const typeDefs = [].concat(
   commerceTypeDefs,
   notificationDataTypeDefs,
   notificationTypeDefs,
+  paymentTypeDefs,
 );
 
 const resolvers = merge(
@@ -83,6 +85,7 @@ const resolvers = merge(
   commerceResolvers,
   notificationDataResolvers,
   notificationResolvers,
+  paymentResolvers,
 );
 
 const schema = makeExecutableSchema({
