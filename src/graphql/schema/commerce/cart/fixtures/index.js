@@ -59,8 +59,8 @@ module.exports.handler = async (client, context) => {
       context: {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       },
-    }).then(({ data: { cart } }) => {
-      context.users[variables.email].cart = cart;
+    }).then(({ data: { addProductToCart } }) => {
+      context.users[variables.email].cart = addProductToCart;
     });
   }));
 };

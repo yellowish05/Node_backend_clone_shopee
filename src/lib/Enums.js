@@ -48,6 +48,11 @@ const LoginProvider = EnumFactory({
   WE_CHAT: 'WE_CHAT',
 });
 
+const MeasureSystem = EnumFactory({
+  SI: 'SI',
+  USC: 'USC',
+});
+
 const SizeUnitSystem = EnumFactory({
   INCH: 'INCH',
   CENTIMETER: 'CENTIMETER',
@@ -82,6 +87,12 @@ const NotificationType = EnumFactory({
   BUYER_ORDER: 'BUYER_ORDER',
 });
 
+const PushNotification = EnumFactory({
+  CHATS: 'CHATS',
+  ORDERS: 'ORDERS',
+  PROFILE: 'PROFILE',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -96,5 +107,7 @@ module.exports = {
   InventoryLogType,
   VerificationEmailTemplate,
   NotificationType,
+  MeasureSystem,
   WeightUnitSystem,
+  PushNotification,
 };

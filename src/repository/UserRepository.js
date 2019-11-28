@@ -1,3 +1,6 @@
+const path = require('path');
+
+const { Currency, PushNotification, MeasureSystem } = require(path.resolve('src/lib/Enums'));
 const md5 = require('md5');
 
 class UserRepository {
@@ -32,6 +35,12 @@ class UserRepository {
       email: data.email,
       password: md5(data.password),
       roles: options.roles || [],
+      settings: {
+        pushNotifications: PushNotification.toList(),
+        language: 'EN',
+        currency: Currency.USD,
+        measureSystem: MeasureSystem.USC,
+      },
     });
 
     return user.save();
@@ -52,6 +61,12 @@ class UserRepository {
       name: data.name,
       photo: data.photo,
       roles: options.roles || [],
+      settings: {
+        pushNotifications: PushNotification.toList(),
+        language: 'EN',
+        currency: Currency.USD,
+        measureSystem: MeasureSystem.USC,
+      },
       providers: { [data.provider]: data.providerId },
     });
 
@@ -73,6 +88,17 @@ class UserRepository {
     if (data.provider && data.providerId) {
       user.providers[data.provider] = data.providerId;
     }
+
+    return user.save();
+  }
+
+  async updateSettings(id, settings) {
+    const user = await this.load(id);
+    if (!user) {
+      throw Error(`User "${id}" does not exist!`);
+    }
+
+    user.settings = settings;
 
     return user.save();
   }
