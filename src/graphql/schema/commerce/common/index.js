@@ -4,7 +4,7 @@ const path = require('path');
 const { Currency, WeightUnitSystem } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
-    enum CURRENCY {
+    enum Currency {
       ${Currency.toGQL()}
     }
 
@@ -20,7 +20,7 @@ const schema = gql`
     type AmountOfMoney {
       """In cents"""
       amount: Int!
-      currency: CURRENCY!
+      currency: Currency!
     }
 `;
 

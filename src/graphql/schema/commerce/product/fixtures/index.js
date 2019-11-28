@@ -12,7 +12,7 @@ const mutation = gql`
     $price: Int!
     $discountPrice: Int
     $quantity: Int!
-    $currency: CURRENCY!
+    $currency: Currency!
     $assets: [ID!]!
     $category: ID!
     $weight_value: Float!

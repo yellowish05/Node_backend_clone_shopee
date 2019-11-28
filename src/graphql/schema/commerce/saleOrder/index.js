@@ -18,7 +18,7 @@ const schema = gql`
         """ List of products or services or anything else what we going to selling """
         items: [OrderItemInterface!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        price(currency: CURRENCY): AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
         """ Address for ship products """
         deliveryAddress: DeliveryAddress!
         """ Relation to Payout """

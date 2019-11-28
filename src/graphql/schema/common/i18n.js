@@ -4,7 +4,7 @@ const { gql } = require('apollo-server');
 const { i18n: { locales } } = require(path.resolve('config'));
 
 const schema = gql`
-    enum LOCALE {
+    enum Locale {
       ${locales.join('\n')}
     }
 `;

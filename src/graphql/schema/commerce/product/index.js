@@ -23,7 +23,7 @@ const schema = gql`
         """
         oldPrice: Int
         quantity: Int!
-        currency: CURRENCY!
+        currency: Currency!
         assets: [Asset!]!
         category: ProductCategory!
         weight: Weight!
@@ -82,7 +82,7 @@ const schema = gql`
                 The Currency in which do you want to see price.
                 Usually, this is the user active currency
             """
-            currency: CURRENCY
+            currency: Currency
         ): ProductCollection!
 
         product(id: ID!): Product
@@ -103,7 +103,7 @@ const schema = gql`
         """
             The Active User Currency
         """
-        currency: CURRENCY!
+        currency: Currency!
         assets: [ID!]!
         category: ID!
         weight: WeightInput!

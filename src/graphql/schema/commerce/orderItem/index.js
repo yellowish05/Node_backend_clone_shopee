@@ -23,9 +23,9 @@ const schema = gql`
         status: OrderItemStatus!
         """ In Units """
         quantity: Int!
-        unitPrice(currency: CURRENCY): AmountOfMoney!
-        discount(currency: CURRENCY): AmountOfMoney!
-        price(currency: CURRENCY): AmountOfMoney!
+        unitPrice(currency: Currency): AmountOfMoney!
+        discount(currency: Currency): AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
@@ -36,9 +36,9 @@ const schema = gql`
         product: Product!
         """ In Units """
         quantity: Int!
-        unitPrice(currency: CURRENCY): AmountOfMoney!
-        discount(currency: CURRENCY): AmountOfMoney!
-        price(currency: CURRENCY): AmountOfMoney!
+        unitPrice(currency: Currency): AmountOfMoney!
+        discount(currency: Currency): AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
