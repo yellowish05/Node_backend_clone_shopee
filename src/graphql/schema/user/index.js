@@ -30,8 +30,8 @@ const schema = gql`
       photo: ID
     }
 
-    """Allows: authorized user"""
     extend type Query {
+      """Allows: authorized user"""
       me: User! @auth(requires: USER) 
     }
 
