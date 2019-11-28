@@ -55,6 +55,10 @@ const schema = gql`
       categories: [ID] = []
       cities: [ID] = []
       statuses: [StreamChannelStatus] = []
+      """
+      You can use it for fetch live streams by specific Streamer
+      """
+      streamers: [ID!] = []
     }
 
     enum LiveStreamSortFeature {
