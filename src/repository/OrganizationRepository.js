@@ -32,6 +32,7 @@ class OrganizationRepository {
     organization.address = data.address || organization.address;
     organization.payoutInfo = data.payoutInfo || organization.payoutInfo;
     organization.returnPolicy = data.returnPolicy || organization.returnPolicy;
+    organization.carriers = data.carriers || organization.carriers;
 
     return organization.save();
   }

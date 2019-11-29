@@ -13,14 +13,6 @@ const regions = [
   { id: 'uk-3', code: 3, name: 'Oddeskaya obl.' },
 ];
 
-const shoppingCouriers = [
-  {
-    id: '1',
-    name: 'UPS',
-    type: ['international', 'domestic'],
-  },
-];
-
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
     name: 'required',
@@ -33,6 +25,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
 
+      return args.data.carriers ? Promise.all(
+        args.data.carriers.map((carrierId) => repository.carrier.getById(carrierId))
+        .then(carrier => {
+          if (!carrier) {
+            throw new UserInputError('Carrier does not exists', { invalidArgs: 'carriers' });
+          }
+
+          return carrier;
+        }),
+      ) : Promise.resolve([]);
+    })
+    .then((carriers) => {
       let address = null;
       if (args.data.address) {
         const addressCountry = await repository.country.getById(args.data.address.country);
@@ -61,17 +65,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         };
       }
 
-      const domesticShippingCourier = args.data.domesticShippingCourierId
-        ? shoppingCouriers.find(
-          (s) => s.id === args.data.domesticShippingCourierId,
-        )
-        : null;
-
-      const internationalShippingCourier = args.data.internationalShippingCourierId
-        ? shoppingCouriers.find(
-          (s) => s.id === args.data.internationalShippingCourierId,
-        )
-        : null;
 
       return repository.organization.create({
         _id: uuid(),
@@ -82,8 +75,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         sellingTo: args.data.sellingTo,
         address,
         billingAddress,
-        domesticShippingCourier,
-        internationalShippingCourier,
+        carriers,
         returnPolicy: args.data.returnPolicy,
       });
     });

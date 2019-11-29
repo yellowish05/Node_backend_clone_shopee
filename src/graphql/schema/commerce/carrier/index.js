@@ -19,4 +19,14 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  Query: {
+    carriers(_, args, { dataSources: { repository }, user }) {
+      return repository.carrier.getAll({ workInCountries: user.address.country });
+    },
+  },
+  Carrier: {
+    workInCountries({ workInCountries }, args, { dataSources: { repository } }) {
+      return repository.country.loadList(workInCountries);
+    },
+  },
 };

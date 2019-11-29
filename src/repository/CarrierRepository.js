@@ -1,5 +1,5 @@
 
-class CountryRepository {
+class CarrierRepository {
   constructor(model) {
     this.model = model;
   }
@@ -8,8 +8,8 @@ class CountryRepository {
     return this.model.findOne({ _id: id });
   }
 
-  async getAll() {
-    return this.model.find().sort({ name: 1 });
+  async getAll(query = {}) {
+    return this.model.find(query).sort({ name: 1 });
   }
 
   async loadList(ids) {
@@ -17,4 +17,4 @@ class CountryRepository {
   }
 }
 
-module.exports = CountryRepository;
+module.exports = CarrierRepository;

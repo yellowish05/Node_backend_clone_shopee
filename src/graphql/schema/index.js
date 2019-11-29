@@ -16,7 +16,6 @@ const { typeDefs: userSettingsTypeDefs, resolvers: userSettingsResolvers } = req
 const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = require('./accessToken');
 const { typeDefs: liveStreamTokenTypeDefs, resolvers: liveStreamResolvers } = require('./liveStream');
 const { typeDefs: sbTypeDefs, resolvers: sbResolvers } = require('./shippingBox');
-const { typeDefs: scTypeDefs, resolvers: scResolvers } = require('./shippingCourier');
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
@@ -41,7 +40,6 @@ const typeDefs = [].concat(
   accessTokenTypeDefs,
   liveStreamTokenTypeDefs,
   sbTypeDefs,
-  scTypeDefs,
   countryTypeDefs,
   regionTypeDefs,
   addressTypeDefs,
@@ -70,7 +68,6 @@ const resolvers = merge(
   accessTokenResolvers,
   liveStreamResolvers,
   sbResolvers,
-  scResolvers,
   countryResolvers,
   regionResolvers,
   addressResolvers,

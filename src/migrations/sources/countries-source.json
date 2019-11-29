@@ -31,7 +31,7 @@
     },
     {
         "_id": "NZ",
-        "name": "New Zeland",
+        "name": "New Zealand",
         "currency": "NZD"
     },
     {
@@ -528,11 +528,6 @@
         "currency": "USD"
     },
     {
-        "name": "Holy See",
-        "_id": "VA",
-        "currency": "USD"
-    },
-    {
         "name": "Honduras",
         "_id": "HN",
         "currency": "USD"
@@ -620,6 +615,16 @@
     {
         "name": "Kiribati",
         "_id": "KI",
+        "currency": "USD"
+    },
+    {
+        "name": "Korea (North)",
+        "_id": "KP",
+        "currency": "USD"
+    },
+    {
+        "name": "Korea (South)",
+        "_id": "KR",
         "currency": "USD"
     },
     {
@@ -843,11 +848,6 @@
         "currency": "USD"
     },
     {
-        "name": "Korea (Democratic People's Republic of)",
-        "_id": "KP",
-        "currency": "USD"
-    },
-    {
         "name": "Northern Mariana Islands",
         "_id": "MP",
         "currency": "USD"
@@ -928,7 +928,7 @@
         "currency": "USD"
     },
     {
-        "name": "Republic of Kosovo",
+        "name": "Kosovo, Republic of",
         "_id": "XK",
         "currency": "USD"
     },
@@ -1060,11 +1060,6 @@
     {
         "name": "South Georgia and the South Sandwich Islands",
         "_id": "GS",
-        "currency": "USD"
-    },
-    {
-        "name": "Korea (Republic of)",
-        "_id": "KR",
         "currency": "USD"
     },
     {
@@ -1215,6 +1210,11 @@
     {
         "name": "Vanuatu",
         "_id": "VU",
+        "currency": "USD"
+    },
+    {
+        "name": "Vatican City",
+        "_id": "VA",
         "currency": "USD"
     },
     {

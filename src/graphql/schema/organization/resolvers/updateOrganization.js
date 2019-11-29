@@ -6,40 +6,61 @@ const regions = [
   { id: 'uk-3', code: 3, name: 'Oddeskaya obl.' },
 ];
 
+const activity = {
+  async verifyCarriers(ids, repository) {
+    if (ids) {
+      return Promise.all(ids.map((carrierId) => repository.carrier.getById(carrierId)
+      .then((carrier) => {
+        if (!carrier) {
+          throw new UserInputError(`Carrier ${carrierId} does not exists`, { invalidArgs: 'carriers' });
+        }
+  
+        return carrier;
+      })
+      ))
+     }
+     return Promise.resolve(null);
+  }
+}
+
 module.exports = async (obj, args, { user, dataSources: { repository } }) => {
-  let address = null;
-  if (args.data.address) {
-    const addressCountry = await repository.country.getById(args.data.address.country);
-    if (!addressCountry) {
-      throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
+  return activity.verifyCarriers(args.data.carriers, repository)
+  .then(async (carriers) => {
+    let address = null;
+    if (args.data.address) {
+      const addressCountry = await repository.country.getById(args.data.address.country);
+      if (!addressCountry) {
+        throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
+      }
+
+      address = {
+        ...args.data.address,
+        region: regions.find((r) => r.id === args.data.address.region),
+        country: addressCountry,
+      };
     }
 
-    address = {
-      ...args.data.address,
-      region: regions.find((r) => r.id === args.data.address.region),
-      country: addressCountry,
-    };
-  }
+    let billingAddress = null;
+    if (args.data.address) {
+      const billingAddressCountry = await repository.country.getById(args.data.billingAddress.country);
+      if (!billingAddressCountry) {
+        throw new UserInputError('Country does not exists', { invalidArgs: 'billingAddress' });
+      }
 
-  let billingAddress = null;
-  if (args.data.address) {
-    const billingAddressCountry = await repository.country.getById(args.data.billingAddress.country);
-    if (!billingAddressCountry) {
-      throw new UserInputError('Country does not exists', { invalidArgs: 'billingAddress' });
+      billingAddress = {
+        ...args.data.address,
+        region: regions.find((r) => r.id === args.data.billingAddress.region),
+        country: billingAddressCountry,
+      };
     }
 
-    billingAddress = {
-      ...args.data.address,
-      region: regions.find((r) => r.id === args.data.billingAddress.region),
-      country: billingAddressCountry,
-    };
-  }
-
-  const organization = await repository.organization.getByUser(user);
-  return repository.organization.update(organization, {
-    ...args.data,
-    owner: user,
-    address,
-    billingAddress,
-  });
+    return repository.organization.getByUser(user).then(organization => repository.organization.update(organization, {
+        ...args.data,
+        owner: user,
+        address,
+        billingAddress,
+        carriers,
+      })
+    )
+  })
 };

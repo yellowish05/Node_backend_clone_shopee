@@ -25,6 +25,10 @@ const schema = new Schema({
   },
   payoutInfo: String,
   returnPolicy: String,
+  carriers: [{
+    type: String,
+    ref: 'Carrier',
+  }],
 });
 
 module.exports = new model(collectionName, schema);

@@ -13,6 +13,7 @@ const schema = gql`
       # owner: User
       # name: String
       # type: OrganizationType
+      carriers: [Carrier!]
       address: Address
       billingAddress: Address
       payoutInfo: String
@@ -22,6 +23,7 @@ const schema = gql`
     input OrganizationInput {
       # name: String
       # type: OrganizationType
+      carriers: [ID]
       address: AddressInput
       billingAddress: AddressInput
       payoutInfo: String
@@ -49,5 +51,10 @@ module.exports.resolvers = {
   },
   Mutation: {
     updateOrganization,
+  },
+  Organization: {
+    carriers({ carriers }, args, { dataSources: { repository } }) {
+      return repository.carrier.loadList(carriers);
+    },
   },
 };
