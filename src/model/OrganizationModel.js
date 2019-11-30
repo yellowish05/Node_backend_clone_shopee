@@ -1,7 +1,10 @@
 const { Schema, model } = require('mongoose');
+const path = require('path');
 const AddressSchema = require('./AddressModel');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
+
+const { MarketType } = require(path.resolve('src/lib/Enums'));
 
 const collectionName = 'Organization';
 
@@ -28,6 +31,11 @@ const schema = new Schema({
   carriers: [{
     type: String,
     ref: 'Carrier',
+  }],
+  workInMarketTypes: [{
+    type: String,
+    enum: MarketType.toList(),
+    index: true,
   }],
 });
 

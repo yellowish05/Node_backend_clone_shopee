@@ -98,6 +98,11 @@ const PushNotification = EnumFactory({
   PROFILE: 'PROFILE',
 });
 
+const MarketType = EnumFactory({
+  DOMESTIC: 'DOMESTIC',
+  INTERNATIONAL: 'INTERNATIONAL',
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -115,4 +120,5 @@ module.exports = {
   MeasureSystem,
   WeightUnitSystem,
   PushNotification,
+  MarketType,
 };

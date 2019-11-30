@@ -27,16 +27,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return args.data.carriers ? Promise.all(
         args.data.carriers.map((carrierId) => repository.carrier.getById(carrierId))
-        .then(carrier => {
-          if (!carrier) {
-            throw new UserInputError('Carrier does not exists', { invalidArgs: 'carriers' });
-          }
+          .then((carrier) => {
+            if (!carrier) {
+              throw new UserInputError('Carrier does not exists', { invalidArgs: 'carriers' });
+            }
 
-          return carrier;
-        }),
+            return carrier;
+          }),
       ) : Promise.resolve([]);
     })
-    .then((carriers) => {
+    .then(async (carriers) => {
       let address = null;
       if (args.data.address) {
         const addressCountry = await repository.country.getById(args.data.address.country);
@@ -52,7 +52,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       let billingAddress = null;
-      if (args.data.address) {
+      if (args.data.billingAddress) {
         const billingAddressCountry = await repository.country.getById(args.data.billingAddress.country);
         if (!billingAddressCountry) {
           throw new UserInputError('Country does not exists', { invalidArgs: 'billingAddress' });
@@ -67,16 +67,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
 
       return repository.organization.create({
+        ...args.data,
         _id: uuid(),
         owner: user,
-        name: args.data.name,
-        type: args.data.type,
-        payoutInfo: args.data.payoutInfo,
-        sellingTo: args.data.sellingTo,
         address,
         billingAddress,
         carriers,
-        returnPolicy: args.data.returnPolicy,
       });
     });
 };
