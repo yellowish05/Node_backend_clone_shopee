@@ -41,12 +41,12 @@ const mutation = gql`
         price {
           amount
           currency
-          formated
+          formatted
         }
         oldPrice {
           amount
           currency
-          formated
+          formatted
         }
         quantity
         weight {

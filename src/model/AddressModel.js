@@ -1,7 +1,6 @@
 const { Schema } = require('mongoose');
 
 const addressSchema = new Schema({
-  label: String,
   street: String,
   city: String,
   region: {

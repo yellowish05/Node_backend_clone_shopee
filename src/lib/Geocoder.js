@@ -26,8 +26,7 @@ module.exports.Geocoder = {
           id: res[0].countryCode.toUpperCase(),
           name: res[0].country,
         },
-        label: res[0].streetNumber,
-        street: res[0].streetName,
+        street: `${res[0].streetNumber} ${res[0].streetName}`,
         city: res[0].city,
         zipCode: res[0].zipcode,
       }));
@@ -35,9 +34,6 @@ module.exports.Geocoder = {
 
   geocode(address) {
     const addressArray = [];
-    if (address.label) {
-      addressArray.push(address.label);
-    }
     if (address.street) {
       addressArray.push(address.street);
     }
