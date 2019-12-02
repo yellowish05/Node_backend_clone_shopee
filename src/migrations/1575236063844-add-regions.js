@@ -1,5 +1,4 @@
 const path = require('path');
-// const { default: Parser } = require('node-dbf');
 
 require(path.resolve('config/mongoMigrateConnection'));
 
@@ -21,9 +20,14 @@ async function up() {
           country: row['iso_a2,C,2'],
         };
         if (!region.name) {
-          console.log(row);
+          logger.warn(JSON.stringify(row));
         }
-        if (region._id && region.name && region.country && countries.some((c) => region.country === c._id)) {
+        if (
+          region._id
+          && region.name
+          && region.country
+          && countries.some((c) => region.country === c._id)
+        ) {
           dirtyRegions.push(region);
         }
       })
