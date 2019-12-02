@@ -5,7 +5,7 @@ const AbstractEmailService = require('./AbstractEmailService');
 
 class EmailService extends AbstractEmailService {
     sendWelcome(data) {
-        const template = this.getTemplate('SIGN_UP');
+        const template = this.getTemplate('WELCOME');
 
         const params = this.getParams({template, user: data.user});
 
@@ -20,7 +20,7 @@ class EmailService extends AbstractEmailService {
         return this.send(params);
     }
 
-    sendPasswordChange(data) {
+    sendPasswordChanged(data) {
         const template = this.getTemplate('PASSWORD_CHANGED');
 
         const params = this.getParams({template, user: data.user});

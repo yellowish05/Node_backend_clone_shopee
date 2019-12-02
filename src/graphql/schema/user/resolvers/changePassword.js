@@ -4,6 +4,7 @@ const { UserInputError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { verificationCode } = require(path.resolve('config'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
 
 const errorHandler = new ErrorHandler();
 
@@ -39,7 +40,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
 
             return repository.user.changePassword(user.id, args.newPassword);
           })
-          .then(() => true);
       }
 
       return repository.verificationCode
@@ -61,7 +61,14 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         .then(() => Promise.all([
           repository.verificationCode.deactivate(user.id),
           repository.user.changePassword(user.id, args.newPassword),
-        ]))
-        .then(() => true);
-    });
+        ]));
+    })
+    .then((data) => {
+      const user = data[1] || data;
+
+      EmailService.sendPasswordChanged({user});
+
+      return user;
+    })
+    .then(() => true);
 };

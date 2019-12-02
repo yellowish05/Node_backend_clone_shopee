@@ -57,6 +57,23 @@ module.exports = (body, args) => `
             background: #fff;
         }
 
+        .body p {
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .body .title-color {
+            color: rgba(0, 0, 0, 0.87);
+        }
+
+        .body .link {
+            color: #01CFE2;
+        }
+
+        .body .link-default {
+            text-decoration: none;
+        }
+
         .sign-up h5 {
             font-style: normal;
             font-weight: 500;
@@ -71,6 +88,28 @@ module.exports = (body, args) => `
             margin: 0 0 30px 0;
             text-transform: uppercase;
             color: rgba(0, 0, 0, 0.6);
+        }
+
+        .reset-password .action {
+            border-top: 1px solid rgba(1, 207, 226, 0.32);
+            font-size: 12px;
+            padding-top: 30px;
+            margin-top: 30px;
+        }
+
+        .reset-password .reset-action {
+            margin: 30px 0;
+        }
+
+        .reset-password .reset-action a {
+            background: #01CFE2;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            padding: 10px 30px;
+            margin: 30px 0;
+            text-decoration: none;
         }
 
         .footer {

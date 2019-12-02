@@ -32,8 +32,16 @@ class AbstractEmailService {
     }
 
     send(params) {
-        logger.debug(`[EMAIL] try send email ${JSON.stringify(params)}`);
-        return EmailProvider.Email.Send(params);
+
+        if (email.localMode) {
+            logger.info(`[EMAIL]: local mode enabled`);
+            return;
+        }
+
+        logger.debug(`[EMAIL]: try send email ${JSON.stringify(params)}`);
+        return EmailProvider.Email.Send(params).catch((err) => {
+            logger.error(`[EMAIL]: ${JSON.stringify(err)}`);
+        });
     }
 }
 
