@@ -33,5 +33,8 @@ module.exports.resolvers = {
     country({ country }, args, { dataSources: { repository } }) {
       return repository.country.getById(typeof country === 'object' ? country.id : country);
     },
+    region({ region }, args, { dataSources: { repository } }) {
+      return repository.region.getById(typeof region === 'object' ? region.id : region);
+    },
   },
 };

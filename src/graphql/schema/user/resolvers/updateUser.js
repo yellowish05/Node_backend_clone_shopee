@@ -7,12 +7,6 @@ const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 
 const errorHandler = new ErrorHandler();
 
-const regions = [
-  { id: 'uk-1', code: 1, name: 'Kyivskay obl.' },
-  { id: 'uk-2', code: 2, name: 'Zhitomirskay obl.' },
-  { id: 'uk-3', code: 3, name: 'Oddeskaya obl.' },
-];
-
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
     phone: 'phoneNumber',
@@ -39,9 +33,14 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
         }
 
+        const addressRegion = await repository.region.getById(args.data.address.region);
+        if (!addressRegion) {
+          throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+        }
+
         address = {
           ...args.data.address,
-          region: regions.find((r) => r.id === args.data.address.region),
+          region: addressRegion,
           country: addressCountry,
         };
       }

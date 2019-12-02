@@ -31,7 +31,7 @@ const deliveryAddressData = [
     city: 'Dnepr',
     country: 'UA',
     zipCode: '49001',
-    region: 'uk-1',
+    region: 'UA-71',
   },
   {
     email: 'bill@domain.com',
@@ -40,7 +40,7 @@ const deliveryAddressData = [
     city: 'Dnepr',
     country: 'UA',
     zipCode: '49001',
-    region: 'uk-1',
+    region: 'UA-74',
   },
   {
     email: 'john@domain.com',
@@ -49,7 +49,7 @@ const deliveryAddressData = [
     city: 'Dnepr',
     country: 'UA',
     zipCode: '49001',
-    region: 'uk-1',
+    region: 'UA-61',
   },
   {
     email: 'esrael@domain.com',
@@ -58,7 +58,7 @@ const deliveryAddressData = [
     city: 'Dnepr',
     country: 'UA',
     zipCode: '49001',
-    region: 'uk-1',
+    region: 'UA-05',
   },
 ];
 

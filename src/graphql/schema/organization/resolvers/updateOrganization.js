@@ -1,11 +1,5 @@
 const { UserInputError } = require('apollo-server');
 
-const regions = [
-  { id: 'uk-1', code: 1, name: 'Kyivskay obl.' },
-  { id: 'uk-2', code: 2, name: 'Zhitomirskay obl.' },
-  { id: 'uk-3', code: 3, name: 'Oddeskaya obl.' },
-];
-
 const activity = {
   async verifyCarriers(ids, repository) {
     if (ids) {
@@ -30,10 +24,14 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
       if (!addressCountry) {
         throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
       }
+      const addressRegion = await repository.region.getById(args.data.address.region);
+      if (!addressRegion) {
+        throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+      }
 
       address = {
         ...args.data.address,
-        region: regions.find((r) => r.id === args.data.address.region),
+        region: addressRegion,
         country: addressCountry,
       };
     }
@@ -45,9 +43,14 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         throw new UserInputError('Country does not exists', { invalidArgs: 'billingAddress' });
       }
 
+      const billingAddressRegion = await repository.region.getById(args.data.billingAddress.region);
+      if (!billingAddressRegion) {
+        throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+      }
+
       billingAddress = {
         ...args.data.address,
-        region: regions.find((r) => r.id === args.data.billingAddress.region),
+        region: billingAddressRegion,
         country: billingAddressCountry,
       };
     }

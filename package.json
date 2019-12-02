@@ -33,6 +33,7 @@
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.7.1",
     "cors": "^2.8.5",
+    "csv-parser": "^2.3.2",
     "dotenv": "^8.2.0",
     "elasticemail-webapiclient": "^2.0.8-s",
     "express": "^4.17.1",
