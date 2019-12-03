@@ -5,19 +5,19 @@ const { Currency } = require('../../Enums');
 const AmountOfMoneyAbstract = require('./AmountOfMoneyAbstract');
 
 function convertToCents(currencyAmount) {
-  return currencyAmount ? Math.round(currencyAmount * 100) : this.cents;
+  return Math.round(currencyAmount * 100);
 }
 
 function convertToCurrency(centsAmount) {
-  return (centsAmount || this.cents) / 100;
+  return centsAmount / 100;
 }
 
 class AmountOfGBP extends AmountOfMoneyAbstract {
   constructor({ centsAmount, currencyAmount }) {
     let cents = null;
-    if (centsAmount) {
+    if (typeof centsAmount === 'number') {
       cents = centsAmount;
-    } else if (currencyAmount) {
+    } else if (typeof currencyAmount === 'number') {
       cents = convertToCents(currencyAmount);
     }
     super(cents);
