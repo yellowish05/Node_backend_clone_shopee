@@ -5,6 +5,7 @@ const { gql } = require('apollo-server');
 const addProductToCart = require('./resolvers/addProductToCart');
 const deleteCartItem = require('./resolvers/deleteCartItem');
 const updateCartItem = require('./resolvers/updateCartItem');
+const loadCart = require('./resolvers/loadCart');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -62,33 +63,23 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    cart: async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
-      .getAll({ user: user.id })
-      .then((items) => {
-        const productIds = items.map((item) => item.product).filter((id) => id !== null);
-
-        return repository.product.findByIds(productIds)
-          .then((products) => {
-            const productsById = products.reduce((accumulator, product) => {
-              accumulator[product.id] = product;
-              return accumulator;
-            }, {});
-
-            return items.map((item) => {
-              if (item.product && productsById[item.product]) {
-                item.product = productsById[item.product];
-              }
-              return item;
-            });
-          })
-          .then((itemsWithProducts) => ({ items: itemsWithProducts }));
-      }),
+    cart: loadCart,
   },
   Mutation: {
-    addProductToCart,
-    deleteCartItem,
-    updateCartItem,
-    clearCart: (obj, args, { dataSources: { repository }, user }) => repository.userCartItem.clear(user.id),
+    addProductToCart: async (...args) => (
+      addProductToCart(...args).then(() => loadCart(...args))
+    ),
+    deleteCartItem: async (...args) => (
+      deleteCartItem(...args).then(() => loadCart(...args))
+    ),
+    updateCartItem: async (...args) => (
+      updateCartItem(...args).then(() => loadCart(...args))
+    ),
+    clearCart: async (...args) => {
+      const [,, { dataSources: { repository }, user }] = args;
+      return repository.userCartItem.clear(user.id)
+        .then(() => loadCart(...args));
+    },
   },
   Cart: {
     total: async ({ items }, args) => (
