@@ -3,6 +3,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
 
 const errorHandler = new ErrorHandler();
 
@@ -36,11 +37,18 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
       }
 
-      return repository.deliveryAddress.create({
-        region,
-        owner: user.id,
-        ...data,
-      });
+      return ShipEngine.validate(data, repository)
+        .then((isVerified) => {
+          if (!isVerified) {
+            throw new ApolloError('Address is not valid', 400);
+          }
+
+          return repository.deliveryAddress.create({
+            region,
+            owner: user.id,
+            ...data,
+          });
+        });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Delivery Address. Original error: ${error.message}`, 400);

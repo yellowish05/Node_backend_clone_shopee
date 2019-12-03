@@ -82,4 +82,10 @@ module.exports = {
   payment: {
     testMode: (process.env.PAYMENT_TEST_MODE || null) !== 'disabled',
   },
+  shipengine: {
+    uri: 'https://api.shipengine.com/v1',
+    api_key: process.env.SHIPENGINE_API_KEY || null,
+    // 1 week in seconds
+    addressCacheTTL: 60 * 60 * 24 * 7,
+  },
 };
