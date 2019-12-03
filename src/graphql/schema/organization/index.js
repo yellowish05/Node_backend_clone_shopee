@@ -12,8 +12,8 @@ const schema = gql`
 
   type Organization {
     carriers: [Carrier!]
-    address: Address
-    billingAddress: Address
+    address: VerifiedAddress!
+    billingAddress: VerifiedAddress
     payoutInfo: String
     returnPolicy: String
     workInMarketTypes: [MarketType]!

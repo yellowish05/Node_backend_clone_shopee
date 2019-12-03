@@ -59,5 +59,6 @@ module.exports.resolvers = {
     region: async ({ address: { region } }, _, { dataSources: { repository } }) => repository.region.getById(region),
     country: async ({ address: { country } }, _, { dataSources: { repository } }) => repository.country.getById(country),
     zipCode: async ({ address: { zipCode } }) => zipCode,
+    isDeliveryAvailable: async ({ address: { isDeliveryAvailable } }) => isDeliveryAvailable,
   },
 };

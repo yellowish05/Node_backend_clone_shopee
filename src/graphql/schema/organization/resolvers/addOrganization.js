@@ -3,6 +3,8 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError } = require('apollo-server');
 
+const logger = require(path.resolve('config/logger'));
+const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
 const errorHandler = new ErrorHandler();
@@ -48,6 +50,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           region: addressRegion,
           country: addressCountry,
         };
+
+        const { status, messages } = await ShipEngine.validate(args.data.address, repository);
+        if (!status) {
+          logger.error(messages.length > 0 ? `Seller (${user.id}) Address is not valid. Reason: ${messages[0]}` : `Seller (${user.id}) Address is not valid`);
+        }
+        address.isDeliveryAvailable = status;
       }
 
       let billingAddress = null;
@@ -63,10 +71,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
 
         billingAddress = {
-          ...args.data.address,
+          ...args.data.billingAddress,
           region: billingAddressRegion,
           country: billingAddressCountry,
         };
+
+        const { status, messages } = await ShipEngine.validate(args.data.billingAddress, repository);
+        if (!status) {
+          logger.error(messages.length > 0 ? `Seller (${user.id}) Billing Address is not valid. Reason: ${messages[0]}` : `Seller (${user.id}) Billing Address is not valid`);
+        }
+        billingAddress.isDeliveryAvailable = status;
       }
 
 

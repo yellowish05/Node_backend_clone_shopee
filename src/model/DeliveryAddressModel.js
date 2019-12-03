@@ -20,10 +20,6 @@ const schema = new Schema({
     type: String,
     ref: 'user',
   },
-  isDeliveryAvailable: {
-    type: Boolean,
-    default: true,
-  },
   isDeleted: {
     type: Boolean,
     default: false,

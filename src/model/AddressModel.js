@@ -12,6 +12,10 @@ const addressSchema = new Schema({
     ref: 'Country',
   },
   zipCode: String,
+  isDeliveryAvailable: {
+    type: Boolean,
+    default: false,
+  },
 }, { _id: false });
 
 module.exports = addressSchema;
