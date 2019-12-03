@@ -12,4 +12,7 @@ module.exports.CurrencyFactory = {
 
     return amountOfMoney;
   },
+  getCurrencies() {
+    return Object.keys(currencies);
+  },
 };

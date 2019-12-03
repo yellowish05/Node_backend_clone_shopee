@@ -73,4 +73,8 @@ const schema = new Schema({
   },
 });
 
+schema.indexes([
+  { currency: 1, price: 1 },
+]);
+
 module.exports = new model(collectionName, schema);

@@ -5,14 +5,14 @@ const { Currency } = require('../../Enums');
 const AmountOfMoneyAbstract = require('../AmountOfMoneyAbstract');
 
 function convertToCents(currencyAmount) {
-  return Math.round(currencyAmount * 1000);
+  return Math.round(currencyAmount * 100);
 }
 
 function convertToCurrency(centsAmount) {
-  return centsAmount / 1000;
+  return centsAmount / 100;
 }
 
-class AmountOfINR extends AmountOfMoneyAbstract {
+class AmountOfSGD extends AmountOfMoneyAbstract {
   constructor({ centsAmount, currencyAmount }) {
     let cents = null;
     if (typeof centsAmount === 'number') {
@@ -28,12 +28,12 @@ class AmountOfINR extends AmountOfMoneyAbstract {
   }
 
   getCurrency() {
-    return Currency.INR;
+    return Currency.SGD;
   }
 
   getFormatted() {
-    return `₹ ${Number(this.getCurrencyAmount()).toFixed(3)}`;
+    return `S$ ${Number(this.getCurrencyAmount()).toFixed(2)}`;
   }
 }
 
-module.exports = AmountOfINR;
+module.exports = AmountOfSGD;

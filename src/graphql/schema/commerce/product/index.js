@@ -59,7 +59,8 @@ const schema = gql`
         # quantity: IntRangeInput = {min: 1}
         categories: [ID!]
         brands: [ID!]
-        price: IntRangeInput
+        """This price in currency (like 23.45)"""
+        price: AmountOfMoneyRangeInput
         """
             You can use it for fetch products by specific Seller
         """

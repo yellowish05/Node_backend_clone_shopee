@@ -7,6 +7,14 @@ class AmountOfMoneyAbstract {
     this.cents = cents;
   }
 
+  getCentsAmount() {
+    return this.cents;
+  }
+
+  getCurrencyAmount() {
+    throw new Error('Not implemented');
+  }
+
   getCurrency() {
     throw new Error('Not implemented');
   }

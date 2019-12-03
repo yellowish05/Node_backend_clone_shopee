@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 
 const { Currency } = require('../../Enums');
-const AmountOfMoneyAbstract = require('./AmountOfMoneyAbstract');
+const AmountOfMoneyAbstract = require('../AmountOfMoneyAbstract');
 
 function convertToCents(currencyAmount) {
   return Math.round(currencyAmount * 100);
@@ -21,10 +21,6 @@ class AmountOfUSD extends AmountOfMoneyAbstract {
       cents = convertToCents(currencyAmount);
     }
     super(cents);
-  }
-
-  getCentsAmount() {
-    return this.cents;
   }
 
   getCurrencyAmount() {

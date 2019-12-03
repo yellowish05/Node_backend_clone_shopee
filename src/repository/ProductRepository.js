@@ -1,4 +1,6 @@
 /* eslint-disable no-param-reassign */
+
+
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
@@ -40,17 +42,17 @@ function applyFilter(query, {
   }
 
   if (price) {
-    const priceQuery = {};
-
     if (price.min) {
-      priceQuery.$gte = price.min;
+      query.$and.push({
+        $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
+      });
     }
 
     if (price.max) {
-      priceQuery.$lte = price.max;
+      query.$and.push({
+        $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
+      });
     }
-
-    query.$and.push({ price: priceQuery });
   }
 
   if (categories) {

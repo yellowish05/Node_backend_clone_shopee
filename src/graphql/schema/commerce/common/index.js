@@ -23,6 +23,16 @@ const schema = gql`
         min: Int
         max: Int
     }
+
+    input AmountOfMoneyInput {
+        amount: Float
+        currency: Currency
+    }
+
+    input AmountOfMoneyRangeInput {
+        min: AmountOfMoneyInput
+        max: AmountOfMoneyInput
+    }
 `;
 
 module.exports.typeDefs = [schema];
