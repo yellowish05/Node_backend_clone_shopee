@@ -22,7 +22,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers,
+  searchQuery, categories, brands, price, sellers, blackList,
 }) {
   if (!query.$and) {
     query.$and = [
@@ -68,6 +68,12 @@ function applyFilter(query, {
   if (sellers) {
     query.$and.push({
       seller: { $in: sellers },
+    });
+  }
+
+  if (blackList && blackList.length > 0) {
+    query.$and.push({
+      seller: { $nin: blackList },
     });
   }
 }

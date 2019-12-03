@@ -135,6 +135,13 @@ class UserRepository {
       { new: true },
     );
   }
+
+  async addToBlackList(userId, reportedId) {
+    return this.model.update(
+      { _id: userId },
+      { $push: { blackList: reportedId } },
+    );
+  }
 }
 
 module.exports = UserRepository;

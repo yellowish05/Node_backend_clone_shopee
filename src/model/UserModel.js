@@ -70,6 +70,13 @@ const schema = new Schema({
     type: providerObject,
     default: {},
   },
+  blackList: {
+    type: [{
+      type: String,
+      ref: 'User',
+    }],
+    default: [],
+  },
 });
 
 module.exports = new model(collectionName, schema);

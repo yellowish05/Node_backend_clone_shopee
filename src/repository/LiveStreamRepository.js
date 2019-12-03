@@ -20,28 +20,46 @@ function transformSortInput({ feature, type }) {
 }
 
 function transformFilter({
-  experiences, categories, cities, statuses, streamers,
+  experiences, categories, cities, statuses, streamers, blackList,
 }) {
-  const query = {};
+  const query = {
+    $and: [],
+  };
 
   if (experiences.length > 0) {
-    query.experience = { $in: experiences };
+    query.$and.push({
+      experience: { $in: experiences },
+    });
   }
 
   if (categories.length > 0) {
-    query.categories = { $in: categories };
+    query.$and.push({
+      categories: { $in: categories },
+    });
   }
 
   if (cities.length > 0) {
-    query.city = { $in: cities };
+    query.$and.push({
+      city: { $in: cities },
+    });
   }
 
   if (statuses.length > 0) {
-    query.status = { $in: statuses };
+    query.$and.push({
+      status: { $in: statuses },
+    });
   }
 
   if (streamers.length > 0) {
-    query.streamer = { $in: streamers };
+    query.$and.push({
+      streamer: { $in: streamers },
+    });
+  }
+
+  if (blackList && blackList.length > 0) {
+    query.$and.push({
+      streamer: { $nin: blackList },
+    });
   }
 
   return query;

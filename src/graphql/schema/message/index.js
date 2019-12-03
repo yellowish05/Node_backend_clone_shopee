@@ -69,8 +69,11 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    messages(_, args, { dataSources: { repository } }) {
-      return repository.message.get(args);
+    messages(_, args, { user, dataSources: { repository } }) {
+      return repository.message.get({
+        blackList: user.blackList,
+        ...args,
+      });
     },
   },
   Mutation: {
@@ -82,8 +85,8 @@ module.exports.resolvers = {
       resolve: (payload) => payload,
       subscribe: withFilter(
         () => pubsub.asyncIterator(['MESSAGE_ADDED']),
-        ({ thread }, { threads, threadTags }, { user }) => {
-          if (!thread.participants.includes(user.id)) {
+        ({ thread, author }, { threads, threadTags }, { user }) => {
+          if (!thread.participants.includes(user.id) || user.blackList.includes(author)) {
             return false;
           }
 
@@ -129,8 +132,10 @@ module.exports.resolvers = {
       }
       return repository.user.loadList(thread.participants);
     },
-    messages(thread, { limit, sort }, { dataSources: { repository } }) {
-      return repository.message.get({ thread, limit, sort });
+    messages(thread, { limit, sort }, { user, dataSources: { repository } }) {
+      return repository.message.get({
+        blackList: user.blackList, thread, limit, sort,
+      });
     },
   },
 };

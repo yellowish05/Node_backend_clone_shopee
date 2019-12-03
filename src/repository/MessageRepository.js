@@ -39,9 +39,15 @@ class MessageRepository {
   }
 
   async get({
-    thread, skip, limit, sort,
+    blackList, thread, skip, limit, sort,
   }) {
-    const query = { thread };
+    const query = {
+      thread,
+    };
+    if (blackList && blackList.length > 0) {
+      query.author = { $nin: blackList };
+    }
+
     const filterFns = { DESC: '$lte', ASC: '$gte' };
     if (skip) {
       query.createdAt = { [filterFns[sort.type]]: skip };

@@ -12,6 +12,7 @@ const { typeDefs: pagerTypeDefs } = require('./common/pager');
 const { typeDefs: sortTypeDefs } = require('./common/sort');
 
 const { typeDefs: userTypeDefs, resolvers: userResolvers } = require('./user');
+const { typeDefs: userBlockTypeDefs, resolvers: userBlockResolvers } = require('./userBlock');
 const { typeDefs: userSettingsTypeDefs, resolvers: userSettingsResolvers } = require('./userSettings');
 const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = require('./accessToken');
 const { typeDefs: liveStreamTokenTypeDefs, resolvers: liveStreamResolvers } = require('./liveStream');
@@ -36,6 +37,7 @@ const typeDefs = [].concat(
   authTypeDefs,
   i18nTypeDefs,
   userTypeDefs,
+  userBlockTypeDefs,
   userSettingsTypeDefs,
   accessTokenTypeDefs,
   liveStreamTokenTypeDefs,
@@ -63,6 +65,7 @@ const resolvers = merge(
   commonResolvers,
   testErrorsResolvers,
   userResolvers,
+  userBlockResolvers,
   userSettingsResolvers,
   i18nResolvers,
   accessTokenResolvers,

@@ -50,21 +50,25 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
           });
 
           // TODO: we need to add queue here
-          thread.participants.forEach((uId) => {
-            if (uId !== user.id) {
-              repository.notification.create({
-                type: NotificationType.MESSAGE,
-                user: uId,
-                data: {
-                  text: message.data,
-                  author: user.id,
-                },
-                tags: ['Message:message.id'],
-              }).catch((error) => {
-                logger.error(`Failed to create Notification on Add Message for user "${uId}", Original error: ${error}`);
+          repository.user.loadList(thread.participants)
+            .then((participants) => {
+              participants.forEach(({ id, blackList }) => {
+                if (id !== user.id && !blackList.includes(user.id)) {
+                  repository.notification.create({
+                    type: NotificationType.MESSAGE,
+                    user: id,
+                    data: {
+                      text: message.data,
+                      author: user.id,
+                    },
+                    tags: ['Message:message.id'],
+                  });
+                }
               });
-            }
-          });
+            })
+            .catch((error) => {
+              logger.error(`Failed to create Notification on Add Message for user "${uId}", Original error: ${error}`);
+            });
 
           return message;
         });

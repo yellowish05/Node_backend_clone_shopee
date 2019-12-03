@@ -98,6 +98,18 @@ const PushNotification = EnumFactory({
   PROFILE: 'PROFILE',
 });
 
+const ComplaintReason = EnumFactory({
+  NUDITY: 'NUDITY',
+  VIOLENCE: 'VIOLENCE',
+  SUICIDE_OR_SELF_INJURY: 'SUICIDE_OR_SELF_INJURY',
+  HATE_SPEECH: 'HATE_SPEECH',
+  VIOLATING_COPYRIGHT: 'VIOLATING_COPYRIGHT',
+  USAGE_OF_PROFANITY: 'USAGE_OF_PROFANITY',
+  HARASSMENT: 'HARASSMENT',
+  FALSE_NEWS: 'FALSE_NEWS',
+  ILLEGAL_SALES: 'ILLEGAL_SALES',
+});
+
 const MarketType = EnumFactory({
   DOMESTIC: 'DOMESTIC',
   INTERNATIONAL: 'INTERNATIONAL',
@@ -120,5 +132,6 @@ module.exports = {
   MeasureSystem,
   WeightUnitSystem,
   PushNotification,
+  ComplaintReason,
   MarketType,
 };
