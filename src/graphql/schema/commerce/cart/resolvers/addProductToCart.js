@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -19,7 +19,14 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
     })
-    .then(() => repository.userCartItem.add({ productId: args.product }, user.id, args.quantity))
+    .then(() => repository.product.getById(args.product))
+    .then((product) => {
+      if (!product) {
+        throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
+      }
+      return product;
+    })
+    .then((product) => repository.userCartItem.add({ productId: product.id }, user.id, args.quantity))
     .catch((error) => {
       throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
     });
