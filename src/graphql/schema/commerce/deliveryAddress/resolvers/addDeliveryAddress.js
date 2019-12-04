@@ -38,9 +38,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       }
 
       return ShipEngine.validate(data, repository)
-        .then((isVerified) => {
-          if (!isVerified) {
-            throw new ApolloError('Address is not valid', 400);
+        .then(({ status, messages }) => {
+          if (!status) {
+            throw new ApolloError(messages.length > 0 ? `Address is not valid. Reason: ${messages[0]}` : 'Address is not valid', 400);
           }
 
           return repository.deliveryAddress.create({

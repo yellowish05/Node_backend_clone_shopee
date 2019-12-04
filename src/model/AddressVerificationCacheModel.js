@@ -13,6 +13,10 @@ const schema = new Schema({
     type: AddressSchema,
     required: true,
   },
+  messages: {
+    type: [String],
+    default: [],
+  },
   verified: {
     type: Boolean,
     default: true,

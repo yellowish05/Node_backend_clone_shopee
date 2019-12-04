@@ -13,7 +13,7 @@ module.exports = {
     return repository.addressVerificationCache.get(address)
       .then((cache) => {
         if (cache) {
-          return cache.verified;
+          return { status: cache.verified, messages: cache.messages };
         }
 
         const headers = {
@@ -32,9 +32,11 @@ module.exports = {
         return axios.post(`${shipengine.uri}/addresses/validate`, body, { headers })
           .then(({ data }) => {
             const result = data[0];
-            const isVerified = result.status === 'verified' || result.status === 'warning';
+            const status = result.status === 'verified' || result.status === 'warning';
+            const messages = result.messages.filter((m) => m.type === 'error').map((m) => m.message);
             repository.addressVerificationCache.create({
-              verified: isVerified,
+              verified: status,
+              messages,
               address,
             }).then((addressCache) => {
               logger.info(`New Address Verification added to cache: ${JSON.stringify(addressCache)}`);
@@ -42,7 +44,7 @@ module.exports = {
               logger.error(`Failed to cache Address Vrification. Original error: ${error.message}`);
             });
 
-            return isVerified;
+            return { status, messages };
           })
           .catch((error) => {
             logger.error(`Error happend while validation address through Ship Engine. Original error: ${error.message}`);
