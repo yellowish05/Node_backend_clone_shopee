@@ -72,7 +72,7 @@ module.exports = {
   },
   email: {
     from: process.env.ELASTIC_EMAIL_FROM,
-    bodyType: 'Plain',
+    bodyType: 'HTML',
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
       apiUri: 'https://api.elasticemail.com/',

@@ -6,6 +6,7 @@ const logger = require('../../../../../config/logger');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { OAuth2Service } = require(path.resolve('src/lib/OAuth2Service'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
 
 const errorHandler = new ErrorHandler();
 
@@ -52,7 +53,11 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
                 photo: asset,
                 provider: data.provider,
                 providerId: socialUserData.id,
-              }, { roles: ['USER'] }));
+              }, { roles: ['USER'] }))
+              .then((user) => {
+                EmailService.sendWelcome({user});
+                return user;
+              });
           }
 
           if (!user.photo) {

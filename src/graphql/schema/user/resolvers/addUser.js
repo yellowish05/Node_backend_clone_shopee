@@ -5,6 +5,8 @@ const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
+const { EmailService } = require(path.resolve('src/bundles/email'));
+
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
@@ -29,5 +31,9 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       _id: uuid(),
       email: args.data.email,
       password: args.data.password,
-    }, { roles: ['USER'] }));
+    }, { roles: ['USER'] }))
+    .then((user) => {
+      EmailService.sendWelcome({user});
+      return user;
+    });
 };
