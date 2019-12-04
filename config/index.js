@@ -3,6 +3,7 @@
 
 const env = (process.env.NODE_ENV || 'development').trim();
 const isDebugMode = (process.env.DEBUG_MODE || '').trim() == '1';
+const isTestPaymentMode = (process.env.PAYMENT_TEST_MODE || null) !== 'disabled';
 
 if (env === 'development' || env === 'test') {
   require('dotenv').config({ path: `${__dirname}/../.env` });
@@ -82,7 +83,16 @@ module.exports = {
     },
   },
   payment: {
-    testMode: (process.env.PAYMENT_TEST_MODE || null) !== 'disabled',
+    testMode: isTestPaymentMode,
+    providers: {
+      wirecard: {
+        entrypoint: isTestPaymentMode
+          ? 'https://api-test.wirecard.com/engine/rest/payments/'
+          : '',
+        merchantId: process.env.WIRECARD_MERCHANT_ID || null,
+        secret: process.env.WIRECARD_SECRET || null,
+      },
+    },
   },
   shipengine: {
     uri: 'https://api.shipengine.com/v1',

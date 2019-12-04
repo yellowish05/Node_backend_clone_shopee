@@ -89,6 +89,13 @@ class ProductRepository {
     return this.model.findOne({ _id: id, isDeleted: false });
   }
 
+  async getByIds(ids) {
+    return this.model.find({ _id: ids, isDeleted: false });
+  }
+
+  /**
+   * @deprecated
+   */
   async findByIds(ids) {
     return this.model.find({ _id: ids, isDeleted: false });
   }

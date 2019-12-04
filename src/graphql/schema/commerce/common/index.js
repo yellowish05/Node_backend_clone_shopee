@@ -15,6 +15,9 @@ const schema = gql`
     type AmountOfMoney {
       """In cents"""
       amount: Int!
+      """Amount in ISO 4217 format, e.g. 1.01"""
+      amountISO: Float!
+      """Currency in ISO 4217 format, e.g. USD"""
       currency: Currency!
       formatted: String!
     }
@@ -40,6 +43,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   AmountOfMoney: {
     amount: async (amount) => amount.getCentsAmount(),
+    amountISO: async (amount) => amount.getCurrencyAmount(),
     currency: async (amount) => amount.getCurrency(),
     formatted: async (amount) => amount.getFormatted(),
   },

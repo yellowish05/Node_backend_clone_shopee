@@ -1,12 +1,12 @@
+const path = require('path');
 const { gql } = require('apollo-server');
+
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum OrderItemStatus {
-        ORDERED
-        CONFIRMED
-        CARRIER_RECEIVED
-        DELIVERED
-        COMPLETE
+        ${OrderItemStatus.toGQL()}
     }
 
     type OrderItemLog {
@@ -20,25 +20,25 @@ const schema = gql`
 
     interface OrderItemInterface {
         id: ID!
+        title: String!
         status: OrderItemStatus!
         """ In Units """
         quantity: Int!
-        unitPrice(currency: Currency): AmountOfMoney!
-        discount(currency: Currency): AmountOfMoney!
-        price(currency: Currency): AmountOfMoney!
+        price: AmountOfMoney!
+        total: AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
     }
 
-    type OrderProduct implements OrderItemInterface {
+    type OrderProductItem implements OrderItemInterface {
         id: ID!
+        title: String!
         product: Product!
         """ In Units """
         quantity: Int!
-        unitPrice(currency: Currency): AmountOfMoney!
-        discount(currency: Currency): AmountOfMoney!
-        price(currency: Currency): AmountOfMoney!
+        price: AmountOfMoney!
+        total: AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
@@ -49,5 +49,30 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  OrderProductItem: {
+    seller: async (item, _, { dataSources: { repository } }) => (
+      repository.user.getById(item.seller)
+    ),
+    price: async (item) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: item.price,
+        currency: item.currency,
+      })
+    ),
+    total: async (item) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: item.total,
+        currency: item.currency,
+      })
+    ),
+  },
+  OrderItemInterface: {
+    __resolveType(item) {
+      if (item.product) {
+        return 'OrderProductItem';
+      }
 
+      return null;
+    },
+  },
 };

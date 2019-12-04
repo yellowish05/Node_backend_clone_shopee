@@ -115,6 +115,31 @@ const MarketType = EnumFactory({
   INTERNATIONAL: 'INTERNATIONAL',
 });
 
+const PurchaseOrderStatus = EnumFactory({
+  CREATED: 'CREATED',
+  ORDERED: 'ORDERED',
+  CARRIER_RECEIVED: 'CARRIER_RECEIVED',
+  DELIVERED: 'DELIVERED',
+  COMPLETE: 'COMPLETE',
+  CANCELED: 'CANCELED',
+});
+
+const OrderItemStatus = EnumFactory({
+  CREATED: 'CREATED',
+  ORDERED: 'ORDERED',
+  CARRIER_RECEIVED: 'CARRIER_RECEIVED',
+  DELIVERED: 'DELIVERED',
+  COMPLETE: 'COMPLETE',
+});
+
+const PaymentTransactionStatus = EnumFactory({
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAIL: 'FAIL',
+  REFUND: 'REFUND',
+});
+
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -134,4 +159,7 @@ module.exports = {
   PushNotification,
   ComplaintReason,
   MarketType,
+  PurchaseOrderStatus,
+  OrderItemStatus,
+  PaymentTransactionStatus,
 };

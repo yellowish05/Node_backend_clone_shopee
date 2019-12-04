@@ -8,6 +8,13 @@ class UserRepository {
     this.model = model;
   }
 
+  async getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+
+  /**
+   * @deprecated
+   */
   async load(id) {
     return this.model.findOne({ _id: id });
   }

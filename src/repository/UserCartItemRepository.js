@@ -16,12 +16,19 @@ class UserCartItemRepository {
     return this.model.findOne({ product: productId, user: userId });
   }
 
-  async getById(userCartId) {
-    return this.model.findOne({ _id: userCartId });
+  async getById(itemId) {
+    return this.model.findOne({ _id: itemId });
   }
 
+  /**
+   * @deprecated
+   */
   async getAll(query = {}) {
     return this.model.find(query);
+  }
+
+  async getItemsByUser(userId) {
+    return this.model.find({ user: userId });
   }
 
   async add({ productId }, userId, quantity) {
@@ -38,12 +45,12 @@ class UserCartItemRepository {
       });
   }
 
-  async delete(userCartId) {
-    if (typeof userCartId !== 'string') {
-      throw new Error(`UserCartItem.delete expected id as String, but got "${typeof userCartId}"`);
+  async delete(itemId) {
+    if (typeof itemId !== 'string') {
+      throw new Error(`UserCartItem.delete expected id as String, but got "${typeof itemId}"`);
     }
 
-    return this.model.deleteOne({ _id: userCartId });
+    return this.model.deleteOne({ _id: itemId });
   }
 
   async update(userCartId, quantity) {

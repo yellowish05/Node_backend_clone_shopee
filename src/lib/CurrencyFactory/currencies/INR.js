@@ -5,11 +5,11 @@ const { Currency } = require('../../Enums');
 const AmountOfMoneyAbstract = require('../AmountOfMoneyAbstract');
 
 function convertToCents(currencyAmount) {
-  return Math.round(currencyAmount * 1000);
+  return Math.round(currencyAmount * 100);
 }
 
 function convertToCurrency(centsAmount) {
-  return centsAmount / 1000;
+  return centsAmount / 100;
 }
 
 class AmountOfINR extends AmountOfMoneyAbstract {
