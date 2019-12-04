@@ -6,6 +6,9 @@ const schema = gql`
         name: String!
         level: Int!
         parent: ProductCategory
+        parents: [ProductCategory]!
+        hasChildren: Boolean!
+        image: Asset
         liveStreamCategory: LiveStreamCategory
     }
 
@@ -63,6 +66,18 @@ module.exports.resolvers = {
         return null;
       }
       return repository.productCategory.getById(productCategory.parent);
+    },
+    parents: async ({ parents }, _, { dataSources: { repository } }) => {
+      if (parents.length === 0) {
+        return [];
+      }
+      return repository.productCategory.findByIds(parents);
+    },
+    image: async ({ image }, _, { dataSources: { repository } }) => {
+      if (!image) {
+        return null;
+      }
+      return repository.asset.getById(image);
     },
     liveStreamCategory: async (productCategory, _, { dataSources: { repository } }) => {
       if (!productCategory.liveStreamCategory) {

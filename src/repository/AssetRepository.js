@@ -13,7 +13,14 @@ class AssetRepository {
     this.model = model;
   }
 
+  /**
+   * @deprecated
+   */
   async load(id) {
+    return this.model.findOne({ _id: id });
+  }
+
+  async getById(id) {
     return this.model.findOne({ _id: id });
   }
 

@@ -12,6 +12,19 @@ const schema = new Schema({
     type: String,
     default: null,
   },
+  parents: [{
+    type: String,
+  }],
+  hasChildren: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  image: {
+    type: String,
+    ref: 'Asset',
+    default: null,
+  },
   level: {
     type: Number,
     default: 1,

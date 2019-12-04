@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 function getSearchQueryByName(query) {
   return { name: { $regex: `^${query}.*`, $options: 'i' } };
 }
@@ -33,6 +34,34 @@ class ProductCategoryRepository {
 
   async getCountByParent(parent) {
     return this.model.countDocuments({ parent });
+  }
+
+  async reindex() {
+    const categoryList = await this.model.find();
+    const categoriesById = categoryList.reduce((res, cat) => ({ ...res, [cat.id]: cat }), {});
+    const parentIds = categoryList.map((cat) => cat.parent).filter((id) => id);
+
+    function fetchParentIds(entityId) {
+      const parentId = categoriesById[entityId].parent;
+      let parents = [entityId];
+      if (parentId) {
+        parents = parents.concat(fetchParentIds(parentId));
+      }
+      return parents;
+    }
+
+    const updatePromises = categoryList.map(async (cat) => {
+      if (cat.parent) {
+        cat.parents = fetchParentIds(cat.parent);
+      }
+      if (parentIds.includes(cat.id)) {
+        cat.hasChildren = true;
+      }
+
+      return cat.save();
+    });
+
+    return Promise.all(updatePromises);
   }
 }
 
