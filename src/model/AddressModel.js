@@ -4,12 +4,8 @@ const addressSchema = new Schema({
   street: String,
   city: String,
   region: {
-    type: {
-      id: String,
-      code: Number,
-      name: String,
-    },
-    required: false,
+    type: String,
+    ref: 'Region',
   },
   country: {
     type: String,

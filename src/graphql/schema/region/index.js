@@ -3,7 +3,6 @@ const { gql } = require('apollo-server');
 const schema = gql`
     type Region {
       id: ID!
-      code: Int
       name: String
     }
 
