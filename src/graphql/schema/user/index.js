@@ -59,7 +59,7 @@ module.exports.resolvers = {
       return repository.asset.load(user.photo);
     },
     organization(user, args, { dataSources: { repository } }) {
-      return repository.organization.getByUser(user);
+      return repository.organization.getByUser(user.id);
     },
   },
 };

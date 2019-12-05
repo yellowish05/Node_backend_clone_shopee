@@ -71,7 +71,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
       billingAddress.isDeliveryAvailable = status;
     }
 
-    return repository.organization.getByUser(user)
+    return repository.organization.getByUser(user.id)
       .then((organization) => repository.organization.update(organization, {
         ...args.data,
         owner: user,

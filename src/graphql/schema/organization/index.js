@@ -44,7 +44,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     organization(_, args, { user, dataSources: { repository } }) {
-      return repository.organization.getByUser(user);
+      return repository.organization.getByUser(user.id);
     },
   },
   Mutation: {

@@ -8,18 +8,76 @@ if (shipengine.api_key == null) {
   logger.warn("You didn't provided API_KEY for ShipEngine. You will not be able to work with shipping");
 }
 
-module.exports = {
-  validate(address, repository) {
+class ShipEngine {
+  constructor() {
+    this.headers = {
+      'Content-Type': 'application/json',
+      'API-Key': shipengine.api_key,
+    };
+  }
+
+  async getCarriers() {
+    if (this.carriers) {
+      return this.carriers;
+    }
+
+    return axios.get(`${shipengine.uri}/carriers`, { headers: this.headers })
+      .then(({ data }) => {
+        this.carriers = data.carriers;
+        return this.carriers;
+      }).catch((error) => {
+        logger.error(`Error happend while getting carriers from Ship Engine. Original error: ${error.message}`);
+      });
+  }
+
+  async calculate(carriers, from, to, weight, dimensions) {
+    const supportedCarriers = await this.getCarriers();
+    const rateCarriers = supportedCarriers.filter((sc) => carriers.some((c) => sc.friendly_name === c.name));
+
+    const body = {
+      carrier_ids: rateCarriers.map((rc) => rc.carrier_id),
+      from_address_line1: from.street,
+      from_city_locality: from.city,
+      from_state_province: from.region.replace(`${from.country}-`, ''),
+      from_postal_code: from.zipCode,
+      from_country_code: from.country,
+
+      to_address_line1: to.street,
+      to_city_locality: to.city,
+      to_state_province: to.region.replace(`${to.country}-`, ''),
+      to_postal_code: to.zipCode,
+      to_country_code: to.country,
+      confirmation: 'none',
+      weight,
+      dimensions,
+    };
+
+    return axios.post(`${shipengine.uri}/rates/estimate`, body, { headers: this.headers })
+      .then(({ data }) => data.map((rate) => ({
+        carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
+
+        shippingAmount: rate.shipping_amount.amount,
+        insurance_amount: rate.insurance_amount.amount,
+        confirmation_amount: rate.confirmation_amount.amount,
+        other_amount: rate.other_amount.amount,
+        totalAmount: rate.shipping_amount.amount + rate.insurance_amount.amount + rate.confirmation_amount.amount + rate.other_amount.amount,
+        currency: rate.shipping_amount.currency.toUpperCase(),
+
+        deliveryDays: rate.delivery_days,
+        carrierDeliveryDays: rate.carrier_delivery_days,
+        estimatedDeliveryDate: rate.estimated_delivery_date,
+      }))
+        .filter((rate) => rate.deliveryDays)).catch((error) => {
+        logger.error(`Error happend while getting carriers from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+      });
+  }
+
+  async validate(address, repository) {
     return repository.addressVerificationCache.get(address)
       .then((cache) => {
         if (cache) {
           return { status: cache.verified, messages: cache.messages };
         }
-
-        const headers = {
-          'Content-Type': 'application/json',
-          'API-Key': shipengine.api_key,
-        };
 
         const body = [{
           address_line1: address.street,
@@ -29,7 +87,7 @@ module.exports = {
           country_code: address.country,
         }];
 
-        return axios.post(`${shipengine.uri}/addresses/validate`, body, { headers })
+        return axios.post(`${shipengine.uri}/addresses/validate`, body, { headers: this.headers })
           .then(({ data }) => {
             const result = data[0];
             const status = result.status === 'verified' || result.status === 'warning';
@@ -50,5 +108,7 @@ module.exports = {
             logger.error(`Error happend while validation address through Ship Engine. Original error: ${error.message}`);
           });
       });
-  },
-};
+  }
+}
+
+module.exports = new ShipEngine();

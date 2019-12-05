@@ -45,8 +45,8 @@ class OrganizationRepository {
     return this.model.findOne({ _id: id });
   }
 
-  async getByUser({ _id }) {
-    return this.model.findOne({ owner: _id });
+  async getByUser(id) {
+    return this.model.findOne({ owner: id });
   }
 }
 
