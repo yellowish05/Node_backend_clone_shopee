@@ -2,18 +2,19 @@ const checkout = require('../checkoutMethods');
 
 module.exports = async function checkoutCart(
   _,
-  { deliveryAddress, currency },
+  {
+    deliveryAddress, product, quantity, currency,
+  },
   { dataSources: { repository }, user },
 ) {
   // validation of input data
   await checkout.validateDeliveryAddress(deliveryAddress, repository);
-  const cartItems = await checkout.loadCartAndValidate(user.id, repository);
+  const cartItems = await checkout.loadProductAsCart(product, quantity, repository);
 
-  // creating order and clean cart
+  // creating order
   const order = await checkout.createOrder({
     cartItems, currency, buyerId: user.id, deliveryAddress,
   }, repository);
-  await checkout.clearUserCart(user.id, repository);
 
   // generate payments with Payment Provider data and update order
   await checkout.generatePaymentsForOrder(order, repository);

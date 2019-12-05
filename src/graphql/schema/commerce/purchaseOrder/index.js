@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const checkoutCart = require('./resolvers/checkoutCart');
+const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
@@ -48,6 +49,9 @@ const schema = gql`
         checkoutCart(deliveryAddress: ID!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
+        checkoutOneProduct(deliveryAddress: ID!, product: ID!, quantity: Int!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
+
+        """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
     }
 `;
@@ -72,6 +76,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     checkoutCart,
+    checkoutOneProduct,
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (

@@ -10,7 +10,7 @@ describe('Wirecard', () => {
 
     const signature = provider.generateSignatureV2({
       date: new Date('2017-03-23T09:14:51Z'),
-      orderId: 'A7B51ED4-9EB0-48D1-82AA-2145A7792C6B',
+      transactionId: 'A7B51ED4-9EB0-48D1-82AA-2145A7792C6B',
       transactionType: 'authorization',
       currencyAmount: 1.01,
       currency: 'EUR',
@@ -28,7 +28,7 @@ describe('Wirecard', () => {
 
     const signature = provider.generateSignatureV2({
       date: new Date('2019-07-26T11:02:32+02:00'),
-      orderId: 'ec1c6f40-9811-4c31-936a-5e4ca9ba9003',
+      transactionId: 'ec1c6f40-9811-4c31-936a-5e4ca9ba9003',
       transactionType: 'purchase',
       currencyAmount: 1.05,
       currency: 'EUR',
