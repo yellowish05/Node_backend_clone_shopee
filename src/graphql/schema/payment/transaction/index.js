@@ -11,14 +11,15 @@ const schema = gql`
     }
 
     type PaymentTransaction {
-        merchant: ID!
-        createdAt: Date!
-        signature: String!
-        type: String!
-        amount: AmountOfMoney!
-        status: PaymentTransactionStatus!
-        processedAt: Date
-        tags: [String!]
+      id: ID!
+      merchant: ID!
+      createdAt: Date!
+      signature: String!
+      type: String!
+      amount: AmountOfMoney!
+      status: PaymentTransactionStatus!
+      processedAt: Date
+      tags: [String!]
     }
 `;
 
