@@ -14,7 +14,7 @@ const activity = {
           throw new UserInputError(`Delivery address "${id}" does not exist`, { invalidArgs: ['deliveryAddress'] });
         }
 
-        if (!address.isDeliveryAvailable) {
+        if (!address.address.isDeliveryAvailable) {
           throw new UserInputError('Delivery address is not valid', { invalidArgs: ['deliveryAddress'] });
         }
       });
