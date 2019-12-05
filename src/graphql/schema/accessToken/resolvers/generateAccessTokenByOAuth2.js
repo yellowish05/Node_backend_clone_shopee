@@ -65,14 +65,13 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
               userId: user.id,
               url: socialUserData.photo,
             })
-              .then((asset) => {
-                repository.user.update(user.id, {
+              .then((asset) => repository.user.update(user.id, {
                   name: user.name || socialUserData.name,
                   photo: asset,
                   provider: data.provider,
                   providerId: socialUserData.id,
-                });
-              });
+                })
+              );
           }
 
           return repository.user.update(user.id, {
