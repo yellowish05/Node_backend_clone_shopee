@@ -36,6 +36,7 @@ class DeliveryAddressRepository {
         owner: data.owner,
         label: data.label,
         address: {
+          isDeliveryAvailable: true,
           ...data,
         },
       },
