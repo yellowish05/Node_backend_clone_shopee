@@ -1,6 +1,7 @@
 const uuid = require('uuid/v4');
 const path = require('path');
 
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 const paymentBundle = require(path.resolve('src/bundles/payment'));
 const { UserInputError } = require('apollo-server');
@@ -81,11 +82,16 @@ module.exports = {
       tags: [order.getTagName()],
     };
 
+    const amountISO = CurrencyFactory.getAmountOfMoney({
+      centsAmount: transaction.amount,
+      currency: transaction.currency,
+    });
+
     transaction.signature = WIRECARD.generateSignatureV2({
       date: transaction.createdAt,
       transactionId: transaction._id,
       transactionType: transaction.type,
-      currencyAmount: transaction.amount,
+      currencyAmount: amountISO.getCurrencyAmount(),
       currency: transaction.currency,
     });
 

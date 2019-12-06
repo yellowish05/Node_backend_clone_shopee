@@ -3,6 +3,7 @@ const Base64 = require('crypto-js/enc-base64');
 const Utf8 = require('crypto-js/enc-utf8');
 const HMAC_SHA256 = require('crypto-js/hmac-sha256');
 const ProviderAbstract = require('../ProviderAbstract');
+const logger = require('../../../../../config/logger');
 
 class Provider extends ProviderAbstract {
   constructor({ entrypoint, merchantId, secret }) {
@@ -50,6 +51,8 @@ class Provider extends ProviderAbstract {
       `requested_amount_currency=${currency}`,
     ]
       .join('\n');
+
+    logger.debug(payload);
 
     const payloadBase64 = Base64.stringify(Utf8.parse(payload));
     const digestSecret = HMAC_SHA256(payload, this.secret).toString(Base64);
