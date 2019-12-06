@@ -21,7 +21,11 @@ const geocoderService = NodeGeocoder(options);
 module.exports.Geocoder = {
   reverse(location) {
     return geocoderService.reverse({ lat: location.latitude, lon: location.longitude })
-      .then((res) => ({
+      .then((res) => {
+        if (res.length === 0 ) {
+          throw new Error("[Geocoder] Location is invalid")
+        }
+        return {
         country: {
           id: res[0].countryCode.toUpperCase(),
           name: res[0].country,
@@ -29,7 +33,7 @@ module.exports.Geocoder = {
         street: `${res[0].streetNumber} ${res[0].streetName}`,
         city: res[0].city,
         zipCode: res[0].zipcode,
-      }));
+      }});
   },
 
   geocode(address) {
@@ -55,6 +59,10 @@ module.exports.Geocoder = {
     }
 
     return geocoderService.geocode(query)
-      .then((res) => ({ latitude: res[0].latitude, longitude: res[0].longitude }));
+      .then((res) => {
+        if (res.length === 0 ) {
+          throw new Error("[Geocoder] Address is invalid")
+        }
+        return { latitude: res[0].latitude, longitude: res[0].longitude }});
   },
 };

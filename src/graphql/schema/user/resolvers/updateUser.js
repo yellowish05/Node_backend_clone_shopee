@@ -53,7 +53,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('Country does not exists', { invalidArgs: 'location' });
           }
           address.country = geocodedCountry.id;
-        } else if (!args.location && address) {
+        } else if (!location && address) {
           location = await Geocoder.geocode(address);
         }
       } catch (error) {
