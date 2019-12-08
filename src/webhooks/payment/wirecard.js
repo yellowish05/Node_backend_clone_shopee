@@ -52,9 +52,9 @@ module.exports = async (req, res) => {
         buyer: purchaseOrder.buyer,
         deliveryAddress: purchaseOrder.deliveryAddress,
         items: itemsBySeller[seller].map((item) => item.id),
-        quantity: itemsBySeller[seller].reduce((sum, item) => sum + item.quantity),
+        quantity: itemsBySeller[seller].reduce((sum, item) => sum + item.quantity, 0),
         currency: purchaseOrder.currency,
-        total: itemsBySeller[seller].reduce((sum, item) => sum + item.total),
+        total: itemsBySeller[seller].reduce((sum, item) => sum + item.total, 0),
       };
 
       return repository.saleOrder.create(saleOrder);
