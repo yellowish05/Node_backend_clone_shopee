@@ -54,4 +54,16 @@ module.exports.resolvers = {
       return repository.region.getById(typeof region === 'object' ? region.id : region);
     },
   },
+  AddressInterface: {
+    __resolveType(address) {
+      if (address.label) {
+        return 'DeliveryAddress';
+      }
+      if (address.isDeliveryAvailable) {
+        return 'VerifiedAddress';
+      }
+
+      return null;
+    },
+  },
 };

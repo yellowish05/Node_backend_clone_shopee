@@ -6,7 +6,6 @@ const collectionName = 'Region';
 const schema = new Schema({
   _id: {
     type: String,
-    index: true,
   },
   ...createdAtField,
 
