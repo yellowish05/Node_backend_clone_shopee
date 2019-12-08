@@ -8,6 +8,7 @@ const repositoryFactory = require(path.resolve('src/lib/RepositoryFactory'));
 const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
+const webhookRouters = require('./webhooks');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();
@@ -21,6 +22,8 @@ const app = express();
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
+
+app.use('/webhooks', webhookRouters);
 
 app.use(cors({
   origin: corsDomain,
