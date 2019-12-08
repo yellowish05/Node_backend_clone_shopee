@@ -100,6 +100,14 @@ class UserRepository {
     return user.save();
   }
 
+  async setOnlineState(userId, status) {
+    return this.model.findOneAndUpdate(
+      { _id: userId },
+      { $set: { isOnline: status } },
+      { new: true },
+    );
+  }
+
   async updateSettings(id, settings) {
     const user = await this.load(id);
     if (!user) {

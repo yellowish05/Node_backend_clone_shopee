@@ -28,12 +28,33 @@ module.exports = ({ repository }) => new ApolloServer({
   context: async (request) => {
     const context = await secureContextMiddlewareFactory(repository)(request);
     if (request.connection) {
+      context.user = request.connection.context.user;
       context.dataSources = { repository };
     }
     return context;
   },
   subscriptions: {
     keepAlive: 10000,
+    onConnect: async (connectionParams, webSocket, context) => {
+      const secureContext = await secureContextMiddlewareFactory(repository)({
+        connection: { context: connectionParams },
+      });
+
+      if (!secureContext.user) {
+        logger.error('[WS]: User not found');
+        webSocket.close();
+        return;
+      }
+
+      repository.user.setOnlineState(secureContext.user.id, true);
+
+      return { user: secureContext.user };
+    },
+    onDisconnect: async (webSocket, context) => {
+      const initialContext = await context.initPromise;
+
+      repository.user.setOnlineState(initialContext.user.id, false);
+    },
   },
   introspection: true,
   playground: {
