@@ -7,6 +7,7 @@ const { typeDefs: cartTypeDefs, resolvers: cartResolvers } = require('./cart');
 const { typeDefs: productCategoryTypeDefs, resolvers: productCategoryResolvers } = require('./productCategory');
 const { typeDefs: productTypeDefs, resolvers: productResolvers } = require('./product');
 const { typeDefs: purchaseOrderTypeDefs, resolvers: purchaseOrderResolvers } = require('./purchaseOrder');
+const { typeDefs: saleOrderTypeDefs, resolvers: saleOrderResolvers } = require('./saleOrder');
 const { typeDefs: deliveryAddressTypeDefs, resolvers: deliveryAddressResolvers } = require('./deliveryAddress');
 const { typeDefs: shippingOrderTypeDefs, resolvers: shippingOrderResolvers } = require('./deliveryOrder');
 const { typeDefs: payoutOrderTypeDefs, resolvers: payoutOrderResolvers } = require('./payoutOrder');
@@ -21,6 +22,7 @@ const typeDefs = [].concat(
   commonTypeDefs,
   deliveryAddressTypeDefs,
   purchaseOrderTypeDefs,
+  saleOrderTypeDefs,
   shippingOrderTypeDefs,
   payoutOrderTypeDefs,
   orderItemTypeDefs,
@@ -35,6 +37,7 @@ const resolvers = merge(
   commonResolvers,
   deliveryAddressResolvers,
   purchaseOrderResolvers,
+  saleOrderResolvers,
   shippingOrderResolvers,
   payoutOrderResolvers,
   orderItemResolvers,

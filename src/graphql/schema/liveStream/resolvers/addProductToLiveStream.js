@@ -3,7 +3,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ForbiddenError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

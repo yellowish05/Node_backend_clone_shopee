@@ -6,7 +6,7 @@ const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService, ForbiddenError } = require(path.resolve('src/lib/AgoraService'));
 const { StreamChannelStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

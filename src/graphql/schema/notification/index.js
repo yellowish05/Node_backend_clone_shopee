@@ -3,7 +3,7 @@ const { gql } = require('apollo-server');
 
 const { NotificationType } = require(path.resolve('src/lib/Enums'));
 
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const getNotificationCollection = require('./resolvers/getNotificationCollection');
 const markNotificationAsRead = require('./resolvers/markNotificationAsRead');

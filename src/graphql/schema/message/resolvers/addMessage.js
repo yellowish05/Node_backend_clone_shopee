@@ -5,7 +5,7 @@ const { UserInputError, ForbiddenError } = require('apollo-server');
 const { MessageType, NotificationType } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const logger = require(path.resolve('config/logger'));
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

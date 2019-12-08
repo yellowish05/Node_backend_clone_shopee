@@ -52,7 +52,7 @@ module.exports = {
 
     const orderItems = await factory.createOrderItems()
       .then((items) => Promise.all(
-        items.map((item) => repository.purchaseOrderItem.create(item)),
+        items.map((item) => repository.orderItem.create(item)),
       ));
 
     const order = factory.createOrder();
@@ -87,13 +87,15 @@ module.exports = {
       currency: transaction.currency,
     });
 
-    transaction.signature = WIRECARD.generateSignatureV2({
+    const transactionRequest = WIRECARD.createTransactionRequest({
       date: transaction.createdAt,
       transactionId: transaction._id,
       transactionType: transaction.type,
       currencyAmount: amountISO.getCurrencyAmount(),
       currency: transaction.currency,
     });
+
+    transaction.signature = transactionRequest.getSignature();
 
     // eslint-disable-next-line no-param-reassign
     order.payments = [transaction._id];

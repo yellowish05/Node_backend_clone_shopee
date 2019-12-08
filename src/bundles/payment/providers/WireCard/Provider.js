@@ -1,16 +1,23 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-const Base64 = require('crypto-js/enc-base64');
-const Utf8 = require('crypto-js/enc-utf8');
-const HMAC_SHA256 = require('crypto-js/hmac-sha256');
+const path = require('path');
+
 const ProviderAbstract = require('../ProviderAbstract');
 const logger = require('../../../../../config/logger');
+const TransactionResponse = require('./TransactionResponse');
+const TransactionRequest = require('./TransactionRequest');
+const { TransactionAlreadyProcessedException, TransactionSignatureFailedException, TransactionNotFoundException } = require('../../Exceptions');
+
+const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
+
 
 class Provider extends ProviderAbstract {
-  constructor({ entrypoint, merchantId, secret }) {
+  constructor({ entrypoint, merchantId, secret }, repository) {
     super();
     this.entrypoint = entrypoint;
     this.merchantId = merchantId;
     this.secret = secret;
+    this.repository = repository;
   }
 
   getMerchantId() {
@@ -36,28 +43,40 @@ class Provider extends ProviderAbstract {
     return null;
   }
 
-  generateSignatureV2({
-    date, transactionId, transactionType, currencyAmount, currency,
-  }) {
-    const dateISO = date.toISOString();
+  createTransactionRequest(data) {
+    return new TransactionRequest({ ...data, merchantId: this.merchantId, secret: this.secret });
+  }
 
-    const payload = [
-      'HS256',
-      `request_time_stamp=${dateISO.substr(0, dateISO.length - 5)}Z`,
-      `merchant_account_id=${this.merchantId}`,
-      `request_id=${transactionId}`,
-      `transaction_type=${transactionType}`,
-      `requested_amount=${currencyAmount}`,
-      `requested_amount_currency=${currency}`,
-    ]
-      .join('\n');
+  createTransactionResponse(data) {
+    return new TransactionResponse({ ...data, merchantId: this.merchantId, secret: this.secret });
+  }
 
-    logger.debug(payload);
+  /**
+   * @param {TransactionResponse} response
+   */
+  async processTransaction(response) {
+    if (!response.isValid()) {
+      throw new TransactionSignatureFailedException('Response is not valid');
+    }
 
-    const payloadBase64 = Base64.stringify(Utf8.parse(payload));
-    const digestSecret = HMAC_SHA256(payload, this.secret).toString(Base64);
+    const transactionId = response.getTransactionId();
+    return this.repository.paymentTransaction.getById(transactionId)
+      .then((transaction) => {
+        if (!transaction) {
+          throw new TransactionNotFoundException(`Payment Transaction id "${transactionId}"`);
+        }
 
-    return `${payloadBase64}.${digestSecret}`;
+        if (transaction.status !== PaymentTransactionStatus.PENDING) {
+          throw new TransactionAlreadyProcessedException(`Payment Transaction id "${transactionId}"`);
+        }
+
+        transaction.status = response.getStatus();
+        transaction.processedAt = response.getDate();
+        transaction.responsePayload = response.payload;
+        transaction.providerTransactionId = response.getProviderTransactionId();
+
+        return transaction.save();
+      });
   }
 }
 

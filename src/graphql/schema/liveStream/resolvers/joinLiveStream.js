@@ -5,7 +5,7 @@ const { UserInputError } = require('apollo-server');
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 const { StreamRole } = require(path.resolve('src/lib/Enums'));
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const errorHandler = new ErrorHandler();
 

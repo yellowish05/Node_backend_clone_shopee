@@ -1,59 +1,57 @@
 const { Schema, model } = require('mongoose');
-const { Currency, PaymentTransactionStatus } = require('../lib/Enums');
+const { Currency, SaleOrderStatus } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
-const collectionName = 'PaymentTransaction';
+const collectionName = 'SaleOrder';
 
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
-  status: {
+  seller: {
     type: String,
-    enum: PaymentTransactionStatus.toList(),
+    ref: 'User',
     required: true,
-    default: PaymentTransactionStatus.PENDING,
     index: true,
-  },
-  merchant: {
-    type: String,
-    required: true,
-  },
-  signature: {
-    type: String,
-    required: true,
-  },
-  type: {
-    type: String,
-    required: true,
   },
   buyer: {
     type: String,
     ref: 'User',
+    required: true,
     index: true,
   },
-  amount: {
+  deliveryAddress: {
+    type: String,
+    ref: 'DeliveryAddress',
+    required: true,
+  },
+  items: [{
+    type: String,
+    ref: 'OrderItem',
+    required: true,
+  }],
+  quantity: {
     type: Number,
     required: true,
   },
   currency: {
     type: String,
     enum: Currency.toList(),
+  },
+  total: {
+    type: Number,
     required: true,
   },
-  processedAt: {
-    type: Date,
-  },
-  tags: [{
+  status: {
     type: String,
-    index: true,
-  }],
-  providerTransactionId: {
-    type: String,
-  },
-  responsePayload: {
-    type: String,
+    required: true,
+    enum: SaleOrderStatus.toList(),
+    default: SaleOrderStatus.CREATED,
   },
 });
+
+schema.methods.getTagName = function getTagName() {
+  return `SaleOrder:${this._id}`;
+};
 
 module.exports = new model(collectionName, schema);

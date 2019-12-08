@@ -10,7 +10,7 @@ const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
 const addProductToLiveStream = require('./resolvers/addProductToLiveStream');
 const removeProductFromLiveStream = require('./resolvers/removeProductFromLiveStream');
 
-const pubsub = require(path.resolve('src/graphql/schema/common/pubsub'));
+const pubsub = require(path.resolve('config/pubsub'));
 
 const schema = gql`
     type LiveStreamStats {

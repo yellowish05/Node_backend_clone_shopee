@@ -124,6 +124,14 @@ const PurchaseOrderStatus = EnumFactory({
   CANCELED: 'CANCELED',
 });
 
+const SaleOrderStatus = EnumFactory({
+  CREATED: 'CREATED',
+  CARRIER_RECEIVED: 'CARRIER_RECEIVED',
+  DELIVERED: 'DELIVERED',
+  COMPLETE: 'COMPLETE',
+  CANCELED: 'CANCELED',
+});
+
 const OrderItemStatus = EnumFactory({
   CREATED: 'CREATED',
   ORDERED: 'ORDERED',
@@ -160,6 +168,7 @@ module.exports = {
   ComplaintReason,
   MarketType,
   PurchaseOrderStatus,
+  SaleOrderStatus,
   OrderItemStatus,
   PaymentTransactionStatus,
 };

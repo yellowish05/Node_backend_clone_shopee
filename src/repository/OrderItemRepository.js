@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-class PurchaseOrderItemRepository {
+class OrderItemRepository {
   constructor(model) {
     this.model = model;
   }
@@ -22,4 +22,4 @@ class PurchaseOrderItemRepository {
   }
 }
 
-module.exports = PurchaseOrderItemRepository;
+module.exports = OrderItemRepository;

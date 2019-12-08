@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-class PurchaseOrderRepository {
+class SaleOrderRepository {
   constructor(model) {
     this.model = model;
   }
@@ -14,11 +14,7 @@ class PurchaseOrderRepository {
   }
 
   async find({ user }) {
-    return this.model.find({ buyer: user.id });
-  }
-
-  async findByTransactionId(id) {
-    return this.model.findOne({ payments: id });
+    return this.model.find({ seller: user.id });
   }
 
   async create(data) {
@@ -30,4 +26,4 @@ class PurchaseOrderRepository {
   }
 }
 
-module.exports = PurchaseOrderRepository;
+module.exports = SaleOrderRepository;

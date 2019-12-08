@@ -2,15 +2,19 @@
 /* eslint-disable eqeqeq */
 
 const env = (process.env.NODE_ENV || 'development').trim();
-const isDebugMode = (process.env.DEBUG_MODE || '').trim() == '1';
-const isTestPaymentMode = (process.env.PAYMENT_TEST_MODE || null) !== 'disabled';
 
 if (env === 'development' || env === 'test') {
   require('dotenv').config({ path: `${__dirname}/../.env` });
 }
+const isDebugMode = (process.env.DEBUG_MODE || '').trim() == '1';
+const isTestPaymentMode = (process.env.PAYMENT_TEST_MODE || null) !== 'disabled';
+const domain = process.env.DOMAIN;
+const protocol = process.env.PROTOCOL;
 
 module.exports = {
-  domain: 'localhost',
+  domain,
+  protocol,
+  baseURL: `${protocol}://${domain}/`,
   logs: {
     name: 'api',
     level: isDebugMode ? 'debug' : 'info',

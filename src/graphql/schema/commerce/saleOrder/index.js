@@ -1,13 +1,12 @@
+const path = require('path');
 const { gql } = require('apollo-server');
+
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { SaleOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum SaleOrderStatus {
-        CREATED
-        CONFIRMED
-        CARRIER_RECEIVED
-        DELIVERED
-        COMPLETE
-        CANCELED
+        ${SaleOrderStatus.toGQL()}
     }
 
     type SaleOrder {
@@ -18,7 +17,7 @@ const schema = gql`
         """ List of products or services or anything else what we going to selling """
         items: [OrderItemInterface!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        price(currency: Currency): AmountOfMoney!
+        total: AmountOfMoney!
         """ Address for ship products """
         deliveryAddress: DeliveryAddress!
         """ Relation to Payout """
@@ -41,10 +40,8 @@ const schema = gql`
     }
 
     extend type Mutation {
-        """Allows: authorized user"""
-        confirmSaleOrder(id: ID!): SaleOrder! @auth(requires: USER)
-        """Allows: authorized user"""
-        deliverySaleOrder(id: ID, carrier: CARRIER!, trackCode: String!): SaleOrder! @auth(requires: USER)
+        # """Allows: authorized user"""
+        # deliverySaleOrder(id: ID, carrier: Carrier!, trackCode: String!): SaleOrder! @auth(requires: USER)
         """Allows: authorized user"""
         cancelSaleOrder(id: ID!, reason: String!): SaleOrder! @auth(requires: USER)
     }
@@ -53,5 +50,36 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-
+  Query: {
+    saleOrders: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.saleOrder.find({ user })
+        .then((collection) => ({
+          collection: collection || [],
+          pager: {
+            ...page,
+            total: 0,
+          },
+        }))
+    ),
+    saleOrder: async (_, { id }, { dataSources: { repository } }) => (
+      repository.saleOrder.getById(id)
+    ),
+  },
+  SaleOrder: {
+    buyer: async (order, _, { dataSources: { repository } }) => (
+      repository.user.getById(order.buyer)
+    ),
+    items: async (order, _, { dataSources: { repository } }) => (
+      repository.orderItem.getByIds(order.items)
+    ),
+    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryAddress.getById(order.deliveryAddress)
+    ),
+    total: async (order) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: order.total,
+        currency: order.currency,
+      })
+    ),
+  },
 };

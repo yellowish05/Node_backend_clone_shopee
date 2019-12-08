@@ -21,7 +21,7 @@ const schema = new Schema({
   },
   items: [{
     type: String,
-    ref: 'PurchaseOrderItem',
+    ref: 'OrderItem',
     required: true,
   }],
   payments: [{

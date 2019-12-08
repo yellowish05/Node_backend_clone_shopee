@@ -7,7 +7,6 @@ const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
-
 const schema = gql`
     enum PurchaseOrderStatus {
         ${PurchaseOrderStatus.toGQL()}
@@ -54,16 +53,18 @@ const schema = gql`
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
     }
+
+    
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    purchaseOrders: async (_, { page }, { dataSources: { repository } }) => (
-      repository.purchaseOrder.getAll()
+    purchaseOrders: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.purchaseOrder.find({ user })
         .then((collection) => ({
-          collection,
+          collection: collection || [],
           pager: {
             ...page,
             total: 0,
@@ -80,10 +81,13 @@ module.exports.resolvers = {
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (
-      repository.purchaseOrderItem.getByIds(order.items)
+      repository.orderItem.getByIds(order.items)
     ),
     payments: async (order, _, { dataSources: { repository } }) => (
       repository.paymentTransaction.getByIds(order.payments)
+    ),
+    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryAddress.getById(order.deliveryAddress)
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({
