@@ -77,6 +77,10 @@ const schema = new Schema({
     }],
     default: [],
   },
+  isOnline: {
+    type: Boolean,
+    required: false,
+  },
 });
 
 module.exports = new model(collectionName, schema);

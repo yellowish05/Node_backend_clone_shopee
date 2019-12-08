@@ -1,5 +1,5 @@
 const path = require('path');
-const { gql } = require('apollo-server');
+const { gql, withFilter } = require('apollo-server');
 
 const { NotificationType } = require(path.resolve('src/lib/Enums'));
 
@@ -45,6 +45,12 @@ const schema = gql`
       """
       markNotificationAsRead(id: ID!): Notification! @auth(requires: USER)
     }
+
+    extend type Subscription {
+      """Allows: authorized user"""
+      notificationAdded: Notification! @auth(requires: USER)
+    }
+
 `;
 
 module.exports.typeDefs = [schema];
@@ -55,5 +61,14 @@ module.exports.resolvers = {
   },
   Mutation: {
     markNotificationAsRead,
+  },
+  Subscription: {
+    notificationAdded: {
+      resolve: (payload) => payload,
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(['NOTIFICATION_ADDED']),
+        (payload, variables, { user }) => payload.user === user.id,
+      ),
+    },
   },
 };
