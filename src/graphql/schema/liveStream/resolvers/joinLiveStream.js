@@ -6,6 +6,7 @@ const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 const { StreamRole } = require(path.resolve('src/lib/Enums'));
 const pubsub = require(path.resolve('config/pubsub'));
+const logger = require(path.resolve('config/logger'));
 
 const errorHandler = new ErrorHandler();
 
@@ -74,7 +75,7 @@ const activity = {
       });
   },
 
-  async mutePublicMessageThread({id, user}, repository) {
+  async mutePublicMessageThread({ id, user }, repository) {
     return repository.userHasMessageThread.create({
       thread: id,
       user: user.id,
@@ -84,7 +85,7 @@ const activity = {
     }).catch((error) => {
       logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
     });
-  }
+  },
 };
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
