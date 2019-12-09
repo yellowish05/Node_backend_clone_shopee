@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { ApolloError, ForbiddenError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -20,6 +20,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     })
     .then(() => repository.userCartItem.getById(args.id))
     .then((userCartItem) => {
+      if (!userCartItem) {
+        throw new UserInputError(`Cart item (${args.id}) does not exist`, { invalidArgs: 'id' });
+      }
+
       if (userCartItem.user !== user.id) {
         throw new ForbiddenError('You can not delete this Cart Item');
       }
