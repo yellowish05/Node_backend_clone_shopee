@@ -3,7 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { createServer } = require('http');
-
+const morgan = require('morgan');
+const logger = require('../config/logger');
 const repository = require('./repository');
 
 const { corsDomain } = require(path.resolve('config'));
@@ -17,25 +18,31 @@ process.on('SIGINT', () => {
 
 const app = express();
 
+// app.use(morgan('combined', { stream: logger.stream }));
+
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
 
 app.use('/webhooks', webhookRouters);
 
+
 app.use(cors({
   origin: corsDomain,
   optionsSuccessStatus: 200,
 }));
 
+const apolloApp = express();
 const apolloServer = apolloServerFactory({ repository });
 
 apolloServer.applyMiddleware({
-  app,
-  path: '/graphql',
+  app: apolloApp,
+  path: '/',
   cors: corsDomain,
   disableHealthCheck: true,
 });
+
+app.use('/graphql', apolloApp);
 
 const httpServer = createServer(app);
 apolloServer.installSubscriptionHandlers(httpServer);

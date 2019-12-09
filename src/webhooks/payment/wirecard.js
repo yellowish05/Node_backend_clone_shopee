@@ -8,15 +8,12 @@ const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const pubsub = require(path.resolve('config/pubsub'));
 
 module.exports = async (req, res) => {
-  const { body } = req;
+  const { body, headers } = req;
 
+  logger.debug(JSON.stringify(headers));
   logger.debug(JSON.stringify(body));
 
-  const response = provider.createTransactionResponse({
-    bodyBase64: body['response-base64'] || null,
-    algorithm: body['response-signature-algorithm'] || null,
-    digestBase64: body['response-signature-base64'] || null,
-  });
+  const response = provider.createTransactionResponse(body);
 
   if (!response.isValid()) {
     return res.status(403).send('FORBIDDEN');

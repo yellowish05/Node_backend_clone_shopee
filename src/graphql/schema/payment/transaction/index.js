@@ -49,7 +49,7 @@ module.exports.resolvers = {
   },
   PaymentTransaction: {
     notification: () => ({
-      format: 'FORMAT_JSON_SIGNED',
+      format: 'application/x-www-form-urlencoded',
       url: `${baseURL}webhooks/payment/wirecard`,
     }),
     amount: async (transaction) => (

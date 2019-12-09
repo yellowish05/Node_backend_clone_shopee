@@ -26,7 +26,7 @@ if (logs.cloudWatchEnabled) {
   transport = new transports.Console();
 }
 
-module.exports = createLogger({
+const logger = createLogger({
   level: logs.level,
   format: combine(
     label({ label: `[${logs.name}]` }),
@@ -36,4 +36,13 @@ module.exports = createLogger({
   transports: [
     transport,
   ],
+  exitOnError: false,
 });
+
+logger.stream = {
+  write(message, encoding) {
+    logger.info(message);
+  },
+};
+
+module.exports = logger;

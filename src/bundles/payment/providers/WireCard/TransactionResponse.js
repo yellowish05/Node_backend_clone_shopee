@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const path = require('path');
 const Base64 = require('crypto-js/enc-base64');
 const Utf8 = require('crypto-js/enc-utf8');
@@ -13,21 +14,18 @@ const stateStatusMapping = {
 
 class TransactionResponse {
   constructor({
-    bodyBase64, algorithm, digestBase64, merchantId, secret,
+    merchantId, secret, ...data
   }) {
-    this.payloadBase64 = bodyBase64;
-    this.algorithm = algorithm;
-    this.digest = digestBase64;
+    this.algorithm = 'HmacSHA256';
     this.merchantId = merchantId;
     this.secret = secret;
+    this.data = data;
+
+    [this.payloadBase64, this.digest] = this.data.response_signature_v2.split('.');
   }
 
   get payload() {
     return Base64.parse(this.payloadBase64).toString(Utf8);
-  }
-
-  get data() {
-    return JSON.parse(this.payload);
   }
 
   isValid() {
@@ -44,18 +42,15 @@ class TransactionResponse {
   }
 
   getTransactionId() {
-    const { payment } = this.data;
-    return payment['request-id'];
+    return this.data.request_id;
   }
 
   getProviderTransactionId() {
-    const { payment } = this.data;
-    return payment['transaction-id'];
+    return this.data.transaction_id;
   }
 
   getState() {
-    const { payment } = this.data;
-    return payment['transaction-state'];
+    return this.data.transaction_state;
   }
 
   getStatus() {
@@ -63,13 +58,15 @@ class TransactionResponse {
   }
 
   getAmountOfMoney() {
-    const { payment } = this.data;
-    return payment['requested-amount'];
+    return {
+      amount: this.data.requested_amount,
+      currency: this.data.requested_amount_currency,
+    };
   }
 
   getDate() {
-    const { payment } = this.data;
-    return new Date(payment['completion-time-stamp']);
+    const parts = this.data.completion_time_stamp.match(/.{2}/g);
+    return new Date(parts[0] + parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]);
   }
 }
 

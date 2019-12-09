@@ -72,7 +72,7 @@ class Provider extends ProviderAbstract {
 
         transaction.status = response.getStatus();
         transaction.processedAt = response.getDate();
-        transaction.responsePayload = response.payload;
+        transaction.responsePayload = JSON.stringify(response.data);
         transaction.providerTransactionId = response.getProviderTransactionId();
 
         return transaction.save();
