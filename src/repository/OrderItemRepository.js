@@ -20,6 +20,14 @@ class OrderItemRepository {
     });
     return document.save();
   }
+
+  async changeStatus(ids, newStatus) {
+    return this.model.updateMany(
+      { _id: { $in: ids } },
+      { status: newStatus },
+      { multi: true },
+    );
+  }
 }
 
 module.exports = OrderItemRepository;

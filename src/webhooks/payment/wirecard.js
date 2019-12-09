@@ -4,7 +4,7 @@ const logger = require(path.resolve('config/logger'));
 const provider = require(path.resolve('src/bundles/payment/providers/WireCard'));
 const { TransactionAlreadyProcessedException } = require(path.resolve('src/bundles/payment/Exceptions'));
 const repository = require(path.resolve('src/repository'));
-const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const { PurchaseOrderStatus, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 const pubsub = require(path.resolve('config/pubsub'));
 
 module.exports = async (req, res) => {
@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
       return result;
     }, {});
 
-    const saleOrderPrmisses = Object.keys(itemsBySeller).map((seller) => {
+    const saleOrderPromisses = Object.keys(itemsBySeller).map((seller) => {
       const saleOrder = {
         seller,
         buyer: purchaseOrder.buyer,
@@ -57,11 +57,13 @@ module.exports = async (req, res) => {
       return repository.saleOrder.create(saleOrder);
     });
 
+
     await Promise.all([
       purchaseOrder.save(),
-      ...saleOrderPrmisses,
+      repository.orderItem.changeStatus(purchaseOrder.items, OrderItemStatus.ORDERED),
+      ...saleOrderPromisses,
     ])
-      .then(([savedPurchaseOrder, ...orders]) => {
+      .then(([savedPurchaseOrder, _, ...orders]) => {
         const saleOrderIds = orders.map((order) => order.id);
         logger.debug(`[PAYMENT][WIRECARD][WEBHOOK] Payment Transaction ID "${transaction.id}" processed! SaleOrders "${saleOrderIds.join(', ')}" Created`);
       })
