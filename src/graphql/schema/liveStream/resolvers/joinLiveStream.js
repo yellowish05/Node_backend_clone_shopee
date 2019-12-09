@@ -115,12 +115,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
                 participant.leavedAt = null;
                 return participant.save();
               }
-              return activity.createChannelParticipant({ liveStream, user }, repository);
+              return activity.createChannelParticipant({ liveStream, user }, repository)
+                .then(() => activity.createPrivateMessageThread({ liveStream, user }, repository))
+                .then(() => activity.addParticipantToMessageThread({ id: liveStream.publicMessageThread, user }, repository))
+                .then(() => activity.mutePublicMessageThread({ id: liveStream.publicMessageThread, user }, repository));
             });
         })
-        .then(() => activity.createPrivateMessageThread({ liveStream, user }, repository))
-        .then(() => activity.addParticipantToMessageThread({ id: liveStream.publicMessageThread, user }, repository))
-        .then(() => activity.mutePublicMessageThread({ id: liveStream.publicMessageThread, user }, repository))
         .then(() => {
           pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
           return liveStream;

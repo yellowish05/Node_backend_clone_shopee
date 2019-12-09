@@ -22,6 +22,7 @@ function transformSortInput({ feature, type }) {
 function transformFilter({
   experiences, categories, cities, statuses, streamers, blackList,
 }) {
+  const emptyQuery = {};
   const query = {
     $and: [],
   };
@@ -62,7 +63,7 @@ function transformFilter({
     });
   }
 
-  return query;
+  return query.$and.length > 0 ? query : emptyQuery;
 }
 
 
