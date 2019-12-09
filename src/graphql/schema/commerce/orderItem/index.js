@@ -65,6 +65,9 @@ module.exports.resolvers = {
         currency: item.currency,
       })
     ),
+    product: async (item, _, { dataSources: { repository } }) => (
+      repository.product.getById(item.product)
+    ),
   },
   OrderItemInterface: {
     __resolveType(item) {
