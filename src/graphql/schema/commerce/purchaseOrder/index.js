@@ -40,8 +40,8 @@ const schema = gql`
     }
 
     extend type Query {
-        purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!
-        purchaseOrder(id: ID!): PurchaseOrder
+        purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
+        purchaseOrder(id: ID!): PurchaseOrder  @auth(requires: USER)
     }
 
     extend type Mutation {
