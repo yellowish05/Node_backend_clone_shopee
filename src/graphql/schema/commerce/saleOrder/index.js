@@ -35,8 +35,8 @@ const schema = gql`
     }
 
     extend type Query {
-        saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection!
-        saleOrder(id: ID!): SaleOrder
+        saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
+        saleOrder(id: ID!): SaleOrder @auth(requires: USER)
     }
 
     extend type Mutation {
