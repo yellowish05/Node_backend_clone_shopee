@@ -15,14 +15,14 @@ const schema = gql`
         amount(currency: Currency): AmountOfMoney!
     }
   
-    type DeliveryCalcultation {
+    type DeliveryCalculation  {
         cheaper: DeliveryOptionCalculation
         faster: DeliveryOptionCalculation
         others: [DeliveryOptionCalculation]!
     }
     
     extend type Mutation {
-        calculateDelivery(product: ID!, deliveryAddress: ID!): DeliveryCalcultation!
+        calculateDelivery(product: ID!, deliveryAddress: ID!): DeliveryCalculation!
     }
 `;
 
