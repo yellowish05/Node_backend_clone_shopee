@@ -20,7 +20,7 @@ if (logs.cloudWatchEnabled) {
     name: logs.name,
     logGroupName: env,
     logStreamName: 'api',
-    awsRegion: 'eu-central-1',
+    awsRegion: logs.awsRegion,
   });
 } else {
   transport = new transports.Console();

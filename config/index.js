@@ -19,6 +19,7 @@ module.exports = {
     name: 'api',
     level: isDebugMode ? 'debug' : 'info',
     cloudWatchEnabled: (process.env.LOGS_CLOUD_WATCH || '').trim() == '1' || false,
+    awsRegion: process.env.LOGS_CLOUD_WATCH_REGION || '',
   },
   env,
   isDebugMode,
