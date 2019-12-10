@@ -80,7 +80,6 @@ module.exports = {
     from: process.env.ELASTIC_EMAIL_FROM,
     bodyType: 'HTML',
     supportEmail: 'support@shoclefcorporation.com',
-    localMode: false,
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
       apiUri: 'https://api.elasticemail.com/',
