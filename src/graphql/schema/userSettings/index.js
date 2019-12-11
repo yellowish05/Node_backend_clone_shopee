@@ -2,6 +2,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { MeasureSystem, PushNotification } = require(path.resolve('src/lib/Enums'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const updateUserSettings = require('./resolvers/updateUserSettings');
 
@@ -14,10 +15,15 @@ enum MeasureSystem {
     ${MeasureSystem.toGQL()}
 }
 
+type MoneyDetails {
+  ISO: Currency!
+  symbol: String!
+}
+
 type UserSettings {
     pushNotifications: [PushNotification]!
     language: Locale!
-    currency: Currency!
+    currency: MoneyDetails!
     measureSystem: MeasureSystem!
 }
     
@@ -46,5 +52,14 @@ module.exports.resolvers = {
   },
   Mutation: {
     updateUserSettings,
+  },
+  UserSettings: {
+    currency: async ({ currency }) => {
+      const amount = CurrencyFactory.getAmountOfMoney({ centsAmount: 0, currency });
+      return {
+        ISO: currency,
+        symbol: amount.getSymbol,
+      };
+    },
   },
 };

@@ -32,7 +32,11 @@ class AmountOfINR extends AmountOfMoneyAbstract {
   }
 
   getFormatted() {
-    return `₹ ${Number(this.getCurrencyAmount()).toFixed(3)}`;
+    return `${this.getSymbol()} ${Number(this.getCurrencyAmount()).toFixed(3)}`;
+  }
+
+  getSymbol() {
+    return '₹';
   }
 }
 

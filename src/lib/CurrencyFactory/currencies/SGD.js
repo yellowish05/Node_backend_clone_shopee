@@ -32,7 +32,11 @@ class AmountOfSGD extends AmountOfMoneyAbstract {
   }
 
   getFormatted() {
-    return `S$ ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+    return `${this.getSymbol()} ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+  }
+
+  getSymbol() {
+    return 'S$';
   }
 }
 

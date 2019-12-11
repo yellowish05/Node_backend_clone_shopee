@@ -32,7 +32,11 @@ class AmountOfCAD extends AmountOfMoneyAbstract {
   }
 
   getFormatted() {
-    return `C$ ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+    return `${this.getSymbol()} ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+  }
+
+  getSymbol() {
+    return 'C$';
   }
 }
 

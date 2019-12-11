@@ -32,7 +32,11 @@ class AmountOfAUD extends AmountOfMoneyAbstract {
   }
 
   getFormatted() {
-    return `A$ ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+    return `${this.getSymbol()} ${Number(this.getCurrencyAmount()).toFixed(2)}`;
+  }
+
+  getSymbol() {
+    return 'A$';
   }
 }
 

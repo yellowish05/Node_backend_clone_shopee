@@ -22,6 +22,10 @@ class AmountOfMoneyAbstract {
   getFormatted() {
     throw new Error('Not implemented');
   }
+
+  getSymbol() {
+    throw new Error('Not implemented');
+  }
 }
 
 module.exports = AmountOfMoneyAbstract;
