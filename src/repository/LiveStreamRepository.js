@@ -20,7 +20,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function transformFilter({
-  experiences, categories, cities, statuses, streamers, blackList,
+  experiences, categories, cities, statuses, streamers, blackList, product,
 }) {
   const emptyQuery = {};
   const query = {
@@ -54,6 +54,12 @@ function transformFilter({
   if (streamers.length > 0) {
     query.$and.push({
       streamer: { $in: streamers },
+    });
+  }
+
+  if (product) {
+    query.$and.push({
+      products: product,
     });
   }
 

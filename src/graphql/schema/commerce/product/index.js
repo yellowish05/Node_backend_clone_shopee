@@ -32,6 +32,7 @@ const schema = gql`
         weight: Weight!
         shippingBox: ShippingBox!
         brand: Brand!
+        relatedLiveStreams(limit: Int = 1): [LiveStream]!
     }
 
     type Weight {
@@ -175,5 +176,17 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
+    relatedLiveStreams: async ({ id }, { limit }, { dataSources: { repository } }) => repository.liveStream.get({
+      filter: {
+        experiences: [],
+        categories: [],
+        cities: [],
+        statuses: [],
+        streamers: [],
+        product: id,
+      },
+      page: { limit, skip: 0 },
+      sort: { feature: 'CREATED_AT', type: 'DESC' },
+    }),
   },
 };
