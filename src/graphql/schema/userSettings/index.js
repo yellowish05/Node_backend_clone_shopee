@@ -23,7 +23,7 @@ type MoneyDetails {
 type UserSettings {
     pushNotifications: [PushNotification]!
     language: Locale!
-    currency: MoneyDetails!
+    moneyDetails: MoneyDetails!
     measureSystem: MeasureSystem!
 }
     
@@ -54,7 +54,7 @@ module.exports.resolvers = {
     updateUserSettings,
   },
   UserSettings: {
-    currency: async ({ currency }) => {
+    moneyDetails: async ({ currency }) => {
       const amount = CurrencyFactory.getAmountOfMoney({ centsAmount: 0, currency });
       return {
         ISO: currency,
