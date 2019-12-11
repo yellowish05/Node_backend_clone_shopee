@@ -75,6 +75,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
       product.category = productData.category;
       product.brand = productData.brand;
+      product.freeDeliveryTo = data.freeDeliveryTo;
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
       product.weight = data.weight;

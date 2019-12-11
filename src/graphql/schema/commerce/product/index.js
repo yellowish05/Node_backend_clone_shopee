@@ -33,6 +33,7 @@ const schema = gql`
         shippingBox: ShippingBox!
         brand: Brand!
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
+        freeDeliveryTo: [MarketType!]
     }
 
     type Weight {
@@ -109,6 +110,7 @@ const schema = gql`
         weight: WeightInput!
         shippingBox: ID!
         brand: ID!
+        freeDeliveryTo: [MarketType!]
     }
 
     extend type Mutation {

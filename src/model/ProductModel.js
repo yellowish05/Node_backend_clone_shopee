@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { Currency, WeightUnitSystem } = require('../lib/Enums');
+const { Currency, WeightUnitSystem, MarketType } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -49,6 +49,11 @@ const schema = new Schema({
     ref: 'Brand',
     index: true,
   },
+  freeDeliveryTo: [{
+    type: String,
+    enum: MarketType.toList(),
+    required: true,
+  }],
   weight: {
     type: {
       value: {
