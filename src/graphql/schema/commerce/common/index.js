@@ -23,24 +23,31 @@ const schema = gql`
     }
 
     input IntRangeInput {
-        min: Int
-        max: Int
+      min: Int
+      max: Int
     }
 
     input AmountOfMoneyInput {
-        amount: Float
-        currency: Currency
+      amount: Float
+      currency: Currency
     }
 
     input AmountOfMoneyRangeInput {
-        min: AmountOfMoneyInput
-        max: AmountOfMoneyInput
+      min: AmountOfMoneyInput
+      max: AmountOfMoneyInput
+    }
+
+    extend type Query {
+      supportedCurrencies: [Currency]!
     }
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  Query: {
+    supportedCurrencies: () => Currency.toList(),
+  },
   AmountOfMoney: {
     amount: async (amount) => amount.getCentsAmount(),
     amountISO: async (amount) => amount.getCurrencyAmount(),

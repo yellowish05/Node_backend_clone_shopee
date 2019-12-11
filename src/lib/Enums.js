@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 function EnumFactory(object) {
   return Object.freeze({
     ...object,
@@ -63,16 +66,12 @@ const WeightUnitSystem = EnumFactory({
   GRAM: 'GRAM',
 });
 
-const Currency = EnumFactory({
-  USD: 'USD',
-  GBP: 'GBP',
-  CAD: 'CAD',
-  AUD: 'AUD',
-  SGD: 'SGD',
-  EUR: 'EUR',
-  NZD: 'NZD',
-  INR: 'INR',
+const currencyEnum = {};
+fs.readdirSync(path.resolve('src/lib/CurrencyFactory/currencies/')).forEach((file) => {
+  const { name } = path.parse(file);
+  currencyEnum[name] = name;
 });
+const Currency = EnumFactory(currencyEnum);
 
 const InventoryLogType = EnumFactory({
   USER_ACTION: 'USER_ACTION',
