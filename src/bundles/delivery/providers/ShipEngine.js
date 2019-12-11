@@ -3,6 +3,7 @@ const axios = require('axios');
 
 const logger = require(path.resolve('config/logger'));
 const { shipengine } = require(path.resolve('config'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 if (shipengine.api_key == null) {
   logger.warn("You didn't provided API_KEY for ShipEngine. You will not be able to work with shipping");
@@ -26,14 +27,86 @@ class ShipEngine {
         this.carriers = data.carriers;
         return this.carriers;
       }).catch((error) => {
-        logger.error(`Error happend while getting carriers from Ship Engine. Original error: ${error.message}`);
+        logger.error(`Error happend while getting carriers from Ship Engine. Original error: ${error.response.data.errors}`);
+        throw new Error(error.response.data.errors[0].message);
       });
   }
 
-  async calculate(carriers, from, to, weight, dimensions) {
+  async calculate(carriers, from, to, fromUser, toUser, product, dimensions, quantity) {
     const supportedCarriers = await this.getCarriers();
     const rateCarriers = supportedCarriers.filter((sc) => carriers.some((c) => sc.friendly_name === c.name));
+    const packages = [];
+    for (let i = 0; i < quantity; i++) {
+      packages.push({
+        weight: product.weight,
+        dimensions,
+      });
+    }
+    const body = {
+      rate_options: {
+        carrier_ids: rateCarriers.map((rc) => rc.carrier_id),
+      },
+      shipment: {
+        ship_from: {
+          name: fromUser.name,
+          phone: fromUser.phone,
+          address_line1: from.street,
+          city_locality: from.city,
+          state_province: from.region.replace(`${from.country}-`, ''),
+          postal_code: from.zipCode,
+          country_code: from.country,
+          address_residential_indicator: 'no',
+        },
+        ship_to: {
+          name: toUser.name,
+          phone: toUser.phone,
+          address_line1: to.street,
+          city_locality: to.city,
+          state_province: to.region.replace(`${to.country}-`, ''),
+          postal_code: to.zipCode,
+          country_code: to.country,
+          address_residential_indicator: 'no',
+        },
+        customs: {
+          contents: 'merchandise',
+          non_delivery: 'return_to_sender',
+          customs_items: [{
+            description: product.description,
+            quantity,
+            value: CurrencyFactory.getAmountOfMoney({ centsAmount: product.price, currency: product.currency }).getCurrencyAmount(),
+          }],
+        },
+        packages,
+      },
+    };
 
+    return axios.post(`${shipengine.uri}/rates`, body, { headers: this.headers })
+      .then(({ data }) => data.rate_response.rates.map((rate) => ({
+        carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
+
+        shippingAmount: rate.shipping_amount.amount,
+        insurance_amount: rate.insurance_amount.amount,
+        confirmation_amount: rate.confirmation_amount.amount,
+        other_amount: rate.other_amount.amount,
+        amount: CurrencyFactory.getAmountOfMoney({
+          currencyAmount: rate.shipping_amount.amount + rate.insurance_amount.amount + rate.confirmation_amount.amount + rate.other_amount.amount,
+          currency: rate.shipping_amount.currency.toUpperCase(),
+        }).getCentsAmount(),
+        currency: rate.shipping_amount.currency.toUpperCase(),
+
+        deliveryDays: rate.delivery_days,
+        carrierDeliveryDays: rate.carrier_delivery_days,
+        estimatedDeliveryDate: rate.estimated_delivery_date,
+      })).filter((rate) => rate.deliveryDays))
+      .catch((error) => {
+        logger.error(`Error happend while  calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+        throw new Error(error.response.data.errors[0].message);
+      });
+  }
+
+  async oldCalculate(carriers, from, to, weight, dimensions) {
+    const supportedCarriers = await this.getCarriers();
+    const rateCarriers = supportedCarriers.filter((sc) => carriers.some((c) => sc.friendly_name === c.name));
     const body = {
       carrier_ids: rateCarriers.map((rc) => rc.carrier_id),
       from_address_line1: from.street,
@@ -51,7 +124,6 @@ class ShipEngine {
       weight,
       dimensions,
     };
-
     return axios.post(`${shipengine.uri}/rates/estimate`, body, { headers: this.headers })
       .then(({ data }) => data.map((rate) => ({
         carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
@@ -66,9 +138,10 @@ class ShipEngine {
         deliveryDays: rate.delivery_days,
         carrierDeliveryDays: rate.carrier_delivery_days,
         estimatedDeliveryDate: rate.estimated_delivery_date,
-      }))
-        .filter((rate) => rate.deliveryDays)).catch((error) => {
-        logger.error(`Error happend while getting carriers from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+      })).filter((rate) => rate.deliveryDays))
+      .catch((error) => {
+        logger.error(`Error happend while calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+        throw new Error(error.response.data.errors[0].message);
       });
   }
 
@@ -99,13 +172,14 @@ class ShipEngine {
             }).then((addressCache) => {
               logger.info(`New Address Verification added to cache: ${JSON.stringify(addressCache)}`);
             }).catch((error) => {
-              logger.error(`Failed to cache Address Vrification. Original error: ${error.message}`);
+              logger.error(`Failed to cache Address Verification. Original error: ${error.message}`);
             });
 
             return { status, messages };
           })
           .catch((error) => {
-            logger.error(`Error happend while validation address through Ship Engine. Original error: ${error.message}`);
+            logger.error(`Error happend while validation address through Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+            throw new Error(error.response.data.errors[0].message);
           });
       });
   }

@@ -103,5 +103,6 @@ module.exports = {
     api_key: process.env.SHIPENGINE_API_KEY || null,
     // 1 week in seconds
     addressCacheTTL: 60 * 60 * 24 * 7,
+    deliveryRateCacheTTL: 60 * 60 * 24 * 7,
   },
 };

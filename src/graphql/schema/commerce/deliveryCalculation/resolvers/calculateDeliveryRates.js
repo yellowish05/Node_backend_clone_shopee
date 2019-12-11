@@ -10,6 +10,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (_, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args, {
     product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
+    quantity: ['required', 'integer'],
     deliveryAddress: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
   });
 
@@ -37,10 +38,18 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
         throw new UserInputError('Delivery Address is not valid for deliverance', { invalidArgs: 'deliveryAddress' });
       }
 
-      return repository.organization.getByUser(product.seller)
-        .then((organization) => {
+      return Promise.all([
+        repository.organization.getByUser(product.seller),
+        repository.shippingBox.findOne(product.shippingBox),
+        repository.user.getById(product.seller),
+      ])
+        .then(([organization, shippingBox, seller]) => {
           if (!organization) {
             throw new UserInputError('Product has no proper seller', { invalidArgs: 'product' });
+          }
+
+          if (!shippingBox) {
+            throw new UserInputError('Product has no Shipping Box', { invalidArgs: 'product' });
           }
 
           if (!organization.address.isDeliveryAvailable) {
@@ -52,16 +61,8 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           }
 
           return repository.carrier.loadList(organization.carriers)
-            .then((carriers) => ShipEngine.oldCalculate(carriers, organization.address, deliveryAddress.address, product.weight)
-              .then((rates) => {
-                if (rates.length === 0) {
-                  return { others: [], cheaper: null, faster: null };
-                }
-                const cheaper = rates.reduce((cheaperRate, rate) => (cheaperRate && rate.totalAmount >= cheaperRate.totalAmount ? cheaperRate : rate));
-                const faster = rates.reduce((fasterRate, rate) => (fasterRate && rate.estimatedDeliveryDate >= fasterRate.estimatedDeliveryDate ? fasterRate : rate));
-                const others = rates.filter((rate) => rate !== cheaper && rate !== faster);
-                return { others, cheaper, faster };
-              }));
+            .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
+              .then((rates) => Promise.all(rates.map((rate) => repository.deliveryRateCache.create(rate)))));
         });
     })
     .catch((error) => {
