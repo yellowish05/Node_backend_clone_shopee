@@ -35,8 +35,10 @@ const schema = gql`
     }
 
     extend type Query {
-        saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
-        saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+      """Allows: authorized user"""
+      saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
+      """Allows: authorized user"""
+      saleOrder(id: ID!): SaleOrder @auth(requires: USER)
     }
 
     extend type Mutation {

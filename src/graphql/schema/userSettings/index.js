@@ -29,7 +29,8 @@ input UserSettingsInput {
 }
   
 extend type Query {
-    userSettings: UserSettings!
+  """Allows: authorized user"""
+  userSettings: UserSettings! @auth(requires: USER) 
 }
   
 extend type Mutation {
