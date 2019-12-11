@@ -72,7 +72,7 @@ const schema = gql`
 
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
-        liveStream(id: ID!): LiveStream  @auth(requires: USER)
+        liveStream(id: ID!): LiveStream
     }
   
     extend type Mutation {
