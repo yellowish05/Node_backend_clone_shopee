@@ -17,6 +17,10 @@ const schema = new Schema({
     type: String,
     ref: 'Product',
   },
+  deliveryRate: {
+    type: String,
+    ref: 'DeliveryRateCache',
+  },
   quantity: {
     type: Number,
     default: 1,

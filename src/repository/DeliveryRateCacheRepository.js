@@ -6,8 +6,12 @@ class DeliveryRateCacheRepository {
     this.model = model;
   }
 
-  async get(id) {
+  async getById(id) {
     return this.model.findOne({ _id: id });
+  }
+
+  async getByIds(ids) {
+    return this.model.find({ _id: ids });
   }
 
   async create(data) {

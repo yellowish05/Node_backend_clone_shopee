@@ -4,11 +4,20 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
   .getAll({ user: user.id })
   .then((items) => {
     const productIds = items.map((item) => item.product).filter((id) => id !== null);
+    const deliveryRateIds = items.map((item) => item.deliveryRate).filter((id) => id !== null);
 
-    return repository.product.findByIds(productIds)
-      .then((products) => {
+    return Promise.all([
+      repository.product.getByIds(productIds),
+      repository.deliveryRateCache.getByIds(deliveryRateIds),
+    ])
+      .then(([products, deliveryRates]) => {
         const productsById = products.reduce((accumulator, product) => {
           accumulator[product.id] = product;
+          return accumulator;
+        }, {});
+
+        const deliveryRatesById = deliveryRates.reduce((accumulator, deliveryRate) => {
+          accumulator[deliveryRate.id] = deliveryRate;
           return accumulator;
         }, {});
 
@@ -16,8 +25,11 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
           if (item.product && productsById[item.product]) {
             item.product = productsById[item.product];
           }
+          if (item.deliveryRate && deliveryRatesById[item.deliveryRate]) {
+            item.deliveryRate = deliveryRatesById[item.deliveryRate];
+          }
           return item;
         });
       })
-      .then((itemsWithProducts) => ({ items: itemsWithProducts }));
+      .then((itemsWithProps) => ({ items: itemsWithProps }));
   });

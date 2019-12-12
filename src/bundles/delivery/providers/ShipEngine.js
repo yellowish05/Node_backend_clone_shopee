@@ -4,6 +4,7 @@ const axios = require('axios');
 const logger = require(path.resolve('config/logger'));
 const { shipengine } = require(path.resolve('config'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { Currency } = require(path.resolve('src/lib/Enums'));
 
 if (shipengine.api_key == null) {
   logger.warn("You didn't provided API_KEY for ShipEngine. You will not be able to work with shipping");
@@ -73,7 +74,7 @@ class ShipEngine {
           customs_items: [{
             description: product.description,
             quantity,
-            value: CurrencyFactory.getAmountOfMoney({ centsAmount: product.price, currency: product.currency }).getCurrencyAmount(),
+            value: CurrencyFactory.getAmountOfMoney({ centsAmount: product.price, currency: Currency.USD }).getCurrencyAmount(),
           }],
         },
         packages,
