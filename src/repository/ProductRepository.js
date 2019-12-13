@@ -100,6 +100,11 @@ class ProductRepository {
     return this.model.find({ _id: ids, isDeleted: false });
   }
 
+  async isShippingBoxInUse(boxId) {
+    return this.model.find({ shippingBox: boxId })
+      .then((products) => products !== null);
+  }
+
   async create(data) {
     const product = new this.model(data);
     return product.save();

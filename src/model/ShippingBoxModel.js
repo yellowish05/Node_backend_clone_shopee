@@ -36,6 +36,11 @@ const schema = new Schema({
     type: String,
     enum: SizeUnitSystem.toList(),
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+    index: true,
+  },
 });
 
 module.exports = new model(collectionName, schema);

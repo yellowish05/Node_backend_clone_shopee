@@ -70,6 +70,7 @@ const schema = new Schema({
   shippingBox: {
     type: String,
     ref: 'ShippingBox',
+    index: true,
   },
   isDeleted: {
     type: Boolean,

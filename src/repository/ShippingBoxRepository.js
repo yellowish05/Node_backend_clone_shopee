@@ -5,8 +5,12 @@ class ShippingBoxRepository {
     this.model = model;
   }
 
-  async findOne(id) {
-    return this.model.findOne({ _id: id });
+  async findOne(id, includeDeleted = false) {
+    const query = { _id: id };
+    if (!includeDeleted) {
+      query.isDeleted = false;
+    }
+    return this.model.findOne(query);
   }
 
   async create(data) {
@@ -18,11 +22,11 @@ class ShippingBoxRepository {
   }
 
   async remove(id) {
-    return this.model.deleteOne({ _id: id });
+    return this.model.update({ _id: id }, { isDeleted: true });
   }
 
   async getAll(query) {
-    return this.model.find(query);
+    return this.model.find({ ...query, isDeleted: false });
   }
 }
 

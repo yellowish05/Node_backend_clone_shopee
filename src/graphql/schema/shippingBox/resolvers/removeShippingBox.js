@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { ApolloError, ForbiddenError } = require('apollo-server');
+const { ForbiddenError, UserInputError, ApolloError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -20,17 +20,27 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => repository.shippingBox.findOne(args.id))
     .then((shippingBox) => {
       if (!shippingBox) {
-        throw new ApolloError('Shipping box does not exists', 400);
+        throw new UserInputError('Shipping box does not exists', { invalidArgs: ['id'] });
       }
 
       if (user.id !== shippingBox.owner) {
         throw new ForbiddenError('You can not remove this shipping box', 400);
       }
 
-      return repository.shippingBox.remove(args.id);
+      return shippingBox;
     })
+    .then((shippingBox) => repository.product.isShippingBoxInUse(shippingBox.id))
+    .then((isShippingBoxUse) => {
+      if (isShippingBoxUse) {
+        throw new UserInputError('Shipping box uses in products, you can not remove it', { invalidArgs: ['id'] });
+      }
+    })
+    .then(() => repository.shippingBox.remove(args.id))
     .then(() => true)
     .catch((error) => {
-      throw new ApolloError(`Failed to remove Shipping Box. Original error: ${error.message}`, 400);
+      if (!(error instanceof UserInputError || error instanceof ForbiddenError)) {
+        throw new ApolloError(`Failed to remove Shipping Box. Original error: ${error.message}`, 400);
+      }
+      throw error;
     });
 };
