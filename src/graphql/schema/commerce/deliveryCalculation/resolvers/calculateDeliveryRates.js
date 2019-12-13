@@ -2,10 +2,27 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
+const { MarketType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
+
+const activity = {
+  getDeliveryPrice(rate, organization, deliveryAddress, product) {
+    if (product.freeDeliveryTo
+      && product.freeDeliveryTo.length > 0
+      && (organization.address.country === deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.DOMESTIC)
+        || organization.address.country !== deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.INTERNATIONAL))) {
+      return 0;
+    }
+    return CurrencyFactory.getAmountOfMoney({
+      currencyAmount: rate.shippingAmount + rate.insuranceAmount + rate.confirmationAmount + rate.otherAmount,
+      currency: rate.currency.toUpperCase(),
+    }).getCentsAmount();
+  },
+};
 
 module.exports = async (_, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args, {
@@ -62,7 +79,12 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
 
           return repository.carrier.loadList(organization.carriers)
             .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
-              .then((rates) => Promise.all(rates.map((rate) => repository.deliveryRateCache.create(rate)))));
+              .then((rates) => {
+                rates.forEach((rate) => {
+                  rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+                });
+                return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(rate)));
+              }));
         });
     })
     .catch((error) => {

@@ -82,16 +82,13 @@ class ShipEngine {
 
     return axios.post(`${shipengine.uri}/rates`, body, { headers: this.headers })
       .then(({ data }) => data.rate_response.rates.map((rate) => ({
+        rate_id: rate.rate_id,
         carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
 
         shippingAmount: rate.shipping_amount.amount,
-        insurance_amount: rate.insurance_amount.amount,
-        confirmation_amount: rate.confirmation_amount.amount,
-        other_amount: rate.other_amount.amount,
-        amount: CurrencyFactory.getAmountOfMoney({
-          currencyAmount: rate.shipping_amount.amount + rate.insurance_amount.amount + rate.confirmation_amount.amount + rate.other_amount.amount,
-          currency: rate.shipping_amount.currency.toUpperCase(),
-        }).getCentsAmount(),
+        insuranceAmount: rate.insurance_amount.amount,
+        confirmationAmount: rate.confirmation_amount.amount,
+        otherAmount: rate.other_amount.amount,
         currency: rate.shipping_amount.currency.toUpperCase(),
 
         deliveryDays: rate.delivery_days,

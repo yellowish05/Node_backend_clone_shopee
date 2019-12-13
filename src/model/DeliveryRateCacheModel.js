@@ -17,6 +17,10 @@ const schema = new Schema({
     required: true,
     index: true,
   },
+  rate_id: {
+    type: String,
+    required: true,
+  },
   deliveryDays: {
     type: Number,
     required: true,
