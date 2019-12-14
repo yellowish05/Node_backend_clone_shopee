@@ -21,6 +21,7 @@ const schema = gql`
         status: DeliveryOrderStatus!
         estimatedDeliveryDate: Date!
         deliveryPrice: AmountOfMoney!
+        deliveryAddress: DeliveryAddress!
         logs: [DeliveryOrderLog]!
     }
 `;
