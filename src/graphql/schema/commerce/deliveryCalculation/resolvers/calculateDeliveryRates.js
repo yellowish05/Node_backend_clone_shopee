@@ -77,11 +77,11 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('There is no carriers for you Delivery Address', { invalidArgs: 'deliveryAddress' });
           }
 
-          if (seller.name || seller.phone) {
+          if (!seller.name || !seller.phone) {
             throw new Error('Seller account has no username or phone specified');
           }
 
-          if (user.name || user.phone) {
+          if (!user.name || !user.phone) {
             throw new Error('Your account has no username or phone specified');
           }
 
