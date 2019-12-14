@@ -77,6 +77,14 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('There is no carriers for you Delivery Address', { invalidArgs: 'deliveryAddress' });
           }
 
+          if (seller.name || seller.phone) {
+            throw new Error('Seller account has no username or phone specified');
+          }
+
+          if (user.name || user.phone) {
+            throw new Error('Your account has no username or phone specified');
+          }
+
           return repository.carrier.loadList(organization.carriers)
             .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
               .then((rates) => {
