@@ -17,6 +17,11 @@ const schema = new Schema({
     required: true,
     index: true,
   },
+  deliveryAddress: {
+    type: String,
+    ref: 'DeliveryAddress',
+    required: true,
+  },
   rate_id: {
     type: String,
     required: true,

@@ -19,6 +19,17 @@ const schema = new Schema({
     ref: 'OrderItem',
     required: true,
   },
+  carrier: {
+    type: String,
+    ref: 'Carrier',
+    required: true,
+    index: true,
+  },
+  deliveryAddress: {
+    type: String,
+    ref: 'DeliveryAddress',
+    required: true,
+  },
   trackingNumber: {
     type: String,
     index: true,

@@ -59,6 +59,8 @@ async function createDeliveryOrder(cartItem, currency) {
     rate_id: cartItem.deliveryRate.rate_id,
     estimatedDeliveryDate: cartItem.deliveryRate.estimatedDeliveryDate,
     currency,
+    carrier: cartItem.deliveryRate.carrier,
+    deliveryAddress: cartItem.deliveryRate.deliveryAddress,
     deliveryPrice: deliveryPrice.getCentsAmount(),
   };
 }

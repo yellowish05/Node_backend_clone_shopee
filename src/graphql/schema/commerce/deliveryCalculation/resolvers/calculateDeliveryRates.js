@@ -83,7 +83,9 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 rates.forEach((rate) => {
                   rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
                 });
-                return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(rate)));
+                return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(
+                  { ...rate, deliveryAddress: deliveryAddress.id },
+                )));
               }));
         });
     })
