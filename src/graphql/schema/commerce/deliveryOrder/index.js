@@ -17,12 +17,13 @@ const schema = gql`
     }
 
     type DeliveryOrder {
-        trackingNumber: String!
-        status: DeliveryOrderStatus!
-        estimatedDeliveryDate: Date!
-        deliveryPrice: AmountOfMoney!
-        deliveryAddress: DeliveryAddress!
-        logs: [DeliveryOrderLog]!
+      id: ID!
+      trackingNumber: String!
+      status: DeliveryOrderStatus!
+      estimatedDeliveryDate: Date!
+      deliveryPrice: AmountOfMoney!
+      deliveryAddress: DeliveryAddress!
+      logs: [DeliveryOrderLog]!
     }
 `;
 
