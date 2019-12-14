@@ -36,5 +36,8 @@ module.exports.resolvers = {
         currency: item.currency,
       })
     ),
+    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryAddress.getById(order.deliveryAddress)
+    ),
   },
 };
