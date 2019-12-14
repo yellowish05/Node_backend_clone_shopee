@@ -25,6 +25,7 @@ const schema = gql`
         """ In Units """
         quantity: Int!
         price: AmountOfMoney!
+        deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
@@ -38,6 +39,7 @@ const schema = gql`
         """ In Units """
         quantity: Int!
         price: AmountOfMoney!
+        deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
@@ -59,6 +61,12 @@ module.exports.resolvers = {
         currency: item.currency,
       })
     ),
+    deliveryPrice: async (item) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: item.deliveryPrice,
+        currency: item.currency,
+      })
+    ),
     total: async (item) => (
       CurrencyFactory.getAmountOfMoney({
         centsAmount: item.total,
@@ -67,6 +75,9 @@ module.exports.resolvers = {
     ),
     product: async (item, _, { dataSources: { repository } }) => (
       repository.product.getById(item.product)
+    ),
+    deliveryOrder: async (item, _, { dataSources: { repository } }) => (
+      repository.deliveryOrder.findByOrderItem(item.id)
     ),
   },
   OrderItemInterface: {

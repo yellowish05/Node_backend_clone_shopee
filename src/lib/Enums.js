@@ -131,6 +131,15 @@ const SaleOrderStatus = EnumFactory({
   CANCELED: 'CANCELED',
 });
 
+const DeliveryOrderStatus = EnumFactory({
+  // When Carrier donesn't know this tracking id, not yet in system
+  CREATED: 'CREATED',
+  UNKNOWN: 'UNKNOWN',
+  ACCEPTED: 'ACCEPTED',
+  IN_TRANSIT: 'IN_TRANSIT',
+  DELIVERED: 'DELIVERED',
+});
+
 const OrderItemStatus = EnumFactory({
   CREATED: 'CREATED',
   ORDERED: 'ORDERED',
@@ -168,6 +177,7 @@ module.exports = {
   MarketType,
   PurchaseOrderStatus,
   SaleOrderStatus,
+  DeliveryOrderStatus,
   OrderItemStatus,
   PaymentTransactionStatus,
 };

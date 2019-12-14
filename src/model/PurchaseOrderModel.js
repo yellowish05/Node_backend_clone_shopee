@@ -14,11 +14,11 @@ const schema = new Schema({
     required: true,
     index: true,
   },
-  deliveryAddress: {
+  deliveryOrders: [{
     type: String,
-    ref: 'DeliveryAddress',
+    ref: 'DeliveryOrder',
     required: true,
-  },
+  }],
   items: [{
     type: String,
     ref: 'OrderItem',
@@ -35,6 +35,14 @@ const schema = new Schema({
   currency: {
     type: String,
     enum: Currency.toList(),
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  deliveryPrice: {
+    type: Number,
+    required: true,
   },
   total: {
     type: Number,

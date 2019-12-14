@@ -43,7 +43,19 @@ const schema = new Schema({
     type: String,
     enum: Currency.toList(),
   },
+  originDeliveryPrice: {
+    type: Number,
+    required: true,
+  },
+  originDeliveryCurrency: {
+    type: String,
+    enum: Currency.toList(),
+  },
   price: {
+    type: Number,
+    required: true,
+  },
+  deliveryPrice: {
     type: Number,
     required: true,
   },

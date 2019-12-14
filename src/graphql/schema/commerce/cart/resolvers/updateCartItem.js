@@ -19,19 +19,25 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
     })
-    .then(() => repository.userCartItem.getById(args.id))
-    .then((userCartItem) => {
+    .then(() => Promise.all([
+      repository.userCartItem.getById(args.id),
+      repository.deliveryRateCache.getById(args.deliveryRate),
+    ]))
+    .then(([userCartItem, deliveryRate]) => {
       if (!userCartItem) {
         throw new UserInputError(`Cart item (${args.id}) does not exist`, { invalidArgs: 'id' });
       }
 
-      if (userCartItem.user !== user.id) {
-        throw new ForbiddenError('You can not update this Cart Item');
+      const cartItemData = {
+        quantity: args.quantity,
+      };
+      if (deliveryRate) {
+        cartItemData.deliveryRateId = deliveryRate.id;
       }
 
-      return repository.userCartItem.update(args.id, args.quantity);
+      return repository.userCartItem.update(args.id, cartItemData);
     })
     .catch((error) => {
-      throw new ApolloError(`Failed to udate Cart Item. Original error: ${error.message}`, 400);
+      throw new ApolloError(`Failed to update Cart Item. Original error: ${error.message}`, 400);
     });
 };

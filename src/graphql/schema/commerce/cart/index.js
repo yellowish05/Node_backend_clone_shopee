@@ -25,6 +25,7 @@ const schema = gql`
       total(currency: Currency): AmountOfMoney!
 
       product: Product!
+      deliveryIncluded: Boolean!
     }
 
     interface CartItemInterface {
@@ -45,7 +46,11 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        addProductToCart(product: ID!, deliveryRate: ID!, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        addProductToCart(product: ID!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
@@ -66,6 +71,9 @@ module.exports.resolvers = {
   Mutation: {
     addProductToCart: async (...args) => (
       addProductToCart(...args).then(() => loadCart(...args))
+    ),
+    updateCartItem: async (...args) => (
+      updateCartItem(...args).then(() => loadCart(...args))
     ),
     deleteCartItem: async (...args) => (
       deleteCartItem(...args).then(() => loadCart(...args))
@@ -97,7 +105,7 @@ module.exports.resolvers = {
         })
     ),
     deliveryPrice: async ({ items }, args) => (
-      Promise.all(items.map(async ({ product, deliveryRate }) => {
+      Promise.all(items.map(async ({ deliveryRate }) => {
         if (deliveryRate) {
           if (args.currency && args.currency !== deliveryRate.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
@@ -125,18 +133,20 @@ module.exports.resolvers = {
             );
             value += await CurrencyService.exchange(amountOfMoney, args.currency)
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+          } else {
+            value += product.price * quantity;
           }
-          value += product.price * quantity;
         }
         if (deliveryRate) {
           if (args.currency && args.currency !== deliveryRate.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
               { centsAmount: deliveryRate.amount, currency: deliveryRate.currency },
             );
-            return CurrencyService.exchange(amountOfMoney, args.currency)
+            value += await CurrencyService.exchange(amountOfMoney, args.currency)
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+          } else {
+            value += deliveryRate.amount;
           }
-          value += deliveryRate.amount;
         }
         return value;
       }))
@@ -147,15 +157,27 @@ module.exports.resolvers = {
     ),
   },
   CartProductItem: {
-    total: async ({ quantity, product: { price, currency } }, args) => {
-      const centsAmount = price * quantity;
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount, currency });
+    total: async ({ quantity, product, deliveryRate }, args) => {
+      let total = 0;
 
-      if (args.currency && args.currency !== currency) {
-        return CurrencyService.exchange(amountOfMoney, args.currency);
+      if (args.currency && args.currency !== product.currency) {
+        const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: product.price * quantity, currency: product.currency });
+        total += await CurrencyService.exchange(amountOfMoney, args.currency);
+      } else {
+        total += product.price * quantity;
       }
-      return amountOfMoney;
+
+      if (deliveryRate) {
+        if (args.currency && args.currency !== deliveryRate.currency) {
+          const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryRate.amount, currency: deliveryRate.currency });
+          total += await CurrencyService.exchange(amountOfMoney, args.currency);
+        } else {
+          total += deliveryRate.amount;
+        }
+      }
+      return CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: args.currency });
     },
+    deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
   },
   CartItemInterface: {
     __resolveType(cartItem) {

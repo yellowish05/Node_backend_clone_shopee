@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 const uuid = require('uuid/v4');
 
 class UserCartItemRepository {
@@ -31,11 +32,12 @@ class UserCartItemRepository {
     return this.model.find({ user: userId });
   }
 
-  async add({ productId, deliveryRateId }, userId, quantity) {
+  async add({ productId, deliveryRateId, quantity }, userId) {
     return this.findOne({ productId }, userId)
       .then((cartItem) => {
         if (cartItem) {
-          cartItem.quantity += quantity;
+          cartItem.quantity = quantity;
+          cartItem.deliveryRate = deliveryRateId;
           return cartItem.save();
         }
 
@@ -53,10 +55,11 @@ class UserCartItemRepository {
     return this.model.deleteOne({ _id: itemId });
   }
 
-  async update(userCartId, quantity) {
+  async update(userCartId, { deliveryRateId, quantity }) {
     return this.getById(userCartId)
       .then((cartItem) => {
         cartItem.quantity = quantity;
+        cartItem.deliveryRate = deliveryRateId;
         return cartItem.save();
       });
   }

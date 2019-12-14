@@ -1,12 +1,12 @@
+const path = require('path');
 const { gql } = require('apollo-server');
+
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { DeliveryOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum DeliveryOrderStatus {
-        """When Carrier donesn't know this tracking id, not yet in system"""
-        UNKNOWN
-        ACCEPTED
-        IN_TRANSIT
-        DELIVERED
+        ${DeliveryOrderStatus.toGQL()}
     }
 
     type DeliveryOrderLog {
@@ -20,6 +20,7 @@ const schema = gql`
         trackingNumber: String!
         status: DeliveryOrderStatus!
         estimatedDeliveryDate: Date!
+        deliveryPrice: AmountOfMoney!
         logs: [DeliveryOrderLog]!
     }
 `;
@@ -27,5 +28,12 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-
+  DeliveryOrder: {
+    deliveryPrice: async (item) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: item.deliveryPrice,
+        currency: item.currency,
+      })
+    ),
+  },
 };

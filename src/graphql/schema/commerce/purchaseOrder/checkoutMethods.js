@@ -28,10 +28,18 @@ module.exports = {
           throw new UserInputError('User Cart is empty');
         }
         const productIds = cartItems.map((item) => item.product).filter((id) => id);
-        return repository.product.getByIds(productIds)
-          .then((products) => cartItems.map((item) => {
+        const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
+        return Promise.all([
+          repository.product.getByIds(productIds),
+          repository.deliveryRateCache.getByIds(deliveryRateIds),
+        ])
+          .then(([products, deliveryRates]) => cartItems.map((item) => {
+            if (products.length !== deliveryRates.length) {
+              throw new UserInputError('Not all cart items have delivery rate');
+            }
             // eslint-disable-next-line no-param-reassign
             [item.product] = products.filter((product) => product.id === item.product);
+            [item.deliveryRate] = deliveryRates.filter((deliveryRate) => deliveryRate.id === item.deliveryRate);
             return item;
           }));
       });
@@ -46,7 +54,7 @@ module.exports = {
   },
 
   async createOrder({
-    cartItems, currency, buyerId, deliveryAddress,
+    cartItems, currency, buyerId,
   }, repository) {
     const factory = new OrderFactory(cartItems, currency);
 
@@ -55,9 +63,14 @@ module.exports = {
         items.map((item) => repository.orderItem.create(item)),
       ));
 
+    const deliveryOrders = await factory.createDeliveryOrders()
+      .then((items) => Promise.all(
+        items.map((item, index) => repository.deliveryOrder.create({ ...item, item: orderItems[index].id })),
+      ));
+
     const order = factory.createOrder();
     order.buyer = buyerId;
-    order.deliveryAddress = deliveryAddress;
+    order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
 
     return repository.purchaseOrder.create(order);

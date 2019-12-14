@@ -22,11 +22,15 @@ const schema = gql`
         """ List of products or services or anything else what we going to selling """
         items: [OrderItemInterface!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
+        price: AmountOfMoney!
+        """ In Cents, Amount of money Shoclef will charge from Buyer"""
+        deliveryPrice: AmountOfMoney!
+        """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ In future buyer will be able to pay by few paymnets to one Order"""
         payments: [PaymentTransaction!]
         """ Address for ship products """
-        deliveryAddress: DeliveryAddress!
+        deliveryOrders: [DeliveryOrder]!
         cancelationReason: String
     }
 
@@ -46,7 +50,7 @@ const schema = gql`
 
     extend type Mutation {
         """Allows: authorized user"""
-        checkoutCart(deliveryAddress: ID!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
+        checkoutCart(currency: Currency!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         checkoutOneProduct(deliveryAddress: ID!, product: ID!, quantity: Int!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
@@ -94,8 +98,20 @@ module.exports.resolvers = {
     payments: async (order, _, { dataSources: { repository } }) => (
       repository.paymentTransaction.getByIds(order.payments)
     ),
-    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
-      repository.deliveryAddress.getById(order.deliveryAddress)
+    deliveryOrders: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryOrder.getByIds(order.deliveryOrders)
+    ),
+    price: async (order) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: order.price,
+        currency: order.currency,
+      })
+    ),
+    deliveryPrice: async (order) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: order.deliveryPrice,
+        currency: order.currency,
+      })
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({

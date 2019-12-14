@@ -10,7 +10,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
-    { deliveryRate: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
   );
 
@@ -29,11 +28,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
 
-      if (!deliveryRate) {
-        throw new UserInputError(`Delivery Rate with id "${args.deliveryRate}" does not exist!`, { invalidArgs: [deliveryRate] });
+      const cartItemData = {
+        productId: product.id,
+        quantity: args.quantity,
+      };
+      if (deliveryRate) {
+        cartItemData.deliveryRateId = deliveryRate.id;
       }
 
-      return repository.userCartItem.add({ productId: product.id, deliveryRateId: deliveryRate.id }, user.id, args.quantity);
+      return repository.userCartItem.add(cartItemData, user.id);
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
