@@ -69,6 +69,10 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('Product has no Shipping Box', { invalidArgs: 'product' });
           }
 
+          if (!organization.address) {
+            throw new UserInputError('Organization did not specified an address to deliver from', { invalidArgs: 'product' });
+          }
+
           if (!organization.address.isDeliveryAvailable) {
             throw new UserInputError('Product is not valid for deliverance', { invalidArgs: 'product' });
           }

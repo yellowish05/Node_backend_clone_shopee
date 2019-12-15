@@ -99,7 +99,7 @@ class ShipEngine {
           deliveryDays: rate.delivery_days,
           carrierDeliveryDays: rate.carrier_delivery_days,
           estimatedDeliveryDate: rate.estimated_delivery_date,
-        })).filter((rate) => rate.deliveryDays);
+        }));
       })
       .catch((error) => {
         logger.error(`Error happend while  calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
