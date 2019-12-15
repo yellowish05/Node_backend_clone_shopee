@@ -45,10 +45,14 @@ module.exports = {
       });
   },
 
-  async loadProductAsCart(productId, quantity, repository) {
-    return repository.product.getById(productId)
-      .then((product) => ([{
+  async loadProductAsCart(deliveryRateId, productId, quantity, repository) {
+    return Promise.all([
+      repository.product.getById(productId),
+      repository.deliveryRateCache.getById(deliveryRateId),
+    ])
+      .then(([product, deliveryRate]) => ([{
         product,
+        deliveryRate,
         quantity,
       }]));
   },

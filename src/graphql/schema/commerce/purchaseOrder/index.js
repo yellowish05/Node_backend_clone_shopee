@@ -53,7 +53,7 @@ const schema = gql`
         checkoutCart(currency: Currency!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
-        checkoutOneProduct(deliveryAddress: ID!, product: ID!, quantity: Int!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
+        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
