@@ -19,15 +19,15 @@ class TransactionRequest {
   }
 
   getPayload() {
+    const amountDecimal = this.currencyAmount % 10 === 0 ? `${this.currencyAmount}.0` : this.currencyAmount;
     const dateISO = this.date.toISOString();
-
     return [
       'HS256',
-      `request_time_stamp=${dateISO.substr(0, dateISO.length - 5)}Z`,
+      `request_time_stamp=${dateISO.substr(0, dateISO.length - 5)}Z}`,
       `merchant_account_id=${this.merchantId}`,
       `request_id=${this.transactionId}`,
       `transaction_type=${this.transactionType}`,
-      `requested_amount=${this.currencyAmount}`,
+      `requested_amount=${amountDecimal}`,
       `requested_amount_currency=${this.currency}`,
     ]
       .join('\n');

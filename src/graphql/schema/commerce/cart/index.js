@@ -22,7 +22,7 @@ const schema = gql`
       id: ID!
       quantity: Int!
       seller: User!
-      total(currency: Currency): AmountOfMoney!
+      total(currency: Currency! = USD): AmountOfMoney!
 
       product: Product!
       deliveryIncluded: Boolean!
@@ -32,7 +32,7 @@ const schema = gql`
       id: ID!
       quantity: Int!
       seller: User!
-      total(currency: Currency): AmountOfMoney!
+      total(currency: Currency! = USD): AmountOfMoney!
     }
 
     extend type Query {
@@ -157,27 +157,32 @@ module.exports.resolvers = {
     ),
   },
   CartProductItem: {
-    total: async ({ quantity, product, deliveryRate }, args) => {
-      let total = 0;
+    total: async ({ quantity, product, deliveryRate }, { currency }) => {
+      let productTotal = product.price * quantity;
+      let deliveryTotal = deliveryRate ? deliveryRate.amount : 0;
 
-      if (args.currency && args.currency !== product.currency) {
-        const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: product.price * quantity, currency: product.currency });
-        total += await CurrencyService.exchange(amountOfMoney, args.currency);
-      } else {
-        total += product.price * quantity;
+      if (currency !== product.currency) {
+        const amountOfMoney = CurrencyFactory.getAmountOfMoney({
+          centsAmount: productTotal, currency: product.currency,
+        });
+        productTotal = await CurrencyService.exchange(amountOfMoney, currency)
+          .then((exchangedMoney) => exchangedMoney.getCentsAmount());
       }
 
-      if (deliveryRate) {
-        if (args.currency && args.currency !== deliveryRate.currency) {
-          const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryRate.amount, currency: deliveryRate.currency });
-          total += await CurrencyService.exchange(amountOfMoney, args.currency);
-        } else {
-          total += deliveryRate.amount;
-        }
+      if (deliveryRate && currency !== deliveryRate.currency) {
+        const amountOfMoney = CurrencyFactory.getAmountOfMoney({
+          centsAmount: deliveryRate.amount, currency: deliveryRate.currency,
+        });
+        deliveryTotal = await CurrencyService.exchange(amountOfMoney, currency)
+          .then((exchangedMoney) => exchangedMoney.getCentsAmount());
       }
-      return CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: args.currency });
+
+      return CurrencyFactory.getAmountOfMoney({
+        centsAmount: productTotal + deliveryTotal, currency,
+      });
     },
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
+    product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
   },
   CartItemInterface: {
     __resolveType(cartItem) {
