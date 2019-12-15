@@ -81,21 +81,26 @@ class ShipEngine {
       },
     };
 
+    logger.debug(`[ShipEngine] getting calculation body: ${JSON.stringify(body)}`);
     return axios.post(`${shipengine.uri}/rates`, body, { headers: this.headers })
-      .then(({ data }) => data.rate_response.rates.map((rate) => ({
-        rate_id: rate.rate_id,
-        carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
+      .then(({ data }) => {
+        logger.debug(`[ShipEngine] got calculation data: ${JSON.stringify(data)}`);
 
-        shippingAmount: rate.shipping_amount.amount,
-        insuranceAmount: rate.insurance_amount.amount,
-        confirmationAmount: rate.confirmation_amount.amount,
-        otherAmount: rate.other_amount.amount,
-        currency: rate.shipping_amount.currency.toUpperCase(),
+        return data.rate_response.rates.map((rate) => ({
+          rate_id: rate.rate_id,
+          carrier: carriers.find((c) => c.name === rate.carrier_friendly_name)._id,
 
-        deliveryDays: rate.delivery_days,
-        carrierDeliveryDays: rate.carrier_delivery_days,
-        estimatedDeliveryDate: rate.estimated_delivery_date,
-      })).filter((rate) => rate.deliveryDays))
+          shippingAmount: rate.shipping_amount.amount,
+          insuranceAmount: rate.insurance_amount.amount,
+          confirmationAmount: rate.confirmation_amount.amount,
+          otherAmount: rate.other_amount.amount,
+          currency: rate.shipping_amount.currency.toUpperCase(),
+
+          deliveryDays: rate.delivery_days,
+          carrierDeliveryDays: rate.carrier_delivery_days,
+          estimatedDeliveryDate: rate.estimated_delivery_date,
+        })).filter((rate) => rate.deliveryDays);
+      })
       .catch((error) => {
         logger.error(`Error happend while  calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
         throw new Error(error.response.data.errors[0].message);

@@ -11,9 +11,9 @@ const schema = gql`
     type DeliveryRate {
       id: ID!
       carrier: Carrier!
-      deliveryDays: Int!
-      estimatedDeliveryDate: Date!
-      carrierDeliveryDays: String!
+      deliveryDays: Int
+      estimatedDeliveryDate: Date
+      carrierDeliveryDays: String
       amount(currency: Currency): AmountOfMoney!
     }
 
