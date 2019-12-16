@@ -8,7 +8,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
 
     return Promise.all([
       repository.product.getByIds(productIds),
-      repository.deliveryRateCache.getByIds(deliveryRateIds),
+      repository.deliveryRate.getByIds(deliveryRateIds),
     ])
       .then(([products, deliveryRates]) => {
         const productsById = products.reduce((accumulator, product) => {

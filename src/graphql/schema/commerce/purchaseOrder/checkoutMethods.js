@@ -31,7 +31,7 @@ module.exports = {
         const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
         return Promise.all([
           repository.product.getByIds(productIds),
-          repository.deliveryRateCache.getByIds(deliveryRateIds),
+          repository.deliveryRate.getByIds(deliveryRateIds),
         ])
           .then(([products, deliveryRates]) => cartItems.map((item) => {
             if (products.length !== deliveryRates.length) {
@@ -48,7 +48,7 @@ module.exports = {
   async loadProductAsCart(deliveryRateId, productId, quantity, repository) {
     return Promise.all([
       repository.product.getById(productId),
-      repository.deliveryRateCache.getById(deliveryRateId),
+      repository.deliveryRate.getById(deliveryRateId),
     ])
       .then(([product, deliveryRate]) => ([{
         product,

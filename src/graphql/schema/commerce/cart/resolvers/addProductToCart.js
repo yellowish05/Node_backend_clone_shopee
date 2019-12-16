@@ -36,7 +36,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         cartItemData.deliveryRateId = deliveryRate.id;
       }
 
-      return repository.userCartItem.add(cartItemData, user.id);
+      return repository.deliveryRate.create(deliveryRate.toObject())
+        .then(() => repository.userCartItem.add(cartItemData, user.id));
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);

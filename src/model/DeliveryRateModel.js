@@ -4,8 +4,7 @@ const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
 const { Currency } = require(path.resolve('src/lib/Enums'));
-const { shipengine } = require(path.resolve('config'));
-const collectionName = 'DeliveryRateCache';
+const collectionName = 'DeliveryRate';
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -41,6 +40,5 @@ const schema = new Schema({
     enum: Currency.toList(),
   },
 });
-schema.index({ createdAt: 1 }, { expires: shipengine.deliveryRateCacheTTL });
 
 module.exports = new model(collectionName, schema);

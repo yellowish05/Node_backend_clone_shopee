@@ -35,7 +35,14 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         cartItemData.deliveryRateId = deliveryRate.id;
       }
 
-      return repository.userCartItem.update(args.id, cartItemData);
+      return repository.deliveryRate.getById(deliveryRate.id)
+        .then((saveDeliveryRate) => {
+          if (saveDeliveryRate) {
+            return repository.userCartItem.update(args.id, cartItemData);
+          }
+          return repository.deliveryRate.create(deliveryRate.toObject())
+            .then(() => repository.userCartItem.update(args.id, cartItemData));
+        });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to update Cart Item. Original error: ${error.message}`, 400);
