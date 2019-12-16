@@ -77,7 +77,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('Product is not valid for deliverance', { invalidArgs: 'product' });
           }
 
-          if (organization.carriers.length === 0) {
+          if (!organization.carriers || organization.carriers.length === 0) {
             throw new UserInputError('There is no carriers for you Delivery Address', { invalidArgs: 'deliveryAddress' });
           }
 
