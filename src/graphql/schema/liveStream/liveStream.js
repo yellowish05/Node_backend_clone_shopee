@@ -201,7 +201,7 @@ module.exports.resolvers = {
         .then((thread) => (!thread ? [] : [thread]));
     },
     products(liveStream, _, { dataSources: { repository } }) {
-      return repository.product.loadList(liveStream.products);
+      return repository.product.getByIds(liveStream.products);
     },
   },
   LiveStreamStats: {
