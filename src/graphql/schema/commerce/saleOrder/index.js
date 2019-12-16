@@ -19,7 +19,7 @@ const schema = gql`
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ Address for ship products """
-        deliveryAddress: DeliveryAddress!
+        deliveryOrders: [DeliveryOrder]!
         """ Relation to Payout """
         payout: PayoutOrder
         cancelationReason: String
