@@ -20,11 +20,11 @@ const schema = new Schema({
     required: true,
     index: true,
   },
-  deliveryAddress: {
+  deliveryOrders: [{
     type: String,
-    ref: 'DeliveryAddress',
+    ref: 'DeliveryOrder',
     required: true,
-  },
+  }],
   items: [{
     type: String,
     ref: 'OrderItem',

@@ -47,7 +47,7 @@ module.exports = async (req, res) => {
       const saleOrder = {
         seller,
         buyer: purchaseOrder.buyer,
-        deliveryAddress: purchaseOrder.deliveryAddress,
+        deliveryOrders: purchaseOrder.deliveryOrders,
         items: itemsBySeller[seller].map((item) => item.id),
         quantity: itemsBySeller[seller].reduce((sum, item) => sum + item.quantity, 0),
         currency: purchaseOrder.currency,

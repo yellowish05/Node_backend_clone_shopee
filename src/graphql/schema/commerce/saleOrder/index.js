@@ -74,8 +74,8 @@ module.exports.resolvers = {
     items: async (order, _, { dataSources: { repository } }) => (
       repository.orderItem.getByIds(order.items)
     ),
-    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
-      repository.deliveryAddress.getById(order.deliveryAddress)
+    deliveryOrders: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryOrder.getByIds(order.deliveryOrders)
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({
