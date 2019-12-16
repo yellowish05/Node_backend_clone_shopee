@@ -48,7 +48,7 @@ module.exports = {
   async loadProductAsCart(deliveryRateId, productId, quantity, repository) {
     return Promise.all([
       repository.product.getById(productId),
-      repository.deliveryRate.getById(deliveryRateId),
+      repository.deliveryRateCache.getById(deliveryRateId),
     ])
       .then(([product, deliveryRate]) => ([{
         product,
