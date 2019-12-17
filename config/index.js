@@ -45,6 +45,7 @@ module.exports = {
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
+    media_region_id: process.env.AWS_MEDIA_REGION_ID,
   },
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',

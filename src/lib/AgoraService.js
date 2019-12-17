@@ -90,7 +90,7 @@ module.exports.AgoraService = {
                 },
                 storageConfig: {
                   vendor: 1,
-                  region: 7,
+                  region: aws.media_region_id,
                   bucket: aws.media_bucket,
                   accessKey: aws.agora_api_key,
                   secretKey: aws.agora_api_secret,
