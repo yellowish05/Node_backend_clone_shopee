@@ -20,7 +20,7 @@ const schema = gql`
       id: ID!
       trackingNumber: String!
       status: DeliveryOrderStatus!
-      estimatedDeliveryDate: Date!
+      estimatedDeliveryDate: Date
       deliveryPrice: AmountOfMoney!
       deliveryAddress: DeliveryAddress!
       logs: [DeliveryOrderLog]!
