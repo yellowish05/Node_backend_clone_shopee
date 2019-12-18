@@ -1,9 +1,12 @@
+const path = require('path');
 const checkout = require('../checkoutMethods');
 
-module.exports = async function checkoutCart(
+const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
+
+module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency,
+    deliveryRate, product, quantity, currency, paymentMethod,
   },
   { dataSources: { repository }, user },
 ) {
@@ -15,7 +18,7 @@ module.exports = async function checkoutCart(
   }, repository);
 
   // generate payments with Payment Provider data and update order
-  await checkout.generatePaymentsForOrder(order, repository);
+  await payPurchaseOrder({ order, paymentMethod, user });
 
   return order;
 };

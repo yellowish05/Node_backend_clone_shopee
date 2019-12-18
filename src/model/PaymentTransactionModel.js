@@ -17,15 +17,15 @@ const schema = new Schema({
   },
   merchant: {
     type: String,
-    required: true,
+    required: false,
   },
   signature: {
     type: String,
-    required: true,
+    required: false,
   },
   type: {
     type: String,
-    required: true,
+    required: false,
   },
   buyer: {
     type: String,
@@ -54,6 +54,14 @@ const schema = new Schema({
   responsePayload: {
     type: String,
   },
+  paymentMethod: {
+    type: String,
+    ref: 'PaymentMethod',
+  },
 });
+
+schema.methods.isSuccessful = function isSuccessful() {
+  return this.status === PaymentTransactionStatus.SUCCESS;
+};
 
 module.exports = new model(collectionName, schema);

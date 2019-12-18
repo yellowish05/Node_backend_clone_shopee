@@ -1,9 +1,3 @@
-const uuid = require('uuid/v4');
-const path = require('path');
-
-const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
-const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
-const paymentBundle = require(path.resolve('src/bundles/payment'));
 const { UserInputError } = require('apollo-server');
 const OrderFactory = require('./OrderFactory');
 
@@ -82,44 +76,5 @@ module.exports = {
 
   async clearUserCart(userId, repository) {
     return repository.userCartItem.clear(userId);
-  },
-
-  async generatePaymentsForOrder(order, repository) {
-    const { providers: { WIRECARD } } = paymentBundle;
-
-    const transaction = {
-      _id: uuid(),
-      buyer: order.buyer,
-      merchant: WIRECARD.getMerchantId(),
-      createdAt: new Date(),
-      type: 'purchase',
-      amount: order.total,
-      currency: order.currency,
-      status: PaymentTransactionStatus.PENDING,
-      tags: [order.getTagName()],
-    };
-
-    const amountISO = CurrencyFactory.getAmountOfMoney({
-      centsAmount: transaction.amount,
-      currency: transaction.currency,
-    });
-
-    const transactionRequest = WIRECARD.createTransactionRequest({
-      date: transaction.createdAt,
-      transactionId: transaction._id,
-      transactionType: transaction.type,
-      currencyAmount: amountISO.getCurrencyAmount(),
-      currency: transaction.currency,
-    });
-
-    transaction.signature = transactionRequest.getSignature();
-
-    // eslint-disable-next-line no-param-reassign
-    order.payments = [transaction._id];
-
-    return Promise.all([
-      repository.paymentTransaction.create(transaction),
-      order.save(),
-    ]);
   },
 };

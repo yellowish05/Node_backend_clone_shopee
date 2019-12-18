@@ -28,7 +28,7 @@ const schema = gql`
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ In future buyer will be able to pay by few paymnets to one Order"""
-        payments: [PaymentTransaction!]
+        payments: [PaymentTransactionInterface!]
         """ Address for ship products """
         deliveryOrders: [DeliveryOrder]!
         cancelationReason: String
@@ -50,10 +50,10 @@ const schema = gql`
 
     extend type Mutation {
         """Allows: authorized user"""
-        checkoutCart(currency: Currency!): PurchaseOrder! @auth(requires: USER)
+        checkoutCart(currency: Currency!, paymentMethod: ID): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
-        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!): PurchaseOrder! @auth(requires: USER)
+        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!, paymentMethod: ID): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
@@ -62,7 +62,7 @@ const schema = gql`
         Allows: authorized user
         Pass ID of the Order you want to pay
         """
-        payPurchaseOrder(id: ID!): PaymentTransaction! @auth(requires: USER)
+        payPurchaseOrder(id: ID!, paymentMethod: ID): PaymentTransactionInterface! @auth(requires: USER)
     }
 
     

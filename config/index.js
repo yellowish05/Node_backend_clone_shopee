@@ -94,8 +94,11 @@ module.exports = {
         entrypoint: isTestPaymentMode
           ? 'https://api-test.wirecard.com/engine/rest/payments/'
           : '',
-        merchantId: process.env.WIRECARD_MERCHANT_ID || null,
-        secret: process.env.WIRECARD_SECRET || null,
+        merchantId: process.env.PAYMENT_WIRECARD_MERCHANT_ID || null,
+        secret: process.env.PAYMENT_WIRECARD_SECRET || null,
+      },
+      stripe: {
+        secret: process.env.PAYMENT_STRIPE_SECRET,
       },
     },
   },
