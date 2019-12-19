@@ -86,6 +86,7 @@ class UserRepository {
       throw Error(`User "${id}" does not exist!`);
     }
 
+    user.email = (!user.email && data.email) ? data.email : user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
     user.photo = data.photo || user.photo;

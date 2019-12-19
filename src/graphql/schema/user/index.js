@@ -24,6 +24,7 @@ const schema = gql`
 
     input UserInput {
       name: String
+      email: String
       phone: String
       address: AddressInput
       location: LatLngInput
