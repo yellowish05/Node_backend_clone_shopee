@@ -101,6 +101,10 @@ module.exports = (body, args) => `
             margin: 30px 0;
         }
 
+        .reset-password .reset-action b {
+            font-size: 24px;
+        }
+
         .reset-password .reset-action a {
             background: #01CFE2;
             box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
