@@ -29,7 +29,7 @@ const schema = new Schema({
     sparse: true,
     required: false,
     index: true,
-    get: (email) => (email.split('@')[1] === '@tempmail.tmp' ? null : email),
+    get: (email) => (!email || email.split('@')[1] === '@tempmail.tmp' ? null : email),
   },
   password: {
     type: String,

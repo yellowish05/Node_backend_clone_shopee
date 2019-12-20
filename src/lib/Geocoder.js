@@ -22,18 +22,19 @@ module.exports.Geocoder = {
   reverse(location) {
     return geocoderService.reverse({ lat: location.latitude, lon: location.longitude })
       .then((res) => {
-        if (res.length === 0 ) {
-          throw new Error("[Geocoder] Location is invalid")
+        if (res.length === 0) {
+          throw new Error('[Geocoder] Location is invalid');
         }
         return {
-        country: {
-          id: res[0].countryCode.toUpperCase(),
-          name: res[0].country,
-        },
-        street: `${res[0].streetNumber} ${res[0].streetName}`,
-        city: res[0].city,
-        zipCode: res[0].zipcode,
-      }});
+          country: {
+            id: res[0].countryCode.toUpperCase(),
+            name: res[0].country,
+          },
+          street: res[0].streetNumber ? `${res[0].streetNumber} ${res[0].streetName}` : res[0].streetName,
+          city: res[0].city,
+          zipCode: res[0].zipcode,
+        };
+      });
   },
 
   geocode(address) {
@@ -60,9 +61,10 @@ module.exports.Geocoder = {
 
     return geocoderService.geocode(query)
       .then((res) => {
-        if (res.length === 0 ) {
-          throw new Error("[Geocoder] Address is invalid")
+        if (res.length === 0) {
+          throw new Error('[Geocoder] Address is invalid');
         }
-        return { latitude: res[0].latitude, longitude: res[0].longitude }});
+        return { latitude: res[0].latitude, longitude: res[0].longitude };
+      });
   },
 };

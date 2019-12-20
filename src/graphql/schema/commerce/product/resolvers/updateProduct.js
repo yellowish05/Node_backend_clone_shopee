@@ -18,7 +18,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     shippingBox: 'required',
     'weight.value': 'required|decimal',
     'weight.unit': 'required',
-    price: 'required|integer',
+    price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',

@@ -46,7 +46,6 @@ const schema = new Schema({
   },
   estimatedDeliveryDate: {
     type: Date,
-    required: true,
   },
   currency: {
     type: String,

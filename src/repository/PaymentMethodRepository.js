@@ -5,6 +5,10 @@ class PaymentMethodRepository {
     this.model = model;
   }
 
+  async getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+
   async create(data) {
     const doc = new this.model({
       ...data,

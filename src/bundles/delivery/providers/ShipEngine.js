@@ -85,6 +85,15 @@ class ShipEngine {
     return axios.post(`${shipengine.uri}/rates`, body, { headers: this.headers })
       .then(({ data }) => {
         logger.debug(`[ShipEngine] got calculation data: ${JSON.stringify(data)}`);
+        console.log(data.rate_response)
+        if (data.rate_response.errors && data.rate_response.errors.length > 0) {
+          logger.error(`Error happend while calculating delivery from Ship Engine. Original error: ${JSON.stringify(data.rate_response.errors)}`);
+          throw new Error(data.rate_response.errors[0].message);
+        }
+        if (data.rate_response.rates.length === 0 && data.rate_response.invalid_rates.length > 0) {
+          logger.error(`Error happend while calculating delivery from Ship Engine. Original error: ${JSON.stringify(data.rate_response.invalid_rates[0].error_messages)}`);
+          throw new Error(data.rate_response.invalid_rates[0].error_messages[0]);
+        }
 
         return data.rate_response.rates.map((rate) => ({
           rate_id: rate.rate_id,
@@ -102,8 +111,11 @@ class ShipEngine {
         }));
       })
       .catch((error) => {
-        logger.error(`Error happend while  calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
-        throw new Error(error.response.data.errors[0].message);
+        if (error.reponse) {
+          logger.error(`Error happend while calculating delivery from Ship Engine. Original error: ${JSON.stringify(error.response.data.errors)}`);
+          throw new Error(error.response.data.errors[0].message);
+        }
+        throw error;
       });
   }
 

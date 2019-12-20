@@ -1,14 +1,9 @@
+const path = require('path');
 const { UserInputError, ForbiddenError } = require('apollo-server');
-const checkout = require('../checkoutMethods');
 
+const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 
-module.exports = async function payPurchaseOrder(
-  _,
-  {
-    id,
-  },
-  { dataSources: { repository }, user },
-) {
+module.exports = async function payOrder(_, { id, paymentMethod }, { dataSources: { repository }, user }) {
   // creating order
   const order = await repository.purchaseOrder.getById(id);
 
@@ -25,7 +20,5 @@ module.exports = async function payPurchaseOrder(
   }
 
   // generate payments with Payment Provider data and update order
-  const [transaction] = await checkout.generatePaymentsForOrder(order, repository);
-
-  return transaction;
+  return payPurchaseOrder({ order, paymentMethod, user });
 };

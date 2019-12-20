@@ -3,7 +3,6 @@
 const path = require('path');
 
 const ProviderAbstract = require('../ProviderAbstract');
-const logger = require('../../../../../config/logger');
 const TransactionResponse = require('./TransactionResponse');
 const TransactionRequest = require('./TransactionRequest');
 const { TransactionAlreadyProcessedException, TransactionSignatureFailedException, TransactionNotFoundException } = require('../../Exceptions');

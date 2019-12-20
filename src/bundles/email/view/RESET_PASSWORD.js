@@ -10,21 +10,21 @@ module.exports = {
   subject: 'Reset password',
   build({ code, ...args }) {
     return layout(
-        header({title: 'Notice!', description: 'You told us you forgot your password.'}) + `
+      `${header({ title: 'Notice!', description: 'You told us you forgot your password.' })}
         <tr class="body reset-password">
             <td>
                 <p class="title-color">
-                    Hi${args.user.name ?  ' ' + args.user.name: ''},
+                    Hi${args.user.name ? ` ${args.user.name}` : ''},
                 </p>
                 <p>
                     We received a request to reset your password for your Shoclef account: 
                     <a class="link link-default" href="#">${args.user.email}</a>. We’re here to help!
                 </p>
                 <p>
-                    Simply click on the button to set a new password:
+                    Simply use this code to set a new password:
                 </p>
                 <p class="reset-action">
-                    <a href="#${code}">RESET PASSWORD</a>
+                    <b>${code}</b>
                 </p>
                 <p>
                     If you didn’t ask to change your password, 
@@ -40,6 +40,7 @@ module.exports = {
                 </p>
             </td>
         </tr>
-    ` + footer(), args);
+    ${footer()}`, args,
+    );
   },
 };

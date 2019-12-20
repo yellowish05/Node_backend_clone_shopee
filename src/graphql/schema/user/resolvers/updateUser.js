@@ -10,6 +10,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
     phone: 'phoneNumber',
+    email: 'email',
   });
 
   return validator.check()
@@ -62,6 +63,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return repository.user.update(user.id, {
         name: args.data.name,
+        email: args.data.email,
         phone: args.data.phone,
         photo: args.data.photo,
         location,
