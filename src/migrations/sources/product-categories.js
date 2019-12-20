@@ -222,7 +222,7 @@ module.exports = [
     liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: '64867fa0-1455-42e0-a62a-886879c90967', imgFile: 'movies-music.jpg', category: 'Movies & Music', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: 'a4f1d99f-1379-4fb4-8b05-1124e84f04ea', imgFile: 'video-games.jpg', category: 'V_ideo Games', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: 'a4f1d99f-1379-4fb4-8b05-1124e84f04ea', imgFile: 'video-games.jpg', category: 'Video Games', subCategory: null, subSubCategory: null,
   },
   {
     liveStreamCategory: 'c9d21db5-0738-4efa-ade6-a120ff21af1b', _id: '9c28ef21-1b5e-4821-9ba3-3d5854d48268', imgFile: 'travel-tickets.jpg', category: 'Travel & Tickets', subCategory: null, subSubCategory: null,
