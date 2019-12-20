@@ -24,8 +24,8 @@ async function up() {
         asset: new AssetModel({
           _id: uuid(),
           owner: 'system',
-          path: `${cdn.appAssets}/${directory}/${c.imgFile}`,
-          url: `${directory}/${c.imgFile}`,
+          url: `${cdn.appAssets}/${directory}/${c.imgFile}`,
+          path: `${directory}/${c.imgFile}`,
           status: 'UPLOADED',
           type: 'IMAGE',
           size: 1000,
