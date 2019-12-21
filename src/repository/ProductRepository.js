@@ -101,8 +101,8 @@ class ProductRepository {
   }
 
   async isShippingBoxInUse(boxId) {
-    return this.model.find({ shippingBox: boxId })
-      .then((products) => products !== null);
+    return this.model.findOne({ shippingBox: boxId })
+      .then((product) => product !== null);
   }
 
   async create(data) {
