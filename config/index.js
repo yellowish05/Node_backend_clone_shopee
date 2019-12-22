@@ -109,4 +109,8 @@ module.exports = {
     addressCacheTTL: 60 * 60 * 24 * 7,
     deliveryRateCacheTTL: 60 * 60 * 24 * 7,
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
 };
