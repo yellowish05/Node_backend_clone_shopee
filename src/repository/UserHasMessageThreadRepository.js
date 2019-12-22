@@ -30,6 +30,7 @@ class UserHasMessageThreadRepository {
       .then((userHasMessageThread) => {
         if (!userHasMessageThread) {
           return this.create({
+            _id: uuid(),
             thread: threadId,
             user: userId,
             readBy: time,
