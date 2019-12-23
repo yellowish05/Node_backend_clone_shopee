@@ -26,6 +26,7 @@ const StreamChannelStatus = EnumFactory({
   PENDING: 'PENDING',
   STREAMING: 'STREAMING',
   FINISHED: 'FINISHED',
+  ARCHIVED: 'ARCHIVED',
 });
 
 const StreamRole = EnumFactory({

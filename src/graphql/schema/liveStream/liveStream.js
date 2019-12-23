@@ -3,6 +3,7 @@ const { gql, withFilter } = require('apollo-server');
 
 const addLiveStream = require('./resolvers/addLiveStream');
 const likeLiveStream = require('./resolvers/likeLiveStream');
+const archiveLiveStream = require('./resolvers/archiveLiveStream');
 const joinLiveStream = require('./resolvers/joinLiveStream');
 const leaveLiveStream = require('./resolvers/leaveLiveStream');
 const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
@@ -81,6 +82,9 @@ const schema = gql`
 
       """Allows: authorized user"""
       likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+
+      """Allows: authorized user"""
+      archiveLiveStream(id: ID!): LiveStream! @auth(requires: USER)
       
       """
       Allows: authorized user
@@ -126,6 +130,7 @@ module.exports.resolvers = {
   Mutation: {
     addLiveStream,
     likeLiveStream,
+    archiveLiveStream,
     joinLiveStream,
     leaveLiveStream,
     addProductToLiveStream,
