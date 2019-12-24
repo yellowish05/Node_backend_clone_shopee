@@ -51,6 +51,11 @@ const schema = gql`
     }
 
     input LiveStreamFilterInput {
+      """
+      Searching by Title of the Live Stream.
+      Will return live streams if the query full matched inside title
+      """
+      searchQuery: String
       experiences: [ID] = []
       categories: [ID] = []
       cities: [ID] = []
