@@ -20,12 +20,18 @@ function transformSortInput({ feature, type }) {
 }
 
 function transformFilter({
-  experiences, categories, cities, statuses, streamers, blackList, product,
+  searchQuery, experiences, categories, cities, statuses, streamers, blackList, product,
 }) {
   const emptyQuery = {};
   const query = {
     $and: [],
   };
+
+  if (searchQuery) {
+    query.$and.push({
+      title: { $regex: `^.*${searchQuery}.*`, $options: 'i' },
+    });
+  }
 
   if (experiences.length > 0) {
     query.$and.push({
