@@ -8,6 +8,9 @@ const collectionName = 'ProductCategory';
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
+  order: {
+    type: Number,
+  },
   parent: {
     type: String,
     default: null,

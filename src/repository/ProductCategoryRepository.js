@@ -13,7 +13,7 @@ class ProductCategoryRepository {
   }
 
   async getByParent(id) {
-    return this.model.find({ parent: id });
+    return this.model.find({ parent: id }).sort('order');
   }
 
   async findByIds(ids) {
@@ -24,7 +24,7 @@ class ProductCategoryRepository {
     return this.model.find(
       getSearchQueryByName(query),
       null,
-      { limit, skip },
+      { limit, skip, sort: { order: 1 } },
     );
   }
 

@@ -1,27 +1,27 @@
 module.exports = [
   {
-    liveStreamCategory: null, _id: '40dcea32-8946-411b-9ebb-6c609602c579', imgFile: 'clothing.jpg', category: 'Clothing', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: '40dcea32-8946-411b-9ebb-6c609602c579', order: 1, imgFile: 'clothing.jpg', category: 'Clothing', subCategory: null, subSubCategory: null,
   },
   {
     liveStreamCategory: null, _id: '559f46de-779f-4751-9235-d9d47a2b87a4', imgFile: 'accessories.jpg', category: 'Clothing', subCategory: 'Accessories', subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: '80db2cf0-f525-4c86-8e1d-1a88749871c6', imgFile: 'garden-outdoors.jpg', category: 'Garden & Outdoors', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: '80db2cf0-f525-4c86-8e1d-1a88749871c6', order: 14, imgFile: 'garden-outdoors.jpg', category: 'Garden & Outdoors', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: 'df4be8e5-172a-4cc8-aca3-69a4020e12e2', imgFile: 'men-bags.jpg', category: 'Handbags & Wallets', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: 'df4be8e5-172a-4cc8-aca3-69a4020e12e2', order: 4, imgFile: 'men-bags.jpg', category: 'Handbags & Wallets', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: 'b719fa50-07c8-41b5-8683-912967862357', imgFile: 'personal-care.jpg', category: 'Health & Personal Care', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: 'b719fa50-07c8-41b5-8683-912967862357', order: 6, imgFile: 'personal-care.jpg', category: 'Health & Personal Care', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: '274a9745-20f7-40ea-a067-bb6b49d3a3af', imgFile: 'body-jewelry.jpg', category: 'Jewelry', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: '274a9745-20f7-40ea-a067-bb6b49d3a3af', order: 3, imgFile: 'body-jewelry.jpg', category: 'Jewelry', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: '6fb2ce67-98f5-4bcf-960b-7d8c6c451d52', imgFile: 'shoes.jpg', category: 'Shoes', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: '6fb2ce67-98f5-4bcf-960b-7d8c6c451d52', order: 2, imgFile: 'shoes.jpg', category: 'Shoes', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: null, _id: '2e73097c-19ff-413c-b297-7eb0529c34b1', imgFile: 'watch.jpg', category: 'Watches', subCategory: null, subSubCategory: null,
+    liveStreamCategory: null, _id: '2e73097c-19ff-413c-b297-7eb0529c34b1', order: 23, imgFile: 'watch.jpg', category: 'Watches', subCategory: null, subSubCategory: null,
   },
   {
     liveStreamCategory: 'd713ee93-60b7-479f-ae39-b4e554495a29', _id: 'a325532b-39ec-468f-9a7f-cc1dc40791ca', imgFile: 'women.jpg', category: 'Clothing', subCategory: 'Women', subSubCategory: null,
@@ -183,13 +183,13 @@ module.exports = [
     liveStreamCategory: '0e7e17af-d955-49df-b179-e2eafe552054', _id: 'e05ba61f-c268-4b1e-8aca-f1fa3bf8439e', imgFile: 'children-jewelry.jpg', category: 'Jewelry', subCategory: 'Children Jewelry', subSubCategory: null,
   },
   {
-    liveStreamCategory: '0afb0136-70b2-48fd-9d6e-0157ba5788ff', _id: 'e531086e-0b54-497d-86f0-7bcbaf34d978', imgFile: 'shoes.jpg', category: 'Shoes', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '0afb0136-70b2-48fd-9d6e-0157ba5788ff', _id: 'e531086e-0b54-497d-86f0-7bcbaf34d978', order: 2, imgFile: 'shoes.jpg', category: 'Shoes', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '906d886f-6183-4071-809c-f56585367404', _id: '5d23f2b9-cae5-4c02-aab5-a54f830192bd', imgFile: 'electronics.jpg', category: 'Electronics', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '906d886f-6183-4071-809c-f56585367404', _id: '5d23f2b9-cae5-4c02-aab5-a54f830192bd', order: 15, imgFile: 'electronics.jpg', category: 'Electronics', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '4a72e210-599b-449d-856b-1c471a507869', _id: '9fff18e4-ce41-499b-b5b6-8a455240dd17', imgFile: 'beauty.jpg', category: 'Beauty', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '4a72e210-599b-449d-856b-1c471a507869', _id: '9fff18e4-ce41-499b-b5b6-8a455240dd17', order: 5, imgFile: 'beauty.jpg', category: 'Beauty', subCategory: null, subSubCategory: null,
   },
   {
     liveStreamCategory: '4a72e210-599b-449d-856b-1c471a507869', _id: 'd4e53814-d59e-46cb-8f7d-fb957a859478', imgFile: 'baby-child-care.jpg', category: 'Health & Personal Care', subCategory: 'Baby & Child Care', subSubCategory: null,
@@ -210,54 +210,54 @@ module.exports = [
     liveStreamCategory: '4a72e210-599b-449d-856b-1c471a507869', _id: '0de11c82-4657-4c6b-b076-d7da170cd5da', imgFile: 'personal-care.jpg', category: 'Health & Personal Care', subCategory: 'Personal Care', subSubCategory: null,
   },
   {
-    liveStreamCategory: 'b22346b6-87ac-4c3b-84af-8585bd519985', _id: 'c2f92343-c7ad-4535-a93b-14e096d799fc', imgFile: 'home-furniture.jpg', category: 'Home & Furniture', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'b22346b6-87ac-4c3b-84af-8585bd519985', _id: 'c2f92343-c7ad-4535-a93b-14e096d799fc', order: 13, imgFile: 'home-furniture.jpg', category: 'Home & Furniture', subCategory: null, subSubCategory: null,
   },
   {
     liveStreamCategory: 'b22346b6-87ac-4c3b-84af-8585bd519985', _id: 'e62519ce-a590-4b04-be9d-3e3d07aedd82', imgFile: 'garden-outdoors.jpg', category: 'Garden & Outdoors', subCategory: 'Garden Décor', subSubCategory: null,
   },
   {
-    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: '546fdc7f-0e37-472d-bd43-969ae06450f2', imgFile: 'book.jpg', category: 'Books', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: '546fdc7f-0e37-472d-bd43-969ae06450f2', order: 12, imgFile: 'book.jpg', category: 'Books', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: '64867fa0-1455-42e0-a62a-886879c90967', imgFile: 'movies-music.jpg', category: 'Movies & Music', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: '64867fa0-1455-42e0-a62a-886879c90967', order: 11, imgFile: 'movies-music.jpg', category: 'Movies & Music', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: 'a4f1d99f-1379-4fb4-8b05-1124e84f04ea', imgFile: 'video-games.jpg', category: 'Video Games', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '77be0706-1c4f-45d1-a8cb-0faf8c7f5280', _id: 'a4f1d99f-1379-4fb4-8b05-1124e84f04ea', order: 10, imgFile: 'video-games.jpg', category: 'Video Games', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: 'c9d21db5-0738-4efa-ade6-a120ff21af1b', _id: '9c28ef21-1b5e-4821-9ba3-3d5854d48268', imgFile: 'travel-tickets.jpg', category: 'Travel & Tickets', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'c9d21db5-0738-4efa-ade6-a120ff21af1b', _id: '9c28ef21-1b5e-4821-9ba3-3d5854d48268', order: 9, imgFile: 'travel-tickets.jpg', category: 'Travel & Tickets', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: 'ae234776-2b30-4704-966d-0ac4902479c1', imgFile: 'fitness-bodybuilding.jpg', category: 'Fitness & Body Building', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: 'ae234776-2b30-4704-966d-0ac4902479c1', order: 8, imgFile: 'fitness-bodybuilding.jpg', category: 'Fitness & Body Building', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: 'cf8b96e2-a67c-4eda-8d57-fe6ccbcba2aa', imgFile: 'winter sports.jpg', category: 'Winter Sports', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: 'cf8b96e2-a67c-4eda-8d57-fe6ccbcba2aa', order: 24, imgFile: 'winter sports.jpg', category: 'Winter Sports', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: '90e84c4f-c05d-4003-a8d8-ad9e356e261e', imgFile: 'water-sports.jpg', category: 'Water Sports', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '72c8ad36-6204-4f11-b51b-487c93e1530f', _id: '90e84c4f-c05d-4003-a8d8-ad9e356e261e', order: 7, imgFile: 'water-sports.jpg', category: 'Water Sports', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '43908e22-2c7f-4d1f-9d6d-81027f199b87', imgFile: 'interior-accessories.jpg', category: 'Interior Accessories', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '43908e22-2c7f-4d1f-9d6d-81027f199b87', order: 22, imgFile: 'interior-accessories.jpg', category: 'Interior Accessories', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '8353cb91-5ccb-4321-96e2-6a17788e655b', imgFile: 'exterior-accessories.jpg', category: 'Exterior Accessories', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '8353cb91-5ccb-4321-96e2-6a17788e655b', order: 21, imgFile: 'exterior-accessories.jpg', category: 'Exterior Accessories', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '593a9487-760c-4cad-b49b-60349a3fc955', imgFile: 'car-electronics.jpg', category: 'Car Electronics', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '630e6ad9-942f-4911-9629-0d6cca87513a', _id: '593a9487-760c-4cad-b49b-60349a3fc955', order: 18, imgFile: 'car-electronics.jpg', category: 'Car Electronics', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: 'e54e53cc-6568-46b4-a481-98e98cf60b3b', _id: '1e771e37-0c8e-459a-8dd6-5c37774ef8d7', imgFile: 'commercial-realestate.jpg', category: 'Commercial real estate', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'e54e53cc-6568-46b4-a481-98e98cf60b3b', _id: '1e771e37-0c8e-459a-8dd6-5c37774ef8d7', order: 20, imgFile: 'commercial-realestate.jpg', category: 'Commercial real estate', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: 'e54e53cc-6568-46b4-a481-98e98cf60b3b', _id: '126727d5-6195-4549-8436-f0a212e72a78', imgFile: 'industrial-real-estate.jpg', category: 'Industrial real estate', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'e54e53cc-6568-46b4-a481-98e98cf60b3b', _id: '126727d5-6195-4549-8436-f0a212e72a78', order: 19, imgFile: 'industrial-real-estate.jpg', category: 'Industrial real estate', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: 'e516cb92-7a9b-4618-93ef-ad8b535c7b60', _id: '79395806-7fe7-400b-acae-490eeeedfe5b', imgFile: 'education-toys.jpg', category: 'Education toys', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'e516cb92-7a9b-4618-93ef-ad8b535c7b60', _id: '79395806-7fe7-400b-acae-490eeeedfe5b', order: 16, imgFile: 'education-toys.jpg', category: 'Education toys', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: 'e516cb92-7a9b-4618-93ef-ad8b535c7b60', _id: 'cd8f4025-f911-4819-a30c-bc9fc734b0c3', imgFile: 'electronic-toys.jpg', category: 'Electronic toys', subCategory: null, subSubCategory: null,
+    liveStreamCategory: 'e516cb92-7a9b-4618-93ef-ad8b535c7b60', _id: 'cd8f4025-f911-4819-a30c-bc9fc734b0c3', order: 17, imgFile: 'electronic-toys.jpg', category: 'Electronic toys', subCategory: null, subSubCategory: null,
   },
   {
-    liveStreamCategory: '1b4c86c2-0896-4513-90dc-c944913bf016', _id: '41ccdae0-056e-484b-88e2-7ec47bf19a82', imgFile: 'sex-products.jpg', category: 'Sex products', subCategory: null, subSubCategory: null,
+    liveStreamCategory: '1b4c86c2-0896-4513-90dc-c944913bf016', _id: '41ccdae0-056e-484b-88e2-7ec47bf19a82', order: 25, imgFile: 'sex-products.jpg', category: 'Sex products', subCategory: null, subSubCategory: null,
   },
 ];
