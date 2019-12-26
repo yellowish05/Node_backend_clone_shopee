@@ -57,7 +57,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
         liveStream.status = StreamChannelStatus.STREAMING;
         liveStream.save();
-        pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+        pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
       });
       return channel;
     });
