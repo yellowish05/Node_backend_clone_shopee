@@ -42,6 +42,10 @@ apolloServer.applyMiddleware({
   disableHealthCheck: true,
 });
 
+const robots = require('./robots');
+
+robots.startRobots();
+
 app.use('/graphql', apolloApp);
 
 const httpServer = createServer(app);
