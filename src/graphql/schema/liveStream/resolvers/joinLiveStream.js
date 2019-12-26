@@ -122,7 +122,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             });
         })
         .then(() => {
-          pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+          pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
           return liveStream;
         })
     ));

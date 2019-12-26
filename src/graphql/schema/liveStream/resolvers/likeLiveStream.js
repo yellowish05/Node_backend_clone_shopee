@@ -20,7 +20,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => repository.like.toggleLike(args.id, user.id))
     .then(() => repository.liveStream.load(args.id))
     .then((liveStream) => {
-      pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+      pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
       return liveStream;
     });
 };

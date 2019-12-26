@@ -65,7 +65,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then((liveStream) => activity.checkLiveStreamOwner(liveStream, user))
     .then((liveStream) => activity.addProductsToLiveStream({ liveStream, productIds: args.productIds }, repository))
     .then((liveStream) => {
-      pubsub.publish('LIVE_STREAM_CHANGE', liveStream);
+      pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
       return liveStream;
     });
 };
