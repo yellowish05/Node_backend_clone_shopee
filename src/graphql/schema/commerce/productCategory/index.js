@@ -20,6 +20,7 @@ const schema = gql`
     extend type Query {
         searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
         productCategories(parent: ID): [ProductCategory]!
+        productCategory(id: ID!): ProductCategory
     }
 `;
 
@@ -58,6 +59,9 @@ module.exports.resolvers = {
     },
     productCategories: async (_, { parent = null }, { dataSources: { repository } }) => (
       repository.productCategory.getByParent(parent)
+    ),
+    productCategory: async (_, { id }, { dataSources: { repository } }) => (
+      repository.productCategory.getById(id)
     ),
   },
   ProductCategory: {
