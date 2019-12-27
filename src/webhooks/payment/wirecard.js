@@ -22,7 +22,7 @@ module.exports = async (req, res) => {
 
   try {
     const transaction = await provider.processTransaction(response);
-    pubsub.publish('PAYMENT_TRANSACTION_CHANGED', transaction);
+    pubsub.publish('PAYMENT_TRANSACTION_CHANGED', { id: transaction._id, ...transaction.toObject() });
     res.status(200).send('success');
 
     repository.purchaseOrder
