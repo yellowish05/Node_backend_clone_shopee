@@ -34,6 +34,7 @@ const schema = gql`
         brand: Brand!
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
         freeDeliveryTo: [MarketType!]
+        rating: Float!
     }
 
     type Weight {
@@ -190,5 +191,6 @@ module.exports.resolvers = {
       page: { limit, skip: 0 },
       sort: { feature: 'CREATED_AT', type: 'DESC' },
     }),
+    rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
   },
 };

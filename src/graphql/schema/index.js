@@ -26,6 +26,7 @@ const { typeDefs: assetTypeDefs, resolvers: assetResolvers } = require('./asset'
 const { typeDefs: streamChannelTypeDefs, resolvers: streamChannelResolvers } = require('./streamChannel');
 const { typeDefs: messageTypeDefs, resolvers: messageResolvers } = require('./message');
 const { typeDefs: notificationTypeDefs, resolvers: notificationResolvers } = require('./notification');
+const { typeDefs: ratingTypeDefs, resolvers: ratingResolvers } = require('./rating');
 const { typeDefs: notificationDataTypeDefs, resolvers: notificationDataResolvers } = require('./notification/notificationTypes');
 
 const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
@@ -58,6 +59,7 @@ const typeDefs = [].concat(
   commerceTypeDefs,
   notificationDataTypeDefs,
   notificationTypeDefs,
+  ratingTypeDefs,
   paymentTypeDefs,
 );
 
@@ -84,6 +86,7 @@ const resolvers = merge(
   messageResolvers,
   commerceResolvers,
   notificationDataResolvers,
+  ratingResolvers,
   notificationResolvers,
   paymentResolvers,
 );

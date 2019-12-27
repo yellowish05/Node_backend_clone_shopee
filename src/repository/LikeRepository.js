@@ -3,17 +3,17 @@ class LikeRepository {
     this.model = model;
   }
 
-  async load(entityId, userId) {
-    return this.model.findOne({ entity: entityId, user: userId });
+  async load(tag, userId) {
+    return this.model.findOne({ tag, user: userId });
   }
 
-  async toggleLike(entityId, userId) {
-    return this.model.findOneAndRemove({ entity: entityId, user: userId })
-      .then((like) => (like || this.model.create({ entity: entityId, user: userId })));
+  async toggleLike(tag, userId) {
+    return this.model.findOneAndRemove({ tag, user: userId })
+      .then((like) => (like || this.model.create({ tag, user: userId })));
   }
 
-  async getLikesCount(entityId) {
-    return this.model.countDocuments({ entity: entityId });
+  async getLikesCount(tag) {
+    return this.model.countDocuments({ tag });
   }
 }
 
