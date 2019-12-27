@@ -175,7 +175,7 @@ module.exports.resolvers = {
       if (!user) {
         return null;
       }
-      return repository.like.load(liveStream.id, user.id).then((like) => !!like);
+      return repository.like.load(`LiveStream:${liveStream.id}`, user.id).then((like) => !!like);
     },
     statistics(liveStream) {
       return liveStream;
@@ -217,7 +217,7 @@ module.exports.resolvers = {
   LiveStreamStats: {
     duration: getLiveStreamDuration,
     likes(liveStream, args, { dataSources: { repository } }) {
-      return repository.like.getLikesCount(liveStream.id);
+      return repository.like.getLikesCount(`LiveStream:${liveStream.id}`);
     },
     viewers(liveStream, args, { dataSources: { repository } }) {
       return repository.streamChannelParticipant.getViewersCount(liveStream.channel);

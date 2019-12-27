@@ -13,8 +13,18 @@ const schema = new Schema({
     ref: 'User',
     required: true,
   },
+  rating: {
+    type: Number,
+    min: 1,
+    max: 5,
+    required: true,
+  },
+  message: {
+    type: String,
+    required: false,
+  },
 });
 
 schema.index({ tag: 1, user: 1 }, { unique: true });
 
-module.exports = new model('Like', schema);
+module.exports = new model('Rating', schema);

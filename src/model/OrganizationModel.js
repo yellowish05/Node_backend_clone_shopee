@@ -39,4 +39,8 @@ const schema = new Schema({
   }],
 });
 
+schema.methods.getTagName = function getTagName() {
+  return `${collectionName}:${this._id}`;
+};
+
 module.exports = new model(collectionName, schema);

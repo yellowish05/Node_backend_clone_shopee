@@ -83,4 +83,8 @@ schema.indexes([
   { currency: 1, price: 1 },
 ]);
 
+schema.methods.getTagName = function getTagName() {
+  return `${collectionName}:${this._id}`;
+};
+
 module.exports = new model(collectionName, schema);

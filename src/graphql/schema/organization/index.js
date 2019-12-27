@@ -11,12 +11,14 @@ const schema = gql`
   }
 
   type Organization {
+    id: ID!
     carriers: [Carrier!]
     address: VerifiedAddress!
     billingAddress: VerifiedAddress
     payoutInfo: String
     returnPolicy: String
     workInMarketTypes: [MarketType]!
+    rating: Float!
   }
 
   input OrganizationInput {
@@ -60,5 +62,6 @@ module.exports.resolvers = {
       }
       return organization.workInMarketTypes;
     },
+    rating: async (organization, _, { dataSources: { repository } }) => repository.rating.getAverage(organization.getTagName()),
   },
 };
