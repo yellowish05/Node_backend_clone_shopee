@@ -14,6 +14,7 @@ const schema = gql`
 
     extend type Query {
         searchBrand(query: String!, page: PageInput = {}): BrandCollection!
+        brand(id: ID!): Brand
     }
 `;
 
@@ -30,7 +31,7 @@ module.exports.resolvers = {
         },
       };
 
-      if (query.length < 2) {
+      if (query.length < 1) {
         return result;
       }
 
@@ -44,6 +45,7 @@ module.exports.resolvers = {
           return result;
         });
     },
+    brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
   Brand: {
     categories: async (brand, _, { dataSources: { repository } }) => {
