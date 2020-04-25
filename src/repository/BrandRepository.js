@@ -22,6 +22,11 @@ class BrandRepository {
     );
   }
 
+  async create(data) {
+    const brand = new this.model(data);
+    return brand.save();
+  }
+
   async getCountBySearch(query) {
     return this.model.countDocuments(getSearchQueryByName(query));
   }
