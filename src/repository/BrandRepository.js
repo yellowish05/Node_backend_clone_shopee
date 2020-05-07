@@ -22,9 +22,27 @@ class BrandRepository {
     );
   }
 
+  async findByName(name) {
+    return this.model.findOne({ name: name })
+  }
+
+  async create(data) {
+    const brand = new this.model(data);
+    return brand.save();
+  }
+
   async getCountBySearch(query) {
     return this.model.countDocuments(getSearchQueryByName(query));
   }
+
+  async findOrCreate(data) {
+    if (await this.findByName(data.name)) {
+      return await this.findByName(data.name)
+    } else {
+      return this.create({ _id: uuid(), name: data.name });
+    }
+  }
+
 }
 
 module.exports = BrandRepository;
