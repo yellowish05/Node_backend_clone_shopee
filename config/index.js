@@ -45,7 +45,7 @@ module.exports = {
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
-    media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
+    media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10)
   },
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',
@@ -109,10 +109,10 @@ module.exports = {
     addressCacheTTL: 60 * 60 * 24 * 7,
     deliveryRateCacheTTL: 60 * 60 * 24 * 7,
   },
-  redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  },
+//  redis: {
+  //  host: process.env.REDIS_HOST,
+   // port: process.env.REDIS_PORT,
+ // },
   robots: {
     cancelLiveStreamIn: 30 * 60 * 1000,
   },
