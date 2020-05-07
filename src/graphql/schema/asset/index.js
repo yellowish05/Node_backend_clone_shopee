@@ -1,7 +1,9 @@
 const { gql } = require('apollo-server');
+const path = require('path');
 
 const addAsset = require('./resolvers/addAsset');
 const asset = require('./resolvers/asset');
+const { aws, logs } = require(path.resolve('config'));
 
 const schema = gql`
     enum AssetStatusEnum {
@@ -16,6 +18,13 @@ const schema = gql`
       IMAGE
       VIDEO
       PDF
+    }
+
+    type Sign{  
+      key: String,
+      secret: String,
+      region: String,
+      bucket: String
     }
 
     type Asset {
@@ -38,7 +47,7 @@ const schema = gql`
     }
 
     extend type Query {
-      asset(id: ID!): Asset!
+      asset(id: ID!): Asset!,
     }
 
     extend type Mutation {
@@ -51,6 +60,7 @@ const schema = gql`
       3. (in background) when file will be uploaded the Storage informs the API about that automaticaly, and status will be changed
       """
       addAsset (data: AssetInput!): Asset! @auth(requires: USER)
+      giveSignedUrl: Sign! @auth(requires: USER)
     }
 `;
 
@@ -62,5 +72,8 @@ module.exports.resolvers = {
   },
   Mutation: {
     addAsset,
+    giveSignedUrl: async () => {
+      return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
+    },
   },
 };
