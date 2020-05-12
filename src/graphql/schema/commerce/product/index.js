@@ -8,6 +8,8 @@ const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
 const products = require('./resolvers/products');
+const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
+
 
 const schema = gql`
     type Product {
@@ -127,6 +129,7 @@ const schema = gql`
             Allows: authorized user & user must be a seller of this product
         """
         deleteProduct(id: ID!): Boolean @auth(requires: USER)
+        uploadBulkProducts(fileName:String!): [Product!]! @auth(requires:USER)
     }
 `;
 
@@ -141,6 +144,7 @@ module.exports.resolvers = {
     addProduct,
     updateProduct,
     deleteProduct,
+    uploadBulkProducts
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (

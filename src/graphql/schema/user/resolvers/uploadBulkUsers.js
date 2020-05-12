@@ -30,7 +30,7 @@ module.exports = async (_, { path }) => {
                     });
 
                     user.address = {
-                        street: user.address.split("/").join(',') || "",
+                        street: user.address.split('/').join(','),
                         city: user.city,
                         region: user.region,
                         country: user.country,
@@ -64,6 +64,27 @@ module.exports = async (_, { path }) => {
 
                     user = { _id: uuid(), ...properties };
 
+                    const shippingBoxProperties = {
+                        label: "null",
+                        owner: user._id,
+                        width: 0,
+                        height: 0,
+                        length: 0,
+                        unit: "INCH",
+                    }
+
+                    await new Promise((resolve, reject) => {
+                        return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
+                            resolve(res.id || res)
+                        })
+                    })
+
+                    user.brand_name = await new Promise((resolve, reject) => {
+                        return repository.brand.create({ _id: uuid(), name: user.brand_name.trim() }).then(res => {
+                            resolve(user.brand_name = res.id || res);
+                        })
+                    })
+
                     if (user.photo) {
 
                         const assetData = {
@@ -88,7 +109,7 @@ module.exports = async (_, { path }) => {
             }).then(res => {
                 resolve(res.filter(item => item));
             }).catch(err => {
-                reject(err.filter(er => er))
+                reject(err)
             })
         })
 
