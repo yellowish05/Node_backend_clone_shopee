@@ -29,7 +29,7 @@ class AssetRepository {
   }
 
   async getByPath(path) {
-    return this.model.findOne({ path: path });
+    return await this.model.findOne({ path: path });
   }
 
   async create(data) {
@@ -82,7 +82,7 @@ class AssetRepository {
       mimetype: 'image/jpeg',
     }
 
-    if (data.path && await this.getByPath(data.path)) {
+    if (await this.getByPath(data.path)) {
       return await this.getByPath(data.path);
     } else {
       const asset = new this.model(assetData);
@@ -90,6 +90,26 @@ class AssetRepository {
     }
   }
 
+  async createFromCSVForProducts(data) {
+    const url = `${cdn.vendorBuckets}/${data.name}/Product Images/${data.photo}`;
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: url,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => {
+      return this.getByPath(data.path)
+    });
+  }
 }
 
 module.exports = AssetRepository;
