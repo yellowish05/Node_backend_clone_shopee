@@ -41,7 +41,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
 
       const { status, messages } = await ShipEngine.validate(args.data.address, repository);
       if (!status) {
-        throw new UserInputError(messages.length > 0 ? `Seller (${user.id}) Address is not valid. Reason: ${messages[0]}` : `Seller (${user.id}) Address is not valid`, { invalidArgs: 'address' });
+        throw new UserInputError(messages.length > 0 ? `Seller address is not valid. Reason: ${messages[0]}` : `Seller address is not valid`, { invalidArgs: 'address' });
       }
       address.isDeliveryAvailable = status;
     }
@@ -66,7 +66,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
 
       const { status, messages } = await ShipEngine.validate(args.data.billingAddress, repository);
       if (!status) {
-        throw new UserInputError(messages.length > 0 ? `Seller (${user.id}) Billing Address is not valid. Reason: ${messages[0]}` : `Seller (${user.id}) Billing Address is not valid`, { invalidArgs: 'billingAddress' });
+        throw new UserInputError(messages.length > 0 ? `Seller billing Address is not valid. Reason: ${messages[0]}` : `Seller billing Address is not valid`, { invalidArgs: 'billingAddress' });
       }
       billingAddress.isDeliveryAvailable = status;
     }
