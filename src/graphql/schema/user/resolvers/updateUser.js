@@ -1,22 +1,33 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
-
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
+const repository = require(path.resolve('src/repository'));
+
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
-    phone: 'phoneNumber',
     email: 'email',
   });
+
+  const validNumber = await phoneUtil.parse(args.data.phone)
 
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
+      }
+
+      if (!phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
+        if ((phoneUtil.getRegionCodeForNumber(validNumber) !== "AR" && phoneUtil.getRegionCodeForNumber(validNumber) !== "MX")
+          || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
+          || !phoneUtil.isPossibleNumber(validNumber)) {
+          throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' })
+        }
       }
 
       if (args.data.photo) {
