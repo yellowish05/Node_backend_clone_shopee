@@ -3,6 +3,8 @@ const uuid = require('uuid/v4');
 const promise = require('bluebird');
 
 const repository = require(path.resolve('src/repository'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+
 const AWS = require('aws-sdk');
 const { aws } = require(path.resolve('config'));
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
@@ -64,8 +66,9 @@ module.exports = async (_, { fileName }, data) => {
                         }
                     }).then(res => res)
 
+                    product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
+                    product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
                     product.assets = product.assets.filter(asset => asset);
-
                     product.isDeleted = (product.isDeleted === 'true');
 
                     product.brand = await new Promise((resolve, reject) => {
