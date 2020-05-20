@@ -28,9 +28,17 @@ class AssetRepository {
     return this.model.find({ _id: ids });
   }
 
+  async getByPath(path) {
+    return await this.model.findOne({ path: path });
+  }
+
   async create(data) {
     const asset = new this.model(data);
     return asset.save();
+  }
+
+  async deleteAsset(data) {
+    return this.model.findAndRemove({ id: data.id })
   }
 
   async createFromUri(data) {
@@ -59,6 +67,48 @@ class AssetRepository {
       .catch((error) => {
         throw new Error(error);
       });
+  }
+
+  async createFromCSVForUsers(data) {
+    const url = `${cdn.vendorBuckets}/${data.name}/Logo/${data.photo}`;
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: url,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+
+    if (await this.getByPath(data.path)) {
+      return await this.getByPath(data.path);
+    } else {
+      const asset = new this.model(assetData);
+      return asset.save();
+    }
+  }
+
+  async createFromCSVForProducts(data) {
+    const url = `${cdn.vendorBuckets}/${data.name}/Product Images/${data.photo}`;
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: url,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => {
+      return this.getByPath(data.path)
+    });
   }
 }
 

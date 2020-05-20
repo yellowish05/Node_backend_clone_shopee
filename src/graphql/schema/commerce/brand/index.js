@@ -1,10 +1,15 @@
 const { gql } = require('apollo-server');
+const uuid = require('uuid/v4');
 
 const schema = gql`
     type Brand {
         id: ID!
         name: String!
         categories: [ProductCategory]!
+    }
+
+    input BrandInput{
+      name: String!
     }
 
     type BrandCollection {
@@ -15,6 +20,10 @@ const schema = gql`
     extend type Query {
         searchBrand(query: String!, page: PageInput = {}): BrandCollection!
         brand(id: ID!): Brand
+    }
+
+    extend type Mutation {
+      addBrand(data:BrandInput!): Brand! @auth(requires: USER)
     }
 `;
 
@@ -55,4 +64,12 @@ module.exports.resolvers = {
       return repository.productCategory.findByIds(brand.productCategories);
     },
   },
+  Mutation: {
+    addBrand: async (_, args, { dataSources: { repository } }) => {
+      return repository.brand.create({
+        _id: uuid(),
+        name: args.data.name,
+      })
+    }
+  }
 };
