@@ -24,6 +24,13 @@ class UserRepository {
   }
 
   async create(data, options = {}) {
+    let {
+      email,
+      ...userProperties
+    } = data
+
+    data = { email: email.toLowerCase(), ...userProperties };
+
     if (!data.email) {
       throw Error('Email is required!');
     }
@@ -54,6 +61,14 @@ class UserRepository {
 
 
   async createFromCsv(data, options = {}) {
+
+    let {
+      email,
+      ...userProperties
+    } = data
+
+    data = { email: email.toLowerCase(), ...userProperties };
+
     if (!data.email) {
       throw Error('Email is required!');
     }
@@ -88,6 +103,14 @@ class UserRepository {
   }
 
   async createByProvider(data, options = {}) {
+
+    let {
+      email,
+      ...userProperties
+    } = data
+
+    data = { email: email.toLowerCase(), ...userProperties };
+
     if (!data.email) {
       throw Error('Email is required!');
     }
@@ -115,6 +138,14 @@ class UserRepository {
   }
 
   async update(id, data) {
+
+    let {
+      email,
+      ...userProperties
+    } = data
+
+    data = { email: email.toLowerCase(), ...userProperties };
+
     const user = await this.load(id);
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
@@ -154,6 +185,8 @@ class UserRepository {
   }
 
   async findByEmailAndPassword({ email, password }) {
+    password.toLowerCase();
+
     const query = {
       password: md5(password),
       email,
@@ -163,6 +196,7 @@ class UserRepository {
   }
 
   async findByEmail(email) {
+    email = email.toLowerCase();
     return this.model.findOne({ email });
   }
 
@@ -185,6 +219,7 @@ class UserRepository {
       { new: true },
     );
   }
+
 
   async addToBlackList(userId, reportedId) {
     return this.model.update(
