@@ -24,6 +24,7 @@ class UserRepository {
   }
 
   async create(data, options = {}) {
+
     let {
       email,
       ...userProperties
