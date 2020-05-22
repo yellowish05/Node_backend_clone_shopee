@@ -186,11 +186,9 @@ class UserRepository {
   }
 
   async findByEmailAndPassword({ email, password }) {
-    password.toLowerCase();
-
     const query = {
       password: md5(password),
-      email,
+      email: email.toLowerCase(),
     };
 
     return this.model.findOne(query);
