@@ -2,6 +2,7 @@ const { merge } = require('lodash');
 
 const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./common');
 const { typeDefs: carrierTypeDefs, resolvers: carrierResolvers } = require('./carrier');
+const { typeDefs: customCarrierTypeDefs, resolvers: customCarrierResolvers } = require('./customcarrier');
 const { typeDefs: brandTypeDefs, resolvers: brandResolvers } = require('./brand');
 const { typeDefs: cartTypeDefs, resolvers: cartResolvers } = require('./cart');
 const { typeDefs: productCategoryTypeDefs, resolvers: productCategoryResolvers } = require('./productCategory');
@@ -29,6 +30,7 @@ const typeDefs = [].concat(
   payoutOrderTypeDefs,
   orderItemTypeDefs,
   carrierTypeDefs,
+  customCarrierTypeDefs,
 );
 
 const resolvers = merge(
@@ -45,6 +47,7 @@ const resolvers = merge(
   payoutOrderResolvers,
   orderItemResolvers,
   carrierResolvers,
+  customCarrierResolvers,
 );
 
 module.exports = {

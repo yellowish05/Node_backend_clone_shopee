@@ -19,6 +19,7 @@ const schema = gql`
     returnPolicy: String
     workInMarketTypes: [MarketType]!
     rating: Float!
+    customcarrier: CustomCarrier
   }
 
   input OrganizationInput {
@@ -28,6 +29,7 @@ const schema = gql`
     payoutInfo: String
     returnPolicy: String
     workInMarketTypes: [MarketType]
+    customcarrier: ID
   }
 
   extend type Query {
@@ -55,6 +57,9 @@ module.exports.resolvers = {
   Organization: {
     carriers({ carriers }, args, { dataSources: { repository } }) {
       return repository.carrier.loadList(carriers);
+    },
+    customcarrier({ customcarrier }, args, { dataSources: { repository } }) {
+      return repository.customcarrier.getById(customcarrier);
     },
     workInMarketTypes(organization) {
       if (!organization.workInMarketTypes) {
