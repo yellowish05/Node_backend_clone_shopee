@@ -1,7 +1,7 @@
 const path = require('path');
 const { gql } = require('apollo-server');
 
-const { SizeUnitSystem } = require(path.resolve('src/lib/Enums'));
+const { SizeUnitSystem, WeightUnitSystem } = require(path.resolve('src/lib/Enums'));
 const addShippingBox = require('./resolvers/addShippingBox');
 const removeShippingBox = require('./resolvers/removeShippingBox');
 
@@ -10,13 +10,20 @@ const schema = gql`
       ${SizeUnitSystem.toGQL()}
     }
 
+    # enum WeightUnitSystem {
+    #   ${WeightUnitSystem.toGQL()}
+    # }
+
     type ShippingBox {
       id: ID!
+      parcelId: String!
       label: String!
       width: Float!
       height: Float!
       length: Float!
+      weight: Float!
       unit: SizeUnitSystem!
+      unitWeight: WeightUnitSystem!
     }
 
     input ShippingBoxInput {
@@ -24,7 +31,9 @@ const schema = gql`
       width: Float!
       height: Float!
       length: Float!
+      weight: Float!
       unit: SizeUnitSystem!
+      unitWeight: WeightUnitSystem!
     }
 
     extend type Query {

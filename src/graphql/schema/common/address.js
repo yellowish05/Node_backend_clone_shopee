@@ -23,6 +23,7 @@ const schema = gql`
         region: Region
         country: Country!
         zipCode: String
+        addressId: String
     }
 
     type VerifiedAddress implements AddressInterface {

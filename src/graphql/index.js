@@ -54,23 +54,14 @@ module.exports = ({ repository }) => new ApolloServer({
       const initialContext = await context.initPromise;
 
       repository.user.setOnlineState(initialContext.user.id, false);
-<<<<<<< HEAD
     },
   },
-  introspection: true,
-  playground: {
-    settings: {
-      'editor.theme': 'light',
-=======
->>>>>>> 09827943a897fab80551061b1b57f6e5ca4dc5d8
-    },
-  },
-//   introspection: true,
-//   playground: {
-//     settings: {
-//       'editor.theme': 'light',
-//     },
-//   },
+  //   introspection: true,
+  //   playground: {
+  //     settings: {
+  //       'editor.theme': 'light',
+  //     },
+  //   },
   engine: {
     apiKey: config.env === 'production' ? config.apolloEngineApiKey : null,
     useUnifiedTopology: true,

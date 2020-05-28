@@ -1,5 +1,4 @@
 const { gql } = require('apollo-server');
-
 const addUser = require('./resolvers/addUser');
 const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');

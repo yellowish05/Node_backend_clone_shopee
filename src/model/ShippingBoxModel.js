@@ -1,7 +1,7 @@
 const path = require('path');
 const { Schema, model } = require('mongoose');
 
-const { SizeUnitSystem } = require(path.resolve('src/lib/Enums'));
+const { SizeUnitSystem, WeightUnitSystem } = require(path.resolve('src/lib/Enums'));
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -11,6 +11,10 @@ const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
+  parcelId: {
+    type: String,
+    required: true,
+  },
   label: {
     type: String,
     required: true,
@@ -32,9 +36,17 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  weight: {
+    type: Number,
+    required: true,
+  },
   unit: {
     type: String,
     enum: SizeUnitSystem.toList(),
+  },
+  unitWeight: {
+    type: String,
+    enum: WeightUnitSystem.toList(),
   },
   isDeleted: {
     type: Boolean,

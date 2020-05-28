@@ -4,7 +4,7 @@ const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 const repository = require(path.resolve('src/repository'));
-
+const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 const errorHandler = new ErrorHandler();
@@ -72,13 +72,19 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
 
-      return repository.user.update(user.id, {
+      return EasyPost.addAddress(args.data).then(response => repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,
         phone: args.data.phone,
         photo: args.data.photo,
         location,
-        address,
+        address: {
+          ...address,
+          addressId: response.id,
+          zipCode: response.zip
+        },
+      })).catch((error) => {
+        throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
       });
     });
 };
