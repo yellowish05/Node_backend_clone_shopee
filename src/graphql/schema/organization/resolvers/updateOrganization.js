@@ -39,11 +39,11 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         country: addressCountry,
       };
 
-      const { status, messages } = await ShipEngine.validate(args.data.address, repository);
-      if (!status) {
-        throw new UserInputError(messages.length > 0 ? `Seller address is not valid. Reason: ${messages[0]}` : `Seller address is not valid`, { invalidArgs: 'address' });
-      }
-      address.isDeliveryAvailable = status;
+      // const { status, messages } = await ShipEngine.validate(args.data.address, repository);
+      // if (!status) {
+      //   throw new UserInputError(messages.length > 0 ? `Seller address is not valid. Reason: ${messages[0]}` : `Seller address is not valid`, { invalidArgs: 'address' });
+      // }
+      address.isDeliveryAvailable = 'verified';
     }
 
     let billingAddress = null;
@@ -64,11 +64,11 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         country: billingAddressCountry,
       };
 
-      const { status, messages } = await ShipEngine.validate(args.data.billingAddress, repository);
-      if (!status) {
-        throw new UserInputError(messages.length > 0 ? `Seller billing Address is not valid. Reason: ${messages[0]}` : `Seller billing Address is not valid`, { invalidArgs: 'billingAddress' });
-      }
-      billingAddress.isDeliveryAvailable = status;
+      // const { status, messages } = await ShipEngine.validate(args.data.billingAddress, repository);
+      // if (!status) {
+      //   throw new UserInputError(messages.length > 0 ? `Seller billing Address is not valid. Reason: ${messages[0]}` : `Seller billing Address is not valid`, { invalidArgs: 'billingAddress' });
+      // }
+      billingAddress.isDeliveryAvailable = 'verified';
     }
 
     return repository.organization.getByUser(user.id)
@@ -78,5 +78,6 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         address,
         billingAddress,
         carriers,
+        customCarrier
       }));
   });

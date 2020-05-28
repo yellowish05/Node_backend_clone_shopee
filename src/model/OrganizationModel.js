@@ -32,6 +32,10 @@ const schema = new Schema({
     type: String,
     ref: 'Carrier',
   }],
+  customcarrier: {
+    type: String,
+    ref: 'CustomCarrier',
+  },
   workInMarketTypes: [{
     type: String,
     enum: MarketType.toList(),
