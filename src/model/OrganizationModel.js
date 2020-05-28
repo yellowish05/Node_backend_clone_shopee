@@ -32,7 +32,7 @@ const schema = new Schema({
     type: String,
     ref: 'Carrier',
   }],
-  customcarrier: {
+  customCarrier: {
     type: String,
     ref: 'CustomCarrier',
   },
