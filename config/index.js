@@ -114,6 +114,11 @@ module.exports = {
     addressCacheTTL: 60 * 60 * 24 * 7,
     deliveryRateCacheTTL: 60 * 60 * 24 * 7,
   },
+  easyPost: {
+    uri: 'https://api.easypost.com/v2',
+    // api_key: env === 'development' ? process.env.EASY_POST_TEST_API_KEY : process.env.EASY_POST_PROD_API_KEY
+    api_key: process.env.EASY_POST_TEST_API_KEY
+  },
   redis: {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
