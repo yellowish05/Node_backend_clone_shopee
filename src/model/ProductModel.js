@@ -49,6 +49,13 @@ const schema = new Schema({
     ref: 'Brand',
     index: true,
   },
+  customCarrier: {
+    type: String,
+    ref: 'CustomCarrier'
+  },
+  customCarrierValue: {
+    type: Number,
+  },
   freeDeliveryTo: [{
     type: String,
     enum: MarketType.toList(),

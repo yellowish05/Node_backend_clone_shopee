@@ -7,6 +7,7 @@ const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { ForbiddenError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -28,7 +29,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     repository.brand.getById(provider.inputs.brand),
     repository.shippingBox.findOne(provider.inputs.shippingBox),
   ])
-    .then(([category, brand, shippingBox]) => {
+    .then(([category, brand, shippingBox, customCarrier]) => {
       if (!category) {
         provider.error('category', 'custom', `Category with id "${provider.inputs.category}" does not exist!`);
       }
@@ -48,6 +49,14 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
 
+      let customCarrier;
+      if (data.customCarrier) {
+        customCarrier = await repository.customCarrier.findByName(data.customCarrier);
+        if (!customCarrier) {
+          throw new ForbiddenError(`Can not find customCarrier with "${data.customCarrier}" name`);
+        }
+      }
+
       const productId = uuid();
       const inventoryId = uuid();
 
@@ -58,6 +67,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
       productData.weight = data.weight;
+      productData.customCarrier = customCarrier.id || null;
+      productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
 

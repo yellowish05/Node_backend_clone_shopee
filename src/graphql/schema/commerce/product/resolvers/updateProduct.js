@@ -63,7 +63,16 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         throw new ForbiddenError('You can not update product!');
       }
     })
-    .then(() => {
+    .then(async () => {
+
+      let customCarrier;
+      if (data.customCarrier) {
+        customCarrier = await repository.customCarrier.findByName(data.customCarrier);
+        if (!customCarrier) {
+          throw new ForbiddenError(`Can not find customCarrier with "${data.customCarrier}" name`);
+        }
+      }
+
       const {
         quantity, price, discountPrice, ...productData
       } = data;
@@ -72,6 +81,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
+
+      product.customCarrier = customCarrier.id || null;
+      product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount();
 
       product.category = productData.category;
       product.brand = productData.brand;

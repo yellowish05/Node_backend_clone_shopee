@@ -61,6 +61,7 @@
     "node-input-validator": "^4.1.0",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
+    "redis": "^3.0.2",
     "request": "^2.88.0",
     "require-dir": "^1.2.0",
     "stripe": "^7.14.0",

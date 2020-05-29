@@ -36,19 +36,23 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       if (!region) {
         throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
       }
+      return repository.deliveryAddress.create({
+        region,
+        owner: user.id,
+        ...data,
+      });
+      // return ShipEngine.validate(data, repository)
+      //   .then(({ status, messages }) => {
+      //     if (!status) {
+      //       throw new ApolloError(messages.length > 0 ? `Address is not valid. Reason: ${messages[0]}` : 'Address is not valid', 400);
+      //     }
 
-      return ShipEngine.validate(data, repository)
-        .then(({ status, messages }) => {
-          if (!status) {
-            throw new ApolloError(messages.length > 0 ? `Address is not valid. Reason: ${messages[0]}` : 'Address is not valid', 400);
-          }
-
-          return repository.deliveryAddress.create({
-            region,
-            owner: user.id,
-            ...data,
-          });
-        });
+      //     return repository.deliveryAddress.create({
+      //       region,
+      //       owner: user.id,
+      //       ...data,
+      //     });
+      //   });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Delivery Address. Original error: ${error.message}`, 400);

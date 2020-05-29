@@ -37,6 +37,8 @@ const schema = gql`
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
         freeDeliveryTo: [MarketType!]
         rating: Float!
+        customCarrier: ID
+        customCarrierValue: Float
     }
 
     type Weight {
@@ -114,6 +116,8 @@ const schema = gql`
         shippingBox: ID!
         brand: ID!
         freeDeliveryTo: [MarketType!]
+        customCarrier: String
+        customCarrierValue: Float
     }
 
     extend type Mutation {
