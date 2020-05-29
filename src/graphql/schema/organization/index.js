@@ -19,6 +19,7 @@ const schema = gql`
     returnPolicy: String
     workInMarketTypes: [MarketType]!
     rating: Float!
+    customCarrier: String
   }
 
   input OrganizationInput {
@@ -28,6 +29,7 @@ const schema = gql`
     payoutInfo: String
     returnPolicy: String
     workInMarketTypes: [MarketType]
+    customCarrier: String
   }
 
   extend type Query {

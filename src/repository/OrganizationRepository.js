@@ -24,6 +24,7 @@ class OrganizationRepository {
   }
 
   async update(organization, data) {
+    
     if (!organization) {
       return this.create(data);
     }
@@ -33,6 +34,7 @@ class OrganizationRepository {
     organization.payoutInfo = data.payoutInfo || organization.payoutInfo;
     organization.returnPolicy = data.returnPolicy || organization.returnPolicy;
     organization.carriers = data.carriers || organization.carriers;
+    organization.customCarrier = data.customCarrier || organization.customCarrier;
     organization.workInMarketTypes = data.workInMarketTypes || organization.workInMarketTypes;
     return organization.save();
   }
