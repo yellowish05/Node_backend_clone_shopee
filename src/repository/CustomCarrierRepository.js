@@ -10,7 +10,7 @@ class CustomCarrierRepository {
   }
 
   async getById(id) {
-    this.model.findOne({ _id: id }, (err, result) => {
+    return this.model.findOne({ _id: id }, (err, result) => {
       if (err) throw err;
       return result;
     });
