@@ -21,15 +21,6 @@ class EasyPostClass {
   }
 
   async addParcel(data) {
-    /*     let addresses = await axios.get(`${easyPost.uri}/addresses`, {
-          headers: {
-            "Authorization": 'Basic RVpUS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjRWJ3WWZ3UmhEN2k3ZDhhYXlobWM2Zzo='
-            // production key: RVpBS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjR0FWREVodEJYeGZsSEhwYUJ0NGNBZzo=
-            // test key: RVpUS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjRWJ3WWZ3UmhEN2k3ZDhhYXlobWM2Zzo=
-          }
-        })
-        console.log("addresses =========================== length: ", addresses.data.addresses.length, addresses.data.addresses)
-        return; */
     let length = data.length;
     let width = data.width;
     let height = data.height;
