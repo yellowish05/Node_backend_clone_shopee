@@ -148,7 +148,7 @@ module.exports.resolvers = {
     addProduct,
     updateProduct,
     deleteProduct,
-    uploadBulkProducts
+    uploadBulkProducts,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
