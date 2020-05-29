@@ -4,7 +4,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
+const { providers: { ShipEngine, EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const { MarketType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
@@ -54,7 +54,6 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
       if (!deliveryAddress.address.isDeliveryAvailable) {
         throw new UserInputError('Delivery Address is not valid for deliverance', { invalidArgs: 'deliveryAddress' });
       }
-
       return Promise.all([
         repository.organization.getByUser(product.seller),
         repository.shippingBox.findOne(product.shippingBox),
@@ -89,7 +88,14 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new Error('Your account has no username or phone specified');
           }
 
-          return repository.carrier.loadList(organization.carriers)
+          return EasyPost.calculateRates({ fromAddress: user.address.addressId, toAddress: seller.address.addressId, parcelId: shippingBox.parcelId }).then(response => {
+            // rates calculated here
+          }).catch((error) => {
+            throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
+          });
+
+          /*
+            return repository.carrier.loadList(organization.carriers)
             .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
               .then((rates) => {
                 rates.forEach((rate) => {
@@ -99,6 +105,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                   { ...rate, deliveryAddress: deliveryAddress.id },
                 )));
               }));
+          */
         });
     })
     .catch((error) => {

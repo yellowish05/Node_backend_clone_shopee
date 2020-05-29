@@ -23,6 +23,7 @@ class DeliveryAddressRepository {
       'address.region': data.region,
       'address.country': data.country,
       'address.zipCode': data.zipCode,
+      'address.addressId': data.addressId
     });
 
     if (existingAddress) {
@@ -37,6 +38,7 @@ class DeliveryAddressRepository {
         label: data.label,
         address: {
           isDeliveryAvailable: true,
+          addressId: data.addressId,
           ...data,
         },
       },

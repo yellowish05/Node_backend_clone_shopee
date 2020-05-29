@@ -21,15 +21,6 @@ class EasyPostClass {
   }
 
   async addParcel(data) {
-    /*     let addresses = await axios.get(`${easyPost.uri}/addresses`, {
-          headers: {
-            "Authorization": 'Basic RVpUS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjRWJ3WWZ3UmhEN2k3ZDhhYXlobWM2Zzo='
-            // production key: RVpBS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjR0FWREVodEJYeGZsSEhwYUJ0NGNBZzo=
-            // test key: RVpUS2M2MjYzMDhjOTk2MjRiZDVhZDEyMjczNDIyYzI1YmZjRWJ3WWZ3UmhEN2k3ZDhhYXlobWM2Zzo=
-          }
-        })
-        console.log("addresses =========================== length: ", addresses.data.addresses.length, addresses.data.addresses)
-        return; */
     let length = data.length;
     let width = data.width;
     let height = data.height;
@@ -72,6 +63,31 @@ class EasyPostClass {
       logger.error(`Error happened while adding address in Easy Post. Original error: ${errorMessage}`);
       throw new Error(errorMessage);
     })
+  }
+
+  async calculateRates({ fromAddress, toAddress, parcelId }) {
+    const shipment = new api.Shipment({
+      to_address: toAddress,
+      from_address: fromAddress,
+      parcel: parcelId,
+      customs_info: {
+        "eel_pfc": "NOEEI 30.37(a)",
+        "customs_certify": true,
+        "customs_signer": "Steve Brule",
+        "contents_type": "merchandise",
+        "contents_explanation": "",
+        "restriction_type": "none",
+        "restriction_comments": "",
+        "non_delivery_option": "abandon"
+      }
+    });
+
+    return shipment.save().then(response => response).catch(({ error: { error: { code, message, errors } } }
+    ) => {
+      let errorMessage = this.formatEasyPostErrors(code, message, errors);
+      logger.error(`Error happened while calculating rates in Easy Post. Original error: ${errorMessage}`);
+      throw new Error(errorMessage);
+    });
   }
 }
 
