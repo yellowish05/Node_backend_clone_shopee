@@ -13,6 +13,7 @@ const schema = gql`
         country: Country!
         zipCode: String
         isDeliveryAvailable: Boolean!
+        addressId: String
     }
 
     input DeliveryAddressInput {
@@ -54,6 +55,7 @@ module.exports.resolvers = {
     deleteDeliveryAddress,
   },
   DeliveryAddress: {
+    addressId: async ({ address: { addressId } }) => addressId,
     street: async ({ address: { street } }) => street,
     city: async ({ address: { city } }) => city,
     region: async ({ address: { region } }, _, { dataSources: { repository } }) => repository.region.getById(region),

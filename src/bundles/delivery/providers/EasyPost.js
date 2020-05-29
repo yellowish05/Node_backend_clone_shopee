@@ -64,6 +64,31 @@ class EasyPostClass {
       throw new Error(errorMessage);
     })
   }
+
+  async calculateRates({ fromAddress, toAddress, parcelId }) {
+    const shipment = new api.Shipment({
+      to_address: toAddress,
+      from_address: fromAddress,
+      parcel: parcelId,
+      customs_info: {
+        "eel_pfc": "NOEEI 30.37(a)",
+        "customs_certify": true,
+        "customs_signer": "Steve Brule",
+        "contents_type": "merchandise",
+        "contents_explanation": "",
+        "restriction_type": "none",
+        "restriction_comments": "",
+        "non_delivery_option": "abandon"
+      }
+    });
+
+    return shipment.save().then(response => response).catch(({ error: { error: { code, message, errors } } }
+    ) => {
+      let errorMessage = this.formatEasyPostErrors(code, message, errors);
+      logger.error(`Error happened while calculating rates in Easy Post. Original error: ${errorMessage}`);
+      throw new Error(errorMessage);
+    });
+  }
 }
 
 module.exports = new EasyPostClass();
