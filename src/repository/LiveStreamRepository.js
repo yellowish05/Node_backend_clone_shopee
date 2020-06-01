@@ -94,15 +94,22 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
-  async update(id, data) {
+  async update(id, data, flag) {
     const liveStream = await this.load(id);
     if (!liveStream) {
       throw Error(`Live Stream "${id}" does not exist!`);
     }
 
     liveStream.title = data.title || liveStream.title;
-    liveStream.status = data.title || liveStream.status;
-
+    liveStream.status = data.status || liveStream.status;
+    if (flag == 0){
+      liveStream.views = Number(liveStream.views) + data.views || liveStream.views;
+      liveStream.likes = Number(liveStream.likes) + data.likes || liveStream.likes;
+    }
+    else {
+      liveStream.views = data.views || liveStream.views;
+      liveStream.likes = data.likes || liveStream.likes;
+    }
     return liveStream.save();
   }
 
