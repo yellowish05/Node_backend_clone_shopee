@@ -57,6 +57,21 @@ const schema = new Schema({
     type: String,
     ref: 'Product',
   }],
+  views: {
+    type: Number,
+    required: true,
+  },
+  likes: {
+    type: Number,
+    required: true,
+  },
+  length: {
+    type: Number,
+    required: true,
+  },
+  type: {
+    type: String,
+  }
 });
 
 schema.methods.getTagName = function getTagName() {

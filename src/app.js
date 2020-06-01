@@ -25,7 +25,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/webhooks', webhookRouters);
-
+app.use('/viewers', viewersRouters);
 
 app.use(cors({
   origin: corsDomain,

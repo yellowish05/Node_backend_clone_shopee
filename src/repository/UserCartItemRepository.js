@@ -36,7 +36,7 @@ class UserCartItemRepository {
     return this.findOne({ productId }, userId)
       .then((cartItem) => {
         if (cartItem) {
-          cartItem.quantity = quantity;
+          cartItem.quantity += quantity;
           cartItem.deliveryRate = deliveryRateId;
           return cartItem.save();
         }
