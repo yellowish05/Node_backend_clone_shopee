@@ -51,7 +51,7 @@ const schema = new Schema({
   },
   customCarrier: {
     type: String,
-    ref: 'CustomCarrier'
+    ref: 'CustomCarrier',
   },
   customCarrierValue: {
     type: Number,
@@ -83,6 +83,9 @@ const schema = new Schema({
     type: Boolean,
     default: false,
     index: true,
+  },
+  quantity: {
+    type: Number,
   },
 });
 
