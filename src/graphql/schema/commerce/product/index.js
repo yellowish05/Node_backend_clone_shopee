@@ -163,9 +163,9 @@ module.exports.resolvers = {
     brand: async ({ brand }, _, { dataSources: { repository } }) => (
       repository.brand.getById(brand)
     ),
-    quantity: async ({ id }, _, { dataSources: { repository } }) => (
-      repository.productInventoryLog.getQuantityByProductId(id)
-    ),
+    // quantity: async ({ id }, _, { dataSources: { repository } }) => (
+    //   repository.productInventoryLog.getQuantityByProductId(id)
+    // ),
     shippingBox: async ({ shippingBox }, _, { dataSources: { repository } }) => (
       repository.shippingBox.findOne(shippingBox)
     ),
