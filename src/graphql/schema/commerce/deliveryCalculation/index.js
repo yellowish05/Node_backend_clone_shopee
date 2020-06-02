@@ -12,8 +12,12 @@ const schema = gql`
       id: ID!
       carrier: Carrier!
       deliveryDays: Int
+      deliveryDateGuaranteed: Boolean
+      rate_id: String!
+      shipmentId: String!
+      deliveryAddress: DeliveryAddress!,      
       estimatedDeliveryDate: Date
-      carrierDeliveryDays: String
+      # carrierDeliveryDays: String
       amount(currency: Currency): AmountOfMoney!
     }
 
@@ -63,5 +67,6 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
+    deliveryAddress: async (calculation, args, { dataSources: { repository } }) => repository.deliveryAddress.getById(calculation.deliveryAddress)
   },
 };

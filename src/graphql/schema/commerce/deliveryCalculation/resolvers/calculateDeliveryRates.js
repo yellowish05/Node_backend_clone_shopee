@@ -17,10 +17,13 @@ const activity = {
         || organization.address.country !== deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.INTERNATIONAL))) {
       return 0;
     }
-    return CurrencyFactory.getAmountOfMoney({
-      currencyAmount: rate.shippingAmount + rate.insuranceAmount + rate.confirmationAmount + rate.otherAmount,
-      currency: rate.currency.toUpperCase(),
-    }).getCentsAmount();
+    return rate.rate;
+    /* 
+      return CurrencyFactory.getAmountOfMoney({
+        currencyAmount: rate.shippingAmount + rate.insuranceAmount + rate.confirmationAmount + rate.otherAmount,
+        currency: rate.currency.toUpperCase(),
+      }).getCentsAmount(); 
+    */
   },
 };
 
@@ -88,24 +91,44 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             throw new Error('Your account has no username or phone specified');
           }
 
-          return EasyPost.calculateRates({ fromAddress: user.address.addressId, toAddress: seller.address.addressId, parcelId: shippingBox.parcelId }).then(response => {
-            // rates calculated here
-          }).catch((error) => {
-            throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
-          });
-
-          /*
-            return repository.carrier.loadList(organization.carriers)
-            .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
-              .then((rates) => {
-                rates.forEach((rate) => {
-                  rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
-                });
-                return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(
-                  { ...rate, deliveryAddress: deliveryAddress.id },
-                )));
+          let carrierAccountIds = [];
+          let carrierIds = {};
+          return repository.carrier.loadList(organization.carriers).then(carriers => {
+            carriers.map(carrierItem => {
+              carrierAccountIds.push(carrierItem.carrierId);
+              carrierIds[carrierItem.carrierId] = carrierItem._id;
+            })
+            return EasyPost.calculateRates({ fromAddress: user.address.addressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
+              const { rates } = response;
+              rates.forEach(rate => {
+                rate.rate = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+              })
+              return Promise.all(rates.map((rate) => {
+                const { id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id } = rate;
+                return repository.deliveryRateCache.create(
+                  {
+                    shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress.id, rate_id: id,
+                    deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: rateAmount * 100, currency: currency
+                  },
+                )
               }));
-          */
+            }).catch((error) => {
+              throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
+            });
+          })
+
+
+          /*  return repository.carrier.loadList(organization.carriers)
+             .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
+               .then((rates) => {
+                 rates.forEach((rate) => {
+                   rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+                 });
+                 return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(
+                   { ...rate, deliveryAddress: deliveryAddress.id },
+                 )));
+               })); */
+
         });
     })
     .catch((error) => {
