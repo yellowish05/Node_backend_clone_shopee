@@ -65,11 +65,12 @@ class EasyPostClass {
     })
   }
 
-  async calculateRates({ fromAddress, toAddress, parcelId }) {
+  async calculateRates({ fromAddress, toAddress, parcelId, carrierAccountIds }) {
     const shipment = new api.Shipment({
       to_address: toAddress,
       from_address: fromAddress,
       parcel: parcelId,
+      carrier_accounts: carrierAccountIds,
       customs_info: {
         "eel_pfc": "NOEEI 30.37(a)",
         "customs_certify": true,
