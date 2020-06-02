@@ -57,6 +57,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         };
       }
 
+      let addressObj = {
+        phone: args.data.phone,
+        email: args.data.email
+      }
       try {
         if (location && !address) {
           address = await Geocoder.reverse(location);
@@ -65,21 +69,41 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             throw new UserInputError('Country does not exists', { invalidArgs: 'location' });
           }
           address.country = geocodedCountry.id;
-        } else if (!location && address) {
+          addressObj = {
+            ...addressObj,
+            address: {
+              street: address.street,
+              city: address.city,
+              region: address.region ? address.region : null,
+              zipCode: address.zipCode,
+              country: address.country,
+            }
+          }
+        }
+        else {
           location = await Geocoder.geocode(address);
+          addressObj = {
+            ...addressObj,
+            address: {
+              street: args.data.address.street,
+              city: args.data.address.city,
+              region: args.data.address.region,
+              zipCode: args.data.address.zipCode,
+              country: args.data.address.country,
+            }
+          }
         }
       } catch (error) {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
-
-      return EasyPost.addAddress(args.data).then(response => repository.user.update(user.id, {
+      return EasyPost.addAddress(addressObj).then(response => repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,
         phone: args.data.phone,
         photo: args.data.photo,
         location,
         address: {
-          ...address,
+          ...addressObj.address,
           addressId: response.id,
           zipCode: response.zip
         },
