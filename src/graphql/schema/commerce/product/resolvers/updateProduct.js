@@ -82,7 +82,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
 
-      product.customCarrier = customCarrier.id || null;
+      product.customCarrier = customCarrier.id ? customCarrier.id : null;
       product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount();
 
       product.category = productData.category;
