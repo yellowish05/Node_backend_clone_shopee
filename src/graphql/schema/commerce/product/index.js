@@ -31,13 +31,13 @@ const schema = gql`
         quantity: Int!
         assets: [Asset!]!
         category: ProductCategory!
-        weight: Weight!
+        # weight: Weight!
         shippingBox: ShippingBox!
         brand: Brand!
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
         freeDeliveryTo: [MarketType!]
         rating: Float!
-        customCarrier: ID
+        customCarrier: CustomCarrier
         customCarrierValue: Float
     }
 
@@ -112,7 +112,7 @@ const schema = gql`
         currency: Currency!
         assets: [ID!]!
         category: ID!
-        weight: WeightInput!
+        # weight: WeightInput!
         shippingBox: ID!
         brand: ID!
         freeDeliveryTo: [MarketType!]
@@ -200,5 +200,6 @@ module.exports.resolvers = {
       sort: { feature: 'CREATED_AT', type: 'DESC' },
     }),
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
+    customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier)
   },
 };

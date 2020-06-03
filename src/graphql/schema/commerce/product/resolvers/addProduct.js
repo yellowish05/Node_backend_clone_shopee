@@ -16,8 +16,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     title: 'required',
     description: 'required',
     shippingBox: 'required',
-    'weight.value': 'required|decimal',
-    'weight.unit': 'required',
+    // 'weight.value': 'required|decimal',
+    // 'weight.unit': 'required',
     price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
@@ -66,7 +66,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
-      productData.weight = data.weight;
+      // productData.weight = data.weight;
       productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
