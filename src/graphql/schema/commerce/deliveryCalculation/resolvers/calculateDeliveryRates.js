@@ -90,7 +90,6 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           if (!user.name || !user.phone) {
             throw new Error('Your account has no username or phone specified');
           }
-
           let carrierAccountIds = [];
           let carrierIds = {};
           return repository.carrier.loadList(organization.carriers).then(carriers => {
@@ -107,7 +106,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 const { id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id } = rate;
                 return repository.deliveryRateCache.create(
                   {
-                    shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress.id, rate_id: id,
+                    shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress._id, rate_id: id,
                     deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: rateAmount * 100, currency: currency
                   },
                 )

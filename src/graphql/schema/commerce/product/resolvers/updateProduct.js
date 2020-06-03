@@ -16,8 +16,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     title: 'required',
     description: 'required',
     shippingBox: 'required',
-    'weight.value': 'required|decimal',
-    'weight.unit': 'required',
+    // 'weight.value': 'required|decimal',
+    // 'weight.unit': 'required',
     price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
@@ -90,7 +90,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.freeDeliveryTo = data.freeDeliveryTo;
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
-      product.weight = data.weight;
+      // product.weight = data.weight;
 
       return Promise.all([
         product.save(),

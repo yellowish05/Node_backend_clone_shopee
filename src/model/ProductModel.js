@@ -61,19 +61,19 @@ const schema = new Schema({
     enum: MarketType.toList(),
     required: true,
   }],
-  weight: {
-    type: {
-      value: {
-        type: Number,
-        required: true,
-      },
-      unit: {
-        type: String,
-        enum: WeightUnitSystem.toList(),
-        required: true,
-      },
-    },
-  },
+  // weight: {
+  //   type: {
+  //     value: {
+  //       type: Number,
+  //       required: true,
+  //     },
+  //     unit: {
+  //       type: String,
+  //       enum: WeightUnitSystem.toList(),
+  //       required: true,
+  //     },
+  //   },
+  // },
   shippingBox: {
     type: String,
     ref: 'ShippingBox',

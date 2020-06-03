@@ -33,6 +33,7 @@ const schema = gql`
       country: Country!
       zipCode: String
       isDeliveryAvailable: Boolean!
+      addressId: String
     }
 `;
 
