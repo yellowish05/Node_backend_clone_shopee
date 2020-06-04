@@ -10,12 +10,12 @@ const calculateDeliveryRates = require('./resolvers/calculateDeliveryRates');
 const schema = gql`
     type DeliveryRate {
       id: ID!
-      carrier: Carrier!
+      carrier: Carrier
       service: String
       deliveryDays: Int
       deliveryDateGuaranteed: Boolean
-      rate_id: String!
-      shipmentId: String!
+      rate_id: String
+      shipmentId: String
       deliveryAddress: DeliveryAddress!,      
       estimatedDeliveryDate: Date
       # carrierDeliveryDays: String
