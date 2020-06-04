@@ -92,30 +92,41 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           }
           let carrierAccountIds = [];
           let carrierIds = {};
-          return repository.carrier.loadList(organization.carriers).then(carriers => {
-            carriers.map(carrierItem => {
-              carrierAccountIds.push(carrierItem.carrierId);
-              carrierIds[carrierItem.carrierId] = carrierItem._id;
-            })
-            let fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId;
-            return EasyPost.calculateRates({ fromAddress: fromAddressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
-              const { rates } = response;
-              rates.forEach(rate => {
-                rate.rate = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+
+          if (product.customCarrier) {
+            const customCarrierDelivery = repository.deliveryRateCache.create(
+              {
+                shipmentId: null, service: null, carrier: carrierIds[null], deliveryDateGuaranteed: false, deliveryAddress: deliveryAddress._id, rate_id: null,
+                deliveryDays: null, estimatedDeliveryDate: null, amount: (product.customCarrierValue).toFixed(2), currency: product.currency
+              }
+            )
+            return [customCarrierDelivery];
+          } else {
+            return repository.carrier.loadList(organization.carriers).then(carriers => {
+              carriers.map(carrierItem => {
+                carrierAccountIds.push(carrierItem.carrierId);
+                carrierIds[carrierItem.carrierId] = carrierItem._id;
               })
-              return Promise.all(rates.map((rate) => {
-                const { id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id } = rate;
-                return repository.deliveryRateCache.create(
-                  {
-                    shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress._id, rate_id: id,
-                    deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: (rateAmount * 100).toFixed(2), currency: currency
-                  },
-                )
-              }));
-            }).catch((error) => {
-              throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
-            });
-          })
+              let fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId;
+              return EasyPost.calculateRates({ fromAddress: fromAddressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
+                const { rates } = response;
+                rates.forEach(rate => {
+                  rate.rate = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+                })
+                return Promise.all(rates.map((rate) => {
+                  const { id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id } = rate;
+                  return repository.deliveryRateCache.create(
+                    {
+                      shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress._id, rate_id: id,
+                      deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: (rateAmount * 100).toFixed(2), currency: currency
+                    },
+                  )
+                }));
+              }).catch((error) => {
+                throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
+              });
+            })
+          }
         });
     })
     .catch((error) => {

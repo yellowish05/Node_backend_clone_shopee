@@ -22,7 +22,7 @@ const schema = new Schema({
   carrier: {
     type: String,
     ref: 'Carrier',
-    required: true,
+    required: false,
     index: true,
   },
   deliveryAddress: {
