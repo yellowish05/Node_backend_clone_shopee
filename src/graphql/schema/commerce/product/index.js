@@ -38,7 +38,7 @@ const schema = gql`
         freeDeliveryTo: [MarketType!]
         rating: Float!
         customCarrier: CustomCarrier
-        customCarrierValue: Float
+        customCarrierValue(currency: Currency):AmountOfMoney
     }
 
     type Weight {
@@ -163,12 +163,19 @@ module.exports.resolvers = {
     brand: async ({ brand }, _, { dataSources: { repository } }) => (
       repository.brand.getById(brand)
     ),
-    // quantity: async ({ id }, _, { dataSources: { repository } }) => (
-    //   repository.productInventoryLog.getQuantityByProductId(id)
-    // ),
+    quantity: async ({ id }, _, { dataSources: { repository } }) => (
+      repository.productInventoryLog.getQuantityByProductId(id)
+    ),
     shippingBox: async ({ shippingBox }, _, { dataSources: { repository } }) => (
       repository.shippingBox.findOne(shippingBox)
     ),
+    customCarrierValue: async ({ customCarrierValue, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: customCarrierValue, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney
+    },
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
       if (args.currency && args.currency !== currency) {
