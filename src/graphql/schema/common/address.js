@@ -4,7 +4,7 @@ const schema = gql`
     input AddressInput {
         street: String
         city: String
-        region: ID!
+        region: ID
         country: ID!
         zipCode: String
     }
