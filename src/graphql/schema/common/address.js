@@ -7,6 +7,7 @@ const schema = gql`
         region: ID
         country: ID!
         zipCode: String
+        description: String
     }
 
     interface AddressInterface {
@@ -24,6 +25,7 @@ const schema = gql`
         country: Country!
         zipCode: String
         addressId: String
+        description: String
     }
 
     type VerifiedAddress implements AddressInterface {
@@ -34,6 +36,7 @@ const schema = gql`
       zipCode: String
       isDeliveryAvailable: Boolean!
       addressId: String
+      description: String
     }
 `;
 
