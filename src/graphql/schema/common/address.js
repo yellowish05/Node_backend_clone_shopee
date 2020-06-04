@@ -45,7 +45,11 @@ module.exports.resolvers = {
       return repository.country.getById(typeof country === 'object' ? country.id : country);
     },
     region({ region }, args, { dataSources: { repository } }) {
-      return repository.region.getById(typeof region === 'object' ? region.id : region);
+      if (region) {
+        return repository.region.getById(typeof region === 'object' ? region.id : region);
+      } else {
+        return null;
+      }
     },
   },
   VerifiedAddress: {
