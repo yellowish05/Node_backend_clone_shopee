@@ -50,6 +50,7 @@ class EasyPostClass {
         "delivery"
       ],
       street1: address.street,
+      street2: address.description || null,
       city: address.city,
       state: address.region,
       zip: address.zipCode || null,

@@ -29,13 +29,19 @@ class OrganizationRepository {
       return this.create(data);
     }
 
-    organization.billingAddress = data.billingAddress === null || data.billingAddress ? data.billingAddress : organization.billingAddress;
-    organization.address = data.address || organization.address;
+    if (data.address) {
+      organization.billingAddress = data.billingAddress || organization.billingAddress;
+      organization.address = data.address || organization.address;
+    }
+
+    if (data.carriers || data.customCarrier) {
+      organization.carriers = data.carriers === null || data.carriers ? data.carriers : organization.carriers;
+      organization.customCarrier = data.customCarrier === null || data.customCarrier ? data.customCarrier : organization.customCarrier;
+      organization.workInMarketTypes = data.workInMarketTypes || organization.workInMarketTypes;
+    }
     organization.payoutInfo = data.payoutInfo || organization.payoutInfo;
     organization.returnPolicy = data.returnPolicy || organization.returnPolicy;
-    organization.carriers = data.carriers === null || data.carriers ? data.carriers : organization.carriers;
-    organization.customCarrier = data.customCarrier === null || data.customCarrier ? data.customCarrier : organization.customCarrier;
-    organization.workInMarketTypes = data.workInMarketTypes || organization.workInMarketTypes;
+
     return organization.save();
   }
 
