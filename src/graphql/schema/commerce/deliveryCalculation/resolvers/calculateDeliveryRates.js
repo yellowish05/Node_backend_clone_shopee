@@ -97,7 +97,8 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
               carrierAccountIds.push(carrierItem.carrierId);
               carrierIds[carrierItem.carrierId] = carrierItem._id;
             })
-            return EasyPost.calculateRates({ fromAddress: user.address.addressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
+            let fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId;
+            return EasyPost.calculateRates({ fromAddress: fromAddressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
               const { rates } = response;
               rates.forEach(rate => {
                 rate.rate = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
@@ -107,7 +108,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 return repository.deliveryRateCache.create(
                   {
                     shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress._id, rate_id: id,
-                    deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: rateAmount * 100, currency: currency
+                    deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: (rateAmount * 100).toFixed(2), currency: currency
                   },
                 )
               }));
@@ -115,19 +116,6 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
               throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
             });
           })
-
-
-          /*  return repository.carrier.loadList(organization.carriers)
-             .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
-               .then((rates) => {
-                 rates.forEach((rate) => {
-                   rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
-                 });
-                 return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(
-                   { ...rate, deliveryAddress: deliveryAddress.id },
-                 )));
-               })); */
-
         });
     })
     .catch((error) => {
