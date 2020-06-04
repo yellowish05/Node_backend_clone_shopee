@@ -6,7 +6,7 @@ const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 const repository = require(path.resolve('src/repository'));
 const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-
+const fs = require('fs');
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -39,15 +39,17 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       let { location } = args.data;
       let address = null;
+      let addressRegion
       if (args.data.address) {
         const addressCountry = await repository.country.getById(args.data.address.country);
         if (!addressCountry) {
           throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
         }
-
-        const addressRegion = await repository.region.getById(args.data.address.region);
-        if (!addressRegion) {
-          throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+        if (args.data.address.region !== null & args.data.address.region !== undefined) {
+          addressRegion = await repository.region.getById(args.data.address.region);
+          if (!addressRegion) {
+            throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+          }
         }
 
         address = {
