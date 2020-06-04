@@ -14,6 +14,7 @@ const schema = gql`
         zipCode: String
         isDeliveryAvailable: Boolean!
         addressId: String
+        description: String
     }
 
     input DeliveryAddressInput {
@@ -23,6 +24,7 @@ const schema = gql`
         region: ID!
         country: ID!
         zipCode: String
+        description: String
     }
 
     extend type Query {

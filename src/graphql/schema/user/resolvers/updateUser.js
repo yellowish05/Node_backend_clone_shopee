@@ -88,6 +88,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             ...addressObj,
             address: {
               street: args.data.address.street,
+              description: args.data.address.description,
               city: args.data.address.city,
               region: args.data.address.region,
               zipCode: args.data.address.zipCode,

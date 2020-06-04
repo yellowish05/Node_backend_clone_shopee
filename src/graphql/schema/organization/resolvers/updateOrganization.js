@@ -24,8 +24,23 @@ const activity = {
 module.exports = async (obj, args, { user, dataSources: { repository } }) => activity.verifyCarriers(args.data.carriers, repository)
   .then(async (carriers) => {
     let address = null;
+    let easyPostAddressId = null;
     let addressObj = null;
     let billingAddressObj = null;
+
+    if (args.data.address === undefined && (!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === "") && !args.data.customCarrier) {
+      throw new UserInputError(`You can not update organization without adding a custom carrier or carriers.`);
+    }
+
+    let customCarrier;
+    if (args.data.customCarrier) {
+      customCarrier = await repository.customCarrier.findOrCreate({ name: args.data.customCarrier });
+
+      if (!customCarrier) {
+        throw new ForbiddenError(`Can not find customCarrier with "${args.data.customCarrier}" name`);
+      }
+    }
+
     if (args.data.address) {
       const addressCountry = await repository.country.getById(args.data.address.country);
       if (!addressCountry) {
@@ -47,6 +62,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         email: user.email,
         address: {
           street: address.street,
+          description: address.description,
           city: address.city,
           region: address.region ? address.region._id : null,
           zipCode: address.zipCode,
@@ -54,25 +70,13 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         }
       }
       await EasyPost.addAddress(addressObj).then(res => {
+        easyPostAddressId = res.id;
         address.addressId = res.id;
       }).catch((error) => {
         throw new UserInputError(`Failed to update organization. Original error: ${error.message}`);
       });
 
       address.isDeliveryAvailable = true;
-    }
-
-    let customCarrier;
-    if (args.data.customCarrier) {
-      customCarrier = await repository.customCarrier.findOrCreate({ name: args.data.customCarrier });
-
-      if (!customCarrier) {
-        throw new ForbiddenError(`Can not find customCarrier with "${args.data.customCarrier}" name`);
-      }
-    }
-
-    if ((!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === "") && !args.data.customCarrier) {
-      throw new UserInputError(`You can not update organization without adding a custom carrier or carriers.`);
     }
 
     let billingAddress = null;
@@ -93,23 +97,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         country: billingAddressCountry,
       };
 
-      billingAddressObj = {
-        phone: user.phone,
-        email: user.email,
-        address: {
-          street: billingAddress.street,
-          city: billingAddress.city,
-          region: billingAddress.region ? billingAddress.region._id : null,
-          zipCode: billingAddress.zipCode,
-          country: billingAddress.country._id,
-        }
-      }
-      await EasyPost.addAddress(billingAddressObj).then(res => {
-        billingAddress.addressId = res.id;
-      }).catch((error) => {
-        throw new UserInputError(`Failed to update organization. Original error: ${error.message}`);
-      });
-
+      billingAddress.addressId = easyPostAddressId;
       billingAddress.isDeliveryAvailable = true;
     }
     return repository.organization.getByUser(user.id)
