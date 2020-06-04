@@ -11,6 +11,7 @@ const schema = gql`
     type DeliveryRate {
       id: ID!
       carrier: Carrier!
+      service: String
       deliveryDays: Int
       deliveryDateGuaranteed: Boolean
       rate_id: String!

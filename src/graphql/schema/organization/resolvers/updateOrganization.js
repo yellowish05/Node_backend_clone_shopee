@@ -2,7 +2,7 @@ const { UserInputError } = require('apollo-server');
 const path = require('path');
 
 const logger = require(path.resolve('config/logger'));
-const { providers: { ShipEngine, EasyPost } } = require(path.resolve('src/bundles/delivery'));
+const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const { ForbiddenError } = require('apollo-server');
 
 const activity = {
@@ -69,6 +69,10 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
       if (!customCarrier) {
         throw new ForbiddenError(`Can not find customCarrier with "${args.data.customCarrier}" name`);
       }
+    }
+
+    if ((!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === "") && !args.data.customCarrier) {
+      throw new UserInputError(`You can not update organization without adding a custom carrier or carriers.`);
     }
 
     let billingAddress = null;
