@@ -50,7 +50,11 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }),
+    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }).then(x => {
+      console.log("delivery ", x);
+
+      return x;
+    }),
   },
   Mutation: {
     addDeliveryAddress,
@@ -64,5 +68,6 @@ module.exports.resolvers = {
     country: async ({ address: { country } }, _, { dataSources: { repository } }) => repository.country.getById(country),
     zipCode: async ({ address: { zipCode } }) => zipCode,
     isDeliveryAvailable: async ({ address: { isDeliveryAvailable } }) => isDeliveryAvailable,
+    description: async ({ address: { description } }) => description,
   },
 };
