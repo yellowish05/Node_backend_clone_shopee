@@ -50,11 +50,7 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }).then(x => {
-      console.log("delivery ", x);
-
-      return x;
-    }),
+    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id })
   },
   Mutation: {
     addDeliveryAddress,
