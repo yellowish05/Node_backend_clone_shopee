@@ -99,18 +99,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       } catch (error) {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
-      return EasyPost.addAddress(addressObj).then(response => repository.user.update(user.id, {
+      return repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,
         phone: args.data.phone,
         photo: args.data.photo,
         location,
         address: {
-          ...addressObj.address,
-          addressId: response.id,
-          zipCode: response.zip
+          ...addressObj.address
         },
-      })).catch((error) => {
+      }).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
       });
     });

@@ -22,6 +22,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',
+  }, {
+    'assets.length': "You can not upload more than 6 images!"
   });
 
   validator.addPostRule(async (provider) => Promise.all([
@@ -80,7 +82,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         shift: quantity,
         type: InventoryLogType.USER_ACTION,
       };
-
       return Promise.all([
         repository.product.create(productData),
         repository.productInventoryLog.add(inventoryLog),

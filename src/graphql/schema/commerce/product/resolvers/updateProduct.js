@@ -22,6 +22,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',
+  }, {
+    'assets.length': "You can not upload more than 6 images!"
   });
 
   let product;
