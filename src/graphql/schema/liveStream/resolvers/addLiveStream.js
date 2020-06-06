@@ -113,6 +113,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         channel: streamChannel,
         publicMessageThread: messageThread,
         products: args.data.products,
+        length: 0,
+        realViews: 0,
+        realLikes: 0,
+        fakeViews: 0,
+        fakeLikes: 0,
       });
     })
     .catch((error) => {
