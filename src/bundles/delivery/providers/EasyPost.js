@@ -46,7 +46,7 @@ class EasyPostClass {
 
   async addAddress({ phone, email, address }) {
     const addressData = new api.Address({
-      verify_strict: [
+      verify: [
         "delivery"
       ],
       street1: address.street,
