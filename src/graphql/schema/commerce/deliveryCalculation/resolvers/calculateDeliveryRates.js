@@ -96,7 +96,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           if (product.customCarrier) {
             const customCarrierDelivery = repository.deliveryRateCache.create(
               {
-                shipmentId: null, service: null, carrier: carrierIds[null], deliveryDateGuaranteed: false, deliveryAddress: deliveryAddress._id, rate_id: null,
+                shipmentId: null, service: null, carrier: product.customCarrier, deliveryDateGuaranteed: false, deliveryAddress: deliveryAddress._id, rate_id: null,
                 deliveryDays: null, estimatedDeliveryDate: null, amount: (product.customCarrierValue).toFixed(2), currency: product.currency
               }
             )
