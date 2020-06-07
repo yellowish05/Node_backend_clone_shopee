@@ -17,8 +17,12 @@ module.exports = async function checkoutOneProduct(
     cartItems, currency, buyerId: user.id,
   }, repository);
 
-  // generate payments with Payment Provider data and update order
-  await payPurchaseOrder({ order, paymentMethod, user });
+  const prod = await repository.product.getById(product).then(product => {
+    return product.customCarrier;
+  })
+
+  if (!prod)
+    await payPurchaseOrder({ order, paymentMethod, user });
 
   return order;
 };

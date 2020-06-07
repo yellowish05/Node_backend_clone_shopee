@@ -11,6 +11,7 @@ const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
+const viewersRouters = require('./viewers');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();
@@ -25,7 +26,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/webhooks', webhookRouters);
-
+app.use('/viewers', viewersRouters);
 
 app.use(cors({
   origin: corsDomain,

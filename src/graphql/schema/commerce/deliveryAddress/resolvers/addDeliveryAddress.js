@@ -3,7 +3,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
+const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 
 const errorHandler = new ErrorHandler();
 
@@ -14,7 +14,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     city: 'required',
     region: 'required',
     country: 'required',
-    zipCode: 'required',
+    // zipCode: 'required',
   });
 
   return validator.check()
@@ -36,19 +36,14 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       if (!region) {
         throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
       }
-
-      return ShipEngine.validate(data, repository)
-        .then(({ status, messages }) => {
-          if (!status) {
-            throw new ApolloError(messages.length > 0 ? `Address is not valid. Reason: ${messages[0]}` : 'Address is not valid', 400);
-          }
-
-          return repository.deliveryAddress.create({
-            region,
-            owner: user.id,
-            ...data,
-          });
-        });
+      return EasyPost.addAddress({ phone: user.phone, email: user.email, address: data }).then(response => repository.deliveryAddress.create({
+        region,
+        owner: user.id,
+        addressId: response.id,
+        ...data,
+      })).catch((error) => {
+        throw new ApolloError(`Failed to create Delivery Address. Original error: ${error.message}`, 400);
+      });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Delivery Address. Original error: ${error.message}`, 400);

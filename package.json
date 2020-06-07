@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/ShoclefUkraine/api#readme",
   "dependencies": {
+    "@easypost/api": "^3.8.1",
     "agora-access-token": "^1.0.2-alpha.2",
     "apollo-boost": "^0.4.4",
     "apollo-server": "^2.9.4",
@@ -41,6 +42,7 @@
     "elasticemail-webapiclient": "^2.0.8-s",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",
+    "google-libphonenumber": "^3.2.10",
     "graphql": "^14.5.8",
     "graphql-redis-subscriptions": "^2.1.1",
     "graphql-tag": "^2.10.1",
@@ -59,6 +61,7 @@
     "node-input-validator": "^4.1.0",
     "path": "^0.12.7",
     "querystring": "^0.2.0",
+    "redis": "^3.0.2",
     "request": "^2.88.0",
     "require-dir": "^1.2.0",
     "stripe": "^7.14.0",

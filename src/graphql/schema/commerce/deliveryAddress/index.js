@@ -13,6 +13,8 @@ const schema = gql`
         country: Country!
         zipCode: String
         isDeliveryAvailable: Boolean!
+        addressId: String
+        description: String
     }
 
     input DeliveryAddressInput {
@@ -22,6 +24,7 @@ const schema = gql`
         region: ID!
         country: ID!
         zipCode: String
+        description: String
     }
 
     extend type Query {
@@ -47,18 +50,20 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }),
+    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id })
   },
   Mutation: {
     addDeliveryAddress,
     deleteDeliveryAddress,
   },
   DeliveryAddress: {
+    addressId: async ({ address: { addressId } }) => addressId,
     street: async ({ address: { street } }) => street,
     city: async ({ address: { city } }) => city,
     region: async ({ address: { region } }, _, { dataSources: { repository } }) => repository.region.getById(region),
     country: async ({ address: { country } }, _, { dataSources: { repository } }) => repository.country.getById(country),
     zipCode: async ({ address: { zipCode } }) => zipCode,
     isDeliveryAvailable: async ({ address: { isDeliveryAvailable } }) => isDeliveryAvailable,
+    description: async ({ address: { description } }) => description,
   },
 };

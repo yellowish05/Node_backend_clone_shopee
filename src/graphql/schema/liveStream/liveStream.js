@@ -10,6 +10,7 @@ const getLiveStreamCollection = require('./resolvers/getLiveStreamCollection');
 const getLiveStreamDuration = require('./resolvers/getLiveStreamDuration');
 const addProductToLiveStream = require('./resolvers/addProductToLiveStream');
 const removeProductFromLiveStream = require('./resolvers/removeProductFromLiveStream');
+const updateLiveStreamCount = require('./resolvers/updateLiveStreamCount');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -34,6 +35,8 @@ const schema = gql`
         publicMessageThread: MessageThread
         privateMessageThreads: [MessageThread]!
         products: [Product]!
+        views: Int!
+        likes: Int!
     }
 
     input LiveStreamInput {
@@ -76,6 +79,13 @@ const schema = gql`
       type: SortTypeEnum! = ASC
     }
 
+    input LiveStreamUpdateInput {
+      id: ID!
+      playLength: Int!
+      view: String!
+      tag: String!
+    }
+
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID!): LiveStream
@@ -115,6 +125,7 @@ const schema = gql`
       Pass ID of the Live Stream and ID of the Product
       """
       removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
+      updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream!
     }
 
     extend type Subscription {
@@ -140,6 +151,7 @@ module.exports.resolvers = {
     leaveLiveStream,
     addProductToLiveStream,
     removeProductFromLiveStream,
+    updateLiveStreamCount,
   },
   Subscription: {
     liveStream: {
@@ -212,6 +224,12 @@ module.exports.resolvers = {
     },
     products(liveStream, _, { dataSources: { repository } }) {
       return repository.product.getByIds(liveStream.products);
+    },
+    views(liveStream, _, { dataSources: { repository } }) {
+      return repository.liveStream.getViews(liveStream.id);
+    },
+    likes(liveStream, _, { dataSources: { repository } }) {
+      return repository.liveStream.getLikes(liveStream.id);
     },
   },
   LiveStreamStats: {

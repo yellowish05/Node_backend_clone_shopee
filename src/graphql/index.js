@@ -62,12 +62,6 @@ module.exports = ({ repository }) => new ApolloServer({
       'editor.theme': 'light',
     },
   },
-  //   introspection: true,
-  //   playground: {
-  //     settings: {
-  //       'editor.theme': 'light',
-  //     },
-  //   },
   engine: {
     apiKey: config.env === 'production' ? config.apolloEngineApiKey : null,
     useUnifiedTopology: true,
