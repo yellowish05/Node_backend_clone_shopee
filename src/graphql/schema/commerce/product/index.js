@@ -31,14 +31,14 @@ const schema = gql`
         quantity: Int!
         assets: [Asset!]!
         category: ProductCategory!
-        weight: Weight!
+        # weight: Weight!
         shippingBox: ShippingBox!
         brand: Brand!
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
         freeDeliveryTo: [MarketType!]
         rating: Float!
-        customCarrier: ID
-        customCarrierValue: Float
+        customCarrier: CustomCarrier
+        customCarrierValue(currency: Currency):AmountOfMoney
     }
 
     type Weight {
@@ -112,7 +112,7 @@ const schema = gql`
         currency: Currency!
         assets: [ID!]!
         category: ID!
-        weight: WeightInput!
+        # weight: WeightInput!
         shippingBox: ID!
         brand: ID!
         freeDeliveryTo: [MarketType!]
@@ -163,12 +163,19 @@ module.exports.resolvers = {
     brand: async ({ brand }, _, { dataSources: { repository } }) => (
       repository.brand.getById(brand)
     ),
-    // quantity: async ({ id }, _, { dataSources: { repository } }) => (
-    //   repository.productInventoryLog.getQuantityByProductId(id)
-    // ),
+    quantity: async ({ id }, _, { dataSources: { repository } }) => (
+      repository.productInventoryLog.getQuantityByProductId(id)
+    ),
     shippingBox: async ({ shippingBox }, _, { dataSources: { repository } }) => (
       repository.shippingBox.findOne(shippingBox)
     ),
+    customCarrierValue: async ({ customCarrierValue, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: customCarrierValue, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney
+    },
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
       if (args.currency && args.currency !== currency) {
@@ -200,5 +207,6 @@ module.exports.resolvers = {
       sort: { feature: 'CREATED_AT', type: 'DESC' },
     }),
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
+    customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier)
   },
 };

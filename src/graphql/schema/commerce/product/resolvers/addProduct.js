@@ -16,12 +16,14 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     title: 'required',
     description: 'required',
     shippingBox: 'required',
-    'weight.value': 'required|decimal',
-    'weight.unit': 'required',
+    // 'weight.value': 'required|decimal',
+    // 'weight.unit': 'required',
     price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',
+  }, {
+    'assets.length': "You can not upload more than 6 images!"
   });
 
   validator.addPostRule(async (provider) => Promise.all([
@@ -63,11 +65,13 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const {
         quantity, price, discountPrice, ...productData
       } = data;
+
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
-      productData.weight = data.weight;
-      productData.customCarrier = customCarrier.id || null;
+      // productData.weight = data.weight;
+      productData.quantity = quantity;
+      productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
@@ -78,7 +82,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         shift: quantity,
         type: InventoryLogType.USER_ACTION,
       };
-
       return Promise.all([
         repository.product.create(productData),
         repository.productInventoryLog.add(inventoryLog),

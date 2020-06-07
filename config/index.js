@@ -117,7 +117,8 @@ module.exports = {
   easyPost: {
     uri: 'https://api.easypost.com/v2',
     // api_key: env === 'development' ? process.env.EASY_POST_TEST_API_KEY : process.env.EASY_POST_PROD_API_KEY
-    api_key: process.env.EASY_POST_TEST_API_KEY
+    api_key: process.env.EASY_POST_PROD_API_KEY,
+    deliveryRateCacheTTL: 60 * 60 * 24 * 7
   },
   redis: {
     host: process.env.REDIS_HOST,

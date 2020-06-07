@@ -2,7 +2,7 @@ const { UserInputError } = require('apollo-server');
 const path = require('path');
 
 const logger = require(path.resolve('config/logger'));
-const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
+const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const { ForbiddenError } = require('apollo-server');
 
 const activity = {
@@ -24,6 +24,23 @@ const activity = {
 module.exports = async (obj, args, { user, dataSources: { repository } }) => activity.verifyCarriers(args.data.carriers, repository)
   .then(async (carriers) => {
     let address = null;
+    let easyPostAddressId = null;
+    let addressObj = null;
+    let billingAddressObj = null;
+
+    if (args.data.address === undefined && (!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === "") && !args.data.customCarrier) {
+      throw new UserInputError(`You can not update organization without adding a custom carrier or carriers.`);
+    }
+
+    let customCarrier;
+    if (args.data.customCarrier) {
+      customCarrier = await repository.customCarrier.findOrCreate({ name: args.data.customCarrier });
+
+      if (!customCarrier) {
+        throw new ForbiddenError(`Can not find customCarrier with "${args.data.customCarrier}" name`);
+      }
+    }
+
     if (args.data.address) {
       const addressCountry = await repository.country.getById(args.data.address.country);
       if (!addressCountry) {
@@ -39,21 +56,27 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         region: addressRegion,
         country: addressCountry,
       };
-      
-      // const { status, messages } = await ShipEngine.validate(args.data.address, repository);
-      // if (!status) {
-      //   throw new UserInputError(messages.length > 0 ? `Seller address is not valid. Reason: ${messages[0]}` : `Seller address is not valid`, { invalidArgs: 'address' });
-      // }
-      address.isDeliveryAvailable = true;
-    }
 
-    let customCarrier;
-    if (args.data.customCarrier) {
-      customCarrier = await repository.customCarrier.findOrCreate({name: args.data.customCarrier});
-      
-      if (!customCarrier) {
-        throw new ForbiddenError(`Can not find customCarrier with "${args.data.customCarrier}" name`);
+      addressObj = {
+        phone: user.phone,
+        email: user.email,
+        address: {
+          street: address.street,
+          description: address.description,
+          city: address.city,
+          region: address.region ? address.region._id : null,
+          zipCode: address.zipCode,
+          country: address.country._id,
+        }
       }
+      await EasyPost.addAddress(addressObj).then(res => {
+        easyPostAddressId = res.id;
+        address.addressId = res.id;
+      }).catch((error) => {
+        throw new UserInputError(`Failed to update organization. Original error: ${error.message}`);
+      });
+
+      address.isDeliveryAvailable = true;
     }
 
     let billingAddress = null;
@@ -74,13 +97,9 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         country: billingAddressCountry,
       };
 
-      // const { status, messages } = await ShipEngine.validate(args.data.billingAddress, repository);
-      // if (!status) {
-      //   throw new UserInputError(messages.length > 0 ? `Seller billing Address is not valid. Reason: ${messages[0]}` : `Seller billing Address is not valid`, { invalidArgs: 'billingAddress' });
-      // }
+      billingAddress.addressId = easyPostAddressId;
       billingAddress.isDeliveryAvailable = true;
     }
-
     return repository.organization.getByUser(user.id)
       .then((organization) => repository.organization.update(organization, {
         ...args.data,
@@ -88,6 +107,6 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         address,
         billingAddress,
         carriers,
-        customCarrier:  customCarrier.id || null 
+        customCarrier: customCarrier ? customCarrier.id : null
       }));
   });

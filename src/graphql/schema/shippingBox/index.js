@@ -10,10 +10,6 @@ const schema = gql`
       ${SizeUnitSystem.toGQL()}
     }
 
-    # enum WeightUnitSystem {
-    #   ${WeightUnitSystem.toGQL()}
-    # }
-
     type ShippingBox {
       id: ID!
       parcelId: String!

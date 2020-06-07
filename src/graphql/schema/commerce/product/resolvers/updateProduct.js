@@ -16,12 +16,14 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     title: 'required',
     description: 'required',
     shippingBox: 'required',
-    'weight.value': 'required|decimal',
-    'weight.unit': 'required',
+    // 'weight.value': 'required|decimal',
+    // 'weight.unit': 'required',
     price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:6,1',
+  }, {
+    'assets.length': "You can not upload more than 6 images!"
   });
 
   let product;
@@ -81,8 +83,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-
-      product.customCarrier = customCarrier.id || null;
+      product.quantity = quantity
+      product.customCarrier = customCarrier ? customCarrier.id : null;
       product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount();
 
       product.category = productData.category;
@@ -90,7 +92,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.freeDeliveryTo = data.freeDeliveryTo;
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
-      product.weight = data.weight;
+      // product.weight = data.weight;
 
       return Promise.all([
         product.save(),
