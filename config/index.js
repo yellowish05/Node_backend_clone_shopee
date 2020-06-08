@@ -45,11 +45,8 @@ module.exports = {
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
-<<<<<<< HEAD
     upload_bucket: process.env.AWS_UPLOAD_BUCKET,
     vendor_bucket: process.env.AWS_VENDOR_DASHBOARD_BUCKET,
-=======
->>>>>>> 399a6d59ca5830938f6527fdd971bec254f1e2cc
     media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
   },
   google: {

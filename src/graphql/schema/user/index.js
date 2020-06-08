@@ -41,10 +41,7 @@ const schema = gql`
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
-<<<<<<< HEAD
       uploadBulkUsers(path: String!): [User!]!
-=======
->>>>>>> 399a6d59ca5830938f6527fdd971bec254f1e2cc
     }
 `;
 
