@@ -7,6 +7,8 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const AWS = require('aws-sdk');
 const { aws } = require(path.resolve('config'));
+const csv = require('csvtojson');
+
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 
 const s3 = new AWS.S3();
@@ -17,120 +19,119 @@ module.exports = async (_, { fileName }, data) => {
         Key: fileName
     }
 
-    return await new Promise((resolve, reject) => {
-        s3.getObject(params, async (err, data) => {
-            const csv = data.Body.toString("UTF-8").split('\n');
-            const headers = csv[0].split(',');
+    return new Promise((resolve, reject) => {
+        const stream = s3.getObject(params).createReadStream();
 
-            await promise.map(csv, async (row, index) => {
-                if (index > 0) {
-                    const columns = row.split(',');
-                    let product = {};
+        const json = csv().fromStream(stream);
 
-                    columns.forEach((column, colIndex) => {
-                        product[headers[colIndex].trim()] = column.trim();
-                    })
+        resolve(json);
+    }).then(data => {
+        return promise.map(data, async (row, index) => {
+            let product = {};
 
-                    product.category = product.category_UID;
-                    product.description = product.description.split("/").join(',');
-
-                    product.title = product.title.split("/").join(',');
-                    product.seller = await new Promise((resolve, reject) => {
-                        return repository.user.findByEmail(product.User_Email).then(res => {
-                            resolve(product.seller = res._id || res);
-                        })
-                    })
-
-                    product.assets = [
-                        product.assets0,
-                        product.assets1,
-                        product.assets2,
-                    ]
-
-                    let path = `/${product.User_Name}/Product Images/`;
-                    product.assets = await promise.map(product.assets, (asset, index) => {
-                        if (asset !== "") {
-
-                            const assetData = {
-                                owner: product.seller,
-                                path: `${path}${asset}`,
-                                photo: asset,
-                                name: product.User_Name,
-                                url: aws.vender_bucket
-                            }
-
-                            return repository.asset.createFromCSVForProducts(assetData).then(res => {
-                                return res.id || res;
-                            })
-
-                        }
-                    }).then(res => res)
-
-                    product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
-                    product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
-                    product.assets = product.assets.filter(asset => asset);
-                    product.isDeleted = (product.isDeleted === 'true');
-
-                    product.brand = await new Promise((resolve, reject) => {
-                        return repository.brand.findOrCreate({ name: product.brand_name.trim() }).then(res => {
-                            resolve(product.brand = res.id || res);
-                        })
-                    })
-
-                    product.weight = {
-                        value: parseInt(product.weight_value),
-                        unit: product.weight_unit
+            product.category = row.category_UID;
+            product.description = row.description.split("/").join(',');
+            product.title = row.title.split("/").join(',');
+            product.seller = await new Promise((resolve, reject) => {
+                return repository.user.findByEmail(row.User_Email).then(res => {
+                    if (res == null) {
+                        resolve(null);
+                    } else {
+                        resolve(res._id || res);
                     }
+                });
+            });
 
-                    const shippingBoxProperties = {
-                        label: product.shippingBoxName || "null",
+            product.assets = [
+                row.assets_0,
+                row.assets_1,
+                row.assets_2,
+                row.assets_3,
+            ];
+
+            let path = `/${product.User_Name}/Product Images/`;
+            product.assets = await promise.map(product.assets, (asset, index) => {
+                if (asset !== "") {
+
+                    const assetData = {
                         owner: product.seller,
-                        width: product.shippingBox_width,
-                        height: product.shippingBox_height,
-                        length: product.shippingBox_length,
-                        unit: product.unit,
+                        path: `${path}${asset}`,
+                        photo: asset,
+                        name: product.User_Name,
+                        url: aws.vender_bucket
                     }
 
-                    product.shippingBox = await new Promise((resolve, reject) => {
-                        return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
-                            resolve(product.shippingBox = res.id || res)
-                        })
+                    return repository.asset.createFromCSVForProducts(assetData).then(res => {
+                        if (res == null) {
+                            return null;
+                        }
+                        return res.id || res;
                     })
 
-                    const {
-                        assets_0,
-                        assets_1,
-                        assets_2,
-                        weight_value,
-                        shippingBoxName,
-                        shippingBox_width,
-                        shippingBox_height,
-                        shippingBox_length,
-                        unit,
-                        weight_unit,
-                        ...finalProduct
-                    } = product;
-
-                    product = { _id: uuid(), ...finalProduct };
-
-                    const inventoryLog = {
-                        _id: uuid(),
-                        product: product._id,
-                        shift: product.Quantity,
-                        type: InventoryLogType.USER_ACTION,
-                    };
-
-                    repository.productInventoryLog.add(inventoryLog)
-                    if (err)
-                        reject(err);
-
-                    return repository.product.create(product).then(res => res);
                 }
-            }).then(res => {
-                resolve(res.filter(item => item));
-            }).catch(err => {
-                reject(err)
-            })
+            }).then(res => res)
+
+            product.currency = row.currency;
+            row.price = Number(row.price);
+            row.oldPrice = Number(row.oldPrice);
+            product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.price, currency: row.currency }).getCentsAmount();
+            product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.oldPrice, currency: row.currency }).getCentsAmount();
+            product.assets = product.assets.filter(asset => asset);
+            product.isDeleted = (row.isDeleted === 'true');
+
+            product.brand = await new Promise((resolve, reject) => {
+                return repository.brand.findOrCreate({ name: row.brand_name.trim() }).then(res => {
+                    resolve(res.id || res);
+                })
+            });
+
+            // product.weight = {
+            //     value: parseInt(row.weight_value),
+            //     unit: row.weight_unit
+            // };
+
+            const shippingBoxProperties = {
+                parcelId: row.parcelId || "parcel",
+                weight: row.weight_value,
+                unitWeight: row.weight_unit,
+                label: row.shippingBoxName || "null",
+                owner: row.seller,
+                width: row.shippingBox_width,
+                height: row.shippingBox_height,
+                length: row.shippingBox_length,
+                unit: row.unit,
+            };
+
+            product.shippingBox = await new Promise((resolve, reject) => {
+                return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
+                    resolve(res.id || res);
+                }).catch(err => {
+                    console.log("upload failed index: " + index + "\n", err)
+                    resolve(null);
+                });
+            });
+
+            product.freeDeliveryTo = row.freeDeliveryTo || [];
+            product._id = uuid();
+
+            const inventoryLog = {
+                _id: uuid(),
+                product: product._id,
+                shift: row.Quantity,
+                type: InventoryLogType.USER_ACTION,
+            };
+
+            repository.productInventoryLog.add(inventoryLog);
+
+            return repository.product.create(product)
+                .then(res => res)
+                .catch(err => {
+                    console.log("upload failed index: " + index + "\n", err)
+                });
+        }).then(res => {
+            return res.filter(item => item);
+        }).catch(err => {
+            return err;
         })
     }).then(res => {
         return res;
