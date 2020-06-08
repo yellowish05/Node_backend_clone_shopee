@@ -4,10 +4,9 @@ const schema = gql`
     input AddressInput {
         street: String
         city: String
-        region: ID
+        region: ID!
         country: ID!
         zipCode: String
-        description: String
     }
 
     interface AddressInterface {
@@ -24,8 +23,6 @@ const schema = gql`
         region: Region
         country: Country!
         zipCode: String
-        addressId: String
-        description: String
     }
 
     type VerifiedAddress implements AddressInterface {
@@ -35,8 +32,6 @@ const schema = gql`
       country: Country!
       zipCode: String
       isDeliveryAvailable: Boolean!
-      addressId: String
-      description: String
     }
 `;
 
@@ -48,11 +43,7 @@ module.exports.resolvers = {
       return repository.country.getById(typeof country === 'object' ? country.id : country);
     },
     region({ region }, args, { dataSources: { repository } }) {
-      if (region) {
-        return repository.region.getById(typeof region === 'object' ? region.id : region);
-      } else {
-        return null;
-      }
+      return repository.region.getById(typeof region === 'object' ? region.id : region);
     },
   },
   VerifiedAddress: {

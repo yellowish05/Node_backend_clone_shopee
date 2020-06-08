@@ -4,7 +4,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { providers: { ShipEngine, EasyPost } } = require(path.resolve('src/bundles/delivery'));
+const { providers: { ShipEngine } } = require(path.resolve('src/bundles/delivery'));
 const { MarketType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
@@ -17,13 +17,10 @@ const activity = {
         || organization.address.country !== deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.INTERNATIONAL))) {
       return 0;
     }
-    return rate.rate;
-    /* 
-      return CurrencyFactory.getAmountOfMoney({
-        currencyAmount: rate.shippingAmount + rate.insuranceAmount + rate.confirmationAmount + rate.otherAmount,
-        currency: rate.currency.toUpperCase(),
-      }).getCentsAmount(); 
-    */
+    return CurrencyFactory.getAmountOfMoney({
+      currencyAmount: rate.shippingAmount + rate.insuranceAmount + rate.confirmationAmount + rate.otherAmount,
+      currency: rate.currency.toUpperCase(),
+    }).getCentsAmount();
   },
 };
 
@@ -57,6 +54,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
       if (!deliveryAddress.address.isDeliveryAvailable) {
         throw new UserInputError('Delivery Address is not valid for deliverance', { invalidArgs: 'deliveryAddress' });
       }
+
       return Promise.all([
         repository.organization.getByUser(product.seller),
         repository.shippingBox.findOne(product.shippingBox),
@@ -90,43 +88,17 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           if (!user.name || !user.phone) {
             throw new Error('Your account has no username or phone specified');
           }
-          let carrierAccountIds = [];
-          let carrierIds = {};
 
-          if (product.customCarrier) {
-            const customCarrierDelivery = repository.deliveryRateCache.create(
-              {
-                shipmentId: null, service: null, carrier: product.customCarrier, deliveryDateGuaranteed: false, deliveryAddress: deliveryAddress._id, rate_id: null,
-                deliveryDays: null, estimatedDeliveryDate: null, amount: (product.customCarrierValue).toFixed(2), currency: product.currency
-              }
-            )
-            return [customCarrierDelivery];
-          } else {
-            return repository.carrier.loadList(organization.carriers).then(carriers => {
-              carriers.map(carrierItem => {
-                carrierAccountIds.push(carrierItem.carrierId);
-                carrierIds[carrierItem.carrierId] = carrierItem._id;
-              })
-              let fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId;
-              return EasyPost.calculateRates({ fromAddress: fromAddressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds }).then(response => {
-                const { rates } = response;
-                rates.forEach(rate => {
-                  rate.rate = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
-                })
-                return Promise.all(rates.map((rate) => {
-                  const { id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id } = rate;
-                  return repository.deliveryRateCache.create(
-                    {
-                      shipmentId: shipment_id, service: service, carrier: carrierIds[carrier_account_id], deliveryDateGuaranteed: delivery_date_guaranteed, deliveryAddress: deliveryAddress._id, rate_id: id,
-                      deliveryDays: delivery_days, estimatedDeliveryDate: delivery_date, amount: (rateAmount * 100).toFixed(2), currency: currency
-                    },
-                  )
-                }));
-              }).catch((error) => {
-                throw new ApolloError(`Failed to calculate rates. Original error: ${error.message}`, 400);
-              });
-            })
-          }
+          return repository.carrier.loadList(organization.carriers)
+            .then((carriers) => ShipEngine.calculate(carriers, organization.address, deliveryAddress.address, seller, user, product, shippingBox, args.quantity)
+              .then((rates) => {
+                rates.forEach((rate) => {
+                  rate.amount = activity.getDeliveryPrice(rate, organization, deliveryAddress, product);
+                });
+                return Promise.all(rates.map((rate) => repository.deliveryRateCache.create(
+                  { ...rate, deliveryAddress: deliveryAddress.id },
+                )));
+              }));
         });
     })
     .catch((error) => {

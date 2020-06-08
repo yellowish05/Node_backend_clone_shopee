@@ -57,9 +57,10 @@ module.exports = ({ repository }) => new ApolloServer({
     },
   },
   introspection: true,
+  // playground: false,
   playground: {
     settings: {
-      'editor.theme': 'light',
+  	  'editor.theme': 'light',
     },
   },
   engine: {

@@ -106,10 +106,6 @@ class ProductRepository {
   }
 
   async create(data) {
-    if (data.description.length > 1023) {
-      data.description = data.description.substring(0, 1008).concat('...');
-    }
-
     const product = new this.model(data);
     return product.save();
   }

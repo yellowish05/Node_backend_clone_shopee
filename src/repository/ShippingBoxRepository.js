@@ -21,20 +21,6 @@ class ShippingBoxRepository {
     return shippingBox.save();
   }
 
-  async findOrAdd(data) {
-    const boxExist = await this.findByLabelAndOwner(data);
-
-    if (boxExist) {
-      return boxExist;
-    } else {
-      return this.create(data);
-    }
-  }
-
-  async findByLabelAndOwner(data) {
-    return this.model.findOne({ label: data.label || 'null', owner: data.owner });
-  }
-
   async remove(id) {
     return this.model.update({ _id: id }, { isDeleted: true });
   }
