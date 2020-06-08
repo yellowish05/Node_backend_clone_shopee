@@ -38,7 +38,6 @@ module.exports = {
     appAssets: process.env.CDN_APP_ASSETS_DOMAIN,
     media: process.env.CDN_MEDIA_DOMAIN,
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
-    vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET
   },
   aws: {
     agora_api_key: process.env.AWS_AGORA_ACCESS_KEY_ID || null,
@@ -46,11 +45,12 @@ module.exports = {
     app_bucket: process.env.AWS_APP_BUCKET,
     media_bucket: process.env.AWS_MEDIA_BUCKET,
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
+<<<<<<< HEAD
     upload_bucket: process.env.AWS_UPLOAD_BUCKET,
     vendor_bucket: process.env.AWS_VENDOR_DASHBOARD_BUCKET,
+=======
+>>>>>>> 399a6d59ca5830938f6527fdd971bec254f1e2cc
     media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
-    aws_api_key: process.env.AWS_APP_KEY,
-    aws_access_key: process.env.AWS_APP_SECRET
   },
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',
@@ -113,12 +113,6 @@ module.exports = {
     // 1 week in seconds
     addressCacheTTL: 60 * 60 * 24 * 7,
     deliveryRateCacheTTL: 60 * 60 * 24 * 7,
-  },
-  easyPost: {
-    uri: 'https://api.easypost.com/v2',
-    // api_key: env === 'development' ? process.env.EASY_POST_TEST_API_KEY : process.env.EASY_POST_PROD_API_KEY
-    api_key: process.env.EASY_POST_PROD_API_KEY,
-    deliveryRateCacheTTL: 60 * 60 * 24 * 7
   },
   redis: {
     host: process.env.REDIS_HOST,

@@ -13,7 +13,7 @@ const schema = new Schema({
   carrier: {
     type: String,
     ref: 'Carrier',
-    required: false,
+    required: true,
     index: true,
   },
   deliveryAddress: {
@@ -23,7 +23,7 @@ const schema = new Schema({
   },
   rate_id: {
     type: String,
-    required: false,
+    required: true,
   },
   deliveryDays: {
     type: Number,

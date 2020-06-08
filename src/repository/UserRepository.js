@@ -24,14 +24,6 @@ class UserRepository {
   }
 
   async create(data, options = {}) {
-
-    let {
-      email,
-      ...userProperties
-    } = data
-
-    data = { email: email.toLowerCase(), ...userProperties };
-
     if (!data.email) {
       throw Error('Email is required!');
     }
@@ -43,6 +35,7 @@ class UserRepository {
     if (data.email && await this.findByEmail(data.email)) {
       throw Error(`Email "${data.email}" is already taken!`);
     }
+
 
     const user = new this.model({
       _id: data._id,
@@ -60,58 +53,7 @@ class UserRepository {
     return user.save();
   }
 
-
-  async createFromCsv(data, options = {}) {
-
-    let {
-      email,
-      ...userProperties
-    } = data
-
-    data = { email: email.toLowerCase(), ...userProperties };
-
-    if (!data.email) {
-      throw Error('Email is required!');
-    }
-
-    if (!data.password) {
-      throw Error('Password is required!');
-    }
-
-    if (data.email && await this.findByEmail(data.email)) {
-      throw Error(`Email "${data.email}" is already taken!`);
-    }
-
-    const user = new this.model({
-      _id: data._id,
-      email: data.email,
-      photo: data.photo.id,
-      password: md5(data.password),
-      phone: data.number,
-      name: data.name,
-      roles: data.Role || [],
-      address: data.address,
-      location: data.location,
-      settings: {
-        pushNotifications: PushNotification.toList(),
-        language: data.settings.language,
-        currency: data.settings.currency,
-        measureSystem: data.settings.measureSystem,
-      },
-    });
-
-    return user.save();
-  }
-
   async createByProvider(data, options = {}) {
-
-    let {
-      email,
-      ...userProperties
-    } = data
-
-    data = { email: email.toLowerCase(), ...userProperties };
-
     if (!data.email) {
       throw Error('Email is required!');
     }
@@ -139,14 +81,6 @@ class UserRepository {
   }
 
   async update(id, data) {
-
-    let {
-      email,
-      ...userProperties
-    } = data
-
-    data = { email: email.toLowerCase(), ...userProperties };
-
     const user = await this.load(id);
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
@@ -188,14 +122,13 @@ class UserRepository {
   async findByEmailAndPassword({ email, password }) {
     const query = {
       password: md5(password),
-      email: email.toLowerCase(),
+      email,
     };
 
     return this.model.findOne(query);
   }
 
   async findByEmail(email) {
-    email = email.toLowerCase();
     return this.model.findOne({ email });
   }
 
@@ -218,7 +151,6 @@ class UserRepository {
       { new: true },
     );
   }
-
 
   async addToBlackList(userId, reportedId) {
     return this.model.update(

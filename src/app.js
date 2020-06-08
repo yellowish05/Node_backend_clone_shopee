@@ -6,19 +6,22 @@ const { createServer } = require('http');
 const morgan = require('morgan');
 const logger = require('../config/logger');
 const repository = require('./repository');
-
+const {AgoraService} = require('./lib/AgoraService');
 const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
-const viewersRouters = require('./viewers');
+
+var multiparty = require('connect-multiparty');
+const fs = require('fs');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();
 });
 
 const app = express();
-
+app.use(express.json({limit: '50000mb'}));
+app.use(express.urlencoded({limit: '50000mb'}));
 // app.use(morgan('combined', { stream: logger.stream }));
 
 app.get('/health', (req, res) => {
@@ -26,7 +29,24 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/webhooks', webhookRouters);
-app.use('/viewers', viewersRouters);
+
+var multipartymiddleware = multiparty();
+app.route('/upload').post(multipartymiddleware,function(req,res){
+  let file = req.files.file;
+  fs.readFile(file.path,function(err,data){
+    AgoraService.upload(data,function(location){
+      res.send(location);
+      fs.unlink(file.path,function(err){
+        console.log('Temp File Deleted');
+      })
+      //AgoraService.publish(location);
+    })
+  })
+})
+
+
+
+
 
 app.use(cors({
   origin: corsDomain,

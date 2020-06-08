@@ -12,7 +12,6 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  carrierId: String,    // EasyPost carrier account id
   workInCountries: [{
     type: String,
     ref: 'Country',

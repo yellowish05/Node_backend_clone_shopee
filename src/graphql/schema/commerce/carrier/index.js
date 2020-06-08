@@ -4,7 +4,6 @@ const schema = gql`
     type Carrier {
         id: ID!
         name: String!
-        carrierId: String!
         workInCountries: [Country]!
     }
 

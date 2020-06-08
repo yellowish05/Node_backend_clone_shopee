@@ -4,23 +4,17 @@ const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
 const { Currency } = require(path.resolve('src/lib/Enums'));
-const { easyPost } = require(path.resolve('config'));
+const { shipengine } = require(path.resolve('config'));
 const collectionName = 'DeliveryRateCache';
 
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
-  shipmentId: {   // shipment id from EasyPost calculated rates
-    type: String,
-    required: false,
-  },
-  service: String,    // service name for EasyPost carrier
-  deliveryDateGuaranteed: Boolean,    // a boolean from EasyPost that it indicates if delivery window is guaranteed (true) or not (false)
   carrier: {
     type: String,
     ref: 'Carrier',
-    required: false,
+    required: true,
     index: true,
   },
   deliveryAddress: {
@@ -30,7 +24,7 @@ const schema = new Schema({
   },
   rate_id: {
     type: String,
-    required: false,
+    required: true,
   },
   deliveryDays: {
     type: Number,
@@ -47,6 +41,6 @@ const schema = new Schema({
     enum: Currency.toList(),
   },
 });
-schema.index({ createdAt: 1 }, { expires: easyPost.deliveryRateCacheTTL });
+schema.index({ createdAt: 1 }, { expires: shipengine.deliveryRateCacheTTL });
 
 module.exports = new model(collectionName, schema);
