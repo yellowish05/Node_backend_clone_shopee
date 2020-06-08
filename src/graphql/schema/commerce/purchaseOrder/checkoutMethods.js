@@ -70,6 +70,7 @@ module.exports = {
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
+    order.isPaid = true;
 
     return repository.purchaseOrder.create(order);
   },
