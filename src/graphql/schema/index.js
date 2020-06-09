@@ -63,6 +63,7 @@ const typeDefs = [].concat(
   paymentTypeDefs,
 );
 
+
 const resolvers = merge(
   commonResolvers,
   testErrorsResolvers,
@@ -98,7 +99,6 @@ const schema = makeExecutableSchema({
     auth,
   },
 });
-
 module.exports = () => mergeSchemas({
   schemas: [
     schema,
