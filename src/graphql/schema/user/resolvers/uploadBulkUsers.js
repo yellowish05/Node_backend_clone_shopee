@@ -71,9 +71,9 @@ module.exports = async (_, { path }) => {
 
             user.email = row.email;
             user.password = row.password || 'Shoclef123';
-            user.number = row.phone_number;
+            user.number = "+" + row.phone_number;
             user.name = row.name;
-            user.Role = row.Role || [];
+            user.Role = row.Role || ["USER"];
 
             return repository.user.createFromCsv(user)
                 .then(res => res)

@@ -95,7 +95,7 @@ module.exports = async (_, { fileName }, data) => {
                 weight: row.weight_value,
                 unitWeight: row.weight_unit,
                 label: row.shippingBoxName || "null",
-                owner: row.seller,
+                owner: product.seller,
                 width: row.shippingBox_width,
                 height: row.shippingBox_height,
                 length: row.shippingBox_length,

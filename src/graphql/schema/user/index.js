@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 const addUser = require('./resolvers/addUser');
 const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');
+const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 
 const schema = gql`
     type User {
@@ -55,6 +56,7 @@ module.exports.resolvers = {
     addUser,
     updateUser,
     changePassword,
+    uploadBulkUsers
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {

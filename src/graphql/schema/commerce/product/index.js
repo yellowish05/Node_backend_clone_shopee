@@ -8,6 +8,7 @@ const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
 const products = require('./resolvers/products');
+const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
 
 const schema = gql`
     type Product {
@@ -142,6 +143,7 @@ module.exports.resolvers = {
     addProduct,
     updateProduct,
     deleteProduct,
+    uploadBulkProducts
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (

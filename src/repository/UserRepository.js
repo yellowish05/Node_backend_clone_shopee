@@ -36,7 +36,6 @@ class UserRepository {
       throw Error(`Email "${data.email}" is already taken!`);
     }
 
-
     const user = new this.model({
       _id: data._id,
       email: data.email,
@@ -47,6 +46,41 @@ class UserRepository {
         language: 'EN',
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
+      },
+    });
+
+    return user.save();
+  }
+
+
+  async createFromCsv(data, options = {}) {
+    if (!data.email) {
+      throw Error('Email is required!');
+    }
+
+    if (!data.password) {
+      throw Error('Password is required!');
+    }
+
+    if (data.email && await this.findByEmail(data.email)) {
+      throw Error(`Email "${data.email}" is already taken!`);
+    }
+
+    const user = new this.model({
+      _id: data._id,
+      email: data.email,
+      photo: data.photo.id,
+      password: md5(data.password),
+      phone: data.number,
+      name: data.name,
+      roles: data.Role || [],
+      address: data.address,
+      location: data.location,
+      settings: {
+        pushNotifications: PushNotification.toList(),
+        language: data.settings.language,
+        currency: data.settings.currency,
+        measureSystem: data.settings.measureSystem,
       },
     });
 
