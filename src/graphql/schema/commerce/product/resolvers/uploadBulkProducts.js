@@ -83,11 +83,13 @@ module.exports = async (_, { fileName }, data) => {
             product.assets = product.assets.filter(asset => asset);
             product.isDeleted = (row.isDeleted === 'true');
 
-            product.brand = await new Promise((resolve, reject) => {
-                return repository.brand.findOrCreate({ name: row.brand_name.trim() }).then(res => {
-                    resolve(res.id || res);
-                })
-            });
+            if (row.brand_name) {
+                product.brand = await new Promise((resolve, reject) => {
+                    return repository.brand.findOrCreate({ name: row.brand_name.trim() }).then(res => {
+                        resolve(res.id || res);
+                    })
+                });
+            }
 
             product.weight = {
                 value: parseInt(row.weight_value),

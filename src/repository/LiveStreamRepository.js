@@ -78,6 +78,9 @@ function transformFilter({
   return query.$and.length > 0 ? query : emptyQuery;
 }
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min; // The maximum is exclusive and the minimum is inclusive
+}
 
 class LiveStreamRepository {
   constructor(model) {
@@ -94,16 +97,60 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
-  async update(id, data) {
+  async update(id, data, flag) {
     const liveStream = await this.load(id);
     if (!liveStream) {
       throw Error(`Live Stream "${id}" does not exist!`);
     }
 
     liveStream.title = data.title || liveStream.title;
-    liveStream.status = data.title || liveStream.status;
-
+    liveStream.status = data.status || liveStream.status;
+    if (flag == 0) {
+      liveStream.views = Number(liveStream.views) + data.views || liveStream.views;
+      liveStream.likes = Number(liveStream.likes) + data.likes || liveStream.likes;
+    } else {
+      liveStream.views = data.views || liveStream.views;
+      liveStream.likes = data.likes || liveStream.likes;
+    }
     return liveStream.save();
+  }
+
+  async updateCount(id, length, tag, view) {
+    const liveStream = await this.load(id);
+    let fakeViews = 0;
+    let fakeLikes = 0;
+    const timelist = [20, 60, 120, 240, 420, 660, 1200];
+    const viewlimit = [3, 6, 11, 21, 31, 46, 60];
+    const likelimit = [2, 4, 8, 17, 25, 34, 45];
+    let index = 0;
+
+    timelist.forEach((item) => {
+      if (length > item) { index++; }
+    });
+
+    if (timelist[index] && index > 0) {
+      fakeViews = getRandomInt(viewlimit[index], viewlimit[index - 1]);
+      fakeLikes = getRandomInt(likelimit[index], likelimit[index - 1]);
+    } else if (index == 0) {
+      fakeViews = getRandomInt(viewlimit[index], 1);
+      fakeLikes = getRandomInt(likelimit[index], 1);
+    }
+
+
+    if (!liveStream) {
+      throw Error(`Live Stream "${id}" does not exist!`);
+    }
+
+    if (view == 'view' && tag == 'real') { liveStream.realViews += 1; } else if (view == 'like' && tag == 'real') {
+      liveStream.realLikes += 1;
+    } else {
+      liveStream.fakeLikes += fakeLikes;
+      liveStream.fakeViews += fakeViews;
+    }
+
+    liveStream.save();
+
+    return liveStream;
   }
 
   async getAll(query = {}) {
@@ -132,6 +179,16 @@ class LiveStreamRepository {
       .countDocuments(
         transformFilter(filter),
       );
+  }
+
+  async getViews(id) {
+    const liveStream = await this.load(id);
+    return Number(liveStream.fakeViews) + Number(liveStream.realViews);
+  }
+
+  async getLikes(id) {
+    const liveStream = await this.load(id);
+    return Number(liveStream.fakeLikes) + Number(liveStream.realLikes);
   }
 }
 

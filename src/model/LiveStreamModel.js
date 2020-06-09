@@ -57,6 +57,29 @@ const schema = new Schema({
     type: String,
     ref: 'Product',
   }],
+  realViews: {
+    type: Number,
+    required: true,
+  },
+  realLikes: {
+    type: Number,
+    required: true,
+  },
+  fakeViews: {
+    type: Number,
+    required: true,
+  },
+  fakeLikes: {
+    type: Number,
+    required: true,
+  },
+  length: {
+    type: Number,
+    required: true,
+  },
+  type: {
+    type: String,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

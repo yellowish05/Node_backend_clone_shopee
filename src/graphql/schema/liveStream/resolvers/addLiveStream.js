@@ -91,10 +91,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         liveStreamId,
         repository.streamChannel.create(channel),
         repository.messageThread.create(messageThread),
-        repository.streamChannelParticipant.create(participant)
+        repository.streamChannelParticipant.create(participant),
+        repository.city.findByName(args.data.city || user.address.city),
       ]);
     })
-    .then(([_id, streamChannel, messageThread]) => {
+    .then(([_id, streamChannel, messageThread, , city]) => {
       repository.userHasMessageThread.create({
         thread: messageThread.id,
         user: user.id,
@@ -112,10 +113,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
+        city,
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,
         products: args.data.products,
+        length: 0,
+        realViews: 0,
+        realLikes: 0,
+        fakeViews: 0,
+        fakeLikes: 0,
       });
     })
     .catch((error) => {

@@ -9,6 +9,10 @@ const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
+  addressId: {
+    type: String,
+    required: false,
+  },
   label: {
     type: String,
   },

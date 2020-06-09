@@ -1,4 +1,4 @@
-// const { PubSub } = require('apollo-server');
+const { PubSub } = require('apollo-server');
 const { RedisPubSub } = require('graphql-redis-subscriptions');
 const Redis = require('ioredis');
 const { redis } = require('./index');

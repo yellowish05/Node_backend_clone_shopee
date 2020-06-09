@@ -27,6 +27,7 @@ const schema = gql`
       name: String
       email: String
       phone: String
+      countryCode: String
       address: AddressInput
       location: LatLngInput
       photo: ID

@@ -11,7 +11,7 @@ const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
-
+const viewersRouters = require('./viewers');
 var multiparty = require('connect-multiparty');
 const fs = require('fs');
 
@@ -29,7 +29,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/webhooks', webhookRouters);
-
+app.use('/viewers', viewersRouters);
 var multipartymiddleware = multiparty();
 app.route('/upload').post(multipartymiddleware,function(req,res){
   let file = req.files.file;

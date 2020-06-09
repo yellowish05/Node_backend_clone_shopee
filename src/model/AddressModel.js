@@ -1,6 +1,10 @@
 const { Schema } = require('mongoose');
 
 const addressSchema = new Schema({
+  addressId: {
+    type: String,
+    required: false,
+  },
   street: String,
   city: String,
   region: {
@@ -16,6 +20,7 @@ const addressSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  description: String
 }, { _id: false });
 
 module.exports = addressSchema;
