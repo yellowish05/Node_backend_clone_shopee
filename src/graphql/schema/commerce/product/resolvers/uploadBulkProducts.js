@@ -32,15 +32,19 @@ module.exports = async (_, { fileName }, data) => {
             product.category = row.category_UID;
             product.description = row.description.split("/").join(',');
             product.title = row.title.split("/").join(',');
-            product.seller = await new Promise((resolve, reject) => {
-                return repository.user.findByEmail(row.User_Email).then(res => {
-                    if (res == null) {
-                        resolve(null);
-                    } else {
-                        resolve(res._id || res);
-                    }
+            if (row.prod_user_UID) {
+                product.seller = row.prod_user_UID;
+            } else {
+                product.seller = await new Promise((resolve, reject) => {
+                    return repository.user.findByEmail(row.User_Email.toLowerCase()).then(res => {
+                        if (res == null) {
+                            resolve(null);
+                        } else {
+                            resolve(res._id || res);
+                        }
+                    });
                 });
-            });
+            }
 
             product.assets = [
                 row.assets_0,
@@ -49,7 +53,7 @@ module.exports = async (_, { fileName }, data) => {
                 row.assets_3,
             ];
 
-            let path = `/${product.User_Name}/Product Images/`;
+            let path = `/${row.User_Name}/Product Images/`;
             product.assets = await promise.map(product.assets, (asset, index) => {
                 if (asset !== "") {
 
@@ -57,8 +61,8 @@ module.exports = async (_, { fileName }, data) => {
                         owner: product.seller,
                         path: `${path}${asset}`,
                         photo: asset,
-                        name: product.User_Name,
-                        url: aws.vender_bucket
+                        name: row.User_Name,
+                        url: aws.vendor_bucket
                     }
 
                     return repository.asset.createFromCSVForProducts(assetData).then(res => {
@@ -85,10 +89,10 @@ module.exports = async (_, { fileName }, data) => {
                 })
             });
 
-            // product.weight = {
-            //     value: parseInt(row.weight_value),
-            //     unit: row.weight_unit
-            // };
+            product.weight = {
+                value: parseInt(row.weight_value),
+                unit: row.weight_unit
+            };
 
             const shippingBoxProperties = {
                 parcelId: row.parcelId || "parcel",
