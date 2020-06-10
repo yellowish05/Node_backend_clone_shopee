@@ -75,11 +75,11 @@ const schema = gql`
       3. (in background) when file will be uploaded the Storage informs the API about that automaticaly, and status will be changed
       """
       addAsset (data: AssetInput!): Asset! @auth(requires: USER)
-<<<<<<< HEAD
+
       giveSignedUrl: Sign! @auth(requires: USER)
-=======
+
       addAssetUrl(data:AssetInputUrl):Asset! @auth(requires:USER)
->>>>>>> a443599747efb829d179bbd88ce619943a3adec3
+
       uploadAsset(file:Upload!): Asset! @auth(requires: USER)
     }
 `;
@@ -95,14 +95,14 @@ module.exports.resolvers = {
   },
   Mutation: {
     addAsset,
-<<<<<<< HEAD
+
     giveSignedUrl: async () => {
       return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
     },
-    uploadAsset
-=======
+
+
     uploadAsset,
     addAssetUrl
->>>>>>> a443599747efb829d179bbd88ce619943a3adec3
+
   },
 };
