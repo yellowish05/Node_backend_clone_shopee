@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 
 const addAsset = require('./resolvers/addAsset');
+const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
 const asset = require('./resolvers/asset');
 
@@ -33,6 +34,10 @@ const schema = gql`
       size: Int!
     }
 
+    input AssetInputUrl{
+      path:String!
+    }
+
     input AssetInput {
       """It should be a MIME type of the file"""
       mimetype: String!
@@ -62,6 +67,7 @@ const schema = gql`
       3. (in background) when file will be uploaded the Storage informs the API about that automaticaly, and status will be changed
       """
       addAsset (data: AssetInput!): Asset! @auth(requires: USER)
+      addAssetUrl(data:AssetInputUrl):Asset! @auth(requires:USER)
       uploadAsset(file:Upload!): Asset! @auth(requires: USER)
     }
 `;
@@ -77,6 +83,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     addAsset,
-    uploadAsset
+    uploadAsset,
+    addAssetUrl
   },
 };
