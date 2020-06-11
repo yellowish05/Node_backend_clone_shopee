@@ -96,11 +96,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         liveStreamId,
         repository.streamChannel.create(channel),
         repository.messageThread.create(messageThread),
-        repository.streamChannelParticipant.create(participant),
-        repository.city.findByName(args.data.city || user.address.city),
+        repository.streamChannelParticipant.create(participant)
       ]);
     })
-    .then(([_id, streamChannel, messageThread, , city]) => {
+    .then(([_id, streamChannel, messageThread]) => {
       repository.userHasMessageThread.create({
         thread: messageThread.id,
         user: user.id,
