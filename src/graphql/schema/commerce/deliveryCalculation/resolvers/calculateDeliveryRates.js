@@ -94,6 +94,9 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           const carrierIds = {};
 
           if (product.customCarrier) {
+            let amount = product.customCarrierValue;
+            if (organization.address.country === deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.DOMESTIC)
+              || organization.address.country !== deliveryAddress.address.country && product.freeDeliveryTo.includes(MarketType.INTERNATIONAL)) { amount = 0; }
             const customCarrierDelivery = repository.deliveryRateCache.create(
               {
                 shipmentId: null,
@@ -104,12 +107,13 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 rate_id: null,
                 deliveryDays: null,
                 estimatedDeliveryDate: null,
-                amount: (product.customCarrierValue).toFixed(2),
+                amount: amount.toFixed(2),
                 currency: product.currency,
               },
             );
             return [customCarrierDelivery];
           }
+
           return repository.carrier.loadList(organization.carriers).then((carriers) => {
             carriers.map((carrierItem) => {
               carrierAccountIds.push(carrierItem.carrierId);
@@ -127,6 +131,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 const {
                   id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id,
                 } = rate;
+
                 return repository.deliveryRateCache.create(
                   {
                     shipmentId: shipment_id,
