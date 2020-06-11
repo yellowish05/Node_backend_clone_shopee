@@ -32,7 +32,7 @@ const schema = gql`
       user: User!
       type: SourceType!
       source: String!,
-      prerecorded:Boolean = false
+      prerecorded:Boolean
     }
 
     type StreamRecord {
