@@ -76,9 +76,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         sources.push(await getlivestreamsource(user,args.data.liveStreamRecord,repository));
       }
 
+      finisheddate = new Date();
+      starteddate = new Date(finisheddate - 10 * 60 * 1000);
       const channel = {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
+        finishedAt:args.data.liveStreamRecord?finisheddate:null,
+        startedAt:args.data.liveStreamRecord?starteddate:null,
         status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         record: {
           enabled: true,
