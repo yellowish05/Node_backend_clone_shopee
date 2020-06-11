@@ -93,23 +93,6 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           const carrierAccountIds = [];
           const carrierIds = {};
 
-          if (product.customCarrier) {
-            const customCarrierDelivery = repository.deliveryRateCache.create(
-              {
-                shipmentId: null,
-                service: null,
-                carrier: product.customCarrier,
-                deliveryDateGuaranteed: false,
-                deliveryAddress: deliveryAddress._id,
-                rate_id: null,
-                deliveryDays: null,
-                estimatedDeliveryDate: null,
-                amount: (product.customCarrierValue).toFixed(2),
-                currency: product.currency,
-              },
-            );
-            return [customCarrierDelivery];
-          }
           return repository.carrier.loadList(organization.carriers).then((carriers) => {
             carriers.map((carrierItem) => {
               carrierAccountIds.push(carrierItem.carrierId);
@@ -127,6 +110,23 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                 const {
                   id, shipment_id, service, delivery_date_guaranteed, delivery_days, delivery_date, rate: rateAmount, currency, carrier_account_id,
                 } = rate;
+                if (product.customCarrier && rateAmount !== 0) {
+                  const customCarrierDelivery = repository.deliveryRateCache.create(
+                    {
+                      shipmentId: null,
+                      service: null,
+                      carrier: product.customCarrier,
+                      deliveryDateGuaranteed: false,
+                      deliveryAddress: deliveryAddress._id,
+                      rate_id: null,
+                      deliveryDays: null,
+                      estimatedDeliveryDate: null,
+                      amount: (product.customCarrierValue).toFixed(2),
+                      currency: product.currency,
+                    },
+                  );
+                  return [customCarrierDelivery];
+                }
                 return repository.deliveryRateCache.create(
                   {
                     shipmentId: shipment_id,
