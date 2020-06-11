@@ -79,7 +79,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const channel = {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
-        status: StreamChannelStatus.PENDING,
+        status: args.data.streamSource?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         record: {
           enabled: true,
           status: args.data.streamSource?StreamRecordStatus.FINISHED:StreamRecordStatus.PENDING,
