@@ -73,7 +73,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       channel.record.sources = [];
        if(args.data.liveStreamRecord)
       {
-        channel.record.sources.push({source:args.data.liveStreamRecord,type:SourceType.VIDEO_AUDIO,user:user});
+        channel.record.sources.push({source:`${args.data.liveStreamRecord}`,type:SourceType.VIDEO_AUDIO,user:user});
       }
 
       const messageThread = {
