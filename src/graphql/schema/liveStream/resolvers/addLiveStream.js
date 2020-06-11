@@ -73,7 +73,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       if(args.data.liveStreamRecord)
       {
-        sources.push(await getlivestreamsource(user,args.data.liveStreamRecord));
+        sources.push(await getlivestreamsource(user,args.data.liveStreamRecord,repository));
       }
 
       const channel = {
