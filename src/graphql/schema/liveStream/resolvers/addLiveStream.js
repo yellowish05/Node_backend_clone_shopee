@@ -12,6 +12,15 @@ const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 
 const errorHandler = new ErrorHandler();
 
+async function getlivestreamsource(user,datasource,repository)
+{
+  return new Promise((resolve,reject)=>{
+    repository.streamSource.create({source:datasource,type:SourceType.VIDEO_AUDIO,user}).then((streamsource)=>{
+      resolve(streamsource);
+    })
+  })
+}
+
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
     title: 'required',
@@ -55,7 +64,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           }
         });
       }))
-    .then(() => {
+    .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
       const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
@@ -64,7 +73,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       if(args.data.liveStreamRecord)
       {
-        sources.push({source:`${args.data.liveStreamRecord}`,type:SourceType.VIDEO_AUDIO,user});
+        sources.push(await getlivestreamsource(user,args.data.liveStreamRecord));
       }
 
       const channel = {
