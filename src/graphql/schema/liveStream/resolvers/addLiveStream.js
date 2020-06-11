@@ -77,8 +77,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           sources:sources
         },
       };
-      channel.record.sources = [];
-       
+ 
 
       const messageThread = {
         tags: [`LiveStream:${liveStreamId}`],
