@@ -4,7 +4,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const {
-  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,
+  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
 } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
@@ -70,9 +70,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         },
       };
 
-      if(args.data.liveStreamRecord)
+       if(args.data.liveStreamRecord)
       {
-        channel.record.sources = [args.data.liveStreamRecord];
+        channel.record.sources = [{source:args.data.liveStreamRecord,type:SourceType.VIDEO_AUDIO,user:user}];
       }
 
       const messageThread = {
