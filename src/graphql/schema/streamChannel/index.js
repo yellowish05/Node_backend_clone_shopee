@@ -31,7 +31,8 @@ const schema = gql`
     type StreamRecordSource {
       user: User!
       type: SourceType!
-      source: String!
+      source: String!,
+      prerecorded:Boolean = false
     }
 
     type StreamRecord {
@@ -143,7 +144,15 @@ module.exports.resolvers = {
   },
   StreamRecordSource: {
     source(recordSource) {
-      return cdn.media + recordSource.source;
+      if(recordSource.prerecorded)
+      {
+        return recordSource.source;
+      }
+      else
+      {
+        return cdn.media + recordSource.source;  
+      }
+      
     },
   },
 };

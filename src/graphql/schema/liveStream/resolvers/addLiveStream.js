@@ -15,7 +15,7 @@ const errorHandler = new ErrorHandler();
 async function getlivestreamsource(user,datasource,repository)
 {
   return new Promise((resolve,reject)=>{
-    repository.streamSource.create({source:datasource,type:SourceType.VIDEO_AUDIO,user}).then((streamsource)=>{
+    repository.streamSource.create({source:datasource,type:SourceType.VIDEO_AUDIO,user,prerecorded:true}).then((streamsource)=>{
       resolve(streamsource);
     })
   })
