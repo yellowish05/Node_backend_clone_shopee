@@ -2,6 +2,8 @@ const { gql } = require('apollo-server');
 const path = require('path');
 
 const addAsset = require('./resolvers/addAsset');
+const addAssetUrl = require('./resolvers/addAssetUrl');
+const uploadAsset = require('./resolvers/uploadassets');
 const asset = require('./resolvers/asset');
 const { aws, logs } = require(path.resolve('config'));
 
@@ -26,6 +28,7 @@ const schema = gql`
       region: String,
       bucket: String
     }
+    scalar Upload
 
     type Asset {
       id: ID!
@@ -39,6 +42,10 @@ const schema = gql`
       size: Int!
     }
 
+    input AssetInputUrl{
+      path:String!
+    }
+
     input AssetInput {
       """It should be a MIME type of the file"""
       mimetype: String!
@@ -47,7 +54,15 @@ const schema = gql`
     }
 
     extend type Query {
-      asset(id: ID!): Asset!,
+      asset(id: ID!): Asset!
+    }
+
+    type File {
+      id: ID!
+      path: String!
+      filename: String!
+      mimetype: String!
+      encoding: String!
     }
 
     extend type Mutation {
@@ -60,20 +75,34 @@ const schema = gql`
       3. (in background) when file will be uploaded the Storage informs the API about that automaticaly, and status will be changed
       """
       addAsset (data: AssetInput!): Asset! @auth(requires: USER)
+
       giveSignedUrl: Sign! @auth(requires: USER)
+
+      addAssetUrl(data:AssetInputUrl):Asset! @auth(requires:USER)
+
+      uploadAsset(file:Upload!): Asset! @auth(requires: USER)
     }
 `;
 
 module.exports.typeDefs = [schema];
 
+const { GraphQLUpload } = require('apollo-upload-server');
+
 module.exports.resolvers = {
+  Upload: GraphQLUpload,
   Query: {
     asset,
   },
   Mutation: {
     addAsset,
+
     giveSignedUrl: async () => {
       return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
     },
+
+
+    uploadAsset,
+    addAssetUrl
+
   },
 };

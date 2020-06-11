@@ -1,10 +1,11 @@
 const { AccessToken } = require('agora-access-token');
 const path = require('path');
 const request = require('request');
+const AWS = require('aws-sdk');
 
 const { Token, Priviledges } = AccessToken;
 const { StreamRole } = require('./Enums');
-
+//const AgoraRTC = require('agora-rtc-sdk');
 const { agora, aws } = require(path.resolve('config'));
 const logger = require(path.resolve('config/logger'));
 
@@ -34,6 +35,11 @@ if (aws.agora_api_secret == null) {
 
 const authToken = Buffer.from(`${agora.api_key}:${agora.api_cert}`).toString('base64');
 const authHeader = { Authorization: `Basic ${authToken}`, 'Content-type': 'application/json;charset=utf-8' };
+
+const s3 = new AWS.S3({
+  accessKeyId:aws.agora_api_key,
+  secretAccessKey:aws.agora_api_secret
+})
 
 module.exports.AgoraService = {
   buildTokenWithAccount(channelName, account, role, privilegeExpiredTs = 0) {
@@ -138,4 +144,46 @@ module.exports.AgoraService = {
       });
     },
   },
+  upload(stream,callback){
+    const params = {
+      Bucket:aws.media_bucket,
+      key:stream.originalFilename,
+      Body:JSON.stringify(stream)
+    }
+
+    s3.upload(params,function(s3Err,data){
+      if(s3Err)
+      {
+        console.log(s3Err);
+      }
+
+      callback(data.Location);
+    })
+  },
+  publish(location)
+  {
+    // var client = AgoraRTC.createClient({mode:'live',codec:'h264'});
+    // var defaultConfigRTMP = {
+    //   width: 640,
+    //   height: 360,
+    //   videoBitrate: 400,
+    //   videoFramerate: 15,
+    //   lowLatency: false,
+    //   audioSampleRate: 48000,
+    //   audioBitrate: 48,
+    //   audioChannels: 1,
+    //   videoGop: 30,
+    //   videoCodecProfile: 100,
+    //   userCount: 0,
+    //   userConfigExtraInfo: {},
+    //   backgroundColor: 0x000000,
+    //   transcodingUsers: [],
+    // };
+
+    // AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.DEBUG);
+
+    // client.init(agora.app_id,function(){
+    //   client.addInjectStreamUrl(location,defaultConfigRTMP);
+    // })
+  }
 };

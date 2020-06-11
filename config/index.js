@@ -47,7 +47,7 @@ module.exports = {
     media_bucket: process.env.AWS_MEDIA_BUCKET,
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
     upload_bucket: process.env.AWS_UPLOAD_BUCKET,
-    vender_bucket: process.env.AWS_VENDOR_DASHBOARD_BUCKET,
+    vendor_bucket: process.env.AWS_VENDORS_DASHBOARD_BUCKET,
     media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
     aws_api_key: process.env.AWS_APP_KEY,
     aws_access_key: process.env.AWS_APP_SECRET
