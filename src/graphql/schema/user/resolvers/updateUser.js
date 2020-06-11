@@ -42,6 +42,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       let { location } = args.data;
       let address = null;
       let addressRegion;
+      let tempCurrency;
       if (args.data.address) {
         const addressCountry = await repository.country.getById(args.data.address.country);
         if (!addressCountry) {
@@ -60,7 +61,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           country: addressCountry,
         };
 
-        const tempCurrency = addressCountry ? addressCountry.currency : 'USD';
+        tempCurrency = addressCountry ? addressCountry.currency : 'USD';
         repository.user.updateCurrency(user.id, tempCurrency);
       }
 
@@ -104,6 +105,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
 
+      const tempCountry = await repository.country.getById(addressObj.address.country);
+      repository.user.updateCurrency(user.id, tempCountry.currency);
       return repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,

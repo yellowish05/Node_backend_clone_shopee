@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
@@ -202,3 +203,17 @@ class LiveStreamRepository {
 }
 
 module.exports = LiveStreamRepository;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

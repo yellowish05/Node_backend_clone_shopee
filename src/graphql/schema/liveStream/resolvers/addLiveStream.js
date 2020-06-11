@@ -82,7 +82,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: StreamChannelStatus.PENDING,
         record: {
           enabled: true,
-          status: StreamRecordStatus.PENDING,
+          status: args.data.streamSource?StreamRecordStatus.FINISHED:StreamRecordStatus.PENDING,
           sources:sources
         },
       };
