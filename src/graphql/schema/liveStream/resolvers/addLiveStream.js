@@ -60,6 +60,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const liveStreamId = uuid();
       const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
 
+      let sources = [];
+
+      if(args.data.liveStreamRecord)
+      {
+        sources.push({source:`${args.data.liveStreamRecord}`,type:SourceType.VIDEO_AUDIO,user});
+      }
+
       const channel = {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
@@ -67,14 +74,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         record: {
           enabled: true,
           status: StreamRecordStatus.PENDING,
+          sources:sources
         },
       };
-
       channel.record.sources = [];
-       if(args.data.liveStreamRecord)
-      {
-        channel.record.sources.push({source:`${args.data.liveStreamRecord}`,type:SourceType.VIDEO_AUDIO,user:user});
-      }
+       
 
       const messageThread = {
         tags: [`LiveStream:${liveStreamId}`],
