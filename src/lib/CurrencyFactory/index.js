@@ -8,7 +8,7 @@ module.exports.CurrencyFactory = {
     if (!CurrencyStrategy) {
       throw new Error(`We does not support "${currency}" currency.`);
     }
-    const amountOfMoney = new CurrencyStrategy({ currencyAmount, centsAmount });
+    const amountOfMoney = new CurrencyStrategy({ centsAmount, currencyAmount });
 
     return amountOfMoney;
   },

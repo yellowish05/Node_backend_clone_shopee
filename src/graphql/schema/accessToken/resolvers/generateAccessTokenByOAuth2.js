@@ -55,7 +55,7 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
                 providerId: socialUserData.id,
               }, { roles: ['USER'] }))
               .then((user) => {
-                EmailService.sendWelcome({ user });
+                EmailService.sendWelcome({user});
                 return user;
               });
           }
@@ -66,11 +66,12 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
               url: socialUserData.photo,
             })
               .then((asset) => repository.user.update(user.id, {
-                name: user.name || socialUserData.name,
-                photo: asset,
-                provider: data.provider,
-                providerId: socialUserData.id,
-              }));
+                  name: user.name || socialUserData.name,
+                  photo: asset,
+                  provider: data.provider,
+                  providerId: socialUserData.id,
+                })
+              );
           }
 
           return repository.user.update(user.id, {

@@ -1,12 +1,13 @@
-const path = require('path');
-const uuid = require('uuid/v4');
-const promise = require('bluebird');
+const path = require('path')
+const uuid = require('uuid/v4')
+const promise = require('bluebird')
 
-const repository = require(path.resolve('src/repository'));
-const AWS = require('aws-sdk');
-const { aws, cdn } = require(path.resolve('config'));
+const repository = require(path.resolve('src/repository'))
+const AWS = require('aws-sdk')
+const { aws, cdn } = require(path.resolve('config'))
+const csv = require('csvtojson')
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3()
 
 module.exports = async (_, { path }) => {
 
@@ -116,17 +117,34 @@ module.exports = async (_, { path }) => {
                     }
                     return repository.user.createFromCsv(user).then(res => res).catch(err => err);
                 }
-            }).then(res => {
-                resolve(res.filter(item => item));
-            }).catch(err => {
-                reject(err)
-            })
-        })
 
+                user.photo = await new Promise((resolve, reject) => {
+                    return repository.asset.createFromCSVForUsers(assetData).then(res => {
+                        resolve(user.photo = res || res.id)
+                    })
+                })
+            }
+
+            user.email = row.email.toLowerCase();
+            user.password = row.password || 'Shoclef123'
+            user.number = "+" + row.phone_number
+            user.name = row.name
+            user.Role = row.Role || ["USER"]
+
+            return repository.user.createFromCsv(user)
+                .then(res => res)
+                .catch(err => {
+                    console.log("upload failed index: " + index + "\n", err)
+                })
+        }).then(res => {
+            return res.filter(item => item)
+        }).catch(err => {
+            return err
+        })
     }).then(res => {
-        return res;
+        return res
     }).catch(err => {
-        return err;
+        return err
     })
 
 }

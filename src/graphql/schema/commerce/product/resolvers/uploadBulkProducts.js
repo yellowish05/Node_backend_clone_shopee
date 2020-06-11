@@ -7,6 +7,8 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const AWS = require('aws-sdk');
 const { aws } = require(path.resolve('config'));
+const csv = require('csvtojson');
+
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 
 const s3 = new AWS.S3();
@@ -140,11 +142,71 @@ module.exports = async (_, { fileName }, data) => {
 
                     return repository.product.create(product).then(res => res);
                 }
-            }).then(res => {
-                resolve(res.filter(item => item));
-            }).catch(err => {
-                reject(err)
-            })
+            }).then(res => res)
+
+            product.currency = row.currency;
+            row.price = Number(row.price);
+            row.oldPrice = Number(row.oldPrice);
+            product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.price, currency: row.currency }).getCentsAmount();
+            product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.oldPrice, currency: row.currency }).getCentsAmount();
+            product.assets = product.assets.filter(asset => asset);
+            product.isDeleted = (row.isDeleted === 'true');
+
+            if (row.brand_name) {
+                product.brand = await new Promise((resolve, reject) => {
+                    return repository.brand.findOrCreate({ name: row.brand_name.trim() }).then(res => {
+                        resolve(res.id || res);
+                    })
+                });
+            }
+
+            product.weight = {
+                value: parseInt(row.weight_value),
+                unit: row.weight_unit
+            };
+
+            const shippingBoxProperties = {
+                parcelId: row.parcelId || "parcel",
+                weight: row.weight_value,
+                unitWeight: row.weight_unit,
+                label: row.shippingBoxName || "null",
+                owner: product.seller,
+                width: row.shippingBox_width,
+                height: row.shippingBox_height,
+                length: row.shippingBox_length,
+                unit: row.unit,
+            };
+
+            product.shippingBox = await new Promise((resolve, reject) => {
+                return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
+                    resolve(res.id || res);
+                }).catch(err => {
+                    console.log("upload failed index: " + index + "\n", err)
+                    resolve(null);
+                });
+            });
+
+            product.freeDeliveryTo = row.freeDeliveryTo || [];
+            product._id = uuid();
+
+            const inventoryLog = {
+                _id: uuid(),
+                product: product._id,
+                shift: row.Quantity,
+                type: InventoryLogType.USER_ACTION,
+            };
+
+            repository.productInventoryLog.add(inventoryLog);
+
+            return repository.product.create(product)
+                .then(res => res)
+                .catch(err => {
+                    console.log("upload failed index: " + index + "\n", err)
+                });
+        }).then(res => {
+            return res.filter(item => item);
+        }).catch(err => {
+            return err;
         })
     }).then(res => {
         return res;

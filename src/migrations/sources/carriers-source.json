@@ -1,7 +1,6 @@
 [{
     "_id": "4aba757a-de6b-4ca3-9d06-fff559d7cf65",
     "name": "U.S. Postal Service",
-    "carrierId": "ca_a76a3f9f4c084314b4d55af84cf82d72",
     "workInCountries": ["AF","AL","DZ","AD","AO","AI","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY",
         "BE","BZ","BJ","BM","BT","BO","BQ","BA","BW","BR","VG","BN","BG","BF","BI","KH","CM","CA","CV","KY","CF",
         "TD","CL","CN","CO","KM","CG","CD","CR","HR","CU","CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ","ER",
@@ -17,7 +16,6 @@
 {
     "_id": "1bac93b1-aeb7-45ca-aa7e-a101b4f58bcf",
     "name": "FedEx",
-    "carrierId": "ca_7b0e37aad683458ca19fbe91477a1690",
     "workInCountries": ["AF","AL","DZ","AS","AD","AO","AI","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB",
         "BY","BE","BZ","BJ","BM","BT","BO","BQ","BA","BW","BR","VG","BN","BG","BF","BI","KH","CM","CA","CV","KY",
         "TD","MR","MU","MX","FM","MD","MC","MN","ME","MS","MA","MZ","NA","NP","NL","NC","NZ","NI","NE","NG","NF",
@@ -32,7 +30,6 @@
 {
     "_id": "7b876707-e9f2-4987-a501-f9bb53a478c0",
     "name": "UPS",
-    "carrierId": "",
     "workInCountries": ["AF", "AL", "AD", "AR", "AW", "AU", "AT", "BH", "BD", "BB", "BY", "BE", "BJ", "BA", "BW",
         "BR", "BN", "BG", "BF", "CM", "CA", "CL", "CR", "HR", "CW", "CY", "CZ", "DK", "DJ", "DO", "EG", "SV", "EE",
         "ET", "FI", "FR", "GE", "DE", "GH", "GR", "GU", "GT", "GN", "HK", "HU", "IS", "IN", "ID", "IQ", "IE", "IL",
@@ -46,7 +43,6 @@
 {
     "_id": "2f9c0c8d-9044-495b-99b4-94716d2927f4",
     "name": "DHL Express",
-    "carrierId": "",
     "workInCountries": ["AF", "AL", "DZ", "AS", "AD", "AO", "AI", "AG", "AR", "AM", "AW", "AT", "AZ", "AU", "BS", "BH",
         "BD", "BB", "BY", "BE", "BZ", "BJ", "BM", "BT", "BO", "BQ", "BA", "BW", "BR", "BN", "BG", "BF", "BI", "KH",
         "CM", "CA", "CV", "KY", "CF", "TD", "CL", "CN", "CO", "KM", "CG", "CD", "CK", "CR", "HR", "CU", "CY", "CZ",
@@ -64,7 +60,6 @@
 {
     "_id": "7e565460-6075-46d1-bf39-6c0ac0c94e7b",
     "name": "Australia Post",
-    "carrierId": "ca_5926d0d330bd4fef8f1abb96c421e20d",
     "workInCountries": ["AF","AL","DZ","AS","AO","AI","AG","AR","AM","AW","AT","AZ","BS","BH","BD","BB","BY","BE",
         "BZ","BJ","BM","BT","BO","BQ","BA","BW","BR","IO","BN","BG","BF","BI","KH","CM","CA","CV","KY","CF","TD",
         "CL","CN","CO","KM","CD","CG","CK","CR","HR","CU","CW","CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ",
@@ -80,61 +75,6 @@
 {
     "_id": "15c95616-7714-4335-a05e-3116a4deb221",
     "name": "Asendia",
-    "carrierId": "",
     "workInCountries": ["AU","AT","BE","BR","DK","FI","FR","DE","GB","HK","IE","IL","IT","JP","NL","NZ","NO","RU",
         "SG","KR","ES","SE","CH","TH"]
-},
-{
-    "_id": "f2093d29-8aad-4837-929f-d625b54df0f8",
-    "name": "APC",
-    "carrierId": "ca_6fae687ad11d4b1ab5063067ea78c01e",
-    "workInCountries": []
-},
-{
-    "_id": "cfd09b55-10e0-4902-b4e2-6e686e32bdf8",
-    "name": "Aramex",
-    "carrierId": "ca_0f0965896c5a4622842069e9cb482d9d",
-    "workInCountries": []
-},
-{
-    "_id": "0dd8b4df-bbf1-4be8-8290-e85610334ec0",
-    "name": "Dicom",
-    "carrierId": "ca_d0e044d1a84a467cab6ab11cd67875d0",
-    "workInCountries": []
-},
-{
-    "_id": "79dc8e64-3721-447f-9b27-da99745f277e",
-    "name": "GSO",
-    "carrierId": "ca_024639e99b6042e0a61a1fc284193f21",
-    "workInCountries": []
-},
-{
-    "_id": "70dd994b-921b-487d-9cc7-70d585cdeeea",
-    "name": "Hermes",
-    "carrierId": "ca_4e0d33974f4f49d1a623ffaac26c75df",
-    "workInCountries": []
-},
-{
-    "_id": "ee7e204c-d785-4668-9f3f-036a6eaeb8ff",
-    "name": "LSO",
-    "carrierId": "ca_2e6d53c363b549c5bba710a3e30ebf40",
-    "workInCountries": []
-},
-{
-    "_id": "5f0d1f44-52cd-48e7-9c0e-42b34f5cc9aa",
-    "name": "OnTrac",
-    "carrierId": "ca_3349f036b4ab42c089b3aae97a66cfe5",
-    "workInCountries": []
-},
-{
-    "_id": "dc6620c5-b71d-43ac-a657-b9d6d7a3ac81",
-    "name": "OnTrac DirectPost",
-    "carrierId": "ca_d8b92d51f5a94ab2bf4d8c872781dd47",
-    "workInCountries": []
-},
-{
-    "_id": "94d660f3-7021-4da5-b8f5-5711e3bfe979",
-    "name": "UDS",
-    "carrierId": "ca_5f742a5634fa4d26a2bd49f5775121d5",
-    "workInCountries": []
 }]

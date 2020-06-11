@@ -21,6 +21,7 @@ const schema = new Schema({
     enum: SourceType.toList(),
   },
   source: String,
+  prerecorded:Boolean
 });
 
 module.exports = new model(collectionName, schema);
