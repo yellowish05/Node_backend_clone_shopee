@@ -118,7 +118,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
-        city,
+        city:args.data.city,
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,
