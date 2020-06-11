@@ -26,11 +26,12 @@ module.exports = async (_, { path }) => {
                     let user = {};
 
                     columns.map((column, colIndex) => {
-                        user[headers[colIndex].trim()] = column.trim();
+                        if (column !== undefined)
+                            user[headers[colIndex].trim()] = column.trim();
                     });
 
                     user.address = {
-                        street: user.address.split('/').join(','),
+                        street: user.address.split(';').join(','),
                         city: user.city,
                         region: user.region,
                         country: user.country,
@@ -49,7 +50,7 @@ module.exports = async (_, { path }) => {
                     }
 
                     const {
-                        UID,
+                        id,
                         latitude,
                         longitude,
                         city,
@@ -62,15 +63,21 @@ module.exports = async (_, { path }) => {
                         ...properties
                     } = user
 
-                    user = { _id: uuid(), ...properties };
+                    if (id) {
+                        user = { _id: id, ...properties };
+                    } else {
+                        user = { _id: uuid(), ...properties };
+                    }
 
                     const shippingBoxProperties = {
-                        label: "null",
+                        label: "medium",
                         owner: user._id,
-                        width: 0,
-                        height: 0,
-                        length: 0,
+                        width: 15,
+                        height: 15,
+                        length: 15,
                         unit: "INCH",
+                        weight: 20,
+                        unitWeight: "OUNCE"
                     }
 
                     await new Promise((resolve, reject) => {
@@ -79,30 +86,33 @@ module.exports = async (_, { path }) => {
                         })
                     })
 
-                    user.brand_name = await new Promise((resolve, reject) => {
-                        return repository.brand.create({ _id: uuid(), name: user.brand_name.trim() }).then(res => {
-                            resolve(user.brand_name = res.id || res);
+                    user.brandName = await new Promise((resolve, reject) => {
+                        return repository.brand.create({ _id: uuid(), name: user.brandName.trim() }).then(res => {
+                            resolve(user.brandName = res.id || res);
                         })
                     })
 
                     if (user.photo) {
+                        if (user.photo.includes(".jpg") ||
+                            user.photo.includes(".jpeg") ||
+                            user.photo.includes(".png")) {
+                            const assetData = {
+                                name: user.name,
+                                photo: user.photo,
+                                owner: user._id,
+                                path: `${user.name}/Logo/${user.photo}`,
+                                url: aws.vender_bucket
+                            }
 
-                        const assetData = {
-                            name: user.name,
-                            photo: user.photo,
-                            owner: user._id,
-                            path: `${user.name}/Logo/${user.photo}`,
-                            url: aws.vender_bucket
-                        }
+                            if (err)
+                                reject(err);
 
-                        if (err)
-                            reject(err);
-
-                        user.photo = await new Promise((resolve, reject) => {
-                            return repository.asset.createFromCSVForUsers(assetData).then(res => {
-                                resolve(user.photo = res || res.id);
+                            user.photo = await new Promise((resolve, reject) => {
+                                return repository.asset.createFromCSVForUsers(assetData).then(res => {
+                                    resolve(user.photo = res || res.id);
+                                })
                             })
-                        })
+                        }
                     }
                     return repository.user.createFromCsv(user).then(res => res).catch(err => err);
                 }

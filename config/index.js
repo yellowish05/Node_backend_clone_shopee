@@ -38,7 +38,8 @@ module.exports = {
     appAssets: process.env.CDN_APP_ASSETS_DOMAIN,
     media: process.env.CDN_MEDIA_DOMAIN,
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
-    vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET
+    vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET,
+    razington: process.env.CDN_REZINGTON_VENDOR_IMAGES_UPLOADS
   },
   aws: {
     agora_api_key: process.env.AWS_AGORA_ACCESS_KEY_ID || null,

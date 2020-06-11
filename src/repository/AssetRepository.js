@@ -91,7 +91,7 @@ class AssetRepository {
   }
 
   async createFromCSVForProducts(data) {
-    const url = `${cdn.vendorBuckets}/${data.name}/Product Images/${data.photo}`;
+    const url = `${cdn.razington}/${data.name}/Product Images/${data.photo}`;
     const assetData = {
       _id: uuid(),
       status: "UPLOADED",

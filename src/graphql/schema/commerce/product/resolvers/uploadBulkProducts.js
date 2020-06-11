@@ -28,15 +28,17 @@ module.exports = async (_, { fileName }, data) => {
                     let product = {};
 
                     columns.forEach((column, colIndex) => {
-                        product[headers[colIndex].trim()] = column.trim();
+                        if (column !== undefined) {
+                            product[headers[colIndex].trim()] = column.trim();
+                        }
                     })
 
-                    product.category = product.category_UID;
-                    product.description = product.description.split("/").join(',');
+                    product.category = product.categoryID;
+                    product.description = product.description.split(";").join(',');
+                    product.title = product.title.split(";").join(',');
 
-                    product.title = product.title.split("/").join(',');
                     product.seller = await new Promise((resolve, reject) => {
-                        return repository.user.findByEmail(product.User_Email).then(res => {
+                        return repository.user.findByEmail(product.email).then(res => {
                             resolve(product.seller = res._id || res);
                         })
                     })
@@ -47,76 +49,88 @@ module.exports = async (_, { fileName }, data) => {
                         product.assets2,
                     ]
 
-                    let path = `/${product.User_Name}/Product Images/`;
+                    const path = `/${product.username}/Product Images/`;
                     product.assets = await promise.map(product.assets, (asset, index) => {
                         if (asset !== "") {
-
                             const assetData = {
                                 owner: product.seller,
                                 path: `${path}${asset}`,
                                 photo: asset,
-                                name: product.User_Name,
+                                name: product.username,
                                 url: aws.vender_bucket
                             }
 
                             return repository.asset.createFromCSVForProducts(assetData).then(res => {
                                 return res.id || res;
                             })
-
                         }
                     }).then(res => res)
 
-                    product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
-                    product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: product.price, currency: product.currency }).getCentsAmount();
+                    product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseInt(product.price), currency: product.currency }).getCentsAmount();
+                    product.oldPrice = product.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: parseInt(product.oldPrice), currency: product.currency }).getCentsAmount() : null;
                     product.assets = product.assets.filter(asset => asset);
                     product.isDeleted = (product.isDeleted === 'true');
 
                     product.brand = await new Promise((resolve, reject) => {
-                        return repository.brand.findOrCreate({ name: product.brand_name.trim() }).then(res => {
+                        return repository.brand.findOrCreate({ name: product.brandname.trim() }).then(res => {
                             resolve(product.brand = res.id || res);
                         })
                     })
 
                     product.weight = {
-                        value: parseInt(product.weight_value),
-                        unit: product.weight_unit
+                        value: parseInt(product.weightValue),
+                        unit: product.weightUnit
                     }
 
                     const shippingBoxProperties = {
-                        label: product.shippingBoxName || "null",
+                        label: product.shippingBoxName || "medium",
                         owner: product.seller,
-                        width: product.shippingBox_width,
-                        height: product.shippingBox_height,
-                        length: product.shippingBox_length,
+                        width: parseInt(product.shippingBoxWidth) || 15,
+                        height: parseInt(product.shippingBoxHeight) || 15,
+                        length: parseInt(product.shippingBoxLength) || 15,
+                        weight: parseInt(product.weight.value) || 20,
                         unit: product.unit,
+                        unitWeight: product.unitWeight || "OUNCE"
                     }
 
                     product.shippingBox = await new Promise((resolve, reject) => {
-                        return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
-                            resolve(product.shippingBox = res.id || res)
+                        return repository.shippingBox.findByOwnerAndSize({
+                            owner: shippingBoxProperties.owner,
+                            width: shippingBoxProperties.width,
+                            height: shippingBoxProperties.height,
+                            length: shippingBoxProperties.length,
+                            weight: shippingBoxProperties.weight
                         })
+                            .then(res => {
+                                resolve(product.shippingBox = res._id || res)
+                            })
                     })
 
                     const {
-                        assets_0,
-                        assets_1,
-                        assets_2,
-                        weight_value,
+                        id,
+                        assets0,
+                        assets1,
+                        assets2,
+                        weightValue,
                         shippingBoxName,
-                        shippingBox_width,
-                        shippingBox_height,
-                        shippingBox_length,
+                        shippingBoxWidth,
+                        shippingBoxHeight,
+                        shippingBoxLength,
                         unit,
-                        weight_unit,
+                        weightUnit,
                         ...finalProduct
                     } = product;
 
-                    product = { _id: uuid(), ...finalProduct };
+                    if (id) {
+                        product = { _id: id, ...finalProduct };
+                    } else {
+                        product = { _id: uuid(), ...finalProduct };
+                    }
 
                     const inventoryLog = {
                         _id: uuid(),
                         product: product._id,
-                        shift: product.Quantity,
+                        shift: product.quantity,
                         type: InventoryLogType.USER_ACTION,
                     };
 
