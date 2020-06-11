@@ -29,7 +29,7 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
       const assetData = {
         _id: id,
         owner: user,
-        path:pathname,
+        path:pathname + id,
         url: path,
         type:type,
         size:100,
