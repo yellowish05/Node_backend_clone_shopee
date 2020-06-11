@@ -27,7 +27,7 @@ const schema = gql`
         streamer: User!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
-        city: String
+        city: City
         preview: Asset
         channel: StreamChannel!
         isLiked: Boolean
