@@ -1,12 +1,14 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
+
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { Geocoder } = require(path.resolve('src/lib/Geocoder'));
 const repository = require(path.resolve('src/repository'));
 const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 const fs = require('fs');
+
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -14,7 +16,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     email: 'email',
   });
 
-  const validNumber = await phoneUtil.parse(args.data.phone)
+  const validNumber = await phoneUtil.parse(args.data.phone);
 
   return validator.check()
     .then(async (matched) => {
@@ -23,10 +25,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       if (!phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
-        if ((phoneUtil.getRegionCodeForNumber(validNumber) !== "AR" && phoneUtil.getRegionCodeForNumber(validNumber) !== "MX")
+        if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
           || !phoneUtil.isPossibleNumber(validNumber)) {
-          throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' })
+          throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
         }
       }
 
@@ -39,7 +41,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       let { location } = args.data;
       let address = null;
-      let addressRegion
+      let addressRegion;
       if (args.data.address) {
         const addressCountry = await repository.country.getById(args.data.address.country);
         if (!addressCountry) {
@@ -57,12 +59,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           region: addressRegion,
           country: addressCountry,
         };
+
+        const tempCurrency = addressCountry ? addressCountry.currency : 'USD';
+        repository.user.updateCurrency(user.id, tempCurrency);
       }
 
       let addressObj = {
         phone: args.data.phone,
-        email: args.data.email
-      }
+        email: args.data.email,
+      };
       try {
         if (location && !address) {
           address = await Geocoder.reverse(location);
@@ -79,10 +84,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               region: address.region ? address.region : null,
               zipCode: address.zipCode,
               country: address.country,
-            }
-          }
-        }
-        else {
+            },
+          };
+        } else {
           location = await Geocoder.geocode(address);
           addressObj = {
             ...addressObj,
@@ -93,12 +97,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               region: args.data.address.region,
               zipCode: args.data.address.zipCode,
               country: args.data.address.country,
-            }
-          }
+            },
+          };
         }
       } catch (error) {
         throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
       }
+
       return repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,
@@ -106,7 +111,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         photo: args.data.photo,
         location,
         address: {
-          ...addressObj.address
+          ...addressObj.address,
         },
       }).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
