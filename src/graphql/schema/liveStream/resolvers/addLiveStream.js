@@ -4,7 +4,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const {
-  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
+  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,
 } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
@@ -60,13 +60,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const liveStreamId = uuid();
       const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
 
-      let sources = [];
-
-      if(args.data.liveStreamRecord)
-      {
-        sources.push({source:`${args.data.liveStreamRecord}`,type:SourceType.VIDEO_AUDIO,user});
-      }
-
       const channel = {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
@@ -74,10 +67,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         record: {
           enabled: true,
           status: StreamRecordStatus.PENDING,
-          sources:sources
         },
       };
- 
+
+      if(args.data.liveStreamRecord)
+      {
+        channel.record.sources = [args.data.liveStreamRecord];
+      }
 
       const messageThread = {
         tags: [`LiveStream:${liveStreamId}`],
@@ -95,10 +91,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         liveStreamId,
         repository.streamChannel.create(channel),
         repository.messageThread.create(messageThread),
-        repository.streamChannelParticipant.create(participant)
+        repository.streamChannelParticipant.create(participant),
+        repository.city.findByName(args.data.city || user.address.city),
       ]);
     })
-    .then(([_id, streamChannel, messageThread]) => {
+    .then(([_id, streamChannel, messageThread, , city]) => {
       repository.userHasMessageThread.create({
         thread: messageThread.id,
         user: user.id,
@@ -116,7 +113,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
-        city:args.data.city,
+        city,
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,

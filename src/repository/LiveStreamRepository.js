@@ -97,15 +97,6 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
-  async toggleLike(id, count) {
-    const liveStream = await this.load(id);
-    if (!liveStream) {
-      throw Error(`Live Stream "${id}" does not exist!`);
-    }
-    liveStream.realLikes += count;
-    return liveStream.save();
-  }
-
   async update(id, data, flag) {
     const liveStream = await this.load(id);
     if (!liveStream) {

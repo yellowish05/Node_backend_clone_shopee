@@ -24,10 +24,11 @@ class UserRepository {
   }
 
   async create(data, options = {}) {
-    const {
+
+    let {
       email,
       ...userProperties
-    } = data;
+    } = data
 
     data = { email: email.toLowerCase(), ...userProperties };
 
@@ -61,10 +62,11 @@ class UserRepository {
 
 
   async createFromCsv(data, options = {}) {
-    const {
+
+    let {
       email,
       ...userProperties
-    } = data;
+    } = data
 
     data = { email: email.toLowerCase(), ...userProperties };
 
@@ -102,10 +104,11 @@ class UserRepository {
   }
 
   async createByProvider(data, options = {}) {
-    const {
+
+    let {
       email,
       ...userProperties
-    } = data;
+    } = data
 
     data = { email: email.toLowerCase(), ...userProperties };
 
@@ -136,10 +139,11 @@ class UserRepository {
   }
 
   async update(id, data) {
-    const {
+
+    let {
       email,
       ...userProperties
-    } = data;
+    } = data
 
     data = { email: email.toLowerCase(), ...userProperties };
 
@@ -168,17 +172,6 @@ class UserRepository {
       { $set: { isOnline: status } },
       { new: true },
     );
-  }
-
-  async updateCurrency(id, currency) {
-    const user = await this.load(id);
-    if (!user) {
-      throw Error(`User "${id}" does not exist!`);
-    }
-
-    user.settings.currency = currency;
-
-    return user.save();
   }
 
   async updateSettings(id, settings) {
