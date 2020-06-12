@@ -18,6 +18,8 @@ module.exports = async function checkoutCart(
 
   // generate payments with Payment Provider data and update order
   await payPurchaseOrder({ order, paymentMethod, user });
-
+  cartItems.map((item) => {
+    repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity);
+  });
   return order;
 };
