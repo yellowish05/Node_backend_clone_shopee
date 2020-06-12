@@ -6,8 +6,14 @@ class ProductRepository {
   }
 
   async add(data) {
-    const product = new this.model(data);
-    return product.save();
+    let product = this.model.findOne(data.product);
+    try {
+      product.shift += data.shift;
+      return product.save();
+    } catch {
+      product = new this.model(data);
+      return product.save();
+    }
   }
 
   async getQuantityByProductId(id) {
@@ -25,8 +31,8 @@ class ProductRepository {
 
   async decreaseQuantity(id, quantity) {
     try {
-      const product = this.model.findOne({ _id: id });
-      product.quantity -= quantity;
+      const product = this.model.findOne({ product: id });
+      product.shift -= quantity;
       try {
         return product.save();
       } catch (err) {
@@ -39,8 +45,8 @@ class ProductRepository {
 
   async checkAmount(id, quantity) {
     try {
-      const product = this.model.findOne({ _id: id });
-      if (product.quantity - quantity < 1) return false;
+      const product = this.model.findOne({ product: id });
+      if (product.shift - quantity < 1) return false;
       return true;
     } catch (err) {
       throw new Error(err);
