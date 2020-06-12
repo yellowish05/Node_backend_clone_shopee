@@ -1,3 +1,4 @@
+const { date } = require('faker');
 const { turn } = require('../model/LiveStreamExperienceModel');
 
 class ProductRepository {
@@ -5,15 +6,23 @@ class ProductRepository {
     this.model = model;
   }
 
+  async load(id) {
+    return this.model.findOne({ _id: id });
+  }
+
   async add(data) {
-    let product = this.model.findOne(data.product);
-    try {
-      product.shift += data.shift;
-      return product.save();
-    } catch {
-      product = new this.model(data);
-      return product.save();
-    }
+    const inventory = new this.model(data);
+    return inventory.save();
+  }
+
+  async update(id, quantity) {
+    const inventory = await this.load(id);
+    inventory.shift = quantity;
+    return inventory.save();
+  }
+
+  async getByProductId(id) {
+    return this.model.findOne({ product: id });
   }
 
   async getQuantityByProductId(id) {
@@ -31,13 +40,8 @@ class ProductRepository {
 
   async decreaseQuantity(id, quantity) {
     try {
-      const product = this.model.findOne({ product: id });
-      product.shift -= quantity;
-      try {
-        return product.save();
-      } catch (err) {
-        throw new Error(err);
-      }
+      const inventory = await this.getByProductId(id);
+      return this.update(inventory.id, inventory.shift - quantity);
     } catch (err) {
       throw new Error(err);
     }
@@ -45,8 +49,8 @@ class ProductRepository {
 
   async checkAmount(id, quantity) {
     try {
-      const product = this.model.findOne({ product: id });
-      if (product.shift - quantity < 1) return false;
+      const inventory = await this.getByProductId(id);
+      if (inventory.shift - quantity < 1) return false;
       return true;
     } catch (err) {
       throw new Error(err);
