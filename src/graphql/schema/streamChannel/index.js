@@ -9,6 +9,7 @@ const joinStreamChannel = require('./resolvers/joinStreamChannel');
 const leaveStreamChannel = require('./resolvers/leaveStreamChannel');
 const startStreaming = require('./resolvers/startStreaming');
 const stopStreaming = require('./resolvers/stopStreaming');
+const addStreaming = require('./resolvers/uploadstreamsource');
 
 const schema = gql`
     enum StreamChannelType {
@@ -30,7 +31,8 @@ const schema = gql`
     type StreamRecordSource {
       user: User!
       type: SourceType!
-      source: String!
+      source: String!,
+      prerecorded:Boolean
     }
 
     type StreamRecord {
@@ -38,6 +40,7 @@ const schema = gql`
       status: StreamRecordStatus!
       sources: [StreamRecordSource]!
     }
+    
 
     type StreamParticipant {
       joinedAt: Date
@@ -93,12 +96,21 @@ const schema = gql`
         Pass ID of the Stream Channel created for Live Stream
         """
         stopStreaming(id: ID!): StreamChannel! @auth(requires: USER)
+
+        """
+        Allows: authorized user
+        Pass ID of the Stream Channel created for Live Stream
+        """
+        addStreaming(file:Upload!): StreamRecordSource! @auth(requires: USER)
     }
 `;
 
 module.exports.typeDefs = [schema];
 
+const { GraphQLUpload } = require('apollo-upload-server');
+
 module.exports.resolvers = {
+  Upload:GraphQLUpload,
   Query: {
     streamChannel(_, args, { dataSources: { repository } }) {
       return repository.streamChannel.load(args.id);
@@ -109,6 +121,7 @@ module.exports.resolvers = {
     leaveStreamChannel,
     startStreaming,
     stopStreaming,
+    addStreaming
   },
   StreamChannel: {
     participants(streamChannel, args, { dataSources: { repository } }) {
@@ -131,7 +144,15 @@ module.exports.resolvers = {
   },
   StreamRecordSource: {
     source(recordSource) {
-      return cdn.media + recordSource.source;
+      if(recordSource.prerecorded)
+      {
+        return recordSource.source;
+      }
+      else
+      {
+        return cdn.media + recordSource.source;  
+      }
+      
     },
   },
 };

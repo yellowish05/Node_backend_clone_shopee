@@ -23,6 +23,9 @@ module.exports = {
         }
         const productIds = cartItems.map((item) => item.product).filter((id) => id);
         const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
+        cartItems.map((item) => {
+          if (!repository.productInventoryLog.checkAmount(item.product, item.quantity)) { throw new Error('Invalide to checkout this cart'); }
+        });
         return Promise.all([
           repository.product.getByIds(productIds),
           repository.deliveryRate.getByIds(deliveryRateIds),
@@ -70,6 +73,7 @@ module.exports = {
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
+    order.isPaid = true;
 
     return repository.purchaseOrder.create(order);
   },
