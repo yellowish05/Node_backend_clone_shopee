@@ -10,19 +10,21 @@ module.exports = async function checkoutOneProduct(
   },
   { dataSources: { repository }, user },
 ) {
-  const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
+  const checkAmount = await repository.productInventoryLog.checkAmount(product, quantity);
+  if (checkAmount) {
+    const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
 
-  // creating order
-  const order = await checkout.createOrder({
-    cartItems, currency, buyerId: user.id,
-  }, repository);
+    // creating order
+    const order = await checkout.createOrder({
+      cartItems, currency, buyerId: user.id,
+    }, repository);
 
-  const prod = await repository.product.getById(product).then(product => {
-    return product.customCarrier;
-  })
+    const prod = await repository.product.getById(product).then((product) => product.customCarrier);
 
-  if (!prod)
-    await payPurchaseOrder({ order, paymentMethod, user });
+    if (!prod) { await payPurchaseOrder({ order, paymentMethod, user }); }
 
-  return order;
+    const inventory = await repository.productInventoryLog.decreaseQuantity(product, quantity);
+    return order;
+  }
+  throw new Error('This product is not enough now');
 };
