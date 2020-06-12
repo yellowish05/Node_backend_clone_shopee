@@ -126,7 +126,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         _id,
         streamer: user,
         title: args.data.title,
-        status: StreamChannelStatus.PENDING,
+        status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
         city:args.data.city,
