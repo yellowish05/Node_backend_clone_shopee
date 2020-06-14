@@ -141,14 +141,14 @@ class UserRepository {
       ...userProperties
     } = data;
 
-    data = { email: email.toLowerCase(), ...userProperties };
+    data = { email, ...userProperties };
 
     const user = await this.load(id);
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
     }
 
-    user.email = (!user.email && data.email) ? data.email : user.email;
+    user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
     user.photo = data.photo || user.photo;
