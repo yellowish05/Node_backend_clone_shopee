@@ -23,6 +23,9 @@ module.exports = {
         }
         const productIds = cartItems.map((item) => item.product).filter((id) => id);
         const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
+        cartItems.map((item) => {
+          if (!repository.productInventoryLog.checkAmount(item.product, item.quantity)) { throw new Error('Invalide to checkout this cart'); }
+        });
         return Promise.all([
           repository.product.getByIds(productIds),
           repository.deliveryRate.getByIds(deliveryRateIds),
