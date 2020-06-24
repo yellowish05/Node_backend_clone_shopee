@@ -4,13 +4,22 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const {
-  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,
+  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
 } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 
 const errorHandler = new ErrorHandler();
+
+async function getlivestreamsource(user,datasource,repository)
+{
+  return new Promise((resolve,reject)=>{
+    repository.streamSource.create({source:datasource,type:SourceType.VIDEO_AUDIO,user,prerecorded:true}).then((streamsource)=>{
+      resolve(streamsource);
+    })
+  })
+}
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(args.data, {
@@ -55,25 +64,33 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           }
         });
       }))
-    .then(() => {
+    .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
       const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
 
-      const channel = {
-        _id: channelId,
-        type: StreamChannelType.BROADCASTING,
-        status: StreamChannelStatus.PENDING,
-        record: {
-          enabled: true,
-          status: StreamRecordStatus.PENDING,
-        },
-      };
+      let sources = [];
 
       if(args.data.liveStreamRecord)
       {
-        channel.record.sources = [args.data.liveStreamRecord];
+        sources.push(await getlivestreamsource(user,args.data.liveStreamRecord,repository));
       }
+
+      finisheddate = new Date();
+      starteddate = new Date(finisheddate - 10 * 60 * 1000);
+      const channel = {
+        _id: channelId,
+        type: StreamChannelType.BROADCASTING,
+        finishedAt:args.data.liveStreamRecord?finisheddate:null,
+        startedAt:args.data.liveStreamRecord?starteddate:null,
+        status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
+        record: {
+          enabled: true,
+          status: args.data.liveStreamRecord?StreamRecordStatus.FINISHED:StreamRecordStatus.PENDING,
+          sources:sources
+        },
+      };
+ 
 
       const messageThread = {
         tags: [`LiveStream:${liveStreamId}`],
@@ -91,11 +108,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         liveStreamId,
         repository.streamChannel.create(channel),
         repository.messageThread.create(messageThread),
-        repository.streamChannelParticipant.create(participant),
-        repository.city.findByName(args.data.city || user.address.city),
+        repository.streamChannelParticipant.create(participant)
       ]);
     })
-    .then(([_id, streamChannel, messageThread, , city]) => {
+    .then(([_id, streamChannel, messageThread]) => {
       repository.userHasMessageThread.create({
         thread: messageThread.id,
         user: user.id,
@@ -110,10 +126,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         _id,
         streamer: user,
         title: args.data.title,
-        status: StreamChannelStatus.PENDING,
+        status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
-        city,
+        city:args.data.city,
         preview: args.data.preview,
         channel: streamChannel,
         publicMessageThread: messageThread,
