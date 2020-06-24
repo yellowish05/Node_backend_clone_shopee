@@ -71,6 +71,7 @@ module.exports = {
       IMAGE: 'IMAGE',
       VIDEO: 'VIDEO',
       PDF: 'PDF',
+      CSV: 'CSV',
     },
   },
   tests: {

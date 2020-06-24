@@ -21,6 +21,8 @@ const MIMEMap = [
   { mime: 'video/mp4', ext: 'mp4', type: types.VIDEO },
 
   { mime: 'application/pdf', ext: 'pdf', type: types.PDF },
+
+  { mime: 'application/vnd.ms-excel', ext: 'csv', type: types.CSV },
 ];
 
 module.exports = new MIMEAssetTypes(MIMEMap);

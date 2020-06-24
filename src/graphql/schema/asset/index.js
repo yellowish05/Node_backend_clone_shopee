@@ -19,6 +19,7 @@ const schema = gql`
       IMAGE
       VIDEO
       PDF
+      CSV
     }
 
     type Sign{  

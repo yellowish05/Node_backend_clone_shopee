@@ -132,7 +132,7 @@ const schema = gql`
             Allows: authorized user & user must be a seller of this product
         """
         deleteProduct(id: ID!): Boolean @auth(requires: USER)
-        uploadBulkProducts(fileName:String!): [Product!]!
+        uploadBulkProducts(fileName:String!): [Product!]! @auth(requires: USER)
     }
 `;
 
