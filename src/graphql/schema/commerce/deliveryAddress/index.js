@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 
 const addDeliveryAddress = require('./resolvers/addDeliveryAddress');
+const updateDeliveryAddress = require('./resolvers/updateDeliveryAddress');
 const deleteDeliveryAddress = require('./resolvers/deleteDeliveryAddress');
 
 const schema = gql`
@@ -27,6 +28,17 @@ const schema = gql`
         description: String
     }
 
+    input UpdateDeliveryAddressInput {
+        label: String
+        street: String
+        city: String
+        region: ID!
+        country: ID!
+        zipCode: String
+        description: String
+        addressId: String
+    }
+
     extend type Query {
         """
             Allows: authorized user
@@ -39,6 +51,10 @@ const schema = gql`
             Allows: authorized user
         """
         addDeliveryAddress(data: DeliveryAddressInput!) : DeliveryAddress! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        updateDeliveryAddress(id: ID!, data: UpdateDeliveryAddressInput!) : DeliveryAddress! @auth(requires: USER)
         """
             Allows: authorized user
         """
@@ -55,6 +71,7 @@ module.exports.resolvers = {
   Mutation: {
     addDeliveryAddress,
     deleteDeliveryAddress,
+    updateDeliveryAddress,
   },
   DeliveryAddress: {
     addressId: async ({ address: { addressId } }) => addressId,

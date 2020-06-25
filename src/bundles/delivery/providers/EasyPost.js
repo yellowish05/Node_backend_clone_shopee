@@ -66,6 +66,29 @@ class EasyPostClass {
     })
   }
 
+  async updateAddress({ address }) {
+    let data = api.Address.retrieve(address.addressId).then(response => response);
+    const addressData = new api.Address({
+      verify: [
+        "delivery"
+      ],
+      street1: address.street,
+      street2: address.description || null,
+      city: address.city,
+      state: address.region,
+      zip: address.zipCode || null,
+      country: address.country,
+      phone: data.phone || null,
+      email: data.email || null
+    });
+    return addressData.save().then(response => response).catch(({ error: { error: { code, message, errors } } }
+    ) => {
+      let errorMessage = this.formatEasyPostErrors(code, message, errors);
+      logger.error(`Error happened while adding address in Easy Post. Original error: ${errorMessage}`);
+      throw new Error(errorMessage);
+    })
+  }
+
   async calculateRates({ fromAddress, toAddress, parcelId, carrierAccountIds }) {
     const shipment = new api.Shipment({
       to_address: toAddress,
