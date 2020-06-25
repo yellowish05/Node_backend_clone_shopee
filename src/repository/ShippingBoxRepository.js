@@ -1,9 +1,9 @@
 const uuid = require('uuid/v4');
-
 const path = require('path');
 const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 
 class ShippingBoxRepository {
+
   constructor(model) {
     this.model = model;
   }
@@ -29,8 +29,7 @@ class ShippingBoxRepository {
   }
 
   async findOrAdd(data) {
-    const boxExist = await this.findByLabelAndOwner(data);
-
+    const boxExist = await this.findByOwnerAndSize(data);
     if (boxExist) {
       return boxExist;
     } else {
