@@ -5,6 +5,7 @@ const addAsset = require('./resolvers/addAsset');
 const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
 const asset = require('./resolvers/asset');
+const assetCsvByStatus = require('./resolvers/assetCsvByStatus');
 const { aws, logs } = require(path.resolve('config'));
 
 const schema = gql`
@@ -56,6 +57,7 @@ const schema = gql`
 
     extend type Query {
       asset(id: ID!): Asset!
+      assetCsvByStatus(status: AssetStatusEnum!): [Asset]! @auth(requires: USER)
     }
 
     type File {
@@ -93,6 +95,7 @@ module.exports.resolvers = {
   Upload: GraphQLUpload,
   Query: {
     asset,
+    assetCsvByStatus,
   },
   Mutation: {
     addAsset,
