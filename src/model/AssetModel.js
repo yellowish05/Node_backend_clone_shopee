@@ -16,7 +16,7 @@ const schema = new Schema({
   path: {
     type: String,
     required: true,
-    index: { unique: true },
+    index: { unique: false },
   },
   url: {
     type: String,

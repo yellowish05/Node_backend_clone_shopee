@@ -1,6 +1,9 @@
 const uuid = require('uuid/v4');
+const path = require('path');
+const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 
 class ShippingBoxRepository {
+
   constructor(model) {
     this.model = model;
   }
@@ -21,12 +24,19 @@ class ShippingBoxRepository {
     return shippingBox.save();
   }
 
-  async findOrAdd(data) {
-    const boxExist = await this.findByLabelAndOwner(data);
+  async findByOwnerAndSize(data) {
+    return this.model.findOne(data);
+  }
 
+  async findOrAdd(data) {
+    const boxExist = await this.findByOwnerAndSize(data);
     if (boxExist) {
       return boxExist;
     } else {
+      const parcelId = await EasyPost.addParcel(data).then(shippingBox => {
+        return shippingBox.id;
+      });
+      data = { parcelId: parcelId, ...data }
       return this.create(data);
     }
   }
