@@ -99,14 +99,10 @@ module.exports.resolvers = {
   },
   Mutation: {
     addAsset,
-
     giveSignedUrl: async () => {
       return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
     },
-
-
     uploadAsset,
     addAssetUrl
-
   },
 };
