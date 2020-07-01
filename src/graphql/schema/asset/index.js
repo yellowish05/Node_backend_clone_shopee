@@ -42,6 +42,7 @@ const schema = gql`
       type: AssetTypeEnum!
       """Size of asset in bytes"""
       size: Int!
+      filename: String
     }
 
     input AssetInputUrl{

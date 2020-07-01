@@ -13,7 +13,7 @@ const errorHandler = new ErrorHandler();
 const s3 = new AWS.S3();
 
 module.exports = async (root, { file }, { user, dataSources: { repository } }) => {
-	const { createReadStream, mimetype } = await file;
+	const { createReadStream, mimetype, filename } = await file;
 	const fileStream = createReadStream()
 	const size = 100;
 	console.log(await file);
@@ -48,6 +48,7 @@ module.exports = async (root, { file }, { user, dataSources: { repository } }) =
 						owner: user,
 						path,
 						url: `${cdn.userAssets}/${path}`,
+						filename: filename,
 						type,
 						size,
 						mimetype,

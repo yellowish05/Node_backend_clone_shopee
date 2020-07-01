@@ -41,6 +41,9 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  filename: {
+    type: String,
+  },
 });
 
 module.exports = new model(collectionName, schema);
