@@ -87,7 +87,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               country: address.country,
             },
           };
-        } else {
+        } else if (address) {
           location = await Geocoder.geocode(address);
           addressObj = {
             ...addressObj,
@@ -102,7 +102,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           };
         }
       } catch (error) {
-        throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
+        throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
       }
 
       const tempCountry = await repository.country.getById(addressObj.address.country);
