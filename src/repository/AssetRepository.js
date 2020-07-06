@@ -76,13 +76,13 @@ class AssetRepository {
 
   async createFromCSVForUsers(data) {
     let url = `${cdn.vendorBuckets}/${data.name}/Logo/${data.photo}`;
-    url = url.split("").join("%20");
+    url = url.split(" ").join("%20");
 
     const assetData = {
       _id: uuid(),
       status: "UPLOADED",
       owner: data.owner,
-      path: data.path.split("").join("%20"),
+      path: data.path.split(" ").join("%20"),
       url: url,
       type: "IMAGE",
       size: 1000,
