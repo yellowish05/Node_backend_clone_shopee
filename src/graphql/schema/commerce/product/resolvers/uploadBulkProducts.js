@@ -40,28 +40,15 @@ const pushBrands = async (brand) => {
     brands.push(brand);
 }
 
-module.exports = async (_, { fileName }) => {
-
-    const params = {
-        Bucket: aws.user_bucket,
-        Key: fileName
-    }
-
-    const csv = await getCSV(params)
-        .then(res => res)
-        .catch(err => err);
-
-    let [header, ...rows] = csv;
-    header = header.trim().split(',');
-
-    const loopProductRows = async () => {
-        for (const row of rows) {
+const loopProductRows = async (rows, header) => {
+    for (const row of rows) {
+        if (row !== "") {
             const columns = row.split(',');
             let product = {};
 
             await columns.forEach((column, colIndex) => {
                 if (column !== undefined) {
-                    product[header[colIndex].trim()] = column.trim();
+                    product[header[colIndex]] = column.trim();
                 }
             })
 
@@ -78,25 +65,44 @@ module.exports = async (_, { fileName }) => {
                 unit: product.weightUnit
             }
 
-            const shippingBoxProperties = {
-                label: product.shippingBoxName || "medium",
-                owner: product.seller,
-                width: parseInt(product.shippingBoxWidth),
-                height: parseInt(product.shippingBoxHeight),
-                length: parseInt(product.shippingBoxLength),
-                weight: parseInt(product.weight.value),
-                unit: product.unit,
-                unitWeight: product.unitWeight || "OUNCE"
+            let shippingBoxProperties
+
+            try {
+                shippingBoxProperties = {
+                    label: product.shippingBoxName || "medium",
+                    owner: product.seller,
+                    width: parseInt(product.shippingBoxWidth),
+                    height: parseInt(product.shippingBoxHeight),
+                    length: parseInt(product.shippingBoxLength),
+                    weight: parseInt(product.weight.value),
+                    unit: product.unit,
+                    unitWeight: product.unitWeight || "OUNCE"
+                }
+            } catch (error) {
+                console.log("err => ", shippingBoxProperties);
             }
 
             await pushShippingBoxes(shippingBoxProperties);
             await pushBrands(product.brand_name)
             await pushProducts(product);
-
         }
     }
+}
 
-    await loopProductRows();
+module.exports = async (_, { fileName }) => {
+    const params = {
+        Bucket: aws.user_bucket,
+        Key: fileName
+    }
+
+    const csv = await getCSV(params)
+        .then(res => res)
+        .catch(err => err);
+
+    let [header, ...rows] = csv;
+    header = header.trim().split(',');
+
+    await loopProductRows(rows, header);
 
     const uniqueShippingBoxes = lodash.uniqWith(shippingBoxesCollection, lodash.isEqual);
     const uniqueBrands = lodash.uniqWith(brands, lodash.isEqual);
@@ -143,10 +149,14 @@ module.exports = async (_, { fileName }) => {
                 product.assets0,
                 product.assets1,
                 product.assets2,
+                product.assets3,
+                product.assets4,
+                product.assets5,
+                product.assets6
             ];
 
             const path = `/${product.username}/Product Images/`;
-            product.assets = await promise.map(product.assets, (asset, index) => {
+            product.assets = await promise.map(product.assets, (asset) => {
                 if (asset !== "") {
                     const assetData = {
                         owner: product.seller,
@@ -165,7 +175,7 @@ module.exports = async (_, { fileName }) => {
 
             product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseInt(product.price), currency: product.currency }).getCentsAmount();
             product.oldPrice = product.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: parseInt(product.oldPrice), currency: product.currency }).getCentsAmount() : null;
-            product.assets = [];
+            product.assets = product.assets.filter(asset => asset) || [];
             product.isDeleted = (product.isDeleted === 'true');
 
             product.brand = await new Promise((resolve, reject) => {
@@ -173,6 +183,10 @@ module.exports = async (_, { fileName }) => {
                     resolve(product.brand = res.id || res);
                 });
             });
+
+            if (!product.freeDeliveryTo) {
+                delete product.freeDeliveryTo
+            }
 
             product.weight = {
                 value: parseInt(product.weightValue),
@@ -189,6 +203,17 @@ module.exports = async (_, { fileName }) => {
                 unit: product.unit,
                 unitWeight: product.unitWeight || "OUNCE"
             }
+
+            product.customCarrier = await new Promise((resolve, reject) => {
+                return repository.customCarrier.getById(product.customCarrier).then(res => {
+                    resolve(product.customCarrier = res._id || res)
+                }).catch(err => {
+                    reject(err);
+                })
+            })
+
+            product.customCarrierValue = parseFloat(product.customCarrierValue);
+            product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseFloat(product.customCarrierValue), currency: product.currency }).getCentsAmount();
 
             product.shippingBox = await new Promise((resolve, reject) => {
                 return repository.shippingBox.findByOwnerAndSize({
@@ -242,6 +267,9 @@ module.exports = async (_, { fileName }) => {
 
         return productPromises;
     })
-        .then(res => res)
+        .then(res => {
+            products = [];
+            return res
+        })
         .catch(err => err);
 }
