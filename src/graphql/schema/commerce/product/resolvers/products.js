@@ -1,8 +1,19 @@
 /* eslint-disable no-param-reassign */
 const path = require('path');
+const { Promise } = require('bluebird');
 
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const axios = require('axios');
+const querystring = require('querystring');
+
+const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
+const { Currency } = require('../../../../../lib/Enums');
+
+const parameters = {
+  base: Currency.USD,
+  symbols: Currency.toList(),
+};
 
 async function exchangeOnSupportedCurrencies(price) {
   const currencies = CurrencyFactory.getCurrencies();
@@ -22,7 +33,6 @@ async function exchangeOnSupportedCurrencies(price) {
 
   return Promise.all(exchangePromises);
 }
-
 
 module.exports = async (_, {
   filter, page, sort,
@@ -45,6 +55,25 @@ module.exports = async (_, {
     if (filter.price.max) {
       filter.price.max = await exchangeOnSupportedCurrencies(filter.price.max);
     }
+  }
+
+  if (sort.feature == 'PRICE') {
+    const temppage = {
+      limit: 0,
+      skip: 0,
+    };
+
+    return Promise.all([
+      repository.product.get({ filter, page: temppage, sort }),
+      repository.product.getTotal(filter),
+    ]).then(([allProducts, total]) => axios.get(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`)
+      .then(({ data }) => {
+        const { rates } = data;
+        if (sort.type == 'ASC') { allProducts.sort((a, b) => a.price / rates[a.currency] - b.price / rates[b.currency]); } else { allProducts.sort((a, b) => b.price / rates[b.currency] - a.price / rates[a.currency]); }
+        let collection;
+        if (page.limit > 0) { collection = allProducts.slice(page.skip, page.skip + page.limit); } else { collection = allProducts.slice(page.skip); }
+        return { collection, pager: { ...pager, total } };
+      }));
   }
 
   return Promise.all([
