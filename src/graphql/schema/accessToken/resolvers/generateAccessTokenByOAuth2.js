@@ -74,11 +74,12 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
               );
           }
 
-          return repository.user.update(user.id, {
-            name: user.name || socialUserData.name,
-            provider: data.provider,
-            providerId: socialUserData.id,
-          });
+          return user;
+          // return repository.user.update(user.id, {
+          //   name: user.name || socialUserData.name,
+          //   provider: data.provider,
+          //   providerId: socialUserData.id,
+          // });
         });
     })
     .then((user) => repository.accessToken.create(user));
