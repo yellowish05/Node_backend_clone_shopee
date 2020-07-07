@@ -90,8 +90,8 @@ const schema = gql`
             sort: ProductSortInput = {},
             page: PageInput = {}
         ): ProductCollection!
-
         product(id: ID!): Product
+        previewBulkProducts(fileName:String!): String! @auth(requires: USER)
     }
 
     input ProductInput {
@@ -134,7 +134,7 @@ const schema = gql`
         """
         deleteProduct(id: ID!): Boolean @auth(requires: USER)
         uploadBulkProducts(fileName:String!): [Product!]! @auth(requires: USER)
-        previewBulkProducts(fileName:String!): String! @auth(requires: USER)
+        
     }
 `;
 
@@ -144,13 +144,13 @@ module.exports.resolvers = {
   Query: {
     products,
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
+    previewBulkProducts,
   },
   Mutation: {
     addProduct,
     updateProduct,
     deleteProduct,
     uploadBulkProducts,
-    previewBulkProducts,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (

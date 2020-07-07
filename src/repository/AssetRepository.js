@@ -46,6 +46,17 @@ class AssetRepository {
     return this.model.findAndRemove({ id: data.id })
   }
 
+  async updateStatusByPath(path, status) {
+    const asset = await this.getByPath(path);
+    if (!asset) {
+      throw Error(`"${path}" does not exist!`);
+    }
+
+    asset.status = status;
+
+    return asset.save();
+  }
+
   async createFromUri(data) {
     return axios.get(data.url, { responseType: 'arraybuffer' })
       .then((response) => {

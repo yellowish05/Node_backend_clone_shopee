@@ -41,7 +41,7 @@ const pushBrands = async (brand) => {
 }
 
 module.exports = async (_, { fileName }) => {
-
+    
     const params = {
         Bucket: aws.user_bucket,
         Key: fileName
@@ -242,6 +242,10 @@ module.exports = async (_, { fileName }) => {
 
         return productPromises;
     })
-        .then(res => res)
+        .then(res => {
+            // update csv status: UPLOADING -> UPLOADED
+            repository.asset.updateStatusByPath(fileName, "UPLOADED");
+            return res;
+        })
         .catch(err => err);
 }
