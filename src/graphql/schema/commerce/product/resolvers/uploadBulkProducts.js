@@ -269,6 +269,7 @@ module.exports = async (_, { fileName }) => {
     })
         .then(res => {
             products = [];
+            repository.asset.updateStatusByPath(fileName, "UPLOADED");
             return res
         })
         .catch(err => err);
