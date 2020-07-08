@@ -17,13 +17,14 @@ module.exports = async (_, { path }) => {
             const headers = csv[0].split(',');
 
             await promise.map(csv, async (row, index) => {
-                if (index > 0) {
+                if (index > 0 && row !== '') {
+
                     const columns = row.split(',');
                     let user = {};
 
-                    columns.map((column, colIndex) => {
+                    await columns.map((column, colIndex) => {
                         if (column !== undefined) {
-                            user[headers[colIndex].trim()] = column.trim();
+                            user[headers[colIndex]] = column.trim();
                         }
                     });
 
@@ -67,7 +68,7 @@ module.exports = async (_, { path }) => {
                     }
 
                     user.brandName = await new Promise((resolve, reject) => {
-                        return repository.brand.create({ _id: uuid(), name: user.brandName.trim() }).then(res => {
+                        return repository.brand.create({ _id: uuid(), name: user.brandName }).then(res => {
                             resolve(user.brandName = res.id || res);
                         })
                     })

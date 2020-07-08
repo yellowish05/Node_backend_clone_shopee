@@ -12,7 +12,7 @@ const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
   const validator = new Validator(data, {
-    path:'required'
+    path: 'required'
   });
 
   return validator.check()
@@ -21,19 +21,20 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
         throw errorHandler.build(validator.errors);
       }
 
-      let {path} = data;
+      let { path } = data;
       const id = uuid();
       let pathname = url.parse(path).pathname;
       const { ext, type } = MIMEAssetTypes.detect('image/jpeg');
+      path = patch.split(' ').join('%20');
 
       const assetData = {
         _id: id,
         owner: user,
-        path:pathname + id,
+        path: pathname + id,
         url: path,
-        type:type,
-        size:100,
-        mimetype:"image/jpeg",
+        type: type,
+        size: 100,
+        mimetype: "image/jpeg",
       };
 
       return repository.asset
