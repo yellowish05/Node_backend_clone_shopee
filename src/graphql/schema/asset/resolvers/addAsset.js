@@ -31,11 +31,13 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
       const { ext, type } = MIMEAssetTypes.detect(mimetype);
       const id = uuid();
       const path = `${user.id}/${id}.${ext}`;
+      const url = `${cdn.userAssets}/${path}`;
+
       const assetData = {
         _id: id,
         owner: user,
         path,
-        url: `${cdn.userAssets}/${path}`,
+        url: url,
         type,
         size,
         mimetype,
