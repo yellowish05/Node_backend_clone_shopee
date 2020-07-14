@@ -6,7 +6,10 @@ const axios = require('axios');
 const { aws, cdn } = require(path.resolve('config'));
 const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+  accessKeyId: aws.aws_api_key,
+  secretAccessKey: aws.aws_access_key
+});
 
 class AssetRepository {
 
