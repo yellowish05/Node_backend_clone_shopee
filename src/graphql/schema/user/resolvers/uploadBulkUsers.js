@@ -14,7 +14,8 @@ module.exports = async (_, { path }) => {
     return await new Promise((resolve, reject) => {
         s3.getObject(params, async (err, data) => {
             const csv = data.Body.toString("UTF-8").split('\n');
-            const headers = csv[0].split(',');
+            let headers = csv[0].split(',');
+            headers = await headers.map(x => x.trim());
 
             await promise.map(csv, async (row, index) => {
                 if (index > 0 && row !== '') {
@@ -93,6 +94,9 @@ module.exports = async (_, { path }) => {
                             })
                         }
                     }
+
+                    // console.log("user ==========>", user);
+
                     return repository.user.createFromCsv(user).then(res => res).catch(err => err);
                 }
             }).then(res => {
