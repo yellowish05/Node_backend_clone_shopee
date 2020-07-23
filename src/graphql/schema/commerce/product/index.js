@@ -9,6 +9,7 @@ const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
 const products = require('./resolvers/products');
 const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
+const previewBulkProducts = require('./resolvers/previewBulkProducts');
 
 const schema = gql`
     type Product {
@@ -102,8 +103,8 @@ const schema = gql`
             sort: ProductSortInput = {},
             page: PageInput = {}
         ): ProductCollection!
-
         product(id: ID!): Product
+        previewBulkProducts(fileName:String!): String! @auth(requires: USER)
     }
 
     input ProductInput {
@@ -155,12 +156,13 @@ module.exports.resolvers = {
   Query: {
     products,
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
+    previewBulkProducts,
   },
   Mutation: {
     addProduct,
     updateProduct,
     deleteProduct,
-    uploadBulkProducts
+    uploadBulkProducts,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
