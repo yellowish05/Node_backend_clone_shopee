@@ -100,6 +100,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               country: args.data.address.country,
             },
           };
+        } else {
+          throw new ApolloError(`Please provide an address or location.`, 400);
         }
       } catch (error) {
         throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);

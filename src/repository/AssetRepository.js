@@ -6,9 +6,32 @@ const axios = require('axios');
 const { aws, cdn } = require(path.resolve('config'));
 const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+  accessKeyId: aws.aws_api_key,
+  secretAccessKey: aws.aws_access_key
+});
+
+const buckets = async (data) => {
+  let url, path;
+
+  switch (data.bucket) {
+    case "vendors-seller-dashboard":
+      path = `/${data.name}/Product%20Images/${data.photo}`;
+      path = path.split(' ').join('%20');
+      url = `${cdn.vendorBuckets}${path}`;
+      break;
+    case "aliexpress-scrapped-images-full-size":
+      path = `/${data.photo}`;
+      path = path.split(' ').join('%20');
+      url = `${cdn.aliexpress}${path}`;
+      break;
+  }
+
+  return { url, path };
+}
 
 class AssetRepository {
+
   constructor(model) {
     this.model = model;
   }
@@ -70,12 +93,14 @@ class AssetRepository {
   }
 
   async createFromCSVForUsers(data) {
-    const url = `${cdn.vendorBuckets}/${data.name}/Logo/${data.photo}`;
+    let url = `${cdn.vendorBuckets}/${data.name}/Logo/${data.photo}`;
+    url = url.split(" ").join("%20");
+
     const assetData = {
       _id: uuid(),
       status: "UPLOADED",
       owner: data.owner,
-      path: data.path,
+      path: data.path.split(" ").join("%20"),
       url: url,
       type: "IMAGE",
       size: 1000,
@@ -91,25 +116,24 @@ class AssetRepository {
   }
 
   async createFromCSVForProducts(data) {
-    const url = `${cdn.vendorBuckets}/${data.name}/Product Images/${data.photo}`;
+    const { url, path } = await buckets(data).then(x => x).catch(err => err);
+
     const assetData = {
       _id: uuid(),
       status: "UPLOADED",
       owner: data.owner,
-      path: data.path,
+      path: path,
       url: url,
       type: "IMAGE",
       size: 1000,
       mimetype: 'image/jpeg',
     }
-
     const asset = new this.model(assetData);
     return await asset.save().then(asset => {
       return asset
-    }).catch(err => {
-      return this.getByPath(data.path)
-    });
+    }).catch(err => this.getByPath(data.path));
   }
+
 }
 
 module.exports = AssetRepository;

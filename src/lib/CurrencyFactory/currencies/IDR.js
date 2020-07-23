@@ -12,7 +12,7 @@ function convertToCurrency(centsAmount) {
     return centsAmount / 100;
 }
 
-class AmountOfBRL extends AmountOfMoneyAbstract {
+class AmountOfIDR extends AmountOfMoneyAbstract {
     constructor({ centsAmount, currencyAmount }) {
         let cents = null;
         if (typeof centsAmount === 'number') {
@@ -28,7 +28,7 @@ class AmountOfBRL extends AmountOfMoneyAbstract {
     }
 
     getCurrency() {
-        return Currency.BRL;
+        return Currency.IDR;
     }
 
     getFormatted() {
@@ -36,8 +36,8 @@ class AmountOfBRL extends AmountOfMoneyAbstract {
     }
 
     getSymbol() {
-        return 'R$';
+        return 'Rp';
     }
 }
 
-module.exports = AmountOfBRL;
+module.exports = AmountOfIDR;
