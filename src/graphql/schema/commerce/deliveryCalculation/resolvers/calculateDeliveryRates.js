@@ -80,7 +80,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
           }
 
           if (!organization.carriers || organization.carriers.length === 0) {
-            if (!organization.customCarrier) { throw new UserInputError('There is no carriers for you Delivery Address', { invalidArgs: 'deliveryAddress' }); }
+            if (!product.customCarrier) { throw new UserInputError('Seller has not sellected any carrier', { invalidArgs: 'product' }); }
           }
 
           if (!seller.name || !seller.phone) {

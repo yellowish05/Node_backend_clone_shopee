@@ -21,9 +21,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     price: 'required|decimal',
     quantity: 'required|integer',
     currency: 'required',
-    assets: 'required|length:6,1',
+    assets: 'required|length:9,1',
   }, {
-    'assets.length': "You can not upload more than 6 images!"
+    'assets.length': "You can not upload more than 9 images!"
   });
 
   validator.addPostRule(async (provider) => Promise.all([
