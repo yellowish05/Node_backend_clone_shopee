@@ -17,7 +17,6 @@ function UpdateRate() {
     symbols: Currency.toList().toString(),
   };
 
-  console.log(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`);
   axios.get(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`)
     .then(({ data }) => {
       const { rates } = data;
