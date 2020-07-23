@@ -66,7 +66,6 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       }
     })
     .then(async () => {
-
       let customCarrier;
       if (data.customCarrier) {
         customCarrier = await repository.customCarrier.findByName(data.customCarrier);
@@ -83,9 +82,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-      product.quantity = quantity
+      product.quantity = quantity;
       product.customCarrier = customCarrier ? customCarrier.id : null;
-      product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount();
+      product.customCarrierValue = customCarrier ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount() : 0;
 
       product.category = productData.category;
       product.brand = productData.brand;
@@ -93,21 +92,12 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
       // product.weight = data.weight;
-
       return Promise.all([
         product.save(),
-        repository.productInventoryLog.getQuantityByProductId(product.id),
+        repository.productInventoryLog.getByProductId(product.id),
       ])
-        .then(async ([updatedProduct, quantityInWarehouse]) => {
-          if (quantityInWarehouse !== quantity) {
-            const inventoryLog = {
-              _id: uuid(),
-              product: updatedProduct.id,
-              shift: quantity - quantityInWarehouse,
-              type: InventoryLogType.USER_ACTION,
-            };
-            await repository.productInventoryLog.add(inventoryLog);
-          }
+        .then(async ([updatedProduct, inventory]) => {
+          await repository.productInventoryLog.update(inventory.id, updatedProduct.quantity);
           return updatedProduct;
         });
     });

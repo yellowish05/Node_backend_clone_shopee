@@ -23,7 +23,6 @@ module.exports = async function checkoutOneProduct(
 
     if (!prod) { await payPurchaseOrder({ order, paymentMethod, user }); }
 
-    const inventory = await repository.productInventoryLog.decreaseQuantity(product, quantity);
     return order;
   }
   throw new Error('This product is not enough now');

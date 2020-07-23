@@ -55,6 +55,10 @@ class AssetRepository {
     return await this.model.findOne({ path: path });
   }
 
+  async getCsvAssetByStatus(status, userid) {
+    return await this.model.find({ status: status, owner: userid, type: "CSV" });
+  }
+
   async create(data) {
     const asset = new this.model(data);
     return asset.save();
@@ -62,6 +66,17 @@ class AssetRepository {
 
   async deleteAsset(data) {
     return this.model.findAndRemove({ id: data.id })
+  }
+
+  async updateStatusByPath(path, status) {
+    const asset = await this.getByPath(path);
+    if (!asset) {
+      throw Error(`"${path}" does not exist!`);
+    }
+
+    asset.status = status;
+
+    return asset.save();
   }
 
   async createFromUri(data) {

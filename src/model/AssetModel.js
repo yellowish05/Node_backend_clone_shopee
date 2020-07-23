@@ -30,7 +30,7 @@ const schema = new Schema({
   },
   type: {
     type: String,
-    enum: ['IMAGE', 'VIDEO', 'PDF'],
+    enum: ['IMAGE', 'VIDEO', 'PDF', 'CSV'],
     required: true,
   },
   size: {
@@ -40,6 +40,9 @@ const schema = new Schema({
   mimetype: {
     type: String,
     required: true,
+  },
+  filename: {
+    type: String,
   },
 });
 

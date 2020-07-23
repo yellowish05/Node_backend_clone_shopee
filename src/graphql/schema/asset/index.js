@@ -5,6 +5,7 @@ const addAsset = require('./resolvers/addAsset');
 const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
 const asset = require('./resolvers/asset');
+const assetCsvByStatus = require('./resolvers/assetCsvByStatus');
 const { aws, logs } = require(path.resolve('config'));
 
 const schema = gql`
@@ -20,6 +21,7 @@ const schema = gql`
       IMAGE
       VIDEO
       PDF
+      CSV
     }
 
     type Sign{  
@@ -40,6 +42,7 @@ const schema = gql`
       type: AssetTypeEnum!
       """Size of asset in bytes"""
       size: Int!
+      filename: String
     }
 
     input AssetInputUrl{
@@ -55,6 +58,7 @@ const schema = gql`
 
     extend type Query {
       asset(id: ID!): Asset!
+      assetCsvByStatus(status: AssetStatusEnum!): [Asset]! @auth(requires: USER)
     }
 
     type File {
@@ -92,6 +96,7 @@ module.exports.resolvers = {
   Upload: GraphQLUpload,
   Query: {
     asset,
+    assetCsvByStatus,
   },
   Mutation: {
     addAsset,
