@@ -41,6 +41,19 @@ const schema = gql`
         customCarrierValue(currency: Currency):AmountOfMoney
     }
 
+    type failedProducts{
+      row: [Int!]
+      errors: [String!]
+    }
+
+    type UploadedProducts{
+      success: [Product]
+      failedProducts: failedProducts!
+      totalProducts: Int!
+      uploaded: Int!
+      failed: Int!
+    }
+
     type Weight {
       value: Float!
       unit: WeightUnitSystem!
@@ -133,8 +146,7 @@ const schema = gql`
             Allows: authorized user & user must be a seller of this product
         """
         deleteProduct(id: ID!): Boolean @auth(requires: USER)
-        uploadBulkProducts(fileName:String!): [Product!]! @auth(requires: USER)
-        
+        uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
     }
 `;
 
