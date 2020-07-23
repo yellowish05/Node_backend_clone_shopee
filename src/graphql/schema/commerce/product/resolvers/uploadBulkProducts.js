@@ -129,7 +129,7 @@ const addProduct = async (product, index) => {
         return repository.customCarrier.getById(product.customCarrier).then(res => {
             resolve(product.customCarrier = res._id || res)
         }).catch(() => {
-            resolve(null);
+            resolve(undefined);
         })
     })
 
@@ -163,7 +163,7 @@ const addProduct = async (product, index) => {
         type: InventoryLogType.USER_ACTION,
     };
 
-    return await repository.product.create(product).then(res => {
+    return await repository.product.createFromCSV(product).then(res => {
         repository.productInventoryLog.add(inventoryLog);
         return res
     }).catch((err) => {
@@ -171,6 +171,7 @@ const addProduct = async (product, index) => {
         pushFailedProducts({ csvPosition: (index + 2), error: error, ...product });
     });
 }
+
 const errorFormater = (err, row) => {
     const error = err.errors;
     let parsedError = [];
@@ -180,7 +181,7 @@ const errorFormater = (err, row) => {
     } else if (error.customCarrierValue) {
         parsedError = error.customCarrierValue.message;
     } else if (error.currency) {
-        parsedError = error.customCarricurrencyerValue.message;
+        parsedError = error.customCarricurrencyValue.message;
     } else if (error.customCarrier) {
         parsedError = error.customCarrier.message;
     } else if (error.shippingBox) {
@@ -189,6 +190,8 @@ const errorFormater = (err, row) => {
         parsedError = error.brand.message;
     } else if (error.seller) {
         parsedError = error.seller.message;
+    } else if (error.description) {
+        parsedError = error.description.message;
     } else if (error.message) {
         parsedError = error;
     } else {
