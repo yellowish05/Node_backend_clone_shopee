@@ -58,6 +58,7 @@
     "md5": "^2.2.1",
     "migrate-mongoose": "^4.0.0",
     "mongoose": "^5.7.5",
+    "mongoose-long": "^0.3.1",
     "morgan": "^1.9.1",
     "morgan-body": "2.4.8",
     "node-cache": "^5.0.2",
