@@ -1,9 +1,12 @@
 const { Schema, model } = require('mongoose');
+require('mongoose-long')(require('mongoose'));
 const { Currency, WeightUnitSystem, MarketType } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
 const collectionName = 'Product';
+
+let SchemaTypes = Schema.Types;
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -24,12 +27,12 @@ const schema = new Schema({
     index: true,
   },
   price: {
-    type: Number,
+    type: SchemaTypes.Long,
     required: true,
     index: true,
   },
   oldPrice: {
-    type: Number,
+    type: SchemaTypes.Long,
   },
   currency: {
     type: String,
