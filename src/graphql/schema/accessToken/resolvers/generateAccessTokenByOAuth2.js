@@ -26,7 +26,7 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
       return provider.getUserProfile(data.token);
     })
     .then((socialUserData) => {
-      if (socialUserData === null || !socialUserData.email) {
+      if (socialUserData === null) {
         throw new UserInputError(`User not found by ${data.provider} provider`);
       }
 
@@ -55,7 +55,9 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
                 providerId: socialUserData.id,
               }, { roles: ['USER'] }))
               .then((user) => {
-                EmailService.sendWelcome({ user });
+                if (socialUserData.email) {
+                  EmailService.sendWelcome({ user });
+                }
                 return user;
               });
           }
