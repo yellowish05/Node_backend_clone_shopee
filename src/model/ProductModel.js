@@ -27,12 +27,12 @@ const schema = new Schema({
     index: true,
   },
   price: {
-    type: SchemaTypes.Long,
+    type: Number,
     required: true,
     index: true,
   },
   oldPrice: {
-    type: SchemaTypes.Long,
+    type: Number,
   },
   currency: {
     type: String,
