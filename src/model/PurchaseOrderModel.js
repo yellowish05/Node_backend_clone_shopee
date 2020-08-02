@@ -58,6 +58,18 @@ const schema = new Schema({
     required: true,
     enum: PurchaseOrderStatus.toList(),
   },
+  error: {
+    type: String,
+    default: null
+  },
+  publishableKey: {
+    type: String,
+    default: null
+  },
+  paymentClientSecret: {
+    type: String,
+    default: null
+  }
 });
 
 schema.methods.getTagName = function getTagName() {

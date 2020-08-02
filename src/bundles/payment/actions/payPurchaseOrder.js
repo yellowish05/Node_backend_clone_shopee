@@ -92,10 +92,14 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
       const stripe = payment.providers.stripe;
       return getProvider(method.provider).createPaymentIntent(transaction.currency, transaction.amount)
       .then((paymentIntent) => {
-        return {
-          publishableKey: stripe.publishable,
-          clientSecret: paymentIntent.client_secret
-        };
+        if(paymentIntent.error) {
+          return paymentIntent;
+        } else {
+          return {
+            publishableKey: stripe.publishable,
+            paymentClientSecret: paymentIntent.client_secret
+          };
+        }
       })
     } else {
       await getProvider(method.provider).payTransaction(transaction);
