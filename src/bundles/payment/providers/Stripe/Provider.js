@@ -149,5 +149,13 @@ class Provider extends ProviderAbstract {
 
     return transaction;
   }
+
+  async createPaymentIntent(currency, amount) {
+    const response = await this.client.paymentIntents.create({
+      amount: amount,
+      currency: currency.toLowerCase(),
+    });
+    return response;
+  }
 }
 module.exports = Provider;

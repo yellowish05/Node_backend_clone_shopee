@@ -8,6 +8,7 @@ const { PaymentMethodIsUnactiveException, PaymentMethodUsesWrongProviderExceptio
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
+const { payment } = require(path.resolve('config'));
 
 
 function paymentTransactionFactory(order) {
@@ -87,7 +88,18 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
 
   // Pay the transaction here
   try {
-    await getProvider(method.provider).payTransaction(transaction);
+    if(method.provider.toLowerCase() == 'stripe') {
+      const stripe = payment.providers.stripe;
+      return getProvider(method.provider).createPaymentIntent(transaction.currency, transaction.amount)
+      .then((paymentIntent) => {
+        return {
+          publishableKey: stripe.publishable,
+          clientSecret: paymentIntent.client_secret
+        };
+      })
+    } else {
+      await getProvider(method.provider).payTransaction(transaction);
+    }
     await transaction.save();
 
     if (transaction.isSuccessful()) {
