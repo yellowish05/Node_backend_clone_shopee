@@ -312,7 +312,9 @@ module.exports = async (_, { fileName, bucket }) => {
             width: item.width,
             height: item.height,
             length: item.length,
-            weight: item.weight
+            weight: item.weight,
+            unit: item.unit,
+            unitWeight: item.unitWeight
         }).then(res => {
             resolve(res._id)
         }).catch(() => {
