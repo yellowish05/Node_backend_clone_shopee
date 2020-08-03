@@ -24,6 +24,28 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
 
+      /**
+       * Use case when user is registered with Facebook provider with phone number and not an email
+       */
+      try {
+        let userObj = await repository.user.getById(user._id)
+        if (!userObj.email) {
+          if (args.data.email) {
+            let checkEmail = await repository.user.findByEmail(args.data.email)
+            if (checkEmail) {
+              throw new Error('Email already taken');
+            }
+          }
+          else {
+            throw new Error('Email should be provided');
+          }
+        }
+      } catch (ex) {
+        throw new UserInputError(ex.message, { invalidArgs: 'email' });
+      }
+
+
+
       if (!phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
         if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
