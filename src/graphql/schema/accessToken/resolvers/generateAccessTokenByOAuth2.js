@@ -48,14 +48,16 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
             })
               .then((asset) => repository.user.createByProvider({
                 _id: userId,
-                email: socialUserData.email || `${userId}@tempmail.tmp`,
+                email: socialUserData.email,
                 name: socialUserData.name,
                 photo: asset,
                 provider: data.provider,
                 providerId: socialUserData.id,
               }, { roles: ['USER'] }))
               .then((user) => {
-                EmailService.sendWelcome({user});
+                if (socialUserData.email) {
+                  EmailService.sendWelcome({ user });
+                }
                 return user;
               });
           }
@@ -66,20 +68,15 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
               url: socialUserData.photo,
             })
               .then((asset) => repository.user.update(user.id, {
-                  name: user.name || socialUserData.name,
-                  photo: asset,
-                  provider: data.provider,
-                  providerId: socialUserData.id,
-                })
+                name: user.name || socialUserData.name,
+                photo: asset,
+                provider: data.provider,
+                providerId: socialUserData.id,
+              })
               );
           }
 
           return user;
-          // return repository.user.update(user.id, {
-          //   name: user.name || socialUserData.name,
-          //   provider: data.provider,
-          //   providerId: socialUserData.id,
-          // });
         });
     })
     .then((user) => repository.accessToken.create(user));

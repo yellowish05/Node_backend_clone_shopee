@@ -8,7 +8,7 @@ const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 const schema = gql`
     type User {
       id: ID!
-      email: String!
+      email: String
       name: String
       phone: String
       address: Address
