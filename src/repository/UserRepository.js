@@ -107,11 +107,11 @@ class UserRepository {
       ...userProperties
     } = data;
 
-    data = { email: email.toLowerCase(), ...userProperties };
+    data = { email: email ? email.toLowerCase() : null, ...userProperties };
 
-    if (!data.email) {
-      throw Error('Email is required!');
-    }
+    // if (!data.email) {
+    //   throw Error('Email is required!');
+    // }
 
     if (data.email && await this.findByEmail(data.email)) {
       throw Error(`Email "${data.email}" is already taken!`);

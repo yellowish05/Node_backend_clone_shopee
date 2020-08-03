@@ -2,6 +2,7 @@ const uuid = require('uuid/v4');
 const path = require('path');
 const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
+const nev = require('node-email-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
@@ -27,13 +28,20 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         throw new UserInputError('Email already taken', { invalidArgs: 'email' });
       }
     })
+    .then(() => nev(args.data.email).then(validation => {
+      const { isEmailValid } = validation
+      if (!isEmailValid) {
+        throw new UserInputError('Could not validate email.', { invalidArgs: 'email' });
+      }
+    })
+    )
     .then(() => repository.user.create({
       _id: uuid(),
       email: args.data.email,
       password: args.data.password,
     }, { roles: ['USER'] }))
     .then((user) => {
-      EmailService.sendWelcome({user});
+      EmailService.sendWelcome({ user });
       return user;
     });
 };
