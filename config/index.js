@@ -108,6 +108,8 @@ module.exports = {
       },
       stripe: {
         secret: process.env.PAYMENT_STRIPE_SECRET,
+        publishable: process.env.STRIPE_PUBLISHABLE_KEY,
+        webhook: process.env.STRIPE_WEBHOOK_SECRET,
       },
     },
   },
