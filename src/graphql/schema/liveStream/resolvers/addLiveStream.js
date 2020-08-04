@@ -67,13 +67,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
-      const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
+      // const agoraToken = AgoraService.buildTokenWithAccount(channelId, user.id, StreamRole.PUBLISHER);
+      const agoraToken = '';
 
       let sources = [];
 
       if(args.data.liveStreamRecord)
       {
         sources.push(await getlivestreamsource(user,args.data.liveStreamRecord,repository));
+      }
+      else
+      {
+        sources.push(await getlivestreamsource(user,"http://18.185.121.9:5000/" + channelId + "-record.webm",repository)); 
       }
 
       finisheddate = new Date();
