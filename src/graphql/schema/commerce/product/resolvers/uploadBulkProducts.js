@@ -63,7 +63,7 @@ const addProduct = async (product, index) => {
                 path: `${path}${asset}`,
                 photo: asset,
                 name: product.username,
-                url: aws.vender_bucketm,
+                url: aws.vender_bucket,
                 bucket: assetsS3bucket
             }
 
