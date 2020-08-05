@@ -32,6 +32,9 @@ const schema = gql`
         """ Address for ship products """
         deliveryOrders: [DeliveryOrder]!
         cancelationReason: String
+        error: String
+        publishableKey: String
+        paymentClientSecret: String
     }
 
     type PurchaseOrderCollection {

@@ -21,7 +21,21 @@ module.exports = async function checkoutOneProduct(
 
     const prod = await repository.product.getById(product).then((product) => product.customCarrier);
 
-    if (!prod) { await payPurchaseOrder({ order, paymentMethod, user }); }
+    if (!prod) {
+      return payPurchaseOrder({ order, paymentMethod, user })
+      .then(async (result) => {
+        if(result.error)
+          order.error = result.error
+        else
+          await checkout.clearUserCart(user.id, repository)
+        if(result.publishableKey)
+          order.publishableKey = result.publishableKey
+        if(result.paymentClientSecret)
+          order.paymentClientSecret = result.paymentClientSecret
+
+        return order;
+      })
+    }
 
     return order;
   }

@@ -38,7 +38,6 @@ class Provider extends ProviderAbstract {
 
     let customer = await repository.paymentStripeCustomer.getByUserId(user.id);
     let paymentMethodResponse;
-
     if (customer && customer.customerId) {
       try {
         paymentMethodResponse = await this.client.customers.createSource(customer.customerId, { source: token });
@@ -148,6 +147,23 @@ class Provider extends ProviderAbstract {
     }
 
     return transaction;
+  }
+
+  async createPaymentIntent(currency, amount) {
+    if(!this.client)
+      console.log("Stripe Connectin Error !");
+    try {
+      const response = await this.client.paymentIntents.create({
+        amount: amount,
+        currency: currency.toLowerCase(),
+      });
+      return response;
+    } catch (error) {
+      return {
+        error: error.raw.message,
+      }
+    }
+    
   }
 }
 module.exports = Provider;
