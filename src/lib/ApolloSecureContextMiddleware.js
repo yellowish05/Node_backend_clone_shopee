@@ -51,7 +51,7 @@ module.exports = (repository) => async (request) => {
 
   const accessToken = await repository.accessToken.load(data.uid);
 
-  axios.get(serviceAccount.client_x509_cert_url)
+  await axios.get(serviceAccount.client_x509_cert_url)
   .then((response) => {
     const public_key = response.data[serviceAccount.private_key_id];
     try {
