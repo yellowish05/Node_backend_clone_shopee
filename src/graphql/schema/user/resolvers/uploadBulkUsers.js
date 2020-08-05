@@ -29,6 +29,9 @@ module.exports = async (_, { path }) => {
                         }
                     });
 
+                    user.roles = ["USER"];
+                    user.phone = user.phonenumber;
+
                     user.address = {
                         street: user.address.split(';').join(','),
                         city: user.city,
@@ -59,6 +62,7 @@ module.exports = async (_, { path }) => {
                         language,
                         currency,
                         measureSystem,
+                        phonenumber,
                         ...properties
                     } = user
 
@@ -94,8 +98,6 @@ module.exports = async (_, { path }) => {
                             })
                         }
                     }
-
-                    // console.log("user ==========>", user);
 
                     return repository.user.createFromCsv(user).then(res => res).catch(err => err);
                 }
