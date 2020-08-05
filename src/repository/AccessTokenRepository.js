@@ -11,7 +11,6 @@ admin.initializeApp({
   databaseURL: "https://shoclef-171ab.firebaseio.com"
 });
 
-
 class AccessTokenRepository {
   constructor(model) {
     this.model = model;
@@ -22,16 +21,17 @@ class AccessTokenRepository {
   }
 
   async findByUserId(userID) {
-    return this.model.findOne({user: userID});
-  } 
+    return this.model.findOne({ user: userID });
+  }
 
   async findAllByUserId(userID) {
-    return this.model.find({user: userID});
+    return this.model.find({ user: userID });
   }
 
   async create(user, data = {}) {
     return this.findByUserId(user._id)
       .then((token) => {
+
         if (token) {
           this.findAllByUserId(user._id).then((tokens) => {
             tokens.forEach(item => {
@@ -44,22 +44,17 @@ class AccessTokenRepository {
           if (data.userAgent) {
             token.fingerprint = data.userAgent.replace(/\s/g, '').toLowerCase();
           }
+
           return token.save()
             .then(() => {
-              console.log(token._id);
               return admin.auth().createCustomToken(token._id)
-              .then((customToken) => {
-                return customToken;
-              })
-              .catch(function(error) {
-                console.log('Error creating custom token:', error);
-              }); 
+                .then((customToken) => {
+                  return customToken;
+                })
+                .catch((error) => {
+                  return error;
+                });
             });
-          // return token.save()
-          // .then(() => jsonwebtoken.sign({
-          //   id: token._id,
-          //   user_id: user._id
-          // }, token.secret, { expiresIn: data.expiresIn || '1w' }));
         } else {
           const newToken = new this.model({
             _id: uuid(),
@@ -67,27 +62,17 @@ class AccessTokenRepository {
             ip: data.ip || null,
             secret: bcrypt.genSaltSync(64),
           });
-      
+
           if (data.userAgent) {
             newToken.fingerprint = data.userAgent.replace(/\s/g, '').toLowerCase();
           }
-          
-          
+
           return newToken.save()
-          .then(() => {
-            return admin.auth().createCustomToken(token._id)
-            .then((customToken) => {
-              return customToken;
-            })
-            .catch(function(error) {
-              console.log('Error creating custom token:', error);
+            .then(() => {
+              return admin.auth().createCustomToken(newToken._id);
+            }).catch((error) => {
+              return error
             });
-          });
-          // return newToken.save()
-          //   .then(() => jsonwebtoken.sign({
-          //     id: newToken._id,
-          //     user_id: user._id,
-          //   }, token.secret, { expiresIn: data.expiresIn || '1w' }));
         }
       });
   }
