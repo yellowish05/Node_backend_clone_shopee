@@ -149,13 +149,24 @@ class Provider extends ProviderAbstract {
     return transaction;
   }
 
-  async createPaymentIntent(currency, amount) {
+  async createPaymentIntent(currency, amount, buyer) {
     if(!this.client)
       console.log("Stripe Connectin Error !");
+    
+    const customer = await this.repository.paymentStripeCustomer
+      .getByUserId(buyer);
+
+    if(!customer) {
+      return {
+        error: `The stripe customer is not find in DB by id ${transaction.buyer}`
+      }
+    }
+
     try {
       const response = await this.client.paymentIntents.create({
         amount: amount,
         currency: currency.toLowerCase(),
+        customer: customer.customerId
       });
       return response;
     } catch (error) {
@@ -163,7 +174,6 @@ class Provider extends ProviderAbstract {
         error: error.raw.message,
       }
     }
-    
   }
 }
 module.exports = Provider;

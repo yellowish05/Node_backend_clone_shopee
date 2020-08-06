@@ -21,8 +21,7 @@ module.exports = async function checkoutOneProduct(
 
     const prod = await repository.product.getById(product).then((product) => product.customCarrier);
 
-    if (!prod) {
-      return payPurchaseOrder({ order, paymentMethod, user })
+    return payPurchaseOrder({ order, paymentMethod, user })
       .then(async (result) => {
         if(result.error)
           order.error = result.error
@@ -35,9 +34,24 @@ module.exports = async function checkoutOneProduct(
 
         return order;
       })
-    }
 
-    return order;
+    // if (!prod) {
+    //   return payPurchaseOrder({ order, paymentMethod, user })
+    //   .then(async (result) => {
+    //     if(result.error)
+    //       order.error = result.error
+    //     else
+    //       await checkout.clearUserCart(user.id, repository)
+    //     if(result.publishableKey)
+    //       order.publishableKey = result.publishableKey
+    //     if(result.paymentClientSecret)
+    //       order.paymentClientSecret = result.paymentClientSecret
+
+    //     return order;
+    //   })
+    // }
+
+    // return order;
   }
   throw new Error('This product is not enough now');
 };
