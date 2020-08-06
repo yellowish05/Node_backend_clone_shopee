@@ -15,6 +15,7 @@ const schema = gql`
     type PaymentMethod {
         id: ID!
         provider: PaymentProvider!
+        providerIdentity: String!
         name: String!
         """ Date when this method will be inactive"""
         expiredAt: Date!
