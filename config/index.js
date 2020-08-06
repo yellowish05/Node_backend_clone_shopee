@@ -58,6 +58,7 @@ module.exports = {
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',
     api_key: process.env.GOOGLE_API_KEY || null,
+    oauth_uri: 'https://www.googleapis.com/oauth2/v1'
   },
   facebook: {
     api_uri: 'https://graph.facebook.com',
