@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { AuthenticationError } = require('apollo-server');
-
 const JWT_REGEX = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+
+const path = require('path');
+const serviceAccount = require(path.resolve('config/adminSDK.json'));
+const axios = require('axios');
+const logger = require('../../config/logger');
 
 function fetchAuthorization({ req, connection }) {
   if (connection) {
@@ -23,7 +27,6 @@ function fetchJWT(authorization) {
   return token;
 }
 
-
 module.exports = (repository) => async (request) => {
   const authorization = fetchAuthorization(request);
   if (!authorization) {
@@ -39,18 +42,28 @@ module.exports = (repository) => async (request) => {
   if (!data) {
     return {};
   }
-
-  if (!data.id || !data.user_id || !data.exp) {
+  // if (!data.uid || !data.user_id || !data.exp) {
+  //   return {};
+  // }
+  if (!data.uid || !data.exp) {
     return {};
   }
 
-  const accessToken = await repository.accessToken.load(data.id);
+  const accessToken = await repository.accessToken.load(data.uid);
 
-  try {
-    jwt.verify(token, accessToken.secret);
-  } catch (error) {
-    throw new AuthenticationError('Invalid token');
-  }
+  await axios.get(serviceAccount.client_x509_cert_url)
+  .then((response) => {
+    const public_key = response.data[serviceAccount.private_key_id];
+    try {
+      jwt.verify(token, public_key, { algorithms: "RS256" });
+    } catch (error) {
+      throw new AuthenticationError('Invalid token');
+    }
+  })
+  .catch((err) => {
+    logger.error(err);
+    throw new AuthenticationError('User Authentication Failed');
+  });
 
   const user = await repository.user.load(accessToken.user);
   return { user };
