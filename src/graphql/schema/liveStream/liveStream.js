@@ -148,7 +148,14 @@ module.exports.resolvers = {
     liveStream(_, { id }, { dataSources: { repository } }) {
       return repository.liveStream.load(id);
     },
-    liveStreams: getLiveStreamCollection
+    liveStreams: getLiveStreamCollection,
+    liveStreamAddress(_, { id }, { dataSources: { repository } }) {
+      return {
+        wsurl:'ws://18.185.121.9:8188',
+        fileurl:'http://18.185.121.9:5000',
+        abs_url:'/opt/janus/share/janus/recordings'
+      };
+    }
   },
   Mutation: {
     addLiveStream,
