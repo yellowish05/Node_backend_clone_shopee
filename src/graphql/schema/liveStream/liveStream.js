@@ -21,12 +21,6 @@ const schema = gql`
       viewers: Int
     }
 
-    type LiveStreamAddress{
-      wsurl:String!
-      fileurl:String!
-      abs_url:String!
-    }
-
     type LiveStream {
         id: ID!
         title: String!
@@ -95,7 +89,6 @@ const schema = gql`
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID!): LiveStream
-        liveStreamAddress():LiveStreamAddress
     }
   
     extend type Mutation {
@@ -148,14 +141,7 @@ module.exports.resolvers = {
     liveStream(_, { id }, { dataSources: { repository } }) {
       return repository.liveStream.load(id);
     },
-    liveStreams: getLiveStreamCollection,
-    liveStreamAddress(){
-      return {
-        wsurl:"ws://18.185.121.9:8188",
-        fileurl:"http://18.185.121.9:5000",
-        abs_url:"/opt/janus/share/janus/recordings"
-      }
-    }
+    liveStreams: getLiveStreamCollection
   },
   Mutation: {
     addLiveStream,
