@@ -40,6 +40,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           return repository.streamChannel.finish(args.id);
         })
         .then((channel) => {
+          channel.record.enabled = false;
           if (channel.record.enabled) {
             if (streamChannel.status === StreamChannelStatus.PENDING) {
               repository.streamChannel.finishRecording(args.id, [])
@@ -47,18 +48,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
                   logger.error(`Failed to stop record StreamChannel(${args.id}). Original error: ${error}`);
                   repository.streamChannel.failRecording(args.id);
                 });
-            } else {
-              AgoraService.recording.stop(args.id, '1', streamChannel.record.resourceId, streamChannel.record.sid)
-                .then(({ serverResponse }) => repository.streamSource.create({
-                  source: `/${serverResponse.fileList}`,
-                  type: SourceType.VIDEO_AUDIO,
-                  user,
-                }))
-                .then((sources) => repository.streamChannel.finishRecording(args.id, sources))
-                .catch((error) => {
-                  logger.error(`Failed to stop record StreamChannel(${args.id}). Original error: ${error}`);
-                  repository.streamChannel.failRecording(args.id);
-                });
+            // } else {
+              // AgoraService.recording.stop(args.id, '1', streamChannel.record.resourceId, streamChannel.record.sid)
+              //   .then(({ serverResponse }) => repository.streamSource.create({
+              //     source: `/${serverResponse.fileList}`,
+              //     type: SourceType.VIDEO_AUDIO,
+              //     user,
+              //   }))
+              //   .then((sources) => repository.streamChannel.finishRecording(args.id, sources))
+              //   .catch((error) => {
+              //     logger.error(`Failed to stop record StreamChannel(${args.id}). Original error: ${error}`);
+              //     repository.streamChannel.failRecording(args.id);
+              //   });
             }
           }
 
