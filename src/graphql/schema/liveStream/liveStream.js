@@ -22,8 +22,8 @@ const schema = gql`
     }
 
     type LiveStreamAddress{
-      wsurl:String!,
-      fileurl:String!,
+      wsurl:String!
+      fileurl:String!
       abs_url:String!
     }
 
@@ -149,7 +149,7 @@ module.exports.resolvers = {
       return repository.liveStream.load(id);
     },
     liveStreams: getLiveStreamCollection,
-    livestreamaddress(){
+    liveStreamAddress(){
       return {
         wsurl:"ws://18.185.121.9:8188",
         fileurl:"http://18.185.121.9:5000",
