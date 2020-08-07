@@ -21,6 +21,12 @@ const schema = gql`
       viewers: Int
     }
 
+    type LiveStreamAddress {
+      wsurl: String!
+      fileurl:String!
+      abs_url:String!
+    }
+
     type LiveStream {
         id: ID!
         title: String!
