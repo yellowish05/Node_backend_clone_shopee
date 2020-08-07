@@ -21,6 +21,10 @@ const schema = gql`
       viewers: Int
     }
 
+    type LiveStreamAddress{
+      url:String
+    }
+
     type LiveStream {
         id: ID!
         title: String!
@@ -89,6 +93,7 @@ const schema = gql`
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID!): LiveStream
+        liveStreamAddress():LiveStreamAddress
     }
   
     extend type Mutation {
@@ -142,6 +147,11 @@ module.exports.resolvers = {
       return repository.liveStream.load(id);
     },
     liveStreams: getLiveStreamCollection,
+    livestreamaddress(){
+      return {
+        url:"18.185.121.9"
+      }
+    }
   },
   Mutation: {
     addLiveStream,
