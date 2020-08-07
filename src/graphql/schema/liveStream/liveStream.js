@@ -22,7 +22,9 @@ const schema = gql`
     }
 
     type LiveStreamAddress{
-      url:String
+      wsurl:String!,
+      fileurl:String!,
+      abs_url:String!
     }
 
     type LiveStream {
@@ -149,7 +151,9 @@ module.exports.resolvers = {
     liveStreams: getLiveStreamCollection,
     livestreamaddress(){
       return {
-        url:"18.185.121.9"
+        wsurl:"ws://18.185.121.9:8188",
+        fileurl:"http://18.185.121.9:5000",
+        abs_url:"/opt/janus/share/janus/recordings"
       }
     }
   },
