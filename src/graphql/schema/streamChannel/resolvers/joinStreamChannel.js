@@ -40,7 +40,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
                 return repository.streamChannelParticipant.rejoinStream(streamChannel.id, user.id);
               }
 
-              const token = AgoraService.buildTokenWithAccount(streamChannel.id, user ? user.id : 'guest', StreamRole.SUBSCRIBER);
+              // const token = AgoraService.buildTokenWithAccount(streamChannel.id, user ? user.id : 'guest', StreamRole.SUBSCRIBER);
+              const token = '';
 
               return repository.streamChannelParticipant.create({
                 channel: args.id,
