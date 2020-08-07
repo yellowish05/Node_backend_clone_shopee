@@ -94,7 +94,7 @@ const schema = gql`
 
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
-        liveStream(id: ID!): LiveStream
+        liveStream(id: ID): LiveStream
         liveStreamAddress(id:ID!): LiveStreamAddress
     }
   
