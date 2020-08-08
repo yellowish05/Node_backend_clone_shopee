@@ -6,6 +6,7 @@ const logger = require('../../../../../config/logger');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { OAuth2Service } = require(path.resolve('src/lib/OAuth2Service'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
 
 const errorHandler = new ErrorHandler();
 
@@ -33,12 +34,38 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
 
       return repository.user.findByProvider(data.provider, socialUserData.id)
         .then((user) => {
-          if (!user) {
-            throw new UserInputError(`User does not exist. Please sign up now.`);
+          if (user) {
+            throw new UserInputError(`${data.provider} user already exists`);
+          }
+          if (socialUserData.email) {
+            user = repository.user.findByEmail(socialUserData.email);
+            if (!user || Object.keys(user) === 0) {
+              throw new UserInputError(`Email already taken ${socialUserData.email}`);
+            }
           }
 
-          return user;
+          return;
+        })
+        .then(() => {
+          const userId = uuid();
+          return repository.asset.createFromUri({
+            userId,
+            url: socialUserData.photo,
+          })
+            .then((asset) => repository.user.createByProvider({
+              _id: userId,
+              email: socialUserData.email,
+              name: socialUserData.name,
+              photo: asset,
+              provider: data.provider,
+              providerId: socialUserData.id,
+            }, { roles: ['USER'] }))
+            .then((user) => {
+              if (socialUserData.email) {
+                EmailService.sendWelcome({ user });
+              }
+              return user;
+            });
         });
-    })
-    .then((user) => repository.accessToken.create(user));
+    });
 };
