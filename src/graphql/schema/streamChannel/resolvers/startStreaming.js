@@ -45,13 +45,13 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
     })
     .then((channel) => {
       if (channel.record.enabled) {
-        AgoraService.recording.acquire(args.id, '1')
-          .then(({ resourceId }) => AgoraService.recording.start(args.id, '1', resourceId, AgoraService.buildTokenWithAccount(args.id, '1', StreamRole.SUBSCRIBER)))
-          .then(({ resourceId, sid }) => repository.streamChannel.startRecording(args.id, { resourceId, sid }))
-          .catch((error) => {
-            logger.error(`Failed to start record StreamChannel(${args.id}). Original error: ${error}`);
-            repository.streamChannel.failRecording(args.id);
-          });
+        // AgoraService.recording.acquire(args.id, '1')
+        //   .then(({ resourceId }) => AgoraService.recording.start(args.id, '1', resourceId, AgoraService.buildTokenWithAccount(args.id, '1', StreamRole.SUBSCRIBER)))
+        //   .then(({ resourceId, sid }) => repository.streamChannel.startRecording(args.id, { resourceId, sid }))
+        //   .catch((error) => {
+        //     logger.error(`Failed to start record StreamChannel(${args.id}). Original error: ${error}`);
+        //     repository.streamChannel.failRecording(args.id);
+        //   });
       }
 
       repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {

@@ -47,6 +47,22 @@ class DeliveryAddressRepository {
     return deliveryAddress.save();
   }
 
+  async update(data) {
+    console.log(data);
+    return this.getById(data.id)
+      .then((existingAddress) => {
+        existingAddress.label = data.label;
+        existingAddress.address.addressId = data.savedAddressId;
+        existingAddress.address.street = data.street;
+        existingAddress.address.city = data.city;
+        existingAddress.address.region = data.region;
+        existingAddress.address.country = data.country;
+        existingAddress.address.zipCode = data.zipCode;
+        existingAddress.address.description = data.description;
+        return existingAddress.save();
+      });
+  }
+
   async getAll(query) {
     query.isDeleted = false;
     return this.model.find(query);
