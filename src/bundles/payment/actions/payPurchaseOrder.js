@@ -92,6 +92,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
       const stripe = payment.providers.stripe;
       return getProvider(method.provider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
       .then((paymentIntent) => {
+        
         if(paymentIntent.error) {
           return paymentIntent;
         } else {
