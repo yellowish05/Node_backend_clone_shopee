@@ -21,8 +21,7 @@ module.exports = async function checkoutCart(
   .then(async (result) => {
     if(result.error)
       order.error = result.error
-    else
-      await checkout.clearUserCart(user.id, repository)
+    
     if(result.publishableKey)
       order.publishableKey = result.publishableKey
     if(result.paymentClientSecret)
