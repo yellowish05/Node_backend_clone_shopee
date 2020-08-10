@@ -2,6 +2,7 @@ const path = require('path');
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
+const { payment } = require(path.resolve('config'));
 
 module.exports = async (req, res) => {
     let data, eventType;
