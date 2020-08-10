@@ -14,7 +14,7 @@ module.exports = async function checkoutCart(
   const order = await checkout.createOrder({
     cartItems, currency, buyerId: user.id,
   }, repository);
-  await checkout.clearUserCart(user.id, repository);
+  // await checkout.clearUserCart(user.id, repository);
 
   // generate payments with Payment Provider data and update order
   return payPurchaseOrder({ order, paymentMethod, user })
