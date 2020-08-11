@@ -33,8 +33,45 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
 
       return repository.user.findByProvider(data.provider, socialUserData.id)
         .then((user) => {
+          if (!user && socialUserData.email) {
+            return repository.user.findByEmail(socialUserData.email);
+          }
+          return user;
+        })
+        .then((user) => {
           if (!user) {
-            throw new UserInputError(`User does not exist. Please sign up now.`);
+            const userId = uuid();
+            return repository.asset.createFromUri({
+              userId,
+              url: socialUserData.photo,
+            })
+              .then((asset) => repository.user.createByProvider({
+                _id: userId,
+                email: socialUserData.email,
+                name: socialUserData.name,
+                photo: asset,
+                provider: data.provider,
+                providerId: socialUserData.id,
+              }, { roles: ['USER'] }))
+              .then((user) => {
+                if (socialUserData.email) {
+                  EmailService.sendWelcome({ user });
+                }
+                return user;
+              });
+          }
+
+          if (!user.photo) {
+            return repository.asset.createFromUri({
+              userId: user.id,
+              url: socialUserData.photo,
+            })
+              .then((asset) => repository.user.update(user.id, {
+                name: user.name || socialUserData.name,
+                photo: asset,
+                provider: data.provider,
+                providerId: socialUserData.id,
+              }));
           }
 
           return user;
