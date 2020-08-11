@@ -87,7 +87,7 @@ module.exports = async (_, { path }) => {
                                 photo: user.photo,
                                 owner: user._id,
                                 path: `${user.name}/Logo/${user.photo}`,
-                                url: aws.vender_bucket
+                                url: aws.vendor_bucket
                             }
                             if (err)
                                 reject(err);
