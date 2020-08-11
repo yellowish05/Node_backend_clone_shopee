@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
         console.log("💰 Payment captured!");
         let customer = data.object.customer;
         let user = await repository.paymentStripeCustomer.getByCustomerID(customer);
-        await checkout.clearUserCart(user.id, repository);
+        await checkout.clearUserCart(user.user, repository);
     } 
 
     res.sendStatus(200);
