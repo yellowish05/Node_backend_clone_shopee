@@ -22,7 +22,6 @@ class AccessTokenRepository {
   async create(user, data = {}) {
     return this.findByUserId(user._id)
       .then((token) => {
-
         if (token) {
           this.findAllByUserId(user._id).then((tokens) => {
             tokens.forEach(item => {
@@ -56,9 +55,9 @@ class AccessTokenRepository {
 
           return newToken.save()
             .then(() => jsonwebtoken.sign({
-              id: token._id,
+              id: newToken._id,
               user_id: user._id,
-            }, token.secret, { expiresIn: data.expiresIn || '1w' }));
+            }, newToken.secret, { expiresIn: data.expiresIn || '1w' }));
         }
       });
   }
