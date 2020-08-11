@@ -38,13 +38,11 @@ module.exports = (repository) => async (request) => {
   if (!data) {
     return {};
   }
-  console.log("Data: ", data);
   if (!data.id || !data.user_id || !data.exp) {
     return {};
   }
 
   const accessToken = await repository.accessToken.load(data.id);
-  console.log("Secret: ", accessToken.secret);
   try {
     jwt.verify(token, accessToken.secret);
   } catch (error) {
