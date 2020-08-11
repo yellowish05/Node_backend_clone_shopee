@@ -2,15 +2,6 @@ const bcrypt = require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 
-const path = require('path');
-const admin = require("firebase-admin");
-const serviceAccount = require(path.resolve('config/adminSDK.json'));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://shoclef-171ab.firebaseio.com"
-});
-
 class AccessTokenRepository {
   constructor(model) {
     this.model = model;
@@ -46,15 +37,11 @@ class AccessTokenRepository {
           }
 
           return token.save()
-            .then(() => {
-              return admin.auth().createCustomToken(token._id)
-                .then((customToken) => {
-                  return customToken;
-                })
-                .catch((error) => {
-                  return error;
-                });
-            });
+            .then(() => jsonwebtoken.sign({
+              id: token._id,
+              user_id: user._id,
+            }, token.secret, { expiresIn: data.expiresIn || '1w' }));
+
         } else {
           const newToken = new this.model({
             _id: uuid(),
@@ -68,11 +55,10 @@ class AccessTokenRepository {
           }
 
           return newToken.save()
-            .then(() => {
-              return admin.auth().createCustomToken(newToken._id);
-            }).catch((error) => {
-              return error
-            });
+            .then(() => jsonwebtoken.sign({
+              id: token._id,
+              user_id: user._id,
+            }, token.secret, { expiresIn: data.expiresIn || '1w' }));
         }
       });
   }
