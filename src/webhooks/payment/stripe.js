@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     data = req.body.data;
     eventType = req.body.type;
 
-    if (eventType === "payment_intent.created") {
+    if (eventType === "payment_intent.succeeded") {
         // Funds have been captured
         // Fulfill any orders, e-mail receipts, etc
         // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
