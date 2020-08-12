@@ -63,7 +63,7 @@ const addProduct = async (product, index) => {
                 path: `${path}${asset}`,
                 photo: asset,
                 name: product.username,
-                url: aws.vender_bucket,
+                url: aws.vendor_bucket,
                 bucket: assetsS3bucket
             }
 
@@ -353,6 +353,9 @@ module.exports = async (_, { fileName, bucket }) => {
             uploaded: res.length,
             failed: failed.length
         };
+    }).then(res => {
+        repository.asset.updateStatusByPath(fileName, "UPLOADED");
+        return res;
     }).catch(() => {
 
         const failedParsingConst = failedParsing.map(prod => prod.trim());

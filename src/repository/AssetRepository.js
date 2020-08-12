@@ -146,7 +146,7 @@ class AssetRepository {
     const asset = new this.model(assetData);
     return await asset.save().then(asset => {
       return asset
-    }).catch(err => this.getByPath(data.path));
+    }).catch(err => this.getByPath(path));
   }
 
 }
