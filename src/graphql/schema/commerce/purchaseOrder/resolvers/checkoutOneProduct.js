@@ -13,6 +13,15 @@ module.exports = async function checkoutOneProduct(
   const checkAmount = await repository.productInventoryLog.checkAmount(product, quantity);
   if (checkAmount) {
     const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
+    const delivery = await repository.deliveryRateCache.getById(deliveryRate)
+    const cartItemData = {
+      productId: product,
+      quantity: quantity,
+      deliveryRateId: delivery.id
+    };
+
+    const cart = await repository.userCartItem.add(cartItemData, user.id);
+    console.log(cart);
 
     // creating order
     const order = await checkout.createOrder({
