@@ -6,6 +6,7 @@ const logger = require('../../../../../config/logger');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { OAuth2Service } = require(path.resolve('src/lib/OAuth2Service'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
 
 const errorHandler = new ErrorHandler();
 
