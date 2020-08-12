@@ -59,28 +59,38 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
   if (!paymentMethod) {
     return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
   }
+  let transaction;
+  let method;
+  if(paymentMethod !== "applePay") {
+    method = await repository.paymentMethod.getById(paymentMethod);
 
-  const method = await repository.paymentMethod.getById(paymentMethod);
-
-  if (!method) {
-    throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
+    if (!method) {
+      throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
+    }
+  
+    if (!method.isActive) {
+      throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
+    }
+  
+    if (!availableProviders().includes(method.provider)) {
+      throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
+    }
+  
+    // Create and Save Transaction for Purchase Order
+    transaction = await repository.paymentTransaction.create(
+      {
+        ...paymentTransactionFactory(order),
+        paymentMethod: method,
+      },
+    );
+  } else {
+    transaction = await repository.paymentTransaction.create(
+      {
+        ...paymentTransactionFactory(order),
+        paymentMethod: "applePay",
+      },
+    );
   }
-
-  if (!method.isActive) {
-    throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
-  }
-
-  if (!availableProviders().includes(method.provider)) {
-    throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
-  }
-
-  // Create and Save Transaction for Purchase Order
-  const transaction = await repository.paymentTransaction.create(
-    {
-      ...paymentTransactionFactory(order),
-      paymentMethod: method,
-    },
-  );
 
   // Add transaction to the order and save it
   order.payments.push(transaction.id);
@@ -88,9 +98,17 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
 
   // Pay the transaction here
   try {
-    if(method.provider.toLowerCase() == 'stripe') {
+    let methodProvider;
+    if(paymentMethod === 'applePay') {
+      methodProvider = 'Stripe';
+    } else {
+      methodProvider = method.provider;
+    }
+
+    if(methodProvider.toLowerCase() == 'stripe') {
       const stripe = payment.providers.stripe;
-      return getProvider(method.provider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+
+      return getProvider(methodProvider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
       .then((paymentIntent) => {
         if(paymentIntent.error) {
           return paymentIntent;

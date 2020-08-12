@@ -5,6 +5,7 @@ const { LoginProvider } = require(path.resolve('src/lib/Enums'));
 
 const generateAccessToken = require('./resolvers/generateAccessToken');
 const generateAccessTokenByOAuth2 = require('./resolvers/generateAccessTokenByOAuth2');
+const generateAccessTokenByOAuth2Web = require('./resolvers/generateAccessTokenByOAuth2Web');
 
 const schema = gql`
   enum LoginProvider {
@@ -26,6 +27,7 @@ const schema = gql`
   extend type Mutation {
     generateAccessToken(data: LoginInput!): String!
     generateAccessTokenByOAuth2(data: OAuth2LoginInput!): String!
+    generateAccessTokenByOAuth2Web(data: OAuth2LoginInput!): String!
   }
 `;
 
@@ -35,5 +37,6 @@ module.exports.resolvers = {
   Mutation: {
     generateAccessToken,
     generateAccessTokenByOAuth2,
+    generateAccessTokenByOAuth2Web,
   },
 };

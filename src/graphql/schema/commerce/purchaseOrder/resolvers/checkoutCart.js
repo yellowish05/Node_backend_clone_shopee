@@ -14,15 +14,14 @@ module.exports = async function checkoutCart(
   const order = await checkout.createOrder({
     cartItems, currency, buyerId: user.id,
   }, repository);
-  await checkout.clearUserCart(user.id, repository);
+  // await checkout.clearUserCart(user.id, repository);
 
   // generate payments with Payment Provider data and update order
   return payPurchaseOrder({ order, paymentMethod, user })
   .then(async (result) => {
     if(result.error)
       order.error = result.error
-    else
-      await checkout.clearUserCart(user.id, repository)
+    
     if(result.publishableKey)
       order.publishableKey = result.publishableKey
     if(result.paymentClientSecret)

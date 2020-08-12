@@ -25,8 +25,7 @@ module.exports = async function checkoutOneProduct(
       .then(async (result) => {
         if(result.error)
           order.error = result.error
-        else
-          await checkout.clearUserCart(user.id, repository)
+        
         if(result.publishableKey)
           order.publishableKey = result.publishableKey
         if(result.paymentClientSecret)
@@ -53,5 +52,12 @@ module.exports = async function checkoutOneProduct(
 
     // return order;
   }
-  throw new Error('This product is not enough now');
+
+  const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
+  // creating order
+  const order = await checkout.createOrder({
+    cartItems, currency, buyerId: user.id,
+  }, repository);
+  order.error = "This product is not enough now";
+  return order;
 };
