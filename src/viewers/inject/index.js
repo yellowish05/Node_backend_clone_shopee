@@ -38,7 +38,6 @@ module.exports = (req, res) => {
                 })
             })
             .then(() => {
-                console.log(ids, lengths)
                 for (let i = 0; i < ids.length;i++) {
                     let data = setData(lengths[i])
                     repository.liveStream.update(ids[i], data, 1)
