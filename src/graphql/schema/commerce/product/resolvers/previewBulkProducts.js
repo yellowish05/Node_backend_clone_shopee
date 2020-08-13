@@ -29,7 +29,6 @@ module.exports = async (_, { fileName }, data) => {
         const json = await csv().fromStream(stream);
         resolve(json);
     }).then(data => {
-        console.log("csv data", data);
         return JSON.stringify(data);
     }).catch(err => {
         return new ApolloError(err.message);

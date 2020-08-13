@@ -16,7 +16,6 @@ module.exports = async (root, { file }, { user, dataSources: { repository } }) =
 	const { createReadStream, mimetype, filename } = await file;
 	const fileStream = createReadStream()
 	const size = 100;
-	console.log(await file);
 	const validator = new Validator({ mimetype, size }, {
 		mimetype: 'required',
 		size: 'required'

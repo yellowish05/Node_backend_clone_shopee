@@ -48,7 +48,6 @@ class DeliveryAddressRepository {
   }
 
   async update(data) {
-    console.log(data);
     return this.getById(data.id)
       .then((existingAddress) => {
         existingAddress.label = data.label;
