@@ -38,7 +38,6 @@ async function uploadprocess(stream,path)
 
 module.exports = async (root, { file }, { user, dataSources: { repository } }) => {
 	const { stream, mimetype} = await file;
-	console.log(mimetype);
 	const size = 100;
 	const validator = new Validator({mimetype}, {
 	    mimetype: 'required'
@@ -75,7 +74,6 @@ module.exports = async (root, { file }, { user, dataSources: { repository } }) =
 	// for(let item in files)
 	// {
 	// 	let resultitem = await uploadprocess(files[item],user);
-	// 	console.log(resultitem);
 	// 	result.push(resultitem);
 	// }
 

@@ -16,8 +16,10 @@ module.exports = async (req, res) => {
         // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
         console.log("💰 Payment captured!");
         let customer = data.object.customer;
-        let user = await repository.paymentStripeCustomer.getByCustomerID(customer);
-        await checkout.clearUserCart(user.user, repository);
+        let buyer = await repository.paymentStripeCustomer.getByCustomerID(customer);
+        let cartItems = await repository.userCartItem.getItemsByUser(buyer.user);
+        cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product, item.quantity));
+        await checkout.clearUserCart(buyer.user, repository);
     } 
 
     res.sendStatus(200);

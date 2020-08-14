@@ -61,7 +61,8 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
   }
   let transaction;
   let method;
-  if(paymentMethod !== "applePay") {
+
+  if(paymentMethod !== "applePay" && paymentMethod !== "googlePay") {
     method = await repository.paymentMethod.getById(paymentMethod);
 
     if (!method) {
@@ -83,11 +84,18 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
         paymentMethod: method,
       },
     );
-  } else {
+  } else if (paymentMethod === "applePay"){
     transaction = await repository.paymentTransaction.create(
       {
         ...paymentTransactionFactory(order),
         paymentMethod: "applePay",
+      },
+    );
+  } else if (paymentMethod === "googlePay"){
+    transaction = await repository.paymentTransaction.create(
+      {
+        ...paymentTransactionFactory(order),
+        paymentMethod: "googlePay",
       },
     );
   }
@@ -99,7 +107,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
   // Pay the transaction here
   try {
     let methodProvider;
-    if(paymentMethod === 'applePay') {
+    if(paymentMethod === 'applePay' || paymentMethod === "googlePay") {
       methodProvider = 'Stripe';
     } else {
       methodProvider = method.provider;
@@ -107,7 +115,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
 
     if(methodProvider.toLowerCase() == 'stripe') {
       const stripe = payment.providers.stripe;
-
+      
       return getProvider(methodProvider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
       .then((paymentIntent) => {
         if(paymentIntent.error) {
@@ -133,6 +141,5 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
     await ordersBundle.executeOrderFailFlow(order);
     logger.error(`${error.name}: ${error.message}`);
   }
-
   return transaction;
 };
