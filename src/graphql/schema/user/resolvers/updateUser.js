@@ -84,7 +84,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         };
 
         tempCurrency = addressCountry ? addressCountry.currency : 'USD';
-        repository.user.updateCurrency(user.id, tempCurrency);
+        await repository.user.updateCurrency(user.id, tempCurrency);
       }
 
       let addressObj = {
@@ -130,7 +130,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       const tempCountry = await repository.country.getById(addressObj.address.country);
-      repository.user.updateCurrency(user.id, tempCountry.currency);
+      await repository.user.updateCurrency(user.id, tempCountry.currency);
       return repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,

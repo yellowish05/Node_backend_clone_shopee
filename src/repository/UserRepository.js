@@ -207,7 +207,7 @@ class UserRepository {
   }
 
   async findByProvider(provider, value) {
-    return this.model.findOne({ [`providers.${provider}`]: value });
+    return await this.model.findOne({ [`providers.${provider}`]: value });
   }
 
   async changePassword(userId, password) {
