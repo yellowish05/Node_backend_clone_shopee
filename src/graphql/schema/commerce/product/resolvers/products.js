@@ -49,6 +49,20 @@ module.exports = async (_, {
     filter.blackList = user.blackList;
   }
 
+  if(filter.categories) {
+    const categories = [...filter.categories];
+    await Promise.all(categories.map(async (category) => {
+      await repository.productCategory.getByParent(category)
+      .then((subcategories) => {
+        if(subcategories.length > 0) {
+          subcategories.map((item) => {
+            filter.categories.push(item.id);
+          })
+        }
+      });
+    }));
+  }
+
   if (filter.price) {
     if (filter.price.min) {
       filter.price.min = await exchangeOnSupportedCurrencies(filter.price.min);

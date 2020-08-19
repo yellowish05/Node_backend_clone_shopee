@@ -72,11 +72,18 @@ module.exports = async (_, { path }) => {
                         user = { _id: uuid(), ...properties };
                     }
 
-                    user.brandName = await new Promise((resolve, reject) => {
-                        return repository.brand.create({ _id: uuid(), name: user.brandName }).then(res => {
-                            resolve(user.brandName = res.id || res);
-                        })
-                    })
+                    if (user.brandName) {
+                        user.brandName = await new Promise((resolve, reject) => {
+                            return repository.brand.create({ 
+                                _id: uuid(), 
+                                name: user.brandName 
+                            }).then(res => {
+                                resolve(user.brandName = res.id || res);
+                            }).catch(err => {
+                                reject(err);
+                            });
+                        });
+                    }
 
                     if (user.photo) {
                         if (user.photo.includes(".jpg") ||
