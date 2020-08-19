@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "prestart": "npm run migrate-up",
     "start": "node ./server.js",
     "dev": "nodemon -L ./server.js",
@@ -93,5 +94,8 @@
     "faker": "^4.1.0",
     "jest": "^24.9.0",
     "nodemon": "^1.19.4"
+  },
+  "resolutions": {
+    "fs-capacitor": "6.2.0"
   }
 }
