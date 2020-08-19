@@ -87,7 +87,7 @@ class UserRepository {
       password: md5(data.password),
       phone: data.number,
       name: data.name,
-      roles: data.Role || [],
+      roles: data.roles || [],
       address: data.address,
       location: data.location,
       settings: {
