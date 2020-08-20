@@ -28,7 +28,8 @@ module.exports = async (root, { file }, { user, dataSources: { repository } }) =
 			if (!matched) {
 				throw errorHandler.build(validator.errors);
 			}
-			const { ext, type } = MIMEAssetTypes.detect(mimetype);
+			const ext = "csv";
+			const type = "CSV";
 			const id = uuid();
 			const path = `${user.id}/${id}.${ext}`;
 
