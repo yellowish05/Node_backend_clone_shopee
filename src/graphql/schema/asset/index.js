@@ -4,6 +4,7 @@ const path = require('path');
 const addAsset = require('./resolvers/addAsset');
 const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
+const uploadCsv = require('./resolvers/uploadCsv');
 const asset = require('./resolvers/asset');
 const assetCsvByStatus = require('./resolvers/assetCsvByStatus');
 const { aws, logs } = require(path.resolve('config'));
@@ -85,6 +86,8 @@ const schema = gql`
       addAssetUrl(data:AssetInputUrl):Asset! @auth(requires:USER)
 
       uploadAsset(file:Upload!): Asset! @auth(requires: USER)
+
+      uploadCsv(file:Upload!): Asset! @auth(requires: USER)
     }
 `;
 
@@ -104,6 +107,7 @@ module.exports.resolvers = {
       return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
     },
     uploadAsset,
+    uploadCsv,
     addAssetUrl
   },
 };
