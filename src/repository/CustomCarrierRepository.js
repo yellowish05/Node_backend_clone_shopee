@@ -41,7 +41,7 @@ class CustomCarrierRepository {
 
   async create(data) {
     const customCarrier = new this.model(data);
-    return customCarrier.save();
+    return await customCarrier.save();
   }
 
   async getCountBySearch(query) {
