@@ -38,15 +38,43 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       if (!region) {
         throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
       }
-      return EasyPost.updateAddress({ address: data }).then(response => repository.deliveryAddress.update({
-        id,
-        savedAddressId: response.id,
-        ...data,
-      })).catch((error) => {
-        throw new ApolloError(`Failed to create Delivery Address. Original error: ${error.message}`, 400);
+      return EasyPost.updateAddress({ address: data }).then(response => {
+        return repository.deliveryAddress.update({
+          id,
+          savedAddressId: response.id,
+          ...data,
+        }).then((shippingAddressItem) => {
+          return repository.billingAddress.findByShippingAddress(shippingAddressItem.id)
+            .then((billingAddress) => {
+              if (billingAddress && billingAddress.length > 0) {
+                Promise.all(
+                  billingAddress.map(async (item) => {
+                    await repository.billingAddress.update({
+                      id: item.id,
+                      shipping: true,
+                      savedAddressId: shippingAddressItem.address.addressId,
+                      shippingAddress: shippingAddressItem.id,
+                      label: shippingAddressItem.label,
+                      street: shippingAddressItem.address.street,
+                      city: shippingAddressItem.address.city,
+                      region: shippingAddressItem.address.region,
+                      country: shippingAddressItem.address.country,
+                      zipCode: shippingAddressItem.address.zipCode,
+                    })
+                  })
+                );
+              }
+              return shippingAddressItem;
+            }).catch((error) => {
+              console.log(error.message);
+              return shippingAddressItem;
+            })
+        })
+      }).catch((error) => {
+        throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
       });
     })
     .catch((error) => {
-      throw new ApolloError(`Failed to add Delivery Address. Original error: ${error.message}`, 400);
+      throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
     });
 };
