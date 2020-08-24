@@ -8,15 +8,16 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const AWS = require('aws-sdk');
 const { aws } = require(path.resolve('config'));
-const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const { InventoryLogType, MarketType } = require(path.resolve('src/lib/Enums'));
 
 const s3 = new AWS.S3();
 
-let shippingBoxesCollection = [];
-let products = [];
-let failedParsing = [];
-let failedProducts = [];
-let brands = [];
+let shippingBoxesCollection;
+let organizationsCollection;
+let products;
+let failedParsing;
+let failedProducts;
+let brands;
 let assetsS3bucket;
 
 const getDataFromCsv = async (params) => {
@@ -74,6 +75,7 @@ const addProduct = async (product, index) => {
     }).then(res => res)
         .catch(err => err)
 
+
     const price = parseFloat(product.price);
     const oldPrice = product.oldPrice ? parseFloat(product.oldPrice) : parseFloat(product.price);
 
@@ -126,12 +128,22 @@ const addProduct = async (product, index) => {
     });
 
     product.customCarrier = await new Promise((resolve) => {
-        return repository.customCarrier.getById(product.customCarrier).then(res => {
-            resolve(product.customCarrier = res._id || res)
+        return repository.customCarrier.getById(product.customCarrier).then(async res => {
+            if (res == null) {
+                await repository.customCarrier.create({
+                    _id: product.customCarrier,
+                    name: "Custom Courier"
+                }).then(res => {
+                    resolve(res.id);
+                }).catch(() => {
+                    resolve(null);
+                });
+            }
+            resolve(product.customCarrier = res._id || res);
         }).catch(() => {
-            resolve(undefined);
+            resolve(null);
         })
-    })
+    });
 
     product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseFloat(product.customCarrierValue), currency: product.currency }).getCentsAmount();
 
@@ -173,34 +185,46 @@ const addProduct = async (product, index) => {
 }
 
 const errorFormater = (err, row) => {
-    const error = err.errors;
-    let parsedError = [];
+    if (err.errors) {
+        const error = err.errors;
+        let parsedError = [];
 
-    if (error.price) {
-        parsedError = error.price.message;
-    } else if (error.customCarrierValue) {
-        parsedError = error.customCarrierValue.message;
-    } else if (error.currency) {
-        parsedError = error.customCarricurrencyValue.message;
-    } else if (error.customCarrier) {
-        parsedError = error.customCarrier.message;
-    } else if (error.shippingBox) {
-        parsedError = error.shippingBox.message;
-    } else if (error.brand) {
-        parsedError = error.brand.message;
-    } else if (error.seller) {
-        parsedError = error.seller.message;
-    } else if (error.description) {
-        parsedError = error.description.message;
-    } else if (error.message) {
-        parsedError = error;
+        if (error.price) {
+            parsedError = error.price.message;
+        } else if (error.customCarrierValue) {
+            parsedError = error.customCarrierValue.message;
+        } else if (error.currency) {
+            parsedError = error.customCarricurrencyValue.message;
+        } else if (error.customCarrier) {
+            parsedError = error.customCarrier.message;
+        } else if (error.shippingBox) {
+            parsedError = error.shippingBox.message;
+        } else if (error.brand) {
+            parsedError = error.brand.message;
+        } else if (error.seller) {
+            parsedError = error.seller.message;
+        } else if (error.description) {
+            parsedError = error.description.message;
+        } else if (error.message) {
+            parsedError = error;
+        } else {
+            parsedError = "no mesage"
+        }
+
+        parsedError += " on row " + row;
+
+        return parsedError;
     } else {
-        parsedError = "no mesage"
+        let parsedError = [];
+        if (err.errmsg) {
+            parsedError = err.errmsg;
+        } else {
+            parsedError = "unknown error";
+        }
+        parsedError += " on row " + row;
+
+        return parsedError;
     }
-
-    parsedError += " on row " + row;
-
-    return parsedError;
 }
 
 const pushFailedProducts = async (failedProduct) => {
@@ -213,6 +237,11 @@ const pushProducts = async (product) => {
 
 const pushShippingBoxes = async (shippingBoxes) => {
     shippingBoxesCollection.push(shippingBoxes)
+}
+
+const pushOrganizations = async (organization) => {
+    if (organization)
+        organizationsCollection.push(organization)
 }
 
 const pushBrands = async (brand) => {
@@ -249,6 +278,7 @@ const loopProductRows = async (rows, header) => {
             }
 
             let shippingBoxProperties
+            let organization
 
             try {
                 if (!product.seller)
@@ -268,15 +298,32 @@ const loopProductRows = async (rows, header) => {
                 failedParsing.push("Couldn't parse shippingBox properties");
             }
 
+            try {
+                organization = {
+                    owner: product.seller,
+                    customCarrier: product.customCarrier
+                }
+            } catch (error) {
+                organization = null;
+            }
+
             await pushShippingBoxes(shippingBoxProperties);
             await pushBrands(product.brand_name)
             await pushProducts(product);
+            await pushOrganizations(organization);
         }
     }
 }
 
 module.exports = async (_, { fileName, bucket }) => {
+    shippingBoxesCollection = [];
+    organizationsCollection = [];
+    products = [];
+    failedParsing = [];
+    failedProducts = [];
+    brands = [];
     assetsS3bucket = bucket;
+
     const params = {
         Bucket: aws.user_bucket,
         Key: fileName
@@ -293,6 +340,7 @@ module.exports = async (_, { fileName, bucket }) => {
 
     const uniqueShippingBoxes = lodash.uniqWith(shippingBoxesCollection, lodash.isEqual);
     const uniqueBrands = lodash.uniqWith(brands, lodash.isEqual);
+    const uniqueOrganizations = lodash.uniqWith(organizationsCollection, lodash.isEqual);
 
     const brandPromises = await uniqueBrands.map(item => new Promise((resolve) => {
         return repository.brand.findOrCreate({ name: item })
@@ -323,12 +371,31 @@ module.exports = async (_, { fileName, bucket }) => {
         })
     }));
 
+    await uniqueOrganizations.map(item => {
+        return repository.organization.getByUser(item.owner)
+            .then(organization => {
+                if (!organization) {
+                    return repository.user.getById(item.owner);
+                }
+            }).then(user => {
+                if (user)
+                    return repository.organization.create({
+                        address: user.address,
+                        billingAddress: user.address,
+                        owner: user._id,
+                        customCarrier: item.customCarrier,
+                        carriers: null,
+                        workInMarketTypes: MarketType.toList(),
+                    });
+            }).catch(err => console.log(err));
+    });
+
     return Promise.all(shippingBoxesPromises, brandPromises).then(async () => {
         if (failedParsing.length === 0) {
             const productPromises = await promise.map(products, async (product, index) => {
                 return await addProduct(product, index)
             }).then(res => res.filter(item => item))
-                .catch(err => err)
+                .catch(err => console.log(err));
 
             return productPromises;
         } else {
@@ -354,7 +421,7 @@ module.exports = async (_, { fileName, bucket }) => {
             failed: failed.length
         };
     }).then(res => {
-        repository.asset.updateStatusByPath(fileName, "UPLOADED");
+        // repository.asset.updateStatusByPath(fileName, "UPLOADED");
         return res;
     }).catch(() => {
 
