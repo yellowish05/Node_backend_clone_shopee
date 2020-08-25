@@ -60,6 +60,10 @@ const schema = gql`
             Allows: authorized user
         """
         deliveryAddresses: [DeliveryAddress]! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        billingAddresses: [DeliveryAddress]! @auth(requires: USER)
     }
 
     extend type Mutation {
@@ -94,7 +98,8 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id })
+    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }),
+    billingAddresses: async (_, args, { dataSources: { repository }, user }) => repository.billingAddress.getAll({ owner: user.id })
   },
   Mutation: {
     addDeliveryAddress,
