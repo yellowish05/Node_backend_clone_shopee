@@ -3,6 +3,9 @@ const { gql } = require('apollo-server');
 const addDeliveryAddress = require('./resolvers/addDeliveryAddress');
 const updateDeliveryAddress = require('./resolvers/updateDeliveryAddress');
 const deleteDeliveryAddress = require('./resolvers/deleteDeliveryAddress');
+const addBillingAddress = require('./resolvers/addBillingAddress');
+const updateBillingAddress = require('./resolvers/updateBillingAddress');
+const deleteBillingAddress = require('./resolvers/deleteBillingAddress');
 
 const schema = gql`
     type DeliveryAddress implements AddressInterface {
@@ -16,6 +19,7 @@ const schema = gql`
         isDeliveryAvailable: Boolean!
         addressId: String
         description: String
+        shippingAddress: String
     }
 
     input DeliveryAddressInput {
@@ -27,6 +31,17 @@ const schema = gql`
         zipCode: String
         description: String
     }
+    
+    input BillingAddressInput {
+        label: String
+        street: String
+        city: String
+        region: ID
+        country: ID
+        zipCode: String
+        description: String
+        shippingAddress: String
+    }
 
     input UpdateDeliveryAddressInput {
         label: String
@@ -37,6 +52,7 @@ const schema = gql`
         zipCode: String
         description: String
         addressId: String
+        shippingAddress: String
     }
 
     extend type Query {
@@ -44,6 +60,10 @@ const schema = gql`
             Allows: authorized user
         """
         deliveryAddresses: [DeliveryAddress]! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        billingAddresses: [DeliveryAddress]! @auth(requires: USER)
     }
 
     extend type Mutation {
@@ -59,6 +79,18 @@ const schema = gql`
             Allows: authorized user
         """
         deleteDeliveryAddress(id: ID!) : Boolean! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        addBillingAddress(data: BillingAddressInput!) : DeliveryAddress! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        updateBillingAddress(id: ID!, data: UpdateDeliveryAddressInput!) : DeliveryAddress! @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        deleteBillingAddress(id: ID!) : Boolean! @auth(requires: USER)
     }
 `;
 
@@ -66,12 +98,16 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id })
+    deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }),
+    billingAddresses: async (_, args, { dataSources: { repository }, user }) => repository.billingAddress.getAll({ owner: user.id })
   },
   Mutation: {
     addDeliveryAddress,
     deleteDeliveryAddress,
     updateDeliveryAddress,
+    addBillingAddress,
+    updateBillingAddress,
+    deleteBillingAddress
   },
   DeliveryAddress: {
     addressId: async ({ address: { addressId } }) => addressId,
