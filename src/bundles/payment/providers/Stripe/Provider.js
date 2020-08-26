@@ -160,7 +160,7 @@ class Provider extends ProviderAbstract {
 
     if(!customer) {
       const user = await this.repository.user.getById(buyer);
-      const newCustomer = await this.client.customers.create({
+      newCustomer = await this.client.customers.create({
         email: user.email
       }).then((response) => this.repository.paymentStripeCustomer.create({
         user: user.id,
@@ -178,18 +178,14 @@ class Provider extends ProviderAbstract {
     } else {
       newCustomer = customer;
     }
-    console.log("***** Buyer ******")
-    console.log(buyer);
-    console.log("***** Customer ******")
-    console.log(newCustomer);
+
     try {
       const response = await this.client.paymentIntents.create({
         amount: amount,
         currency: currency.toLowerCase(),
         customer: newCustomer.customerId
       });
-    console.log("***** Payment Intent ******")
-    console.log(response);
+
       return response;
     } catch (error) {
       return {
