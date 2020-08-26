@@ -421,7 +421,7 @@ module.exports = async (_, { fileName, bucket }) => {
             failed: failed.length
         };
     }).then(res => {
-        // repository.asset.updateStatusByPath(fileName, "UPLOADED");
+        repository.asset.updateStatusByPath(fileName, "UPLOADED");
         return res;
     }).catch(() => {
 
