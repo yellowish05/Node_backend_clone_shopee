@@ -5,6 +5,7 @@ const stripe = require('stripe');
 const { UserInputError } = require('apollo-server');
 const ProviderAbstract = require('../ProviderAbstract');
 const { PaymentException } = require('../../Exceptions');
+const { response } = require('../../../../viewers');
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 
@@ -152,22 +153,43 @@ class Provider extends ProviderAbstract {
   async createPaymentIntent(currency, amount, buyer) {
     if(!this.client)
       console.log("Stripe Connectin Error !");
-    
+    let newCustomer;
+
     const customer = await this.repository.paymentStripeCustomer
       .getByUserId(buyer);
 
     if(!customer) {
-      return {
-        error: `The stripe customer is not find in DB by id ${transaction.buyer}`
-      }
-    }
+      const user = await this.repository.user.getById(buyer);
+      const newCustomer = await this.client.customers.create({
+        email: user.email
+      }).then((response) => this.repository.paymentStripeCustomer.create({
+        user: user.id,
+        customerId: response.id,
+        paymentMethods: [],
+      })).catch((error) => {
+        console.log(error);
+        return false;
+      });
 
+      if(!newCustomer)
+        return {
+          error: 'Creating new Stripe customer failed!'
+        };
+    } else {
+      newCustomer = customer;
+    }
+    console.log("***** Buyer ******")
+    console.log(buyer);
+    console.log("***** Customer ******")
+    console.log(newCustomer);
     try {
       const response = await this.client.paymentIntents.create({
         amount: amount,
         currency: currency.toLowerCase(),
-        customer: customer.customerId
+        customer: newCustomer.customerId
       });
+    console.log("***** Payment Intent ******")
+    console.log(response);
       return response;
     } catch (error) {
       return {

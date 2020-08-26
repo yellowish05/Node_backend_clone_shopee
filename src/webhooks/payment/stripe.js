@@ -10,6 +10,10 @@ module.exports = async (req, res) => {
     data = req.body.data;
     eventType = req.body.type;
 
+    if(eventType == "payment_intent.created") {
+        console.log(data.object);
+    }
+
     if (eventType === "payment_intent.succeeded") {
         // Funds have been captured
         // Fulfill any orders, e-mail receipts, etc

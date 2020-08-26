@@ -5,7 +5,7 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 
 module.exports = async function checkoutCart(
   _,
-  { currency, paymentMethod },
+  { currency, provider },
   { dataSources: { repository }, user },
 ) {
   const cartItems = await checkout.loadCartAndValidate(user.id, repository);
@@ -17,7 +17,7 @@ module.exports = async function checkoutCart(
   // await checkout.clearUserCart(user.id, repository);
 
   // generate payments with Payment Provider data and update order
-  return payPurchaseOrder({ order, paymentMethod, user })
+  return payPurchaseOrder({ order, provider, user })
   .then(async (result) => {
     if(result.error)
       order.error = result.error

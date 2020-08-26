@@ -6,7 +6,7 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency, paymentMethod,
+    deliveryRate, product, quantity, currency, provider,
   },
   { dataSources: { repository }, user },
 ) {
@@ -30,7 +30,7 @@ module.exports = async function checkoutOneProduct(
 
     const prod = await repository.product.getById(product).then((product) => product.customCarrier);
 
-    return payPurchaseOrder({ order, paymentMethod, user })
+    return payPurchaseOrder({ order, provider, user })
       .then(async (result) => {
         if(result.error)
           order.error = result.error
