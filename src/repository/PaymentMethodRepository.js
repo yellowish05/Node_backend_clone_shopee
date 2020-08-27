@@ -44,11 +44,32 @@ class PaymentMethodRepository {
 
     if( existingPM )
       return existingPM;
-    else {
-      const newPM = new this.model({
+    // else {
+    //   const newPM = new this.model({
         
-      });
-    }
+    //   });
+    // }
+  }
+
+  async getByCard(card) {
+    return this.model.findOne(card);
+  }
+
+  async updateCard(userID, cardID, newCard) {
+    const PaymentMethod = await this.getByCard({
+      user: userID,
+      card: cardID,
+      providerIdentity: newCard.id
+    });
+
+    PaymentMethod.providerIdentity = newCard.id ? newCard.id : PaymentMethod.providerIdentity;
+    PaymentMethod.data = newCard ? newCard : PaymentMethod.data;
+
+    return PaymentMethod.save();
+  }
+  
+  async delete(id) {
+    return this.model.remove({_id: id});
   }
 }
 

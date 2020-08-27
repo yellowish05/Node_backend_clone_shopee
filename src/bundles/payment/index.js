@@ -7,7 +7,7 @@ const payPurchaseOrderAction = require('./actions/payPurchaseOrder');
 
 const providers = {
   WIRECARD: require('./providers/WireCard'),
-  STRIPE: require('./providers/Stripe'),
+  Stripe: require('./providers/Stripe'),
 };
 
 if (payment.testMode) {

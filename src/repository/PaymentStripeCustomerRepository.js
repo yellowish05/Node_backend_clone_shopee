@@ -24,6 +24,19 @@ class PaymentStripeCustomerRepository {
     });
     return customer.save();
   }
+
+  async deletePaymentMethod(userID, paymentMethodID) {
+    const PaymentStripeCustomer = await this.getByUserId(userID);
+    const newPayments = [];
+    PaymentStripeCustomer.paymentMethods.map((item) => {
+      if(item !== paymentMethodID)
+        newPayments.push(item);
+    });
+
+    PaymentStripeCustomer.paymentMethods = newPayments;
+
+    return PaymentStripeCustomer.save();
+  }
 }
 
 module.exports = PaymentStripeCustomerRepository;

@@ -6,6 +6,7 @@ const { UserInputError } = require('apollo-server');
 const ProviderAbstract = require('../ProviderAbstract');
 const { PaymentException } = require('../../Exceptions');
 const { response } = require('../../../../viewers');
+const { error } = require('console');
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 
@@ -105,6 +106,116 @@ class Provider extends ProviderAbstract {
     return paymentMethod;
   }
 
+  async addNewCard(details, { dataSources: { repository }, user })  {
+    if (!user.email) {
+      throw new UserInputError('User does not have email address! Emal is required', { invalidArgs: ['user'] });
+    }
+
+    let customer = await repository.paymentStripeCustomer.getByUserId(user.id);
+    let newPaymentMethodId;
+
+    const cardList = await this.client.customers.retrieve(customer.customerId)
+        .then((response) => {
+          if(response)
+            return response.sources.data
+          else {
+            throw new UserInputError('Can\'t get Payments, try later');
+          }
+        });
+
+    await Promise.all(cardList.map( async (card) => {
+      await repository.paymentMethod.getByCard({
+        'data.id': card.id,
+        'data.object': card.object,
+        'data.brand': card.brand,
+        'data.country': card.country,
+        'data.customer': card.customer,
+        'data.exp_month': card.exp_month,
+        'data.exp_year': card.exp_year,
+        'data.fingerprint': card.fingerprint,
+        'data.funding': card.funding,
+        'data.last4': card.last4,
+      }).then(async (response) => {
+        if (!response) {
+          await repository.cardDetails.create({...details, providerID: card.id})
+            .then((newCard) => {
+              if(newCard) {
+                const expiredAt = new Date(`01.${card.exp_month}.20${card.exp_year}`);
+                expiredAt.setMonth(1); // Usualy card works during expire month
+    
+                const paymentMethodData = {
+                  user: user.id,
+                  provider: this.getName(),
+                  providerIdentity: card.id,
+                  name: `${card.brand} ...${card.last4}`,
+                  expiredAt,
+                  data: card,
+                  usedAt: new Date(),
+                  card: newCard.id
+                };
+                
+                return paymentMethodData;
+              } else 
+                throw new UserInputError('Can\'t add new card, try later');
+            }).then((newPaymentMethod) => repository.paymentMethod.create(newPaymentMethod))
+            .then(async (response) => {
+              newPaymentMethodId = response.id
+              customer.paymentMethods.push(response.id);
+              await customer.save();
+            }).catch((error) => {
+              logger.error(`${error.message}`);
+              throw new UserInputError('Can\'t add new Payment mothod, try later');
+            });
+        }
+      }).catch((error) => {
+        logger.error(`${error.message}`);
+        throw new UserInputError('Can\'t add new Payment mothod, try later');
+      });
+    }));
+    
+    if(newPaymentMethodId)
+      return repository.paymentMethod.getById(newPaymentMethodId);
+    else
+      throw new UserInputError("New Card is not added to this User");
+  }
+
+  async updateCard(details, { dataSources: { repository }, user }) {
+    return repository.paymentStripeCustomer.getByUserId(user.id)
+      .then(async (customer) => {
+        const card = await this.repository.cardDetails.getById(details.id);
+        if(!card)
+          throw new UserInputError("Wrong Card ID.");
+
+        const newCard = await this.client.customers.updateSource(
+          customer.customerId,
+          card.providerID,
+          {
+            name: details.name || null,
+            exp_month: details.exp_month || null,
+            exp_year: details.exp_year || null
+          });
+
+        if(!newCard)
+          throw new UserInputError("Update Card failed.");
+        return newCard;
+      }).then((newCard) => {
+        return repository.cardDetails.update(details)
+          .then((card) => {
+            return repository.paymentMethod.updateCard(user.id, card.id, newCard)
+              .catch((error) => {
+                logger.error(`${error.message}`);
+                throw new UserInputError("Upating Payment Method failed");
+              })
+          }).catch((error) => {
+            logger.error(`${error.message}`);
+            throw new UserInputError("Updating Card Details failed.");
+          });
+      }).catch((error) => {
+        logger.error(`${error.message}`);
+        throw new UserInputError("Updating Card Details failed.");
+      }) 
+  }
+
   async payTransaction(transaction) {
     // try get Stripe Customer by Buyer ID
     const stripeCustomer = await this.repository.paymentStripeCustomer
@@ -192,6 +303,25 @@ class Provider extends ProviderAbstract {
         error: error.raw.message,
       }
     }
+  }
+
+  async deletePaymentMethod(id, { dataSources: { repository }, user }) {
+    return repository.paymentMethod.getById(id)
+      .then((paymentMethod) =>{
+        return repository.cardDetails.delete(paymentMethod.card)
+          .then(() => repository.paymentMethod.delete(paymentMethod.id))
+          .then(() => repository.paymentStripeCustomer.deletePaymentMethod(user.id, paymentMethod.id))
+          .then((response) => {
+            if(response)
+              return {success: true};
+          })
+          .catch((error) => {
+            logger.error(`${error.message}`)
+          })
+      }).catch((error) => {
+        logger.error(`${error.message}`)
+        throw new UserInputError(`Delete Payment Method Failed. (${error.message})`)
+      });
   }
 }
 module.exports = Provider;

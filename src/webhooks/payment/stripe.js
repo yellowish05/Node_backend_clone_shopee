@@ -3,6 +3,7 @@ const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
 const { payment } = require(path.resolve('config'));
+const stripe = require("stripe")(payment.providers.stripe.secret);
 
 module.exports = async (req, res) => {
     let data, eventType;
@@ -24,27 +25,6 @@ module.exports = async (req, res) => {
         let cartItems = await repository.userCartItem.getItemsByUser(buyer.user);
         cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product, item.quantity));
         await checkout.clearUserCart(buyer.user, repository);
-        "payment_method_details": {
-            "card": {
-              "brand": "visa",
-              "checks": {
-                "address_line1_check": null,
-                "address_postal_code_check": null,
-                "cvc_check": null
-              },
-              "country": "US",
-              "exp_month": 8,
-              "exp_year": 2021,
-              "fingerprint": "pfb0FE2I7CUlQbY6",
-              "funding": "credit",
-              "installments": null,
-              "last4": "4242",
-              "network": "visa",
-              "three_d_secure": null,
-              "wallet": null
-            },
-
-        const card_details = data.object.charges.data[0].payment_method_details.card
     } 
 
     res.sendStatus(200);
