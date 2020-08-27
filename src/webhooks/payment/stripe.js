@@ -3,12 +3,17 @@ const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
 const { payment } = require(path.resolve('config'));
+const stripe = require("stripe")(payment.providers.stripe.secret);
 
 module.exports = async (req, res) => {
     let data, eventType;
 
     data = req.body.data;
     eventType = req.body.type;
+
+    if(eventType == "payment_intent.created") {
+        console.log(data.object);
+    }
 
     if (eventType === "payment_intent.succeeded") {
         // Funds have been captured

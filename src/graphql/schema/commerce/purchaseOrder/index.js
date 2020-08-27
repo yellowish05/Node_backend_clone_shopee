@@ -5,12 +5,16 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
-
+const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum PurchaseOrderStatus {
         ${PurchaseOrderStatus.toGQL()}
+    }
+
+    enum PaymentMethodProviders {
+      ${PaymentMethodProviders.toGQL()}
     }
 
     """ Orders for Buyer """
@@ -53,10 +57,10 @@ const schema = gql`
 
     extend type Mutation {
         """Allows: authorized user"""
-        checkoutCart(currency: Currency!, paymentMethod: ID): PurchaseOrder! @auth(requires: USER)
+        checkoutCart(currency: Currency!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
-        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!, paymentMethod: ID): PurchaseOrder! @auth(requires: USER)
+        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)

@@ -157,6 +157,12 @@ const PaymentTransactionStatus = EnumFactory({
   REFUND: 'REFUND',
 });
 
+const PaymentMethodProviders = EnumFactory({
+  STRIPE: 'Stripe',
+  APPLEPAY: 'APPLEPAY',
+  GOOGLEPAY: 'GOOGLEPAY',
+})
+
 
 module.exports = {
   StreamChannelType,
@@ -182,4 +188,5 @@ module.exports = {
   DeliveryOrderStatus,
   OrderItemStatus,
   PaymentTransactionStatus,
+  PaymentMethodProviders
 };

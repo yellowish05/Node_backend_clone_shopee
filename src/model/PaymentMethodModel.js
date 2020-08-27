@@ -53,6 +53,10 @@ const schema = new Schema({
     required: true,
     default: new Date(),
   },
+  card: {
+    type: String,
+    required: true,
+  },
 });
 
 schema.indexes([
