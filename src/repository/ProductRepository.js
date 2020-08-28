@@ -1,5 +1,20 @@
 /* eslint-disable no-param-reassign */
-
+function elasticFilter(query, filter) {
+  if (!query.$and) {
+      query.$and = [
+          { isDeleted: false },
+      ];
+  }
+  if (filter) {
+      query.$and.push({
+          $or: [
+              { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
+              { description: { $regex: `^.*${filter}.*`, $options: 'i' } },
+          ]
+      })
+  }
+  console.log("query => ", JSON.stringify(query));
+}
 
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
@@ -137,6 +152,25 @@ class ProductRepository {
 
   async loadList(ids) {
     return this.model.find({ _id: { $in: ids } });
+  }
+
+  async es_search({ filter, page }) {
+    const query = {};
+    elasticFilter(query, filter);
+
+    return this.model.find(
+      query,
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
+    );
+  }
+  async getTotal_es(filter) {
+    const query = {};
+    elasticFilter(query, filter);
+    return this.model.countDocuments(query);
   }
 }
 

@@ -3,6 +3,23 @@ const path = require('path');
 const { Currency, PushNotification, MeasureSystem } = require(path.resolve('src/lib/Enums'));
 const md5 = require('md5');
 
+function elasticFilter(filter) {
+  const emptyQuery = {};
+  const query = {
+    $and: [],
+  };
+  if (filter) {
+    query.$and.push({
+      $or: [
+        { email: { $regex: `^.*${filter}.*`, $options: 'i' } },
+        { name: { $regex: `^.*${filter}.*`, $options: 'i' } },
+      ]
+    })
+  }
+  console.log("query => ", query);
+  return query.$and.length > 0 ? query : emptyQuery;
+}
+
 class UserRepository {
   constructor(model) {
     this.model = model;
@@ -232,6 +249,24 @@ class UserRepository {
       { _id: userId },
       { $push: { blackList: reportedId } },
     );
+  }
+
+  async es_search({filter, page}) {
+    return this.model.find(
+        elasticFilter(filter),
+        null,
+        {
+          limit: page.limit,
+          skip: page.skip,
+        },
+    );
+  }
+
+  async getTotal_es(filter) {
+    return this.model
+      .countDocuments(
+        elasticFilter(filter),
+      );
   }
 }
 

@@ -19,6 +19,23 @@ function transformSortInput({ feature, type }) {
   return { [availableFeatures[feature]]: availableTypes[type] };
 }
 
+function elasticFilter(filter) {
+  const emptyQuery = {};
+  const query = {
+    $and: [],
+  };
+  if (filter) {
+    query.$and.push({
+      $or: [
+        { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
+        { city: { $regex: `^.*${filter}.*`, $options: 'i' } },
+      ]
+    })
+  }
+  console.log("query => ", query);
+  return query.$and.length > 0 ? query : emptyQuery;
+}
+
 function transformFilter({
   searchQuery, experiences, categories, cities, statuses, streamers, blackList, product,
 }) {
@@ -198,6 +215,24 @@ class LiveStreamRepository {
   async getLikes(id) {
     const liveStream = await this.load(id);
     return Number(liveStream.fakeLikes) + Number(liveStream.realLikes);
+  }
+
+  async es_search({filter, page}) {
+    return this.model.find(
+        elasticFilter(filter),
+        null,
+        {
+          limit: page.limit,
+          skip: page.skip,
+        },
+    );
+  }
+
+  async getTotal_es(filter) {
+    return this.model
+      .countDocuments(
+        elasticFilter(filter),
+      );
   }
 }
 
