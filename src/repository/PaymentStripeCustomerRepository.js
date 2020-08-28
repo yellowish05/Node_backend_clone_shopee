@@ -13,12 +13,29 @@ class PaymentStripeCustomerRepository {
     return this.model.findOne({ user: id });
   }
 
+  async getByCustomerID(id) {
+    return this.model.findOne({ customerId: id });
+  }
+
   async create(data) {
     const customer = new this.model({
       _id: uuid(),
       ...data,
     });
     return customer.save();
+  }
+
+  async deletePaymentMethod(userID, paymentMethodID) {
+    const PaymentStripeCustomer = await this.getByUserId(userID);
+    const newPayments = [];
+    PaymentStripeCustomer.paymentMethods.map((item) => {
+      if(item !== paymentMethodID)
+        newPayments.push(item);
+    });
+
+    PaymentStripeCustomer.paymentMethods = newPayments;
+
+    return PaymentStripeCustomer.save();
   }
 }
 

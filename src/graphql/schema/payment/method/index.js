@@ -3,9 +3,13 @@ const { gql } = require('apollo-server');
 const { UserInputError, ApolloError } = require('apollo-server');
 
 const paymentBundle = require(path.resolve('src/bundles/payment'));
+const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum PaymentProvider { ${Object.keys(paymentBundle.providers).join(' ')} }
+    enum PaymentMethodProvider {
+      ${PaymentMethodProviders.toGQL()}
+    }
 
     ${Object.keys(paymentBundle.providers)
     .map((name) => paymentBundle.providers[name].getGQLSchema())
@@ -15,9 +19,39 @@ const schema = gql`
     type PaymentMethod {
         id: ID!
         provider: PaymentProvider!
+        providerIdentity: String!
         name: String!
         """ Date when this method will be inactive"""
         expiredAt: Date!
+        card: CardDetails!
+    }
+
+    type CardDetails {
+      id: ID!
+      number: String!
+      exp_month: Int!
+      exp_year: Int!
+      cvc: String!
+      name: String
+    }
+
+    type DeleteResult {
+      success: Boolean!
+    }
+
+    input NewCardDetailsInput {
+      number: String!
+      exp_month: Int!
+      exp_year: Int!
+      cvc: String!
+      name: String
+    }
+
+    input UpdateCardDetailsInput {
+      id: String!
+      exp_month: Int!
+      exp_year: Int!
+      name: String!
     }
 
     input PaymentMethodExpiresInput {
@@ -29,6 +63,21 @@ const schema = gql`
         ${Object.keys(paymentBundle.providers).map((name) => `${name}: ${paymentBundle.providers[name].getGQLInputName()}`).join(', ')}
     }
 
+    input NewCardInput {
+      details: NewCardDetailsInput!
+      provider: PaymentMethodProvider!
+    }
+
+    input UpdateCardInput {
+      details: UpdateCardDetailsInput!
+      provider: PaymentMethodProvider!
+    }
+
+    input deletePaymentMethodInput {
+      id: String!
+      provider: PaymentMethodProvider!
+    }
+
     extend type Query {
         """Allows: authorized user"""
         paymentMethods: [PaymentMethod]!  @auth(requires: USER)
@@ -38,6 +87,9 @@ const schema = gql`
     extend type Mutation {
         """Allows: authorized user"""
         addPaymentMethod(data: PaymentMethodInput!): PaymentMethod!  @auth(requires: USER)
+        addNewCard(data: NewCardInput!): PaymentMethod!  @auth(requires: USER)
+        updateCardDetails(data: UpdateCardInput!): PaymentMethod!  @auth(requires: USER)
+        deletePaymentMethod(data: deletePaymentMethodInput!): DeleteResult!  @auth(requires: USER)
     }
 `;
 
@@ -51,6 +103,7 @@ module.exports.resolvers = {
     async paymentMethods(_, args, { dataSources: { repository }, user }) {
       return repository.paymentMethod.getActiveMethods(user);
     },
+
   },
   Mutation: {
     async addPaymentMethod(_, { data }, context) {
@@ -63,6 +116,15 @@ module.exports.resolvers = {
 
       return paymentBundle.providers[providerName].addMethod(providerData, context);
     },
+    async addNewCard(_, { data }, context) {
+      return paymentBundle.providers[data.provider].addNewCard(data.details, context);
+    },
+    async updateCardDetails(_, { data }, context) {
+      return paymentBundle.providers[data.provider].updateCard(data.details, context);
+    },
+    async deletePaymentMethod(_, { data }, context) {
+      return paymentBundle.providers[data.provider].deletePaymentMethod(data.id, context);
+    },
   },
   PaymentMethod: {
     provider: ({ provider }) => {
@@ -73,5 +135,8 @@ module.exports.resolvers = {
       }
       return found[0];
     },
+    card: async ({ card }, _, { dataSources: { repository } }) => (
+      repository.cardDetails.getById(card)
+    ),
   },
 };

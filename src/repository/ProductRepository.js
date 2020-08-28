@@ -129,6 +129,19 @@ class ProductRepository {
     return product.save();
   }
 
+  async createFromCSV(data) {
+    if (data.description.length > 1023) {
+      data.description = data.description.substring(0, 1008).concat('...');
+    }
+
+    if (data.customCarrier === undefined) {
+      throw { errors: { customCarrier: { message: "customCarrier with that id doesn't exist" } } };
+    }
+
+    const product = new this.model(data);
+    return product.save();
+  }
+
   async get({ filter, sort, page }) {
     const query = {};
     applyFilter(query, filter);

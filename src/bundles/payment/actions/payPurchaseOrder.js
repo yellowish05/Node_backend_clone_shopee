@@ -7,7 +7,9 @@ const repository = require(path.resolve('src/repository'));
 const { PaymentMethodIsUnactiveException, PaymentMethodUsesWrongProviderException } = require('../Exceptions');
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
+const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
+const { payment } = require(path.resolve('config'));
 
 
 function paymentTransactionFactory(order) {
@@ -54,32 +56,62 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
     .then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({ order, paymentMethod }) => {
-  if (!paymentMethod) {
-    return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
-  }
+module.exports = ({ getProvider, availableProviders }) => async ({ order, provider }) => {
+  // if (!paymentMethod) {
+  //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
+  // }
+  let transaction;
+  let method;
 
-  const method = await repository.paymentMethod.getById(paymentMethod);
+  // if(paymentMethod !== "applePay" && paymentMethod !== "googlePay") {
+  //   method = await repository.paymentMethod.getById(paymentMethod);
 
-  if (!method) {
-    throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
-  }
-
-  if (!method.isActive) {
-    throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
-  }
-
-  if (!availableProviders().includes(method.provider)) {
-    throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
-  }
+  //   if (!method) {
+  //     throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
+  //   }
+  
+  //   if (!method.isActive) {
+  //     throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
+  //   }
+  
+  //   if (!availableProviders().includes(method.provider)) {
+  //     throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
+  //   }
+  
+  //   // Create and Save Transaction for Purchase Order
+  //   transaction = await repository.paymentTransaction.create(
+  //     {
+  //       ...paymentTransactionFactory(order),
+  //       paymentMethod: method,
+  //     },
+  //   );
+  // } else if (paymentMethod === "applePay"){
+  //   transaction = await repository.paymentTransaction.create(
+  //     {
+  //       ...paymentTransactionFactory(order),
+  //       paymentMethod: "applePay",
+  //     },
+  //   );
+  // } else if (paymentMethod === "googlePay"){
+  //   transaction = await repository.paymentTransaction.create(
+  //     {
+  //       ...paymentTransactionFactory(order),
+  //       paymentMethod: "googlePay",
+  //     },
+  //   );
+  // }
 
   // Create and Save Transaction for Purchase Order
-  const transaction = await repository.paymentTransaction.create(
+  transaction = await repository.paymentTransaction.create(
     {
       ...paymentTransactionFactory(order),
-      paymentMethod: method,
+      paymentMethod: null,
     },
   );
+  console.log("******* Provider *******")
+  console.log(provider)
+  console.log("******* Transaction *******")
+  console.log(transaction)
 
   // Add transaction to the order and save it
   order.payments.push(transaction.id);
@@ -87,18 +119,34 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, paymen
 
   // Pay the transaction here
   try {
-    await getProvider(method.provider).payTransaction(transaction);
-    await transaction.save();
-
-    if (transaction.isSuccessful()) {
-      await ordersBundle.executeOrderPaidFlow(order);
+    if(provider == PaymentMethodProviders.STRIPE) {
+      const stripe = payment.providers.stripe;
+      
+      return getProvider(provider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+      .then((paymentIntent) => {
+        if(paymentIntent.error) {
+          return paymentIntent;
+        } else {
+          return {
+            publishableKey: stripe.publishable,
+            paymentClientSecret: paymentIntent.client_secret
+          };
+        }
+      })
     } else {
-      await ordersBundle.executeOrderFailFlow(order);
+      return { error: provider}
+      // await getProvider(method.provider).payTransaction(transaction);
     }
+    // await transaction.save();
+
+    // if (transaction.isSuccessful()) {
+    //   await ordersBundle.executeOrderPaidFlow(order);
+    // } else {
+    //   await ordersBundle.executeOrderFailFlow(order);
+    // }
   } catch (error) {
     await ordersBundle.executeOrderFailFlow(order);
     logger.error(`${error.name}: ${error.message}`);
   }
-
   return transaction;
 };

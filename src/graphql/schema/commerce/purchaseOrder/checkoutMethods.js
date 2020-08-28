@@ -75,6 +75,8 @@ module.exports = {
     order.items = orderItems.map((item) => item.id);
     order.isPaid = true;
 
+    // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
+
     return repository.purchaseOrder.create(order);
   },
 

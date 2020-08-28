@@ -1,147 +1,446 @@
 const path = require('path');
 const uuid = require('uuid/v4');
 const promise = require('bluebird');
+const lodash = require('lodash');
 
 const repository = require(path.resolve('src/repository'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const AWS = require('aws-sdk');
 const { aws } = require(path.resolve('config'));
-const csv = require('csvtojson');
-
-const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const { InventoryLogType, MarketType } = require(path.resolve('src/lib/Enums'));
 
 const s3 = new AWS.S3();
 
-module.exports = async (_, { fileName }, data) => {
+let shippingBoxesCollection;
+let organizationsCollection;
+let products;
+let failedParsing;
+let failedProducts;
+let brands;
+let assetsS3bucket;
+
+const getDataFromCsv = async (params) => {
+    const csv = await new Promise((resolve, reject) => {
+        s3.getObject(params, async (err, data) => {
+            const dataRes = await data.Body.toString("UTF-8").split('\n');
+            if (err)
+                reject(err);
+
+            resolve(dataRes);
+        });
+    })
+    return csv;
+}
+
+const addProduct = async (product, index) => {
+    product.category = product.categoryID;
+    product.description = product.description.split(";").join(',');
+    product.title = product.title.split(";").join(',');
+
+    product.seller = await new Promise((resolve) => {
+        return repository.user.findByEmail(product.email).then(res => {
+            resolve(product.seller = res._id || res);
+        }).catch(() => {
+            resolve(null);
+        })
+    });
+
+    product.assets = [
+        product.assets0,
+        product.assets1,
+        product.assets2,
+        product.assets3,
+        product.assets4,
+        product.assets5,
+        product.assets6
+    ];
+
+    const path = `/${product.username}/Product Images/`;
+    product.assets = await promise.map(product.assets, (asset) => {
+        if (asset !== "") {
+            const assetData = {
+                owner: product.seller,
+                path: `${path}${asset}`,
+                photo: asset,
+                name: product.username,
+                url: aws.vendor_bucket,
+                bucket: assetsS3bucket
+            }
+
+            return repository.asset.createFromCSVForProducts(assetData).then(res => {
+                return res.id || res;
+            });
+        }
+    }).then(res => res)
+        .catch(err => err)
+
+
+    const price = parseFloat(product.price);
+    const oldPrice = product.oldPrice ? parseFloat(product.oldPrice) : parseFloat(product.price);
+
+    product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: product.currency }).getCentsAmount();
+    product.oldPrice = product.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice, currency: product.currency }).getCentsAmount() : null;
+    product.assets = product.assets.filter(asset => asset) || [];
+    product.isDeleted = (product.isDeleted === 'true');
+
+    product.brand = await new Promise((resolve) => {
+        return repository.brand.findByName(product.brand_name).then(res => {
+            resolve(res.id || res);
+        }).catch(() => {
+            resolve(null);
+        });
+    });
+
+    if (!product.freeDeliveryTo) {
+        delete product.freeDeliveryTo
+    }
+
+    product.weight = {
+        value: parseInt(product.weightValue),
+        unit: product.weightUnit
+    }
+
+    const shippingBoxProperties = {
+        label: product.shippingBoxName || "medium",
+        owner: product.seller,
+        width: parseInt(product.shippingBoxWidth),
+        height: parseInt(product.shippingBoxHeight),
+        length: parseInt(product.shippingBoxLength),
+        weight: product.weight.value,
+        unit: product.weight.unit,
+        unitWeight: product.unitWeight || "OUNCE"
+    }
+
+    product.shippingBox = await new Promise((resolve) => {
+        return repository.shippingBox.findByOwnerAndSize({
+            label: shippingBoxProperties.label,
+            owner: shippingBoxProperties.owner,
+            width: shippingBoxProperties.width,
+            height: shippingBoxProperties.height,
+            length: shippingBoxProperties.length,
+            weight: shippingBoxProperties.weight
+        }).then(res => {
+            resolve(res._id || res);
+        }).catch(() => {
+            resolve(null);
+        });
+    });
+
+    product.customCarrier = await new Promise((resolve) => {
+        return repository.customCarrier.getById(product.customCarrier).then(async res => {
+            if (res == null) {
+                await repository.customCarrier.create({
+                    _id: product.customCarrier,
+                    name: "Custom Courier"
+                }).then(res => {
+                    resolve(res.id);
+                }).catch(() => {
+                    resolve(null);
+                });
+            }
+            resolve(product.customCarrier = res._id || res);
+        }).catch(() => {
+            resolve(null);
+        })
+    });
+
+    product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseFloat(product.customCarrierValue), currency: product.currency }).getCentsAmount();
+
+    const {
+        id,
+        assets0,
+        assets1,
+        assets2,
+        weightValue,
+        shippingBoxName,
+        shippingBoxWidth,
+        shippingBoxHeight,
+        shippingBoxLength,
+        unit,
+        weightUnit,
+        ...finalProduct
+    } = product;
+
+    if (id) {
+        product = { _id: id, ...finalProduct };
+    } else {
+        product = { _id: uuid(), ...finalProduct };
+    }
+
+    const inventoryLog = {
+        _id: uuid(),
+        product: product._id,
+        shift: product.quantity,
+        type: InventoryLogType.USER_ACTION,
+    };
+
+    return await repository.product.createFromCSV(product).then(res => {
+        repository.productInventoryLog.add(inventoryLog);
+        return res
+    }).catch((err) => {
+        const error = errorFormater(err, (index + 2));
+        pushFailedProducts({ csvPosition: (index + 2), error: error, ...product });
+    });
+}
+
+const errorFormater = (err, row) => {
+    if (err.errors) {
+        const error = err.errors;
+        let parsedError = [];
+
+        if (error.price) {
+            parsedError = error.price.message;
+        } else if (error.customCarrierValue) {
+            parsedError = error.customCarrierValue.message;
+        } else if (error.currency) {
+            parsedError = error.customCarricurrencyValue.message;
+        } else if (error.customCarrier) {
+            parsedError = error.customCarrier.message;
+        } else if (error.shippingBox) {
+            parsedError = error.shippingBox.message;
+        } else if (error.brand) {
+            parsedError = error.brand.message;
+        } else if (error.seller) {
+            parsedError = error.seller.message;
+        } else if (error.description) {
+            parsedError = error.description.message;
+        } else if (error.message) {
+            parsedError = error;
+        } else {
+            parsedError = "no mesage"
+        }
+
+        parsedError += " on row " + row;
+
+        return parsedError;
+    } else {
+        let parsedError = [];
+        if (err.errmsg) {
+            parsedError = err.errmsg;
+        } else {
+            parsedError = "unknown error";
+        }
+        parsedError += " on row " + row;
+
+        return parsedError;
+    }
+}
+
+const pushFailedProducts = async (failedProduct) => {
+    failedProducts.push(failedProduct);
+}
+
+const pushProducts = async (product) => {
+    products.push(product)
+}
+
+const pushShippingBoxes = async (shippingBoxes) => {
+    shippingBoxesCollection.push(shippingBoxes)
+}
+
+const pushOrganizations = async (organization) => {
+    if (organization)
+        organizationsCollection.push(organization)
+}
+
+const pushBrands = async (brand) => {
+    brands.push(brand);
+}
+
+const loopProductRows = async (rows, header) => {
+    let index = 0;
+    for (const row of rows) {
+        index++;
+        if (row !== "") {
+            const columns = row.split(',');
+            let product = {};
+
+            await columns.forEach((column, colIndex) => {
+                if (column !== undefined) {
+                    product[header[colIndex]] = column.trim();
+                }
+            })
+
+            const email = product.email ? product.email.toLowerCase() : 'null';
+            product.seller = await new Promise((resolve) => {
+                return repository.user.findByEmail(email).then(res => {
+                    resolve(res._id || res);
+                }).catch(() => {
+                    failedParsing.push(`While reading the csv could not find seller ${index}`);
+                    resolve(undefined);
+                })
+            })
+
+            product.weight = {
+                value: product.weightValue,
+                unit: product.weightUnit
+            }
+
+            let shippingBoxProperties
+            let organization
+
+            try {
+                if (!product.seller)
+                    throw err;
+
+                shippingBoxProperties = {
+                    label: product.shippingBoxName || "medium",
+                    owner: product.seller,
+                    width: parseInt(product.shippingBoxWidth),
+                    height: parseInt(product.shippingBoxHeight),
+                    length: parseInt(product.shippingBoxLength),
+                    weight: parseInt(product.weight.value),
+                    unit: product.unit,
+                    unitWeight: product.unitWeight || "OUNCE"
+                }
+            } catch (error) {
+                failedParsing.push("Couldn't parse shippingBox properties");
+            }
+
+            try {
+                organization = {
+                    owner: product.seller,
+                    customCarrier: product.customCarrier
+                }
+            } catch (error) {
+                organization = null;
+            }
+
+            await pushShippingBoxes(shippingBoxProperties);
+            await pushBrands(product.brand_name)
+            await pushProducts(product);
+            await pushOrganizations(organization);
+        }
+    }
+}
+
+module.exports = async (_, { fileName, bucket }) => {
+    shippingBoxesCollection = [];
+    organizationsCollection = [];
+    products = [];
+    failedParsing = [];
+    failedProducts = [];
+    brands = [];
+    assetsS3bucket = bucket;
+
     const params = {
         Bucket: aws.user_bucket,
         Key: fileName
     }
 
-    return new Promise((resolve, reject) => {
-        const stream = s3.getObject(params).createReadStream();
+    const csv = await getDataFromCsv(params)
+        .then(res => res)
+        .catch(err => err);
 
-        const json = csv().fromStream(stream);
+    let [header, ...rows] = csv;
+    header = header.trim().split(',');
 
-        resolve(json);
-    }).then(data => {
-        return promise.map(data, async (row, index) => {
-            let product = {};
+    await loopProductRows(rows, header);
 
-            product.category = row.category_UID;
-            product.description = row.description.split("/").join(',');
-            product.title = row.title.split("/").join(',');
-            if (row.prod_user_UID) {
-                product.seller = row.prod_user_UID;
-            } else {
-                product.seller = await new Promise((resolve, reject) => {
-                    return repository.user.findByEmail(row.User_Email.toLowerCase()).then(res => {
-                        if (res == null) {
-                            resolve(null);
-                        } else {
-                            resolve(res._id || res);
-                        }
-                    });
-                });
-            }
+    const uniqueShippingBoxes = lodash.uniqWith(shippingBoxesCollection, lodash.isEqual);
+    const uniqueBrands = lodash.uniqWith(brands, lodash.isEqual);
+    const uniqueOrganizations = lodash.uniqWith(organizationsCollection, lodash.isEqual);
 
-            product.assets = [
-                row.assets_0,
-                row.assets_1,
-                row.assets_2,
-                row.assets_3,
-            ];
+    const brandPromises = await uniqueBrands.map(item => new Promise((resolve) => {
+        return repository.brand.findOrCreate({ name: item })
+            .then(res => {
+                resolve(res._id)
+            })
+            .catch(() => {
+                failedParsing.push("Couldn't add/parse brand");
+                resolve(null);
+            })
+    }));
 
-            let path = `/${row.User_Name}/Product Images/`;
-            product.assets = await promise.map(product.assets, (asset, index) => {
-                if (asset !== "") {
-
-                    const assetData = {
-                        owner: product.seller,
-                        path: `${path}${asset}`,
-                        photo: asset,
-                        name: row.User_Name,
-                        url: aws.vendor_bucket
-                    }
-
-                    return repository.asset.createFromCSVForProducts(assetData).then(res => {
-                        if (res == null) {
-                            return null;
-                        }
-                        return res.id || res;
-                    })
-
-                }
-            }).then(res => res)
-
-            product.currency = row.currency;
-            row.price = Number(row.price);
-            row.oldPrice = Number(row.oldPrice);
-            product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.price, currency: row.currency }).getCentsAmount();
-            product.oldPrice = CurrencyFactory.getAmountOfMoney({ currencyAmount: row.oldPrice, currency: row.currency }).getCentsAmount();
-            product.assets = product.assets.filter(asset => asset);
-            product.isDeleted = (row.isDeleted === 'true');
-
-            if (row.brand_name) {
-                product.brand = await new Promise((resolve, reject) => {
-                    return repository.brand.findOrCreate({ name: row.brand_name.trim() }).then(res => {
-                        resolve(res.id || res);
-                    })
-                });
-            }
-
-            product.weight = {
-                value: parseInt(row.weight_value),
-                unit: row.weight_unit
-            };
-
-            const shippingBoxProperties = {
-                parcelId: row.parcelId || "parcel",
-                weight: row.weight_value,
-                unitWeight: row.weight_unit,
-                label: row.shippingBoxName || "null",
-                owner: product.seller,
-                width: row.shippingBox_width,
-                height: row.shippingBox_height,
-                length: row.shippingBox_length,
-                unit: row.unit,
-            };
-
-            product.shippingBox = await new Promise((resolve, reject) => {
-                return repository.shippingBox.findOrAdd(shippingBoxProperties).then(res => {
-                    resolve(res.id || res);
-                }).catch(err => {
-                    console.log("upload failed index: " + index + "\n", err)
-                    resolve(null);
-                });
-            });
-
-            product.freeDeliveryTo = row.freeDeliveryTo || [];
-            product._id = uuid();
-
-            const inventoryLog = {
-                _id: uuid(),
-                product: product._id,
-                shift: row.Quantity,
-                type: InventoryLogType.USER_ACTION,
-            };
-
-            repository.productInventoryLog.add(inventoryLog);
-
-            return repository.product.create(product)
-                .then(res => res)
-                .catch(err => {
-                    console.log("upload failed index: " + index + "\n", err)
-                });
+    const shippingBoxesPromises = await uniqueShippingBoxes.map(item => new Promise((resolve) => {
+        return repository.shippingBox.findOrAdd({
+            label: item.label,
+            owner: item.owner,
+            width: item.width,
+            height: item.height,
+            length: item.length,
+            weight: item.weight,
+            unit: item.unit,
+            unitWeight: item.unitWeight
         }).then(res => {
-            return res.filter(item => item);
-        }).catch(err => {
-            return err;
+            resolve(res._id)
+        }).catch(() => {
+            failedParsing.push("couldn't add/parse shippingbox");
+            resolve(null);
         })
+    }));
+
+    await uniqueOrganizations.map(item => {
+        return repository.organization.getByUser(item.owner)
+            .then(organization => {
+                if (!organization) {
+                    return repository.user.getById(item.owner);
+                }
+            }).then(user => {
+                if (user)
+                    return repository.organization.create({
+                        address: user.address,
+                        billingAddress: user.address,
+                        owner: user._id,
+                        customCarrier: item.customCarrier,
+                        carriers: null,
+                        workInMarketTypes: MarketType.toList(),
+                    });
+            }).catch(err => console.log(err));
+    });
+
+    return Promise.all(shippingBoxesPromises, brandPromises).then(async () => {
+        if (failedParsing.length === 0) {
+            const productPromises = await promise.map(products, async (product, index) => {
+                return await addProduct(product, index)
+            }).then(res => res.filter(item => item))
+                .catch(err => console.log(err));
+
+            return productPromises;
+        } else {
+            throw failedParsing;
+        }
+    }).then((res) => {
+        const failed = failedProducts.map(prod => {
+            rolleBackAssets(prod.assets);
+            return prod.csvPosition
+        });
+
+        const error = failedProducts.map(prod => {
+            return prod.error;
+        })
+
+        failedProducts = [];
+        products = [];
+        return {
+            success: res,
+            failedProducts: { row: [...failed], errors: error },
+            totalProducts: res.length + failed.length,
+            uploaded: res.length,
+            failed: failed.length
+        };
     }).then(res => {
+        repository.asset.updateStatusByPath(fileName, "UPLOADED");
         return res;
-    }).catch(err => {
-        return err;
+    }).catch(() => {
+
+        const failedParsingConst = failedParsing.map(prod => prod.trim());
+        failedParsing = [];
+        return {
+            success: [],
+            failedProducts: { row: [-1], errors: [...failedParsingConst] },
+            totalProducts: -1,
+            uploaded: 0,
+            failed: -1
+        }
+    });
+}
+
+const rolleBackAssets = async (assets) => {
+    assets.forEach(asset => {
+        if (asset) {
+            repository.asset.deleteAsset({ id: asset }).then(res => res).catch((err) => err);
+        }
     })
 }

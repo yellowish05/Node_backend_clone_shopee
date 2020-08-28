@@ -12,8 +12,6 @@ module.exports.mongoClientConnection = mongoose.connect(mongo.migrateUri, {
   useCreateIndex: true,
   useUnifiedTopology: true,
   useNewUrlParser: true,
-  reconnectTries: 10,
-  reconnectInterval: 100,
 }, (error) => {
   if (error === null) {
     logger.info('Mongo connection established Successful!');

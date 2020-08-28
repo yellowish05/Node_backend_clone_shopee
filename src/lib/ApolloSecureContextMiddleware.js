@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { AuthenticationError } = require('apollo-server');
-
 const JWT_REGEX = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+const logger = require('../../config/logger');
 
 function fetchAuthorization({ req, connection }) {
   if (connection) {
@@ -23,7 +23,6 @@ function fetchJWT(authorization) {
   return token;
 }
 
-
 module.exports = (repository) => async (request) => {
   const authorization = fetchAuthorization(request);
   if (!authorization) {
@@ -39,13 +38,11 @@ module.exports = (repository) => async (request) => {
   if (!data) {
     return {};
   }
-
   if (!data.id || !data.user_id || !data.exp) {
     return {};
   }
 
   const accessToken = await repository.accessToken.load(data.id);
-
   try {
     jwt.verify(token, accessToken.secret);
   } catch (error) {

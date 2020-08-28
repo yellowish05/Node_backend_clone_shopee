@@ -24,6 +24,28 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
 
+      /**
+       * Use case when user is registered with Facebook provider with phone number and not an email
+       */
+      try {
+        let userObj = await repository.user.getById(user._id)
+        if (!userObj.email) {
+          if (args.data.email) {
+            let checkEmail = await repository.user.findByEmail(args.data.email)
+            if (checkEmail) {
+              throw new Error('Email already taken');
+            }
+          }
+          else {
+            throw new Error('Email should be provided');
+          }
+        }
+      } catch (ex) {
+        throw new UserInputError(ex.message, { invalidArgs: 'email' });
+      }
+
+
+
       if (!phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
         if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
@@ -62,7 +84,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         };
 
         tempCurrency = addressCountry ? addressCountry.currency : 'USD';
-        repository.user.updateCurrency(user.id, tempCurrency);
+        await repository.user.updateCurrency(user.id, tempCurrency);
       }
 
       let addressObj = {
@@ -87,7 +109,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               country: address.country,
             },
           };
-        } else {
+        } else if (address) {
           location = await Geocoder.geocode(address);
           addressObj = {
             ...addressObj,
@@ -100,13 +122,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               country: args.data.address.country,
             },
           };
+        } else {
+          throw new ApolloError(`Please provide an address or location.`, 400);
         }
       } catch (error) {
-        throw new ApolloError(`Failed to get geolocation. Original error: ${error.message}`, 400);
+        throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
       }
 
       const tempCountry = await repository.country.getById(addressObj.address.country);
-      repository.user.updateCurrency(user.id, tempCountry.currency);
+      await repository.user.updateCurrency(user.id, tempCountry.currency);
       return repository.user.update(user.id, {
         name: args.data.name,
         email: args.data.email,

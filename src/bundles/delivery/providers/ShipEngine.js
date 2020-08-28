@@ -85,7 +85,6 @@ class ShipEngine {
     return axios.post(`${shipengine.uri}/rates`, body, { headers: this.headers })
       .then(({ data }) => {
         logger.debug(`[ShipEngine] got calculation data: ${JSON.stringify(data)}`);
-        console.log(data.rate_response)
         if (data.rate_response.errors && data.rate_response.errors.length > 0) {
           logger.error(`Error happend while calculating delivery from Ship Engine. Original error: ${JSON.stringify(data.rate_response.errors)}`);
           throw new Error(data.rate_response.errors[0].message);

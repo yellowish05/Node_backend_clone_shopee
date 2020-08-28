@@ -38,7 +38,9 @@ module.exports = {
     appAssets: process.env.CDN_APP_ASSETS_DOMAIN,
     media: process.env.CDN_MEDIA_DOMAIN,
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
-    vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET
+    vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET,
+    razington: process.env.CDN_REZINGTON_VENDOR_IMAGES_UPLOADS,
+    aliexpress: process.env.CDN_ALIEXPRESS_SCRAPPED_IMAGES_FULL_SIZE
   },
   aws: {
     agora_api_key: process.env.AWS_AGORA_ACCESS_KEY_ID || null,
@@ -48,6 +50,7 @@ module.exports = {
     user_bucket: process.env.AWS_USER_ASSETS_BUCKET,
     upload_bucket: process.env.AWS_UPLOAD_BUCKET,
     vendor_bucket: process.env.AWS_VENDORS_DASHBOARD_BUCKET,
+    aliexpress_scrapped: process.env.AWS_ALIEXPRESS_SCAPPED_IMAGES,
     media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
     aws_api_key: process.env.AWS_APP_KEY,
     aws_access_key: process.env.AWS_APP_SECRET
@@ -55,6 +58,7 @@ module.exports = {
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',
     api_key: process.env.GOOGLE_API_KEY || null,
+    oauth_uri: 'https://www.googleapis.com/oauth2/v1'
   },
   facebook: {
     api_uri: 'https://graph.facebook.com',
@@ -71,6 +75,7 @@ module.exports = {
       IMAGE: 'IMAGE',
       VIDEO: 'VIDEO',
       PDF: 'PDF',
+      CSV: 'CSV',
     },
   },
   tests: {
@@ -104,6 +109,8 @@ module.exports = {
       },
       stripe: {
         secret: process.env.PAYMENT_STRIPE_SECRET,
+        publishable: process.env.STRIPE_PUBLISHABLE_KEY,
+        webhook: process.env.STRIPE_WEBHOOK_SECRET,
       },
     },
   },

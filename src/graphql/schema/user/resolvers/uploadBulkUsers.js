@@ -1,94 +1,122 @@
-const path = require('path')
-const uuid = require('uuid/v4')
-const promise = require('bluebird')
-
-const repository = require(path.resolve('src/repository'))
-const AWS = require('aws-sdk')
-const { aws, cdn } = require(path.resolve('config'))
-const csv = require('csvtojson')
-
-const s3 = new AWS.S3()
+const path = require('path');
+const uuid = require('uuid/v4');
+const promise = require('bluebird');
+const repository = require(path.resolve('src/repository'));
+const AWS = require('aws-sdk');
+const { aws, cdn } = require(path.resolve('config'));
+const s3 = new AWS.S3();
 
 module.exports = async (_, { path }) => {
-
     const params = {
         Bucket: aws.user_bucket,
         Key: path
     }
+    return await new Promise((resolve, reject) => {
+        s3.getObject(params, async (err, data) => {
+            const csv = data.Body.toString("UTF-8").split('\n');
+            let headers = csv[0].split(',');
+            headers = await headers.map(x => x.trim());
 
-    return new Promise((resolve, reject) => {
-        const stream = s3.getObject(params).createReadStream()
+            await promise.map(csv, async (row, index) => {
+                if (index > 0 && row !== '') {
 
-        const json = csv().fromStream(stream)
+                    const columns = row.split(',');
+                    let user = {};
 
-        resolve(json)
-    }).then(data => {
-        return promise.map(data, async (row, index) => {
-            const user = {}
+                    await columns.map((column, colIndex) => {
+                        if (column !== undefined) {
+                            user[headers[colIndex]] = column.trim();
+                        }
+                    });
 
-            user.address = {
-                street: row.Address_street.split('/').join(','),
-                city: row.City,
-                region: row.Region,
-                country: row.Country,
-                zipCode: row.zipCode
-            }
+                    user.roles = ["USER"];
+                    user.phone = user.phonenumber;
 
-            user.location = {
-                latitude: row.Latitude,
-                longitude: row.Longitude
-            }
+                    user.address = {
+                        street: user.address.split(';').join(','),
+                        city: user.city,
+                        region: user.region,
+                        country: user.country,
+                        zipCode: user.zipCode
+                    }
 
-            user.settings = {
-                language: row.language || 'EN',
-                currency: row.currency || 'USD',
-                measureSystem: row.measureSystem || 'USC'
-            }
+                    user.location = {
+                        latitude: user.latitude,
+                        longitude: user.longitude
+                    }
 
-            user._id = row.prod_UID || uuid()
+                    user.settings = {
+                        language: user.language,
+                        currency: user.currency,
+                        measureSystem: user.measureSystem
+                    }
 
-            user.brand_name = await new Promise((resolve, reject) => {
-                return repository.brand.create({ _id: uuid(), name: row.brand_name.trim() }).then(res => {
-                    resolve(user.brand_name = res.id || res)
-                })
-            })
+                    const {
+                        id,
+                        latitude,
+                        longitude,
+                        city,
+                        region,
+                        country,
+                        zipCode,
+                        language,
+                        currency,
+                        measureSystem,
+                        phonenumber,
+                        ...properties
+                    } = user
 
-            if (row.photo_jpg) {
-                const assetData = {
-                    name: row.name,
-                    photo: row.photo_jpg,
-                    owner: user._id,
-                    path: `${row.name}/Logo/${row.photo_jpg}`,
-                    url: aws.vendor_bucket
+                    if (id) {
+                        user = { _id: id, ...properties };
+                    } else {
+                        user = { _id: uuid(), ...properties };
+                    }
+
+                    if (user.brandName) {
+                        user.brandName = await new Promise((resolve, reject) => {
+                            return repository.brand.create({ 
+                                _id: uuid(), 
+                                name: user.brandName 
+                            }).then(res => {
+                                resolve(user.brandName = res.id || res);
+                            }).catch(err => {
+                                reject(err);
+                            });
+                        });
+                    }
+
+                    if (user.photo) {
+                        if (user.photo.includes(".jpg") ||
+                            user.photo.includes(".jpeg") ||
+                            user.photo.includes(".png")) {
+                            const assetData = {
+                                name: user.name,
+                                photo: user.photo,
+                                owner: user._id,
+                                path: `${user.name}/Logo/${user.photo}`,
+                                url: aws.vendor_bucket
+                            }
+                            if (err)
+                                reject(err);
+                            user.photo = await new Promise((resolve, reject) => {
+                                return repository.asset.createFromCSVForUsers(assetData).then(res => {
+                                    resolve(user.photo = res || res.id);
+                                })
+                            })
+                        }
+                    }
+
+                    return repository.user.createFromCsv(user).then(res => res).catch(err => err);
                 }
-
-                user.photo = await new Promise((resolve, reject) => {
-                    return repository.asset.createFromCSVForUsers(assetData).then(res => {
-                        resolve(user.photo = res || res.id)
-                    })
-                })
-            }
-
-            user.email = row.email.toLowerCase();
-            user.password = row.password || 'Shoclef123'
-            user.number = "+" + row.phone_number
-            user.name = row.name
-            user.Role = row.Role || ["USER"]
-
-            return repository.user.createFromCsv(user)
-                .then(res => res)
-                .catch(err => {
-                    console.log("upload failed index: " + index + "\n", err)
-                })
-        }).then(res => {
-            return res.filter(item => item)
-        }).catch(err => {
-            return err
+            }).then(res => {
+                resolve(res.filter(item => item));
+            }).catch(err => {
+                reject(err)
+            })
         })
     }).then(res => {
-        return res
+        return res;
     }).catch(err => {
-        return err
+        return err;
     })
-
 }

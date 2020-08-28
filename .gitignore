@@ -3,4 +3,6 @@ node_modules
 .env
 fixtures-lock.json
 .Ds_Store
-yarn.lock
+yarn-lock.json
+package-lock.json
+

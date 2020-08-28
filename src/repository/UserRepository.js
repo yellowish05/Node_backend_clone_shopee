@@ -104,7 +104,7 @@ class UserRepository {
       password: md5(data.password),
       phone: data.number,
       name: data.name,
-      roles: data.Role || [],
+      roles: data.roles || [],
       address: data.address,
       location: data.location,
       settings: {
@@ -124,31 +124,45 @@ class UserRepository {
       ...userProperties
     } = data;
 
-    data = { email: email.toLowerCase(), ...userProperties };
-
-    if (!data.email) {
-      throw Error('Email is required!');
-    }
+    data = { email: email ? email.toLowerCase() : null, ...userProperties };
+    // if (!data.email) {
+    //   throw Error('Email is required!');
+    // }
 
     if (data.email && await this.findByEmail(data.email)) {
       throw Error(`Email "${data.email}" is already taken!`);
     }
-
-    const user = new this.model({
-      _id: data._id,
-      email: data.email,
-      name: data.name,
-      photo: data.photo,
-      roles: options.roles || [],
-      settings: {
-        pushNotifications: PushNotification.toList(),
-        language: 'EN',
-        currency: Currency.USD,
-        measureSystem: MeasureSystem.USC,
-      },
-      providers: { [data.provider]: data.providerId },
-    });
-
+    let user;
+    if(!data.email) {
+      user = new this.model({
+        _id: data._id,
+        name: data.name,
+        photo: data.photo,
+        roles: options.roles || [],
+        settings: {
+          pushNotifications: PushNotification.toList(),
+          language: 'EN',
+          currency: Currency.USD,
+          measureSystem: MeasureSystem.USC,
+        },
+        providers: { [data.provider]: data.providerId },
+      });
+    } else {
+      user = new this.model({
+        _id: data._id,
+        email: data.email,
+        name: data.name,
+        photo: data.photo,
+        roles: options.roles || [],
+        settings: {
+          pushNotifications: PushNotification.toList(),
+          language: 'EN',
+          currency: Currency.USD,
+          measureSystem: MeasureSystem.USC,
+        },
+        providers: { [data.provider]: data.providerId },
+      });
+    }
     return user.save();
   }
 
@@ -224,7 +238,7 @@ class UserRepository {
   }
 
   async findByProvider(provider, value) {
-    return this.model.findOne({ [`providers.${provider}`]: value });
+    return await this.model.findOne({ [`providers.${provider}`]: value });
   }
 
   async changePassword(userId, password) {

@@ -14,7 +14,11 @@ class PurchaseOrderRepository {
   }
 
   async find({ user }) {
-    return this.model.find({ buyer: user.id });
+    return await this.model.find({ buyer: user.id });
+  }
+
+  async getByBuyer(id) {
+    return this.model.find({ buyer: id });
   }
 
   async findByTransactionId(id) {
