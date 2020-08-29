@@ -108,10 +108,6 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
       paymentMethod: null,
     },
   );
-  console.log("******* Provider *******")
-  console.log(provider)
-  console.log("******* Transaction *******")
-  console.log(transaction)
 
   // Add transaction to the order and save it
   order.payments.push(transaction.id);
