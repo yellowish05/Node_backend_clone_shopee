@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server');
+const updateProductCategoryAssets = require('./resolvers/updateProductCategoryAssets');
 
 const schema = gql`
     type ProductCategory {
@@ -21,6 +22,13 @@ const schema = gql`
         searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
         productCategories(parent: ID): [ProductCategory]!
         productCategory(id: ID!): ProductCategory
+    }
+
+    extend type Mutation {
+      """
+          Allows: authorized user
+      """
+      updateProductCategoryAssets(fileName:String!): [Asset] @auth(requires: USER)
     }
 `;
 
@@ -63,6 +71,9 @@ module.exports.resolvers = {
     productCategory: async (_, { id }, { dataSources: { repository } }) => (
       repository.productCategory.getById(id)
     ),
+  },
+  Mutation: {
+    updateProductCategoryAssets
   },
   ProductCategory: {
     parent: async (productCategory, _, { dataSources: { repository } }) => {
