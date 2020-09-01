@@ -17,6 +17,14 @@ class PaymentStripeCustomerRepository {
     return this.model.findOne({ customerId: id });
   }
 
+  async getByProvider(provider, userID) {
+    console.log(provider, userID)
+    return this.model.findOne({
+      provider: provider,
+      user: userID
+    })
+  }
+
   async create(data) {
     const customer = new this.model({
       _id: uuid(),

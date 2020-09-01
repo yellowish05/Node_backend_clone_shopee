@@ -112,6 +112,10 @@ module.exports = {
         publishable: process.env.STRIPE_PUBLISHABLE_KEY,
         webhook: process.env.STRIPE_WEBHOOK_SECRET,
       },
+      razorpay: {
+        keyID: process.env.PAYMENT_RAZORPAY_KEY_ID,
+        keySecret: process.env.PAYMENT_RAZORPAY_KEY_SECRET,
+      }
     },
   },
   shipengine: {

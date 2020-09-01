@@ -8,6 +8,7 @@ const payPurchaseOrderAction = require('./actions/payPurchaseOrder');
 const providers = {
   WIRECARD: require('./providers/WireCard'),
   Stripe: require('./providers/Stripe'),
+  RazorPay: require('./providers/RazorPay'),
 };
 
 if (payment.testMode) {

@@ -161,6 +161,7 @@ const PaymentMethodProviders = EnumFactory({
   STRIPE: 'Stripe',
   APPLEPAY: 'APPLEPAY',
   GOOGLEPAY: 'GOOGLEPAY',
+  RAZORPAY: 'RazorPay',
 })
 
 

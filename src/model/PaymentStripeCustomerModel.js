@@ -11,7 +11,7 @@ const schema = new Schema({
     type: String,
     ref: 'User',
     index: true,
-    unique: true,
+    // unique: true,
   },
   customerId: {
     type: String,
@@ -27,6 +27,11 @@ const schema = new Schema({
     ref: 'PaymentMethod',
     index: true,
   }],
+  provider: {
+    type: String,
+    required: true,
+    index: true,
+  },
 });
 
 module.exports = new model(collectionName, schema);
