@@ -16,7 +16,6 @@ function elasticFilter(filter) {
       ]
     })
   }
-  console.log("query => ", query);
   return query.$and.length > 0 ? query : emptyQuery;
 }
 
@@ -265,7 +264,7 @@ class UserRepository {
     );
   }
 
-  async es_search({filter, page}) {
+  async es_search(filter, page) {
     return this.model.find(
         elasticFilter(filter),
         null,
