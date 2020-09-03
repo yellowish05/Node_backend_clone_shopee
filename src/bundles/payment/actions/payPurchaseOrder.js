@@ -108,10 +108,6 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
       paymentMethod: null,
     },
   );
-  console.log("******* Provider *******")
-  console.log(provider)
-  console.log("******* Transaction *******")
-  console.log(transaction)
 
   // Add transaction to the order and save it
   order.payments.push(transaction.id);
@@ -132,7 +128,19 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             paymentClientSecret: paymentIntent.client_secret
           };
         }
-      })
+      });
+    } else if ( provider == PaymentMethodProviders.RAZORPAY ) {
+      return getProvider(provider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
+        .then((orderResponse) => {
+          if (orderResponse.error) {
+            return orderResponse;
+          } else {
+            return {
+              publishableKey: '',
+              paymentClientSecret: orderResponse.id
+            };
+          }
+        });
     } else {
       return { error: provider}
       // await getProvider(method.provider).payTransaction(transaction);

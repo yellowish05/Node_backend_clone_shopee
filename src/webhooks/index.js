@@ -7,6 +7,7 @@ const logger = require('../../config/logger');
 const paymentWireCardAction = require('./payment/wirecard');
 const deliveryShipEngineAction = require('./delivery/shipengine');
 const getStripeAction = require('./payment/stripe');
+const getRazorpayAction = require('./payment/razorpay');
 
 const path = require('path');
 const { payment } = require(path.resolve('config'));
@@ -22,5 +23,6 @@ morganBody(app, { stream: logger.stream, noColors: true, prettify: false });
 app.post('/payment/wirecard', paymentWireCardAction);
 app.get('/delivery/shipengine', deliveryShipEngineAction);
 app.post('/payment/stripe', getStripeAction);
+app.get('/payment/razorpay', getRazorpayAction);
 
 module.exports = app;

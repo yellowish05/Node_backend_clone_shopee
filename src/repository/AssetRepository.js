@@ -149,6 +149,28 @@ class AssetRepository {
     }).catch(err => this.getByPath(path));
   }
 
+  async createFromCSVForCategories(data) {
+    data.url = data.url.split(" ").join("%20");
+    data.path = data.path.split(" ").join("%20")
+
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: data.url,
+      type: data.type,
+      size: data.size,
+      mimetype: data.mimetype,
+    }
+
+    if (await this.getByPath(data.path)) {
+      return await this.getByPath(data.path);
+    } else {
+      const asset = new this.model(assetData);
+      return asset.save();
+    }
+  }
 }
 
 module.exports = AssetRepository;
