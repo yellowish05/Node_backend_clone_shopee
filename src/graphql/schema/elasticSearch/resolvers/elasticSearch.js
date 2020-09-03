@@ -10,7 +10,7 @@ module.exports = async (_, {
     };
     if (category == "All" || category == "Products") {        
         await Promise.all([
-            repository.product.es_search({searchKey, page}),
+            repository.product.es_search(searchKey, page),
             repository.product.getTotal_es(searchKey)
         ]).then(([res, nums]) => {
             res.map(item => {
@@ -27,7 +27,7 @@ module.exports = async (_, {
 
     if (category == "All" || category == "LiveStreams") {
         await Promise.all([
-            repository.liveStream.es_search({searchKey, page}),
+            repository.liveStream.es_search(searchKey, page),
             repository.liveStream.getTotal_es(searchKey)
         ])
         .then(([res, nums]) => {
@@ -45,7 +45,7 @@ module.exports = async (_, {
 
     if (category == "All" || category == "Profiles") {
         await Promise.all([
-            repository.user.es_search({searchKey, page}),
+            repository.user.es_search(searchKey, page),
             repository.user.getTotal_es(searchKey)
         ])
         .then(([res, nums]) => {
@@ -60,6 +60,5 @@ module.exports = async (_, {
             total += nums;
         })
     }
-    console.log(result);
     return {collection: result, pager: { ...pager, total }};
 }

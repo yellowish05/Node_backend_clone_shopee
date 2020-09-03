@@ -32,7 +32,6 @@ function elasticFilter(filter) {
       ]
     })
   }
-  console.log("query => ", query);
   return query.$and.length > 0 ? query : emptyQuery;
 }
 
@@ -217,7 +216,7 @@ class LiveStreamRepository {
     return Number(liveStream.fakeLikes) + Number(liveStream.realLikes);
   }
 
-  async es_search({filter, page}) {
+  async es_search(filter, page) {
     return this.model.find(
         elasticFilter(filter),
         null,

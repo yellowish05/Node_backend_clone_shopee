@@ -13,7 +13,6 @@ function elasticFilter(query, filter) {
           ]
       })
   }
-  console.log("query => ", JSON.stringify(query));
 }
 
 function transformSortInput({ feature, type }) {
@@ -167,7 +166,7 @@ class ProductRepository {
     return this.model.find({ _id: { $in: ids } });
   }
 
-  async es_search({ filter, page }) {
+  async es_search(filter, page) {
     const query = {};
     elasticFilter(query, filter);
 
