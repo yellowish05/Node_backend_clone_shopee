@@ -115,10 +115,10 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
 
   // Pay the transaction here
   try {
-    if(provider == PaymentMethodProviders.STRIPE) {
+    if(provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY || provider == PaymentMethodProviders.ALIPAY) {
       const stripe = payment.providers.stripe;
-      
-      return getProvider(provider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+      const methodProvider = PaymentMethodProviders.STRIPE;
+      return getProvider(methodProvider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
       .then((paymentIntent) => {
         if(paymentIntent.error) {
           return paymentIntent;
