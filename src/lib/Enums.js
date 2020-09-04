@@ -162,6 +162,7 @@ const PaymentMethodProviders = EnumFactory({
   APPLEPAY: 'APPLEPAY',
   GOOGLEPAY: 'GOOGLEPAY',
   RAZORPAY: 'RazorPay',
+  ALIPAY: 'Alipay',
 })
 
 
