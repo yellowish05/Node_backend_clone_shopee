@@ -38,7 +38,7 @@ class Provider extends ProviderAbstract {
       throw new UserInputError('User does not have email address! Emal is required', { invalidArgs: ['user'] });
     }
 
-    let customer = await repository.paymentStripeCustomer.getByUserId(user.id);
+    let customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
     let paymentMethodResponse;
     if (customer && customer.customerId) {
       try {

@@ -18,6 +18,7 @@ const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = requi
 const { typeDefs: liveStreamTokenTypeDefs, resolvers: liveStreamResolvers } = require('./liveStream');
 const { typeDefs: sbTypeDefs, resolvers: sbResolvers } = require('./shippingBox');
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
+const { typeDefs: languageTypeDefs, resolvers: languageResolvers } = require('./language');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
 const { typeDefs: cityTypeDefs, resolvers: cityResolvers } = require('./city');
@@ -63,7 +64,8 @@ const typeDefs = [].concat(
   notificationTypeDefs,
   ratingTypeDefs,
   paymentTypeDefs,
-  elasticTypeDefs
+  elasticTypeDefs,
+  languageTypeDefs
 );
 
 const resolvers = merge(
@@ -92,7 +94,8 @@ const resolvers = merge(
   ratingResolvers,
   notificationResolvers,
   paymentResolvers,
-  elasticResolvers
+  elasticResolvers,
+  languageResolvers
 );
 
 const schema = makeExecutableSchema({

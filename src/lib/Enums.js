@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const CountryLanguage = require('country-language');
+const languages = CountryLanguage.getLanguages();
 
 function EnumFactory(object) {
   return Object.freeze({
@@ -165,6 +167,12 @@ const PaymentMethodProviders = EnumFactory({
   ALIPAY: 'Alipay',
 })
 
+const languageEnum = {};
+languages.forEach((item) => {
+  const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+  languageEnum[name.split('-')[0]] = name.split('-')[0];
+});
+const LanguageList = EnumFactory(languageEnum);
 
 module.exports = {
   StreamChannelType,
@@ -190,5 +198,6 @@ module.exports = {
   DeliveryOrderStatus,
   OrderItemStatus,
   PaymentTransactionStatus,
-  PaymentMethodProviders
+  PaymentMethodProviders,
+  LanguageList
 };
