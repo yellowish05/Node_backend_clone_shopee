@@ -20,8 +20,12 @@ module.exports = async function checkoutOneProduct(
       deliveryRateId: delivery.id
     };
 
-    const cart = await repository.deliveryRate.create(delivery.toObject())
-                  .then(() => repository.userCartItem.add(cartItemData, user.id));
+    const deliveryrate = await repository.deliveryRate.getById(delivery.id);
+    if(! deliveryrate) {
+      const cart = await repository.deliveryRate.create(delivery.toObject())
+    }
+
+    await repository.userCartItem.add(cartItemData, user.id);
 
     // creating order
     const order = await checkout.createOrder({
