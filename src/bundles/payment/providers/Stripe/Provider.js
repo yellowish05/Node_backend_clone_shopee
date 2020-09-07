@@ -68,6 +68,7 @@ class Provider extends ProviderAbstract {
       const stripeCustomerData = {
         user: user.id,
         customerId: customerResponse.id,
+        provider: this.getName(),
         paymentMethods: [],
       };
       customer = await repository.paymentStripeCustomer.create(stripeCustomerData);
@@ -111,7 +112,7 @@ class Provider extends ProviderAbstract {
       throw new UserInputError('User does not have email address! Emal is required', { invalidArgs: ['user'] });
     }
 
-    let customer = await repository.paymentStripeCustomer.getByUserId(user.id);
+    let customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
     let newPaymentMethodId;
 
     const cardList = await this.client.customers.retrieve(customer.customerId)
@@ -180,7 +181,7 @@ class Provider extends ProviderAbstract {
   }
 
   async updateCard(details, { dataSources: { repository }, user }) {
-    return repository.paymentStripeCustomer.getByUserId(user.id)
+    return repository.paymentStripeCustomer.getByProvider(this.getName(), user.id)
       .then(async (customer) => {
         const card = await this.repository.cardDetails.getById(details.id);
         if(!card)
@@ -266,8 +267,7 @@ class Provider extends ProviderAbstract {
       console.log("Stripe Connectin Error !");
     let newCustomer;
 
-    const customer = await this.repository.paymentStripeCustomer
-      .getByUserId(buyer);
+    const customer = await this.repository.paymentStripeCustomer.getByProvider(this.getName(), buyer);
 
     if(!customer) {
       const user = await this.repository.user.getById(buyer);
@@ -276,6 +276,7 @@ class Provider extends ProviderAbstract {
       }).then((response) => this.repository.paymentStripeCustomer.create({
         user: user.id,
         customerId: response.id,
+        provider: this.getName(),
         paymentMethods: [],
       })).catch((error) => {
         console.log(error);
@@ -292,6 +293,51 @@ class Provider extends ProviderAbstract {
 
     try {
       const response = await this.client.paymentIntents.create({
+        amount: amount,
+        currency: currency.toLowerCase(),
+        customer: newCustomer.customerId
+      });
+
+      return response;
+    } catch (error) {
+      return {
+        error: error.raw.message,
+      }
+    }
+  }
+
+  async createAlipayPaymentIntent(currency, amount, buyer) {
+    if(!this.client)
+      console.log("Stripe Connectin Error !");
+    let newCustomer;
+
+    const customer = await this.repository.paymentStripeCustomer.getByProvider(this.getName(), buyer);
+
+    if(!customer) {
+      const user = await this.repository.user.getById(buyer);
+      newCustomer = await this.client.customers.create({
+        email: user.email
+      }).then((response) => this.repository.paymentStripeCustomer.create({
+        user: user.id,
+        customerId: response.id,
+        provider: this.getName(),
+        paymentMethods: [],
+      })).catch((error) => {
+        console.log(error);
+        return false;
+      });
+
+      if(!newCustomer)
+        return {
+          error: 'Creating new Stripe customer failed!'
+        };
+    } else {
+      newCustomer = customer;
+    }
+
+    try {
+      const response = await this.client.paymentIntents.create({
+        payment_method_types: ['alipay'],
         amount: amount,
         currency: currency.toLowerCase(),
         customer: newCustomer.customerId
