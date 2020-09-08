@@ -113,71 +113,106 @@ class Provider extends ProviderAbstract {
     }
 
     let customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
-    let newPaymentMethodId;
+    const cardToken = await this.client.tokens.create({
+      card: {
+        number: details.number,
+        exp_month: details.exp_month,
+        exp_year: details.exp_year,
+        cvc: details.cvc,
+        name: details.name
+      },
+    })
+    const newCard = await this.client.customers.createSource(customer.customerId,{source: cardToken.id})
+    const expiredAt = new Date(`01.${newCard.exp_month}.20${newCard.exp_year}`)
+    expiredAt.setMonth(1); // Usualy card works during expire month
+    return await repository.cardDetails.create({...details, providerID: newCard.id})
+      .then((response) => repository.paymentMethod.create({
+        user: user.id,
+        provider: this.getName(),
+        providerIdentity: newCard.id,
+        name: `${newCard.brand} ...${newCard.last4}`,
+        expiredAt,
+        data: newCard,
+        usedAt: new Date(),
+        card: response.id
+      }))
+      .then(async (newPaymentMethod) => {
+        customer.paymentMethods.push(newPaymentMethod.id)
+        await customer.save()
+        return newPaymentMethod
+      })
+      .catch((err) => {
+        logger.error(`${error.message}`)
+        throw new UserInputError('Can\'t add new Payment mothod, try later')
+      })
 
-    const cardList = await this.client.customers.retrieve(customer.customerId)
-        .then((response) => {
-          if(response)
-            return response.sources.data
-          else {
-            throw new UserInputError('Can\'t get Payments, try later');
-          }
-        });
+    // console.log("********* New Card **********")
+    // console.log(newCard)
+    // let newPaymentMethodId;
 
-    await Promise.all(cardList.map( async (card) => {
-      await repository.paymentMethod.getByCard({
-        'data.id': card.id,
-        'data.object': card.object,
-        'data.brand': card.brand,
-        'data.country': card.country,
-        'data.customer': card.customer,
-        'data.exp_month': card.exp_month,
-        'data.exp_year': card.exp_year,
-        'data.fingerprint': card.fingerprint,
-        'data.funding': card.funding,
-        'data.last4': card.last4,
-      }).then(async (response) => {
-        if (!response) {
-          await repository.cardDetails.create({...details, providerID: card.id})
-            .then((newCard) => {
-              if(newCard) {
-                const expiredAt = new Date(`01.${card.exp_month}.20${card.exp_year}`);
-                expiredAt.setMonth(1); // Usualy card works during expire month
+    // const cardList = await this.client.customers.retrieve(customer.customerId)
+    //     .then((response) => {
+    //       if(response)
+    //         return response.sources.data
+    //       else {
+    //         throw new UserInputError('Can\'t get Payments, try later');
+    //       }
+    //     });
+
+    // await Promise.all(cardList.map( async (card) => {
+    //   await repository.paymentMethod.getByCard({
+    //     'data.id': card.id,
+    //     'data.object': card.object,
+    //     'data.brand': card.brand,
+    //     'data.country': card.country,
+    //     'data.customer': card.customer,
+    //     'data.exp_month': card.exp_month,
+    //     'data.exp_year': card.exp_year,
+    //     'data.fingerprint': card.fingerprint,
+    //     'data.funding': card.funding,
+    //     'data.last4': card.last4,
+    //   }).then(async (response) => {
+    //     if (!response) {
+    //       await repository.cardDetails.create({...details, providerID: card.id})
+    //         .then((newCard) => {
+    //           if(newCard) {
+    //             const expiredAt = new Date(`01.${card.exp_month}.20${card.exp_year}`);
+    //             expiredAt.setMonth(1); // Usualy card works during expire month
     
-                const paymentMethodData = {
-                  user: user.id,
-                  provider: this.getName(),
-                  providerIdentity: card.id,
-                  name: `${card.brand} ...${card.last4}`,
-                  expiredAt,
-                  data: card,
-                  usedAt: new Date(),
-                  card: newCard.id
-                };
+    //             const paymentMethodData = {
+    //               user: user.id,
+    //               provider: this.getName(),
+    //               providerIdentity: card.id,
+    //               name: `${card.brand} ...${card.last4}`,
+    //               expiredAt,
+    //               data: card,
+    //               usedAt: new Date(),
+    //               card: newCard.id
+    //             };
                 
-                return paymentMethodData;
-              } else 
-                throw new UserInputError('Can\'t add new card, try later');
-            }).then((newPaymentMethod) => repository.paymentMethod.create(newPaymentMethod))
-            .then(async (response) => {
-              newPaymentMethodId = response.id
-              customer.paymentMethods.push(response.id);
-              await customer.save();
-            }).catch((error) => {
-              logger.error(`${error.message}`);
-              throw new UserInputError('Can\'t add new Payment mothod, try later');
-            });
-        }
-      }).catch((error) => {
-        logger.error(`${error.message}`);
-        throw new UserInputError('Can\'t add new Payment mothod, try later');
-      });
-    }));
+    //             return paymentMethodData;
+    //           } else 
+    //             throw new UserInputError('Can\'t add new card, try later');
+    //         }).then((newPaymentMethod) => repository.paymentMethod.create(newPaymentMethod))
+    //         .then(async (response) => {
+    //           newPaymentMethodId = response.id
+    //           customer.paymentMethods.push(response.id);
+    //           await customer.save();
+    //         }).catch((error) => {
+    //           logger.error(`${error.message}`);
+    //           throw new UserInputError('Can\'t add new Payment mothod, try later');
+    //         });
+    //     }
+    //   }).catch((error) => {
+    //     logger.error(`${error.message}`);
+    //     throw new UserInputError('Can\'t add new Payment mothod, try later');
+    //   });
+    // }));
     
-    if(newPaymentMethodId)
-      return repository.paymentMethod.getById(newPaymentMethodId);
-    else
-      throw new UserInputError("New Card is not added to this User");
+    // if(newPaymentMethodId)
+    //   return repository.paymentMethod.getById(newPaymentMethodId);
+    // else
+    //   throw new UserInputError("New Card is not added to this User");
   }
 
   async updateCard(details, { dataSources: { repository }, user }) {
