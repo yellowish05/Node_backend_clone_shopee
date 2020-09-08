@@ -23,7 +23,13 @@ module.exports = async (req, res) => {
         await checkout.clearUserCart(buyer.user, repository);
 
     } else if (eventType === "payment_intent.canceled" || eventType === "payment_intent.payment_failed") {
-        console.log("***************", eventType)
+        const pID = data.object.id
+        const customer = data.object.customer
+        await stripe.paymentIntents.cancel(pID)
+            .then(async () => {
+                const user = await repository.paymentStripeCustomer.getByCustomerID(customer)
+                await checkout.clearUserCart(user.user, repository)
+            }).catch(error => console.log(error.message));
     }
 
     res.sendStatus(200);
