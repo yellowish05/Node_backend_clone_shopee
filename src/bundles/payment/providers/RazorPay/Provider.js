@@ -42,6 +42,7 @@ class Provider extends ProviderAbstract {
     const orderDetails = {
       amount: amount,
       currency: currency,
+      payment_capture: 1
     };
     
     if( !customer ) {
