@@ -12,7 +12,6 @@ module.exports = async (req, res) => {
 
   if(event === 'payment.captured') {
     console.log("💰 Payment captured!")
-    console.log("***********************************")
     console.log(payment)
     // const card = payment.card
     const email = payment.email
