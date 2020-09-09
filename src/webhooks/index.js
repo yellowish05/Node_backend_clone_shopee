@@ -23,6 +23,6 @@ morganBody(app, { stream: logger.stream, noColors: true, prettify: false });
 app.post('/payment/wirecard', paymentWireCardAction);
 app.get('/delivery/shipengine', deliveryShipEngineAction);
 app.post('/payment/stripe', getStripeAction);
-app.get('/payment/razorpay', getRazorpayAction);
+app.post('/payment/razorpay', getRazorpayAction);
 
 module.exports = app;
