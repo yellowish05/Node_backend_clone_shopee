@@ -10,8 +10,23 @@ const deleteProduct = require('./resolvers/deleteProduct');
 const products = require('./resolvers/products');
 const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
 const previewBulkProducts = require('./resolvers/previewBulkProducts');
+const addProductAttr = require('./resolvers/addProductAttr');
+const productAttributes = require('./resolvers/productAttributes');
+const updateProductAttr = require('./resolvers/updateProductAttr');
+const deleteProductAttr = require('./resolvers/deleteProductAttr');
 
 const schema = gql`
+    type ProductAttribute {
+      id: ID!
+      productId: ID!
+      color: String!
+      size: String!
+      price(currency: Currency): AmountOfMoney!
+      discountPrice(currency: Currency): AmountOfMoney!
+      quantity: Int!
+      asset: Asset!
+    }
+
     type Product {
         id: ID!
         """
@@ -30,6 +45,7 @@ const schema = gql`
         oldPrice(currency: Currency): AmountOfMoney
         quantity: Int!
         assets: [Asset!]!
+        attrs: [ProductAttribute!]!
         category: ProductCategory!
         # weight: Weight!
         shippingBox: ShippingBox!
@@ -87,6 +103,17 @@ const schema = gql`
         sellers: [ID!]
     }
 
+    input ProductAttributeInput {
+      productId: ID!
+      quantity: Int!
+      price: Float!
+      discountPrice: Float
+      currency: Currency!
+      color: String!
+      size: String!
+      asset: ID!
+    }
+
     enum ProductSortFeature {
       CREATED_AT
       PRICE
@@ -105,6 +132,7 @@ const schema = gql`
         ): ProductCollection!
         product(id: ID!): Product
         previewBulkProducts(fileName:String!): String! @auth(requires: USER)
+        productAttributes(productId: ID!): [ProductAttribute!]!
     }
 
     input ProductInput {
@@ -146,6 +174,13 @@ const schema = gql`
             Allows: authorized user & user must be a seller of this product
         """
         deleteProduct(id: ID!): Boolean @auth(requires: USER)
+        """
+            Allows: authorized user
+        """
+        addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+        updateProductAttr(id: ID!, data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+        deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
+
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
     }
 `;
@@ -157,12 +192,16 @@ module.exports.resolvers = {
     products,
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
+    productAttributes,
   },
   Mutation: {
     addProduct,
     updateProduct,
     deleteProduct,
     uploadBulkProducts,
+    addProductAttr,
+    updateProductAttr,
+    deleteProductAttr,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
@@ -221,6 +260,37 @@ module.exports.resolvers = {
       sort: { feature: 'CREATED_AT', type: 'DESC' },
     }),
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
-    customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier)
+    customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
+    // attributes of product
+    attrs: async ({ attrs }, _, { dataSources: { repository }}) => {
+      var attributes = await repository.productAttributes.getByIds(attrs);
+      await Promise.all( attributes.map(async (attr, index) => {
+        attributes[index].asset = await repository.asset.getById(attr.asset);
+      }));
+      return attributes;
+    }
+  },
+  ProductAttribute: {
+    asset: async ({ asset }, _, { dataSources: { repository } }) => (
+      repository.asset.getById(asset)
+    ),
+    price: async ({ price, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    discountPrice: async ({ discountPrice, currency }, args) => {
+      if (!discountPrice) {
+        return null;
+      }
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: discountPrice, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+
   },
 };
