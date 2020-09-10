@@ -32,5 +32,18 @@ module.exports = async (req, res) => {
             }).catch(error => console.log(error.message));
     }
 
+    const object = data.object;
+    if (
+        object.object === 'source' &&
+        object.status === 'chargeable' &&
+        object.metadata.paymentIntent
+      ) {
+        const source = object;
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+            source.metadata.paymentIntent
+        );
+        await stripe.paymentIntents.confirm(paymentIntent.id, {source: source.id});
+      }
+
     res.sendStatus(200);
 };

@@ -143,6 +143,18 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
+    } else if( provider == PaymentMethodProviders.WECHATPAY) {
+      return getProvider(stripeProvider).createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
+        .then((paymentIntent) => {
+          if(paymentIntent.error) {
+            return paymentIntent;
+          } else {
+            return {
+              publishableKey: stripe.publishable,
+              paymentClientSecret: paymentIntent.client_secret
+            };
+          }
+        });
     } else if ( provider == PaymentMethodProviders.RAZORPAY ) {
       return getProvider(razorpayProvider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((orderResponse) => {

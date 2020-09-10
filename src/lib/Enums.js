@@ -165,6 +165,7 @@ const PaymentMethodProviders = EnumFactory({
   GOOGLEPAY: 'GOOGLEPAY',
   RAZORPAY: 'RazorPay',
   ALIPAY: 'Alipay',
+  WECHATPAY: 'WeChatPay'
 })
 
 const languageEnum = {};

@@ -370,20 +370,16 @@ class Provider extends ProviderAbstract {
       newCustomer = customer;
     }
 
-    try {
-      const response = await this.client.paymentIntents.create({
-        payment_method_types: ['alipay'],
-        amount: amount,
-        currency: currency.toLowerCase(),
-        customer: newCustomer.customerId
-      });
-
-      return response;
-    } catch (error) {
+    return await this.client.paymentIntents.create({
+      payment_method_types: ['alipay'],
+      amount: amount,
+      currency: currency.toLowerCase(),
+      customer: newCustomer.customerId
+    }).catch((error) => {
       return {
         error: error.raw.message,
       }
-    }
+    })
   }
 
   async deletePaymentMethod(id, { dataSources: { repository }, user }) {
@@ -403,6 +399,45 @@ class Provider extends ProviderAbstract {
         logger.error(`${error.message}`)
         throw new UserInputError(`Delete Payment Method Failed. (${error.message})`)
       });
+  }
+
+  async createWeChatPaySource(currency, amount, buyer) {
+    if(!this.client)
+      console.log("Stripe Connectin Error !");
+    let newCustomer;
+
+    const customer = await this.repository.paymentStripeCustomer.getByProvider(this.getName(), buyer);
+
+    if(!customer) {
+      const user = await this.repository.user.getById(buyer);
+      newCustomer = await this.client.customers.create({
+        email: user.email
+      }).then((response) => this.repository.paymentStripeCustomer.create({
+        user: user.id,
+        customerId: response.id,
+        provider: this.getName(),
+        paymentMethods: [],
+      })).catch((error) => {
+        console.log(error);
+        return false;
+      });
+
+      if(!newCustomer)
+        return {
+          error: 'Creating new Stripe customer failed!'
+        };
+    } else {
+      newCustomer = customer;
+    }
+
+    return await this.client.sources.create({
+      type: 'wechat',
+      amount: amount,
+      currency: currency.toLowerCase(),
+    }).catch((error) => {
+      return {
+        error: error.raw.message,
+    }})
   }
 }
 module.exports = Provider;
