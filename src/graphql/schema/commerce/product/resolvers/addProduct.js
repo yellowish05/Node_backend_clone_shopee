@@ -65,7 +65,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const {
         quantity, price, discountPrice, ...productData
       } = data;
-
+      
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
@@ -75,6 +75,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
+      
+      // options
+      productData.attrs = [];
 
       const inventoryLog = {
         _id: inventoryId,

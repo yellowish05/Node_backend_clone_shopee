@@ -9,7 +9,10 @@ const { PaymentMethodIsUnactiveException, PaymentMethodUsesWrongProviderExceptio
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
-const { payment } = require(path.resolve('config'));
+const { payment: { providers: { stripe }} } = require(path.resolve('config'));
+
+const stripeProvider = PaymentMethodProviders.STRIPE;
+const razorpayProvider = PaymentMethodProviders.RAZORPAY;
 
 
 function paymentTransactionFactory(order) {
@@ -115,10 +118,9 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
 
   // Pay the transaction here
   try {
-    if(provider == PaymentMethodProviders.STRIPE) {
-      const stripe = payment.providers.stripe;
+    if(provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY ) {
       
-      return getProvider(provider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+      return getProvider(stripeProvider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
       .then((paymentIntent) => {
         if(paymentIntent.error) {
           return paymentIntent;
@@ -129,8 +131,32 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
           };
         }
       });
+    } else if ( provider == PaymentMethodProviders.ALIPAY ) {
+      return getProvider(stripeProvider).createAlipayPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+        .then((paymentIntent) => {
+          if(paymentIntent.error) {
+            return paymentIntent;
+          } else {
+            return {
+              publishableKey: stripe.publishable,
+              paymentClientSecret: paymentIntent.client_secret
+            };
+          }
+        });
+    } else if( provider == PaymentMethodProviders.WECHATPAY) {
+      return getProvider(stripeProvider).createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
+        .then((paymentIntent) => {
+          if(paymentIntent.error) {
+            return paymentIntent;
+          } else {
+            return {
+              publishableKey: stripe.publishable,
+              paymentClientSecret: paymentIntent.client_secret
+            };
+          }
+        });
     } else if ( provider == PaymentMethodProviders.RAZORPAY ) {
-      return getProvider(provider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
+      return getProvider(razorpayProvider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((orderResponse) => {
           if (orderResponse.error) {
             return orderResponse;

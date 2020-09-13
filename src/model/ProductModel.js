@@ -90,6 +90,10 @@ const schema = new Schema({
   quantity: {
     type: Number,
   },
+  attrs: [{
+    type: String,
+    ref: 'ProductAttributes',
+  }],
 });
 
 schema.indexes([

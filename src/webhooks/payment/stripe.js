@@ -11,10 +11,6 @@ module.exports = async (req, res) => {
     data = req.body.data;
     eventType = req.body.type;
 
-    if(eventType == "payment_intent.created") {
-        console.log(data.object);
-    }
-
     if (eventType === "payment_intent.succeeded") {
         // Funds have been captured
         // Fulfill any orders, e-mail receipts, etc
@@ -25,7 +21,29 @@ module.exports = async (req, res) => {
         let cartItems = await repository.userCartItem.getItemsByUser(buyer.user);
         cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product, item.quantity));
         await checkout.clearUserCart(buyer.user, repository);
-    } 
+
+    } else if (eventType === "payment_intent.canceled" || eventType === "payment_intent.payment_failed") {
+        const pID = data.object.id
+        const customer = data.object.customer
+        await stripe.paymentIntents.cancel(pID)
+            .then(async () => {
+                const user = await repository.paymentStripeCustomer.getByCustomerID(customer)
+                await checkout.clearUserCart(user.user, repository)
+            }).catch(error => console.log(error.message));
+    }
+
+    const object = data.object;
+    if (
+        object.object === 'source' &&
+        object.status === 'chargeable' &&
+        object.metadata.paymentIntent
+      ) {
+        const source = object;
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+            source.metadata.paymentIntent
+        );
+        await stripe.paymentIntents.confirm(paymentIntent.id, {source: source.id});
+      }
 
     res.sendStatus(200);
 };
