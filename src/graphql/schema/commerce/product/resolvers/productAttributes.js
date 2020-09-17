@@ -7,13 +7,14 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const axios = require('axios');
 const querystring = require('querystring');
 
-const currencyServiceUrl = 'https://api.exchangerate.host/latest';
-
+// const currencyServiceUrl = 'https://api.exchangerate.host/latest';
+const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
 const { Currency } = require('../../../../../lib/Enums');
 
 const parameters = {
   base: Currency.USD,
-  symbols: Currency.toList().toString(),
+  // symbols: Currency.toList().toString(),
+  symbols: Currency,
 };
 
 async function exchangeOnSupportedCurrencies(price) {
