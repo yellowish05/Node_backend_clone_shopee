@@ -8,13 +8,14 @@ const { CurrencyFactory } = require('./CurrencyFactory');
 const logger = require(path.resolve('config/logger'));
 const { exchangeCurrencyRates } = require(path.resolve('config'));
 const cache = new NodeCache();
-// const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
-const currencyServiceUrl = 'https://api.exchangerate.host/latest';
+const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
+// const currencyServiceUrl = 'https://api.exchangerate.host/latest';
 
 function UpdateRate() {
   const parameters = {
     base: Currency.USD,
-    symbols: Currency.toList().toString(),
+    symbols: Currency,
+    // symbols: Currency.toList().toString(),
   };
 
   axios.get(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`)
