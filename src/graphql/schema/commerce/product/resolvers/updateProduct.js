@@ -91,6 +91,13 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.freeDeliveryTo = data.freeDeliveryTo;
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
+
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+        { centsAmount: data.price, currency: data.currency })
+      const sortPrice = await CurrencyService.exchange(amountOfMoney, "USD")
+        .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+      product.sortPrice = sortPrice
+
       // product.weight = data.weight;
       return Promise.all([
         product.save(),

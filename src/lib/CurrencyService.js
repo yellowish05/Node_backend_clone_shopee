@@ -1,6 +1,5 @@
 const NodeCache = require('node-cache');
 const axios = require('axios');
-const querystring = require('querystring');
 const path = require('path');
 const { Currency } = require('./Enums');
 const { CurrencyFactory } = require('./CurrencyFactory');
@@ -8,19 +7,19 @@ const { CurrencyFactory } = require('./CurrencyFactory');
 const logger = require(path.resolve('config/logger'));
 const { exchangeCurrencyRates } = require(path.resolve('config'));
 const cache = new NodeCache();
-const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
+// const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
 // const currencyServiceUrl = 'https://api.exchangerate.host/latest';
+const jsonFile = 'http://www.floatrates.com/daily/usd.json'
 
 function UpdateRate() {
-  const parameters = {
-    base: Currency.USD,
-    symbols: Currency,
-    // symbols: Currency.toList().toString(),
-  };
+  const rates = {}
 
-  axios.get(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`)
+  axios.get(jsonFile)
     .then(({ data }) => {
-      const { rates } = data;
+      Object.keys(data).some((key) => {
+        rates[key.toUpperCase()] = data[key].rate
+      })
+      rates['USD'] = 1
       const oldRates = cache.get('CURRENCY_RATES');
       if (oldRates && Object.keys(rates).some((key) => Math.abs(rates[key] - oldRates[key]) / rates[key] > 0.1)) {
         // Rates are too different
@@ -61,18 +60,15 @@ module.exports.CurrencyService = {
         currencyAmount: amount.getCurrencyAmount() / cached[amount.getCurrency()] * cached[to],
         currency: to,
       }));
-    }
-
-    const parameters = {
-      base: amount.getCurrency(),
-      symbols: `${amount.getCurrency()},${to}`,
-    };
-
+    } 
     logger.warn(`Currency for ${amount.getCurrency()} and ${to} was not found in cache.`);
-
-    return axios.get(`${currencyServiceUrl}/?${querystring.stringify(parameters)}`)
+    const rates = {}
+    return axios.get(jsonFile)
       .then(({ data }) => {
-        const { rates } = data;
+        Object.keys(data).some((key) => {
+          rates[key.toUpperCase()] = data[key].rate
+        })
+        rates['USD'] = 1
         logger.warn(`Got currency from API - ${JSON.stringify(rates)}`);
         return CurrencyFactory.getAmountOfMoney({
           currencyAmount: amount.getCurrencyAmount() / rates[amount.getCurrency()] * rates[to],
