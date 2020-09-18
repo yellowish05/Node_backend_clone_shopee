@@ -5,6 +5,7 @@ const { UserInputError, ApolloError } = require('apollo-server');
 
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { ForbiddenError } = require('apollo-server');
@@ -71,6 +72,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.shippingBox = data.shippingBox;
       // productData.weight = data.weight;
       productData.quantity = quantity;
+      productData.sortPrice = 
       productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
@@ -78,6 +80,12 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       
       // options
       productData.attrs = [];
+      
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+        { currencyAmount: data.price, currency: data.currency })
+      const sortPrice = await CurrencyService.exchange(amountOfMoney, "USD")
+        .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+      productData.sortPrice = sortPrice
 
       const inventoryLog = {
         _id: inventoryId,
