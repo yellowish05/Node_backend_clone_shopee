@@ -34,6 +34,10 @@ const schema = new Schema({
   oldPrice: {
     type: Number,
   },
+  sortPrice: {
+    type: Number,
+    required: true,
+  },
   currency: {
     type: String,
     enum: Currency.toList(),
