@@ -2,6 +2,7 @@ const { gql } = require('apollo-server');
 
 const addUser = require('./resolvers/addUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
+const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
@@ -39,6 +40,12 @@ const schema = gql`
       token: String!
     }
 
+    input PhoneLoginInput {
+      phone: String!,
+      countryCode: String!
+      password: String!
+    }
+
     extend type Query {
       """Allows: authorized user"""
       me: User! @auth(requires: USER) 
@@ -46,6 +53,7 @@ const schema = gql`
 
     extend type Mutation {
       addUser (data: RegistrationInput!): User!
+      addUserByPhone (data: PhoneLoginInput!): User!
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
@@ -63,6 +71,7 @@ module.exports.resolvers = {
   Mutation: {
     addUser,
     addUserBySocial,
+    addUserByPhone,
     updateUser,
     changePassword,
     uploadBulkUsers
