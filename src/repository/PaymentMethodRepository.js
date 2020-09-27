@@ -29,6 +29,13 @@ class PaymentMethodRepository {
     return this.model.find(query).sort({ usedAt: -1 });
   }
 
+  async getByProvider(provider, userID) {
+    return this.model.find({
+      provider: provider,
+      user: userID
+    });
+  }
+
   async add(data) {
     const existingPM = this.model.findOne({
       user: data.user,

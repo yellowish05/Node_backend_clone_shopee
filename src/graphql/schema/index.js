@@ -18,6 +18,7 @@ const { typeDefs: accessTokenTypeDefs, resolvers: accessTokenResolvers } = requi
 const { typeDefs: liveStreamTokenTypeDefs, resolvers: liveStreamResolvers } = require('./liveStream');
 const { typeDefs: sbTypeDefs, resolvers: sbResolvers } = require('./shippingBox');
 const { typeDefs: countryTypeDefs, resolvers: countryResolvers } = require('./country');
+const { typeDefs: languageTypeDefs, resolvers: languageResolvers } = require('./language');
 const { typeDefs: regionTypeDefs, resolvers: regionResolvers } = require('./region');
 const { typeDefs: organizationTypeDefs, resolvers: organizationResolvers } = require('./organization');
 const { typeDefs: cityTypeDefs, resolvers: cityResolvers } = require('./city');
@@ -31,6 +32,7 @@ const { typeDefs: notificationDataTypeDefs, resolvers: notificationDataResolvers
 
 const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
 const { typeDefs: paymentTypeDefs, resolvers: paymentResolvers } = require('./payment');
+const { typeDefs: termsConditionTypeDefs, resolvers: termsConditionResolvers } = require('./termsConditions');
 
 const { typeDefs: elasticTypeDefs, resolvers: elasticResolvers } = require('./elasticSearch');
 
@@ -63,7 +65,9 @@ const typeDefs = [].concat(
   notificationTypeDefs,
   ratingTypeDefs,
   paymentTypeDefs,
-  elasticTypeDefs
+  elasticTypeDefs,
+  languageTypeDefs,
+  termsConditionTypeDefs
 );
 
 const resolvers = merge(
@@ -92,7 +96,9 @@ const resolvers = merge(
   ratingResolvers,
   notificationResolvers,
   paymentResolvers,
-  elasticResolvers
+  elasticResolvers,
+  languageResolvers,
+  termsConditionResolvers
 );
 
 const schema = makeExecutableSchema({

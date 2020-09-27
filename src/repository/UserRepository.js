@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { Currency, PushNotification, MeasureSystem } = require(path.resolve('src/lib/Enums'));
+const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
 const md5 = require('md5');
 
 function elasticFilter(filter) {
@@ -66,7 +66,7 @@ class UserRepository {
       roles: options.roles || [],
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: 'EN',
+        language: LanguageList.ENG,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
@@ -172,7 +172,7 @@ class UserRepository {
         roles: options.roles || [],
         settings: {
           pushNotifications: PushNotification.toList(),
-          language: 'EN',
+          language: LanguageList.ENG,
           currency: Currency.USD,
           measureSystem: MeasureSystem.USC,
         },
@@ -187,7 +187,7 @@ class UserRepository {
         roles: options.roles || [],
         settings: {
           pushNotifications: PushNotification.toList(),
-          language: 'EN',
+          language: LanguageList.ENG,
           currency: Currency.USD,
           measureSystem: MeasureSystem.USC,
         },

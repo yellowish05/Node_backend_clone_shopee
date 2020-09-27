@@ -18,7 +18,7 @@ function elasticFilter(query, filter) {
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
-    PRICE: 'price',
+    PRICE: 'sortPrice',
   };
 
   const availableTypes = {

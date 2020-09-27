@@ -1,8 +1,7 @@
 const path = require('path');
 const { Schema } = require('mongoose');
 
-const { Currency, PushNotification, MeasureSystem } = require(path.resolve('src/lib/Enums'));
-const { i18n: { locales } } = require(path.resolve('config'));
+const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
 
 const userSettingsSchema = new Schema({
   pushNotifications: {
@@ -15,7 +14,7 @@ const userSettingsSchema = new Schema({
   },
   language: {
     type: String,
-    enum: locales,
+    enum: LanguageList.toList(),
     required: true,
   },
   currency: {

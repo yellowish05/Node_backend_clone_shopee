@@ -112,6 +112,18 @@ module.exports = {
         publishable: process.env.STRIPE_PUBLISHABLE_KEY,
         webhook: process.env.STRIPE_WEBHOOK_SECRET,
       },
+      razorpay: {
+        keyID: process.env.PAYMENT_RAZORPAY_KEY_ID,
+        keySecret: process.env.PAYMENT_RAZORPAY_KEY_SECRET,
+      },
+      linepay: {
+        bot_channel_secret: process.env.PAYMENT_LINE_BOT_CHANNEL_SECRET,
+        bot_access_token: process.env.PAYMENT_LINE_BOT_ACCESS_TOKEN,
+        pay_channel_ID: process.env.PAYMENT_LINE_PAY_CHANNEL_ID,
+        pay_channel_secret: process.env.PAYMENT_LINE_PAY_CHANNEL_SECRET,
+        confirmURL: process.env.PAYMENT_LINE_PAY_CONFIRM_URL,
+        cancelUrl: process.env.PAYMENT_LINE_PAY_CANCEL_URL
+      }
     },
   },
   shipengine: {

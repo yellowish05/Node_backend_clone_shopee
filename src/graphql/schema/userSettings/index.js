@@ -22,14 +22,14 @@ type MoneyDetails {
 
 type UserSettings {
     pushNotifications: [PushNotification]!
-    language: Locale!
+    language: LanguageDetails!
     moneyDetails: MoneyDetails!
     measureSystem: MeasureSystem!
 }
     
 input UserSettingsInput {
     pushNotifications: [PushNotification]! = []
-    language: Locale!
+    language: LanguageList!
     currency: Currency!
     measureSystem: MeasureSystem!
 }
@@ -61,5 +61,8 @@ module.exports.resolvers = {
         symbol: amount.getSymbol,
       };
     },
+    language: async ({ language }, _, { dataSources: { repository } }) => (
+      repository.language.getById(language)
+    ),
   },
 };
