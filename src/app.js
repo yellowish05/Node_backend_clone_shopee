@@ -44,6 +44,8 @@ app.route('/upload').post(multipartymiddleware, function (req, res) {
   })
 })
 
+app.use('/terms_conditions', express.static('terms_conditions'))
+
 app.use(cors({
   origin: corsDomain,
   optionsSuccessStatus: 200,

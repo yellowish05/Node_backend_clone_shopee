@@ -7,6 +7,7 @@ const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const LinePayConfirm  = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
 
 const schema = gql`
     enum PurchaseOrderStatus {
@@ -46,6 +47,10 @@ const schema = gql`
         pager: Pager
     }
 
+    type ConfirmMessage {
+      message: String!
+    }
+
     input PurchaseOrderFilterInput {
         statuses: [PurchaseOrderStatus!]
     }
@@ -65,14 +70,15 @@ const schema = gql`
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
 
+        """Allows: authorized user"""
+        LinePayConfirm(transactionID: String!, amount: Float!, currency: Currency!): ConfirmMessage! @auth(requires: USER)
+
         """
         Allows: authorized user
         Pass ID of the Order you want to pay
         """
         payPurchaseOrder(id: ID!, paymentMethod: ID): PaymentTransactionInterface! @auth(requires: USER)
     }
-
-    
 `;
 
 module.exports.typeDefs = [schema];
@@ -97,6 +103,7 @@ module.exports.resolvers = {
     checkoutCart,
     checkoutOneProduct,
     payPurchaseOrder,
+    LinePayConfirm, 
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (

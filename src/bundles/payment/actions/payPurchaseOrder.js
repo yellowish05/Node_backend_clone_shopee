@@ -13,6 +13,7 @@ const { payment: { providers: { stripe }} } = require(path.resolve('config'));
 
 const stripeProvider = PaymentMethodProviders.STRIPE;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
+const linepayProvider = PaymentMethodProviders.LINEPAY;
 
 
 function paymentTransactionFactory(order) {
@@ -164,6 +165,18 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             return {
               publishableKey: '',
               paymentClientSecret: orderResponse.id
+            };
+          }
+        });
+    } else if( provider == PaymentMethodProviders.LINEPAY) {
+      return getProvider(linepayProvider).createOrder(transaction)
+        .then((orderResponse) => {
+          if (orderResponse.error) {
+            return orderResponse;
+          } else {
+            return {
+              publishableKey: '',
+              paymentClientSecret: JSON.stringify(orderResponse.paymentUrl)
             };
           }
         });
