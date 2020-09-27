@@ -27,25 +27,13 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
             }
         })
         .then(async () => {
-            // return await nexmo.verify.check({
-            //     request_id: args.data.request_id,
-            //     code: args.data.code
-            // }, (err, result) => {
-            //     if (err) {
-            //         console.error(err);
-            //         return false;
-            //     } else {
-            //         console.log(result);
-            //         return true;
-            //     }
-            // });
             return new Promise((resolve, reject) => {
                 nexmo.verify.check({
                     request_id: args.data.request_id,
                     code: args.data.code
                 }, (err, result) => {
                     console.log(result);
-                    if (result.status == 0) {
+                    if (result.status != 0) {
                         var message = result.error_text.replace('Nexmo', 'Shoclef');
                         message = message.replace("Request '" + args.data.request_id + "'", 'Your request');
                         resolve({

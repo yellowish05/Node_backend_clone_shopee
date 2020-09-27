@@ -18,7 +18,7 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
         throw errorHandler.build(validator.errors);
       }
 
-      return repository.user.findByPhone(data.phone);
+      return repository.user.findByPhoneAndPassword(data);
     })
     .then((user) => {
       if (user === null) {
