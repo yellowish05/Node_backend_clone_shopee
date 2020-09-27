@@ -96,7 +96,7 @@ class UserRepository {
       roles: options.roles || [],
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: 'EN',
+        language: LanguageList.ENG,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
