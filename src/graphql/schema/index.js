@@ -32,6 +32,7 @@ const { typeDefs: notificationDataTypeDefs, resolvers: notificationDataResolvers
 
 const { typeDefs: commerceTypeDefs, resolvers: commerceResolvers } = require('./commerce');
 const { typeDefs: paymentTypeDefs, resolvers: paymentResolvers } = require('./payment');
+const { typeDefs: termsConditionTypeDefs, resolvers: termsConditionResolvers } = require('./termsConditions');
 
 const { typeDefs: elasticTypeDefs, resolvers: elasticResolvers } = require('./elasticSearch');
 
@@ -65,7 +66,8 @@ const typeDefs = [].concat(
   ratingTypeDefs,
   paymentTypeDefs,
   elasticTypeDefs,
-  languageTypeDefs
+  languageTypeDefs,
+  termsConditionTypeDefs
 );
 
 const resolvers = merge(
@@ -95,7 +97,8 @@ const resolvers = merge(
   notificationResolvers,
   paymentResolvers,
   elasticResolvers,
-  languageResolvers
+  languageResolvers,
+  termsConditionResolvers
 );
 
 const schema = makeExecutableSchema({
