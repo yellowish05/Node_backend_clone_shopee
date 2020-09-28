@@ -91,12 +91,12 @@ class UserRepository {
     const user = new this.model({
       _id: data._id,
       email: data.email,
-      password: data.password,
+      password: md5(data.password),
       phone: data.phone,
       roles: options.roles || [],
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: 'EN',
+        language: LanguageList.ENG,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
@@ -270,6 +270,15 @@ class UserRepository {
     const query = {
       password: md5(password),
       email: email.toLowerCase(),
+    };
+
+    return this.model.findOne(query);
+  }
+
+  async findByPhoneAndPassword({ phone, password }) {
+    const query = {
+      password: md5(password),
+      phone: phone,
     };
 
     return this.model.findOne(query);

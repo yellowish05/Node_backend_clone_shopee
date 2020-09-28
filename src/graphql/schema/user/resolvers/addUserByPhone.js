@@ -42,7 +42,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
             _id: uuid(),
             phone: args.data.phone,
             countryCode: args.data.countryCode,
-            email: '',
             password: args.data.password,
         }, { roles: ['USER'] }))
         .then((user) => {
