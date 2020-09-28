@@ -75,6 +75,38 @@ class UserRepository {
     return user.save();
   }
 
+  async createByPhone(data, options = {}) {
+    if (!data.phone) {
+      throw Error('phone is required!');
+    }
+
+    if (!data.countryCode) {
+      throw Error('countryCode is required!');
+    }
+
+    if (data.phone && await this.findByPhone(data.phone)) {
+      throw Error(`Phone Number "${data.phone}" is already taken!`);
+    }
+
+    const user = new this.model({
+      _id: data._id,
+      email: data.email,
+      password: md5(data.password),
+      phone: data.phone,
+      roles: options.roles || [],
+      settings: {
+        pushNotifications: PushNotification.toList(),
+        language: LanguageList.ENG,
+        currency: Currency.USD,
+        measureSystem: MeasureSystem.USC,
+      },
+      address: {
+        country: data.countryCode
+      }
+    });
+
+    return user.save();
+  }
 
   async createFromCsv(data, options = {}) {
     const {
@@ -222,6 +254,18 @@ class UserRepository {
     return user.save();
   }
 
+  async updateEmailAndPassword(id, data) {
+    const user = await this.load(id);
+    if (!user) {
+      throw Error(`User "${id}" does not exist!`);
+    }
+
+    user.email = data.email;
+    user.password = md5(data.password);
+
+    return user.save();
+  }
+
   async findByEmailAndPassword({ email, password }) {
     const query = {
       password: md5(password),
@@ -231,9 +275,22 @@ class UserRepository {
     return this.model.findOne(query);
   }
 
+  async findByPhoneAndPassword({ phone, password }) {
+    const query = {
+      password: md5(password),
+      phone: phone,
+    };
+
+    return this.model.findOne(query);
+  }
+
   async findByEmail(email) {
     email = email.toLowerCase();
     return this.model.findOne({ email });
+  }
+
+  async findByPhone(phone) {
+    return this.model.findOne({ phone });
   }
 
   async findByProvider(provider, value) {
