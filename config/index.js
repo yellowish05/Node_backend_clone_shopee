@@ -146,4 +146,9 @@ module.exports = {
   robots: {
     cancelLiveStreamIn: 30 * 60 * 1000,
   },
+  oneSignal: {
+    restApi_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_RESTAPIKEY,
+    auth_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_AUTHKEY,
+    app_id: process.env.PUSH_NOTIFICATION_ONESIGNAL_APPID
+  }
 };

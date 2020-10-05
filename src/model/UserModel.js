@@ -81,6 +81,10 @@ const schema = new Schema({
     type: Boolean,
     required: false,
   },
+  device_id: {      // for push notification from onesignal
+    type: String,
+    default: ''
+  }
 });
 
 module.exports = new model(collectionName, schema);

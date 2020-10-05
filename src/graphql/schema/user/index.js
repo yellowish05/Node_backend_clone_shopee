@@ -5,6 +5,7 @@ const addUserBySocial = require('./resolvers/addUserBySocial');
 const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');
+const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 
 const schema = gql`
@@ -58,6 +59,7 @@ const schema = gql`
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
+      changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
     }
 `;
@@ -74,7 +76,8 @@ module.exports.resolvers = {
     addUserByPhone,
     updateUser,
     changePassword,
-    uploadBulkUsers
+    uploadBulkUsers,
+    changeDeviceId
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {
