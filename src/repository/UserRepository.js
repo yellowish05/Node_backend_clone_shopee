@@ -286,7 +286,10 @@ class UserRepository {
 
   async findByEmail(email) {
     email = email.toLowerCase();
-    return this.model.findOne({ email });
+    // return this.model.findOne({ email });
+    var user = await this.model.findOne({ email });
+    console.log(user);
+    return user;
   }
 
   async findByPhone(phone) {
@@ -313,6 +316,12 @@ class UserRepository {
     );
   }
 
+  async changeDeviceId(userId, device_id) {
+    return this.model.update(
+      { _id: userId },
+      { $set: { device_id } },
+    );
+  }
 
   async addToBlackList(userId, reportedId) {
     return this.model.update(
