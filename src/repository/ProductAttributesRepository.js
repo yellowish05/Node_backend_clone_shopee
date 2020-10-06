@@ -1,3 +1,4 @@
+const uuid = require('uuid/v4');
 
 class ProductAttributesRepository {
     constructor(model) {
@@ -14,12 +15,27 @@ class ProductAttributesRepository {
         return this.model.findOne({ _id: id });
     }
 
-    async findAssetsByProductId(id) {
+    async findAttributesByProductId(id) {
         return this.model.find({ productId: id });
     }
 
+    async updateProductId(id, productId) {
+        const attribute = await this.getById(id);
+        if (!attribute) {
+            // throw Error(`"${path}" does not exist!`);
+            return null;
+        }
+
+        attribute.productId = productId;
+
+        return attribute.save();
+    }
+
     async create(data) {
-        const productAttr = new this.model(data);
+        const productAttr = new this.model({
+            _id: uuid(),
+            ...data
+        });
         return productAttr.save();
     }
 }
