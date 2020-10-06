@@ -35,7 +35,10 @@ class ProductRepository {
         },
       },
     ])
-      .then(([{ quantity }]) => quantity);
+      .then(([{ quantity }]) => quantity)
+      .catch(err => {
+        return 0
+      });
   }
 
   async decreaseQuantity(id, quantity) {
