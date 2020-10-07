@@ -26,9 +26,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     })
     .then(async (user) => {
       if (args.deviceId) {
-          console.log("id =>", user._id)
         var user = await repository.user.changeDeviceId(user._id, args.deviceId);
-        console.log("user => ", user);
         return true;
       } else 
         return false;

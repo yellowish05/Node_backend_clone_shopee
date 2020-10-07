@@ -1,7 +1,8 @@
 const path = require('path');
 
 const logger = require(path.resolve('config/logger'));
-const oneSignal = require(path.resolve('config'));
+const { oneSignal } = require(path.resolve('config'));
+const https = require('https');
 
 var headers = {
   "Content-Type": "application/json; charset=utf-8",

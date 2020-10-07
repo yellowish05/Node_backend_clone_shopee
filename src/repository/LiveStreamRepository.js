@@ -32,6 +32,9 @@ function elasticFilter(filter) {
       ]
     })
   }
+  query.$and.push({
+    status: { $ne: 'CANCELED' },
+  });
   return query.$and.length > 0 ? query : emptyQuery;
 }
 
