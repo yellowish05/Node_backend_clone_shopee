@@ -4,10 +4,12 @@ const { Validator } = require('node-input-validator');
 const { ApolloError, UserInputError, ForbiddenError } = require('apollo-server');
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
+const { oneSignal } = require(path.resolve('config'));
 const https = require('https');
+
 var headers = {
     "Content-Type": "application/json; charset=utf-8",
-    "Authorization": "Basic MWI4NGM3ZjYtNmJlMC00OGUyLWFiMjktY2I0Mjk3Yzk2MjQz"
+    "Authorization": "Basic " + oneSignal.restApi_key
 };
   
 var options = {
@@ -30,7 +32,7 @@ module.exports = (_, args, { dataSources: { repository }, user }) => {
         })
         .then(() => {
             var notificationInfo = { 
-                app_id: "c7da1af0-cc12-47db-bf55-5d8de3d47848",
+                app_id: oneSignal.app_id,
                 contents: {"en": args.message},
                 included_segments: ["All"]
             };

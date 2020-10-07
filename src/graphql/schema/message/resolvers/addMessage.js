@@ -4,7 +4,7 @@ const { UserInputError, ForbiddenError } = require('apollo-server');
 
 const { MessageType, NotificationType } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const NotificationService = require(path.resolve('src/lib/NotificationService'));
+const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -30,56 +30,55 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         throw new UserInputError('Thread does not exist', { invalidArgs: 'thread' });
       }
 
-      if (!thread.participants.includes(user.id)) {
+      if (!thread.participants.includes(user._id)) {
         throw new ForbiddenError('You can not write to this thread');
       }
 
-      return repository.messageThread.updateTime(thread.id);
+      return repository.messageThread.updateTime(thread._id);
     })
     .then((thread) => Promise.all([repository.message
       .addMessage({
-        author: user.id,
-        thread: thread.id,
+        author: user._id,
+        thread: thread._id,
         type: input.type,
         data: input.data,
       }),
-    repository.userHasMessageThread.updateTime(thread.id, user.id, Date.now()),
+      repository.userHasMessageThread.updateTime(thread._id, user._id, Date.now()),
     ])
       .then(([message, userThread]) => {
         if (!userThread.muted && !userThread.hidden) {
           pubsub.publish('MESSAGE_ADDED', {
             ...message.toObject(),
-            id: message.id,
-            thread: { ...thread.toObject(), id: thread.id },
+            id: message._id,
+            thread: { ...thread.toObject(), id: thread._id },
           });
 
-          // var message = user.name + ' has messaged you';            // 10-06
-          // var device_ids = [];                                      // 10-06
+          var messageText = user.name + ' has messaged you';            // 10-06
+          var device_ids = [];                                      // 10-06
           // TODO: we need to add queue here
           repository.user.loadList(thread.participants)
             .then(async (participants) => Promise.all(participants.map((participant) => {
-              if (participant._id !== user.id && !participant.blackList.includes(user.id)) {
-                // if (participant.device_id != '' && participant.device_id != undefined)    // 10-06
-                //   notifi_ids.push(participant.device_id);       // 10-06
+              if (participant._id !== user.id && !participant.blackList.includes(user._id)) {
+                if (participant.device_id != '' && participant.device_id != undefined)    // 10-06
+                  device_ids.push(participant.device_id);       // 10-06
                 repository.notification.create({
                   type: NotificationType.MESSAGE,
                   user: participant._id,
                   data: {
                     text: message.data,
-                    author: user.id,
+                    author: user._id,
                   },
                   tags: ['Message:message.id'],
-                }).then((notification) => {
-                  NotificationService.pushNotification({ user: participant, notification });
-                });
+                })
               }
             })))
             // 10-06
-            // .then(() => {
-            //   NotificationService.sendPushNotification({ message, device_ids });
-            // })
+            .then(() => {
+              console.log("receivers => ", device_ids);
+              PushNotificationService.sendPushNotification({ messageText, device_ids });
+            })
             .catch((error) => {
-              logger.error(`Failed to create Notification on Add Message for user "${uId}", Original error: ${error}`);
+              logger.error(`Failed to create Notification on Add Message for user "${user._id}", Original error: ${error}`);
             });
         }
 
