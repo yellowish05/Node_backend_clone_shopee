@@ -286,10 +286,7 @@ class UserRepository {
 
   async findByEmail(email) {
     email = email.toLowerCase();
-    // return this.model.findOne({ email });
-    var user = await this.model.findOne({ email });
-    console.log(user);
-    return user;
+    return this.model.findOne({ email });
   }
 
   async findByPhone(phone) {
