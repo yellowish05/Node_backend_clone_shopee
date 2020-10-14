@@ -19,6 +19,12 @@ class ProductAttributesRepository {
         return this.model.find({ productId: id });
     }
 
+    async getByAttr(productId, color, size) {
+        if (color != "" && size != "")
+            return this.model.findOne({ productId, color, size });
+        return null;
+    }
+  
     async updateProductId(id, productId) {
         const attribute = await this.getById(id);
         if (!attribute) {
