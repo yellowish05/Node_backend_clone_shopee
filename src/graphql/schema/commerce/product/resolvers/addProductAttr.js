@@ -55,11 +55,18 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || data.price, currency: data.currency }).getCentsAmount();
 
         foundProduct.attrs.push(productAttrId);
+        const inventoryLog = {
+            _id: inventoryId,
+            product: productId,
+            productAttribute: productAttrId,
+            shift: quantity,
+            type: InventoryLogType.USER_ACTION,
+        };
 
         return Promise.all([
             repository.productAttributes.create(productData),
             foundProduct.save(),
-            // repository.productInventoryLog.add(inventoryLog),
+            repository.productInventoryLog.add(inventoryLog),
         ])
         .then(async ([productAttr, updatedProduct]) => {
             return productAttr;

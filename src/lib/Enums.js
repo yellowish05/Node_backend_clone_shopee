@@ -150,6 +150,9 @@ const OrderItemStatus = EnumFactory({
   CARRIER_RECEIVED: 'CARRIER_RECEIVED',
   DELIVERED: 'DELIVERED',
   COMPLETE: 'COMPLETE',
+  CONFIRMED: "CONFIRMED",
+  SHIPPED: "SHIPPED",
+  CANCELED: "CANCELED",
 });
 
 const PaymentTransactionStatus = EnumFactory({

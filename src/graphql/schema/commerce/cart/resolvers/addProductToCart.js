@@ -11,6 +11,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
+    { size: 'required' },
+    { color: 'required' },
   );
 
   return validator.check()
@@ -22,15 +24,21 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
+      repository.productAttributes.getByAttr(product, color, size),
     ]))
-    .then(([product, deliveryRate]) => {
+    .then(([product, deliveryRate, productAttr]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
+      }
+
+      if (!productAttr) {
+        throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
       }
 
       const cartItemData = {
         productId: product.id,
         quantity: args.quantity,
+        productAttribute: productAttr,
       };
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;
