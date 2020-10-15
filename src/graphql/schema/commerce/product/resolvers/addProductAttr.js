@@ -57,7 +57,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         foundProduct.attrs.push(productAttrId);
         const inventoryLog = {
             _id: inventoryId,
-            product: productId,
+            product: data.productId,
             productAttribute: productAttrId,
             shift: quantity,
             type: InventoryLogType.USER_ACTION,
