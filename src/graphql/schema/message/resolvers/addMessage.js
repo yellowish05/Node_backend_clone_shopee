@@ -54,19 +54,23 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
           });
 
           var messageText = user.name + ' has messaged you';            // 10-06
-          var device_ids = [];                                      // 10-06
+          var device_ids = [];                                          // 10-06
           // TODO: we need to add queue here
           repository.user.loadList(thread.participants)
             .then(async (participants) => Promise.all(participants.map((participant) => {
-              if (participant._id !== user.id && !participant.blackList.includes(user._id)) {
+              if (participant._id !== user.id && !participant.blackList.includes(user.id)) {
                 if (participant.device_id != '' && participant.device_id != undefined)    // 10-06
                   device_ids.push(participant.device_id);       // 10-06
                 repository.notification.create({
                   type: NotificationType.MESSAGE,
                   user: participant._id,
                   data: {
-                    text: message.data,
-                    author: user._id,
+                    content: message.data,
+                    name: user.name,
+                    date: message.createdAt,
+                    photo: user.photo,
+                    status: '',
+                    linkID: user.id,
                   },
                   tags: ['Message:message.id'],
                 })
@@ -75,7 +79,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
             // 10-06
             .then(() => {
               console.log("receivers => ", device_ids);
-              PushNotificationService.sendPushNotification({ messageText, device_ids });
+              PushNotificationService.sendPushNotification({ message: messageText, device_ids });
             })
             .catch((error) => {
               logger.error(`Failed to create Notification on Add Message for user "${user._id}", Original error: ${error}`);
