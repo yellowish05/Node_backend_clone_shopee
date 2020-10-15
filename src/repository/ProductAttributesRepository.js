@@ -56,7 +56,7 @@ class ProductAttributesRepository {
     async findOrCreate(data) {
         const attribute = await this.findDuplicate(data);
 
-        if (attribute) {
+        if (attribute && attribute.length > 0) {
             return attribute;
         } else {
             const productAttr = new this.model({
