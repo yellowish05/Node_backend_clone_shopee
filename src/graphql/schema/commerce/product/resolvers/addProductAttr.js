@@ -68,7 +68,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             foundProduct.save(),
             repository.productInventoryLog.add(inventoryLog),
         ])
-        .then(async ([productAttr, updatedProduct]) => {
+        .then(async ([productAttr, updatedProduct, inventoryLog]) => {
             return productAttr;
         });
     });

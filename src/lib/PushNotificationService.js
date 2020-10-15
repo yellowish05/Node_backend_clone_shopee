@@ -23,10 +23,18 @@ class PushNotificationService {
   }
 
   sendPushNotification({ message, device_ids }) {
-    var notificationInfo = { 
+    console.log("device id =>", device_ids);
+    
+    var notificationInfo = (device_ids == "All") ? { 
       app_id: oneSignal.app_id,
       contents: {"en": message},
-      included_segments: device_ids  // ["All"]
+      included_segments: ["All"],
+      small_icon: "logo"
+    } : { 
+      app_id: oneSignal.app_id,
+      contents: {"en": message},
+      include_player_ids: device_ids,
+      small_icon: "logo"
     };
     var req = https.request(options, function(res) {  
         res.on('data', function(data) {
