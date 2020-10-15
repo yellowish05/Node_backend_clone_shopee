@@ -38,8 +38,8 @@ const getDataFromCsv = async (params) => {
 
 const addProduct = async (product, index) => {
     product.category = product.categoryID;
-    product.description = product.description.split(";").join(',');
-    product.title = product.title.split(";").join(',');
+    product.description = product.description;
+    product.title = product.title;
 
     product.seller = await new Promise((resolve) => {
         return repository.user.findByEmail(product.email).then(res => {
@@ -157,6 +157,9 @@ const addProduct = async (product, index) => {
         assets0,
         assets1,
         assets2,
+        assets3,
+        assets4,
+        assets5,
         weightValue,
         shippingBoxName,
         shippingBoxWidth,
@@ -170,7 +173,8 @@ const addProduct = async (product, index) => {
     if (id) {
         product = { _id: id, ...finalProduct };
     } else {
-        product = { _id: uuid(), ...finalProduct };
+        product = { ...finalProduct };
+        product["_id"] = uuid();
     }
 
     try {
@@ -209,11 +213,13 @@ const addProduct = async (product, index) => {
         const colors = product.colors.split("|");
         const sizes = product.sizes.split("|");
         const prices = product.variationPrices.split('|');
-        const oldPrices = product.variationOldPrices.split('|');
+        const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
+        const quantity = product.variationQuantity.split('|')
 
         for (let i = 0; i < colors.length; i++) {
             let pricesByColor = prices[i].split("-");
             let oldPricesByColor = oldPrices[i].split("-");
+            let quantityByColor = quantity[i].split("-");
             for (let j = 0; j < sizes.length; j++) {
                 if (pricesByColor[j] != "") {
                     const attributeData = {
@@ -222,6 +228,7 @@ const addProduct = async (product, index) => {
                         price: parseInt(pricesByColor[j]),
                         discountPrice: parseInt(oldPricesByColor[j]),
                         currency: product.currency,
+                        quantity: parseInt(quantityByColor[j]),
                         productId: product._id
                     };
     
@@ -231,7 +238,7 @@ const addProduct = async (product, index) => {
         }
  
         product.attrs = await promise.map(product.attrs, (attr) => {
-            return repository.productAttributes.create(attr).then(res => res.id);
+            return repository.productAttributes.findOrCreate(attr).then(res => res.id);
         });
     } catch(error) {
         console.log("error occured while add variationPrice", error);
@@ -249,7 +256,7 @@ const addProduct = async (product, index) => {
         repository.productInventoryLog.add(inventoryLog);
         return res
     }).catch((err) => {
-        console.log(err);
+        // console.log(err);
         const error = errorFormater(err, (index + 2));
         pushFailedProducts({ csvPosition: (index + 2), error: error, ...product });
     });
@@ -342,25 +349,43 @@ const pushVariations = async (variations) => {
     }
 }
 
+const csvGetRecord = (text) => {
+    let ret = [''], i = 0, p = '', s = true;
+    for (let l in text) {
+        l = text[l];
+        if ('"' === l) {
+            s = !s;
+            if ('"' === p) {
+                ret[i] += '"';
+                l = '-';
+            } else if ('' === p)
+                l = '-';
+        } else if (s && ',' === l)
+            l = ret[++i] = '';
+        else
+            ret[i] += l;
+        p = l;
+    }
+    return ret;
+}
+
 const loopProductRows = async (rows, header) => {
     let index = 0;
     for (const row of rows) {
         index++;
         if (row !== "") {
-            const columns = row.split(',');
+            const columns = csvGetRecord(row);
             let product = {};
 
             await columns.forEach((column, colIndex) => {
-                if (column !== undefined) {
-                    product[header[colIndex]] = column.trim();
-                }
+                product[header[colIndex]] = column.trim();
             })
 
             const email = product.email ? product.email.toLowerCase() : 'null';
             product.seller = await new Promise((resolve) => {
                 return repository.user.findByEmail(email).then(res => {
                     resolve(res._id || res);
-                }).catch(() => {
+                }).catch(err => {
                     failedParsing.push(`While reading the csv could not find seller ${index}`);
                     resolve(undefined);
                 })
