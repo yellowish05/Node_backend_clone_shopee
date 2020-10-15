@@ -25,9 +25,9 @@ module.exports = async function checkoutOneProduct(
     await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
-    // if (!delivery) {
-    //   throw new ForbiddenError(`Product's delivery information is incorrect.`);
-    // }
+    if (!delivery) {
+      throw new ForbiddenError(`Product's delivery information is incorrect.`);
+    }
     const cartItemData = {
       productId: product,
       quantity: quantity,
