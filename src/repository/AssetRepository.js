@@ -71,7 +71,8 @@ class AssetRepository {
   async updateStatusByPath(path, status) {
     const asset = await this.getByPath(path);
     if (!asset) {
-      throw Error(`"${path}" does not exist!`);
+      // throw Error(`"${path}" does not exist!`);
+      return null;
     }
 
     asset.status = status;

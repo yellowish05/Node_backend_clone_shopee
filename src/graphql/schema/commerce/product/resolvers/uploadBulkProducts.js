@@ -4,6 +4,7 @@ const promise = require('bluebird');
 const lodash = require('lodash');
 
 const repository = require(path.resolve('src/repository'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const AWS = require('aws-sdk');
@@ -19,6 +20,8 @@ let failedParsing;
 let failedProducts;
 let brands;
 let assetsS3bucket;
+let variationsCollection;
+let variationArr;
 
 const getDataFromCsv = async (params) => {
     const csv = await new Promise((resolve, reject) => {
@@ -73,8 +76,7 @@ const addProduct = async (product, index) => {
             });
         }
     }).then(res => res)
-        .catch(err => err)
-
+        .catch(err => console.log(err))
 
     const price = parseFloat(product.price);
     const oldPrice = product.oldPrice ? parseFloat(product.oldPrice) : parseFloat(product.price);
@@ -147,6 +149,9 @@ const addProduct = async (product, index) => {
 
     product.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: parseFloat(product.customCarrierValue), currency: product.currency }).getCentsAmount();
 
+    const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: product.price, currency: product.currency })
+    product.sortPrice = await CurrencyService.exchange(amountOfMoney, "USD").then((exchangedMoney) => exchangedMoney.getCentsAmount());
+
     const {
         id,
         assets0,
@@ -168,6 +173,71 @@ const addProduct = async (product, index) => {
         product = { _id: uuid(), ...finalProduct };
     }
 
+    try {
+        // let attributeNames = product.attributeNames.split('|');
+        // let attributeValues = product.attributeValues.split('|');
+        // let prices = product.variationPrices.split('|');
+        // let oldPrices = product.variationOldPrices.split('|');
+
+        // let colors = attributeValues[0].split("-");
+        // let sizes = attributeValues[1].split("-");
+
+        // for (let i = 0; i < colors.length; i++) {
+        //     let pricesByColor = prices.split("-");
+        //     let oldPricesByColor = oldPrices.split("-");
+        //     for (let j = 0; j < sizes.length; j++) {
+        //         let variationIds = new Array();
+        //         variationIds.push(variationArr[colors[i]]);
+        //         variationIds.push(variationArr[sizes[j]]);
+        //         let price = pricesByColor[j];
+        //         let oldPrice = oldPricesByColor[j];
+
+        //         product.variations.push({
+        //             variation: variationIds,
+        //             price: price,
+        //             oldPrice: oldPrice
+        //         })
+        //     }
+        // }
+
+        // product.variations = await promise.map(product.variations, (variation) => {
+        //     return repository.productVariationPrice.addVariationPrice(variation).then(res => res.id);
+        // });
+
+        product.attrs = [];
+
+        const colors = product.colors.split("|");
+        const sizes = product.sizes.split("|");
+        const prices = product.variationPrices.split('|');
+        const oldPrices = product.variationOldPrices.split('|');
+
+        for (let i = 0; i < colors.length; i++) {
+            let pricesByColor = prices[i].split("-");
+            let oldPricesByColor = oldPrices[i].split("-");
+            for (let j = 0; j < sizes.length; j++) {
+                if (pricesByColor[j] != "") {
+                    const attributeData = {
+                        color: colors[i],
+                        size: sizes[j],
+                        price: parseInt(pricesByColor[j]),
+                        discountPrice: parseInt(oldPricesByColor[j]),
+                        currency: product.currency,
+                        productId: product._id
+                    };
+    
+                    product.attrs.push(attributeData);
+                }
+            }
+        }
+ 
+        product.attrs = await promise.map(product.attrs, (attr) => {
+            return repository.productAttributes.create(attr).then(res => res.id);
+        });
+    } catch(error) {
+        console.log("error occured while add variationPrice", error);
+    }
+
+
     const inventoryLog = {
         _id: uuid(),
         product: product._id,
@@ -179,6 +249,7 @@ const addProduct = async (product, index) => {
         repository.productInventoryLog.add(inventoryLog);
         return res
     }).catch((err) => {
+        console.log(err);
         const error = errorFormater(err, (index + 2));
         pushFailedProducts({ csvPosition: (index + 2), error: error, ...product });
     });
@@ -248,6 +319,29 @@ const pushBrands = async (brand) => {
     brands.push(brand);
 }
 
+const pushVariations = async (variations) => {
+    if (!variations)
+        return null;
+
+    try {
+        let attributeNames = variations.names.split('|');
+        let attributeValues = variations.values.split('|');
+        if (attributeNames.length == attributeValues.length) {
+            for (let i = 0; i < attributeNames.length; i++) {
+                let values = attributeValues[i].split('-');
+                for (let j = 0; j < values.length; j++) {
+                    variationsCollection.push({
+                        attributeName: attributeNames[i], 
+                        attributeValue: values[j],
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        return null;
+    }
+}
+
 const loopProductRows = async (rows, header) => {
     let index = 0;
     for (const row of rows) {
@@ -279,6 +373,7 @@ const loopProductRows = async (rows, header) => {
 
             let shippingBoxProperties
             let organization
+            let variations
 
             try {
                 if (!product.seller)
@@ -307,10 +402,22 @@ const loopProductRows = async (rows, header) => {
                 organization = null;
             }
 
+            try {
+                variations = {
+                    names: product.attributeNames,
+                    values: product.attributeValues,
+                    price: product.variationPrices,
+                    oldPrice: product.variationOldPrices
+                }
+            } catch (error) {
+                variations = null;
+            }
+
             await pushShippingBoxes(shippingBoxProperties);
-            await pushBrands(product.brand_name)
+            await pushBrands(product.brand_name);
             await pushProducts(product);
             await pushOrganizations(organization);
+            // await pushVariations(variations);
         }
     }
 }
@@ -341,6 +448,7 @@ module.exports = async (_, { fileName, bucket }) => {
     const uniqueShippingBoxes = lodash.uniqWith(shippingBoxesCollection, lodash.isEqual);
     const uniqueBrands = lodash.uniqWith(brands, lodash.isEqual);
     const uniqueOrganizations = lodash.uniqWith(organizationsCollection, lodash.isEqual);
+    // const uniqueProductVariations = lodash.uniqWith(variationsCollection, lodash.isEqual);
 
     const brandPromises = await uniqueBrands.map(item => new Promise((resolve) => {
         return repository.brand.findOrCreate({ name: item })
@@ -352,6 +460,18 @@ module.exports = async (_, { fileName, bucket }) => {
                 resolve(null);
             })
     }));
+
+    // variationArr = await uniqueProductVariations.map(item => new Promise((resolve) => {
+    //     return repository.productVariation.findOrAdd(item)
+    //         .then(res => resolve(res))
+    //         .catch(() => {
+    //             failedParsing.push("Couldn't add/parse variation");
+    //             resolve(null);
+    //         })
+    // })).filter(variation => variation)
+    // .reduce((variationArr, variation) => {
+    //     variationArr[variation.attributeName] = variation.id;
+    // });
 
     const shippingBoxesPromises = await uniqueShippingBoxes.map(item => new Promise((resolve) => {
         return repository.shippingBox.findOrAdd({
@@ -365,7 +485,7 @@ module.exports = async (_, { fileName, bucket }) => {
             unitWeight: item.unitWeight
         }).then(res => {
             resolve(res._id)
-        }).catch(() => {
+        }).catch((err) => {
             failedParsing.push("couldn't add/parse shippingbox");
             resolve(null);
         })
