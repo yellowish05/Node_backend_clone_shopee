@@ -14,7 +14,7 @@ module.exports = async function checkoutOneProduct(
   { dataSources: { repository }, user },
 ) {
   var productAttr = await repository.productAttributes.getByAttr(product, color, size);
-  if (!productAttr) {
+  if (!productAttr && color != "" && size != "") {
     throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
   }
   const checkAmount = productAttr != null ? 
@@ -25,6 +25,9 @@ module.exports = async function checkoutOneProduct(
     await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
+    if (!delivery) {
+      throw new ForbiddenError(`Product's delivery information is incorrect.`);
+    }
     const cartItemData = {
       productId: product,
       quantity: quantity,
@@ -59,7 +62,7 @@ module.exports = async function checkoutOneProduct(
         return order;
       })
       .then(async (order) => {
-        // send push notification
+        // save notification to buyer
         const productInfo = await repository.product.getById(product);
         const seller = await repository.user.getById(productInfo.seller);
         await repository.notification.create({
@@ -75,7 +78,7 @@ module.exports = async function checkoutOneProduct(
           },
           tags: ['Order:order.id'],
         });
-        console.log("user=> ", user);
+        // save notification to seller
         await repository.notification.create({
           type: NotificationType.SELLER_ORDER,
           user: productInfo.seller,
@@ -89,8 +92,12 @@ module.exports = async function checkoutOneProduct(
           },
           tags: ['Order:order.id'],
         });
-        await PushNotificationService.sendPushNotification({ message: "You paid your money to buy the product-" + productInfo.title, device_ids: [user.device_id] });
-        await PushNotificationService.sendPushNotification({ message: "Your product-" + productInfo.title + " was sold.", device_ids: [seller.device_id] });
+        // send push notification to buyer
+        if (user.device_id)
+          await PushNotificationService.sendPushNotification({ message: "You paid your money to buy the product-" + productInfo.title, device_ids: [user.device_id] });
+        // send push notification to seller
+        if (seller.device_id)
+          await PushNotificationService.sendPushNotification({ message: "Your product-" + productInfo.title + " was sold.", device_ids: [seller.device_id] });
         return order;
       })
 
