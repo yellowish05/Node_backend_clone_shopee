@@ -19,6 +19,14 @@ class ProductAttributesRepository {
         return this.model.find({ productId: id });
     }
 
+    async findDuplicate(data) {
+        return this.model.find({
+            color: data.color,
+            size: data.size,
+            productId: data.productId
+        });
+    }
+
     async getByAttr(productId, color, size) {
         if (color != "" && size != "")
             return this.model.findOne({ productId, color, size });
@@ -43,6 +51,20 @@ class ProductAttributesRepository {
             ...data
         });
         return productAttr.save();
+    }
+
+    async findOrCreate(data) {
+        const attribute = await this.findDuplicate(data);
+
+        if (attribute && attribute.length > 0) {
+            return attribute;
+        } else {
+            const productAttr = new this.model({
+                _id: uuid(),
+                ...data
+            });
+            return productAttr.save();
+        }
     }
 }
 
