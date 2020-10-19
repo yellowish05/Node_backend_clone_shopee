@@ -24,7 +24,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
-      repository.productAttributes.getByAttr(product, color, size),
+      repository.productAttributes.getByAttr(args.product, args.color, args.size),
     ]))
     .then(([product, deliveryRate, productAttr]) => {
       if (!product) {
@@ -48,6 +48,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         .then(() => repository.userCartItem.add(cartItemData, user.id));
     })
     .catch((error) => {
-      throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
+      throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);
     });
 };
