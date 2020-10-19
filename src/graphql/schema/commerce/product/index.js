@@ -114,6 +114,17 @@ const schema = gql`
       asset: ID!
     }
 
+    input UpdateProductAttributeInput {
+      productId: ID!
+      quantity: Int
+      price: Float
+      discountPrice: Float
+      currency: Currency
+      color: String
+      size: String
+      asset: ID
+    }
+
     enum ProductSortFeature {
       CREATED_AT
       PRICE
@@ -178,7 +189,7 @@ const schema = gql`
             Allows: authorized user
         """
         addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
-        updateProductAttr(id: ID!, data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+        updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
 
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
