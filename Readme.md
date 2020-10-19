@@ -1,4 +1,5 @@
 # Test auto merge 
+# Test auto merge 2
 # How to do (local environment)
 
 ## Environment
