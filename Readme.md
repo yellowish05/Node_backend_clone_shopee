@@ -1,3 +1,6 @@
+# Test auto merge 
+# Test auto merge 2
+# Test auto merge 3 
 # How to do (local environment)
 # test auto merge form dev-xinhua
 
