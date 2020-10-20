@@ -16,21 +16,32 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
   }, {});
 
   let productAttr;
+  let product;
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.productAttributes.getById(provider.inputs.id),
+    repository.product.getById(data.productId)
   ])
-    .then(([foundProductAttr]) => {
+    .then(([foundProductAttr, productInfo]) => {
       if (!foundProductAttr) {
         provider.error('id', 'custom', `ProductAttr with id "${provider.inputs.id}" doen not exist!`);
       }
+      if (!productInfo) {
+        provider.error('id', 'custom', `Product with id "${provider.input.data.productId}" doen not exist!`);
+      }
       productAttr = foundProductAttr;
+      product = productInfo;
     }));
 
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
+      }
+    })
+    .then(() => {
+      if (user.id !== product.seller) {
+        throw new ForbiddenError('You can not update product!');
       }
     })
     .then(async () => {
@@ -48,7 +59,6 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       productAttr.quantity = quantity ? quantity : productAttr.quantity;
       productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
       
-
       return Promise.all([
         productAttr.save(),
       ])
