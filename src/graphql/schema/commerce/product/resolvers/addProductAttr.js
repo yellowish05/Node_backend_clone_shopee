@@ -38,7 +38,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     .then(async (matched) => {
         if (!matched) {
             throw errorHandler.build(validator.errors);
-            }
+        }
+
+        if (user.id !== foundProduct.seller) {
+            throw new ForbiddenError('You can not update product!');
+        }
 
         const productAttrId = uuid();
         const inventoryId = uuid();
