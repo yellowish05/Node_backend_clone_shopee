@@ -293,9 +293,9 @@ module.exports.resolvers = {
       return amountOfMoney;
     },
     discountPrice: async ({ discountPrice, currency }, args) => {
-      if (!discountPrice) {
-        return null;
-      }
+      // if (!discountPrice) {
+      //   return null;
+      // }
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: discountPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);

@@ -20,14 +20,14 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.productAttributes.getById(provider.inputs.id),
-    repository.product.getById(data.productId)
+    repository.product.getById(provider.inputs.productId)
   ])
     .then(([foundProductAttr, productInfo]) => {
       if (!foundProductAttr) {
         provider.error('id', 'custom', `ProductAttr with id "${provider.inputs.id}" doen not exist!`);
       }
       if (!productInfo) {
-        provider.error('id', 'custom', `Product with id "${provider.input.data.productId}" doen not exist!`);
+        provider.error('id', 'custom', `Product with id "${provider.inputs.productId}" doen not exist!`);
       }
       productAttr = foundProductAttr;
       product = productInfo;
