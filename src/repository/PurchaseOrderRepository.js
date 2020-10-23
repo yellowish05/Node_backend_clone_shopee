@@ -32,6 +32,25 @@ class PurchaseOrderRepository {
     });
     return document.save();
   }
+
+  async update(data) {
+    const order = await this.getById(data.id)
+    
+    order.deliveryOrders = data.deliveryOrders ? data.deliveryOrders : order.deliveryOrders
+    order.items = data.items ? data.items : order.items
+    order.payments = data.payments ? data.payments : order.payments
+    order.isPaid = data.isPaid ? data.isPaid : order.isPaid
+    order.currency = data.currency ? data.currency : order.currency
+    order.quantity = data.quantity ? data.quantity : order.quantity
+    order.price = data.price ? data.price : order.price
+    order.deliveryPrice = data.deliveryPrice ? data.deliveryPrice : order.deliveryPrice
+    order.total = data.total ? data.total : order.total
+    order.buyer = data.buyer ? data.buyer : order.buyer
+    order.paymentClientSecret = data.paymentClientSecret ? data.paymentClientSecret : order.paymentClientSecret
+    order.publishableKey = data.publishableKey ? data.publishableKey : order.publishableKey
+
+    return order.save()
+  }
 }
 
 module.exports = PurchaseOrderRepository;

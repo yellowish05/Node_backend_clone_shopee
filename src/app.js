@@ -12,6 +12,7 @@ const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
 const viewersRouters = require('./viewers');
+const invoiceService = require(path.resolve('src/bundles/invoice'));
 var multiparty = require('connect-multiparty');
 const fs = require('fs');
 
@@ -27,6 +28,11 @@ app.use(express.urlencoded({ limit: '50000mb', extended: true }));
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
+
+app.get('/invoice', async (req, res) => {
+  const paymentIntent = await invoiceService.generateInvoicePDF('pi_1HeuhoFI01j6ElLmsZGbgq8e', [])
+  res.send(JSON.stringify(paymentIntent))
+})
 
 app.use('/webhooks', webhookRouters);
 app.use('/viewers', viewersRouters);
