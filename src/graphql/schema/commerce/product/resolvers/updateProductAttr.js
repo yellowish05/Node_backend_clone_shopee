@@ -52,10 +52,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       productAttr.color = productAttrData.color ? productAttrData.color : productAttr.color;
       productAttr.size = productAttrData.size ? productAttrData.size : productAttr.size;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
-      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
-      productAttr.discountPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice, currency: productAttr.currency }).getCentsAmount() : productAttr.discountPrice;
-      // productAttr.price = price ? price : productAttr.price;
-      // productAttr.discountPrice = discountPrice ? discountPrice : productAttr.discountPrice;
+      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
+      productAttr.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
       productAttr.quantity = quantity ? quantity : productAttr.quantity;
       productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
       

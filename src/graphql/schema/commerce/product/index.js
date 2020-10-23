@@ -22,7 +22,7 @@ const schema = gql`
       color: String!
       size: String!
       price(currency: Currency): AmountOfMoney!
-      discountPrice(currency: Currency): AmountOfMoney!
+      oldPrice(currency: Currency): AmountOfMoney!
       quantity: Int!
       asset: Asset!
     }
@@ -45,7 +45,7 @@ const schema = gql`
         oldPrice(currency: Currency): AmountOfMoney
         quantity: Int!
         assets: [Asset!]!
-        attrs: [ProductAttribute!]!
+        attrs: [ProductAttribute]
         category: ProductCategory!
         # weight: Weight!
         shippingBox: ShippingBox!
@@ -292,11 +292,11 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
-    discountPrice: async ({ discountPrice, currency }, args) => {
-      // if (!discountPrice) {
-      //   return null;
-      // }
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: discountPrice, currency });
+    oldPrice: async ({ oldPrice, currency, price }, args) => {
+      if (!oldPrice) {
+        oldPrice = price;
+      }
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: oldPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
