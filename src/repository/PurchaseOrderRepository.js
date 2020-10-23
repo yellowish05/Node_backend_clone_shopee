@@ -51,6 +51,10 @@ class PurchaseOrderRepository {
 
     return order.save()
   }
+
+  async getByClientSecret(id) {
+    return this.model.findOne({client_secret: id})
+  }
 }
 
 module.exports = PurchaseOrderRepository;
