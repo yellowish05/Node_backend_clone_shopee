@@ -1,4 +1,5 @@
 # How to do (local environment)
+# test auto merge form dev-xinhua
 
 ## Environment
 1. add to `~/.profile` node env `export NODENV=development`
@@ -11,3 +12,5 @@
 
 1. install `migrate-mongoose` globally `npm install -g migrate-mongoose`
 2. run migrations `migrate up` (local use) or `npm run migrate-up` (this command use on the stage and prod servers)
+
+

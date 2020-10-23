@@ -45,7 +45,7 @@ const schema = gql`
         oldPrice(currency: Currency): AmountOfMoney
         quantity: Int!
         assets: [Asset!]!
-        attrs: [ProductAttribute!]!
+        attrs: [ProductAttribute]
         category: ProductCategory!
         # weight: Weight!
         shippingBox: ShippingBox!
