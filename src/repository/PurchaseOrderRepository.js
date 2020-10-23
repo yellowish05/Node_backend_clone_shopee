@@ -53,7 +53,7 @@ class PurchaseOrderRepository {
   }
 
   async getByClientSecret(id) {
-    return this.model.findOne({client_secret: id})
+    return this.model.findOne({paymentClientSecret: id})
   }
 }
 

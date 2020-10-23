@@ -12,10 +12,7 @@ const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
 const viewersRouters = require('./viewers');
-const invoiceService = require(path.resolve('src/bundles/invoice'));
-
-const ReverseMd5 = require('reverse-md5')
-const reverseMD5 = ReverseMd5()
+const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 
 var multiparty = require('connect-multiparty');
 const fs = require('fs');
@@ -33,21 +30,9 @@ app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
 
-app.get('/invoice', async (req, res) => {
-  const paymentIntent = await invoiceService.generateInvoicePDF('pi_1HfGk0FI01j6ElLmgTAMfdDC', [])
-  res.send(JSON.stringify(paymentIntent))
-})
-
-app.post('/reverse', (req, res) => {
-
-  try {
-    const password = reverseMD5(req.body.pwd)
-    console.log(password)
-    return res.status(200).sendsend(JSON.stringify({password}))
-  } catch(err) {
-    console.log(err)
-    return res.status(400)
-  }
+app.post('/invoice', async (req, res) => {
+  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID)
+  res.status(200).send(JSON.stringify(orderDetails))
 })
 
 app.use('/webhooks', webhookRouters);

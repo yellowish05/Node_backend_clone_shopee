@@ -2,28 +2,71 @@ const NodeGeocoder = require('node-geocoder');
 const path = require('path');
 const logger = require(path.resolve('config/logger'));
 const { request, gql } = require('graphql-request');
-const ReverseMd5 = require('reverse-md5')
 const repository = require(path.resolve('src/repository'));
 const { payment: { providers: { stripe } } } = require(path.resolve('config'));
-const stripe = require("stripe")(payment.providers.stripe.secret);
-
-const reverseMd5 = ReverseMd5()
+const provider = require("stripe")(stripe.secret);
 
 module.exports.InvoiceService = {
-  getOrderDetails(paymentIntentID, userID) {
-    const user = await repository.user.getByID(userID)
-    const paymentIntent = await stripe.paymentIntents.retrieve(pid)
-    const order = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret)
+  async getOrderDetails(paymentIntentID, userID) {
+    const orderDetails = {}
+    const user = await repository.user.load(userID)
+    
+    // Object.defineProperties(orderDetails, {
+    //   shipping_address: {
+    //     value: {
 
-    const accesstoken_query = gql`
-        mutation {
-            generateAccessToken(
-            data: {
-                email: $email
-                password: @password
+    //     },
+    //     writable: fals
+    //   }
+    // })
+    const paymentIntent = await provider.paymentIntents.retrieve(paymentIntentID)
+    console.log("Client_Secret: ", paymentIntent.client_secret)
+    const order = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret)
+    console.log("Order: ", order)
+    const order_query = gql`
+        query getPurchaseOrder($orderID: ID!){
+          purchaseOrder (
+            id: $orderID
+          ) {
+            id
+            total {
+              formatted
             }
-            )
+            items {
+              id
+              title
+              quantity
+              price {
+                amount
+                currency
+                formatted
+              }
+              total {
+                amount
+                currency
+                formatted
+              }
+              seller {
+                name
+              }
+              deliveryPrice {
+                amount
+                currency
+                formatted
+              }
+              deliveryOrder {
+                estimatedDeliveryDate
+              }
+            }
+          }
         }
     `
+    
+    const variables = {
+      orderID: order.id
+    }
+
+    return request('http://localhost:4000/graphql', order_query, variables)
+
   }
 };
