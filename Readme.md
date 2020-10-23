@@ -1,4 +1,5 @@
 # How to do (local environment)
+# test auto merge form dev-xinhua
 
 ## Environment
 1. add to `~/.profile` node env `export NODENV=development`
