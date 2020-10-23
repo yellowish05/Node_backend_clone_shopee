@@ -204,6 +204,7 @@ module.exports.resolvers = {
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
     productAttributes,
+    
   },
   Mutation: {
     addProduct,
