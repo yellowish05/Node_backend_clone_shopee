@@ -4,6 +4,7 @@ const { payment } = require(path.resolve('config'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
+
 const stripe = require("stripe")(payment.providers.stripe.secret);
 
 const invoiceService = {
@@ -24,14 +25,14 @@ const invoiceService = {
                 currency: product.currency,
             })
 
-            items.push({
-                name: product.title,
-                seller: ,
-                delivery_estimate: '',
-                price: '',
-                quantity: cartItem.,
-                total: ''
-            })
+            // items.push({
+            //     name: product.title,
+            //     seller: ,
+            //     delivery_estimate: '',
+            //     price: '',
+            //     quantity: cartItem.,
+            //     total: ''
+            // })
         }))
         console.log(paymentIntent)
         return paymentIntent
