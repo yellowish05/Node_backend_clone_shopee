@@ -1,17 +1,17 @@
 /* eslint-disable no-param-reassign */
 function elasticFilter(query, filter) {
   if (!query.$and) {
-      query.$and = [
-          { isDeleted: false },
-      ];
+    query.$and = [
+      { isDeleted: false },
+    ];
   }
   if (filter) {
-      query.$and.push({
-          $or: [
-              { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
-              { description: { $regex: `^.*${filter}.*`, $options: 'i' } },
-          ]
-      })
+    query.$and.push({
+      $or: [
+        { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
+        { description: { $regex: `^.*${filter}.*`, $options: 'i' } },
+      ]
+    })
   }
 }
 
@@ -107,6 +107,15 @@ class ProductRepository {
     return this.model.find({ _id: ids, isDeleted: false });
   }
 
+  async findDuplicate(data) {
+    return this.model.find({
+      title: data.title,
+      description: data.description,
+      price: data.price,
+      isDeleted: false
+    });
+  }
+
   /**
    * @deprecated
    */
@@ -137,8 +146,15 @@ class ProductRepository {
       throw { errors: { customCarrier: { message: "customCarrier with that id doesn't exist" } } };
     }
 
-    const product = new this.model(data);
-    return product.save();
+    // avoid duplicate if title, description, and price are exactly the same
+    const existing = await this.findDuplicate(data);
+
+    if (existing && existing.length > 0) {
+      return existing;
+    } else {
+      const product = new this.model(data);
+      return product.save();
+    }
   }
 
   async get({ filter, sort, page }) {
