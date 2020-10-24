@@ -5,7 +5,7 @@ const { ForbiddenError } = require('apollo-server');
 
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
-
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
 const errorHandler = new ErrorHandler();

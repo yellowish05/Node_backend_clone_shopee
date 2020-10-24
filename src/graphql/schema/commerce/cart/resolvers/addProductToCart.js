@@ -24,15 +24,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
-      repository.productAttributes.getByAttr(product, color, size),
+      repository.productAttributes.getByAttr(args.product, args.color, args.size),
     ]))
     .then(([product, deliveryRate, productAttr]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
 
-      if (!productAttr && color != "" && size != "") {
-        throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
+      if (!productAttr && args.color != "" && args.size != "") {
+        throw new ForbiddenError(`Product that has color: "${args.color}" and size: "${args.size}" does not exist.`);
       }
 
       const cartItemData = {
@@ -48,6 +48,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         .then(() => repository.userCartItem.add(cartItemData, user.id));
     })
     .catch((error) => {
-      throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
+      throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);
     });
 };

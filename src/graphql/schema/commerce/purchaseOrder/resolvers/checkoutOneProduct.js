@@ -58,8 +58,9 @@ module.exports = async function checkoutOneProduct(
           order.publishableKey = result.publishableKey
         if(result.paymentClientSecret)
           order.paymentClientSecret = result.paymentClientSecret
-
-        return order;
+        
+        order.deliveryOrders = null
+        return repository.purchaseOrder.update(order)
       })
       .then(async (order) => {
         // save notification to buyer
