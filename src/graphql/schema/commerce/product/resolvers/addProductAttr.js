@@ -55,8 +55,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
 
         productData._id = productAttrId;
         productData.quantity = quantity;
-        productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: data.currency }).getCentsAmount();
-        productData.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount() : null;
+        productData.discountPrice = discountPrice != 0 ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice, currency: data.currency }).getCentsAmount(): 0;
+        productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount();
 
         foundProduct.attrs.push(productAttrId);
         const inventoryLog = {

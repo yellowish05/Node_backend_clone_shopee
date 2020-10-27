@@ -35,7 +35,7 @@ class Provider extends ProviderAbstract {
 
   async addMethod({ token }, { dataSources: { repository }, user }) {
     if (!user.email) {
-      throw new UserInputError('User does not have email address! Email is required', { invalidArgs: ['user'] });
+      throw new UserInputError('User does not have email address! Emal is required', { invalidArgs: ['user'] });
     }
 
     let customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
