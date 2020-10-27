@@ -144,7 +144,6 @@ class UserRepository {
         currency: data.settings.currency,
         measureSystem: data.settings.measureSystem,
       },
-      phone: data.phone
     });
 
     return user.save();

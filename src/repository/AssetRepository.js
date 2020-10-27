@@ -131,6 +131,25 @@ class AssetRepository {
     }
   }
 
+  async createFromCSVForProducts(data) {
+    const { url, path } = await buckets(data).then(x => x).catch(err => err);
+
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: path,
+      url: url,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => this.getByPath(path));
+  }
+
   async createFromCSVForCategories(data) {
     data.url = data.url.split(" ").join("%20");
     data.path = data.path.split(" ").join("%20")
@@ -152,34 +171,6 @@ class AssetRepository {
       const asset = new this.model(assetData);
       return asset.save();
     }
-  }
-
-  // async createAssetFromCSVForProducts(data) {
-
-  // }
-
-  /**
-   * @deprecated
-   * data.phat is now full path.
-   * old version used only file name and generate path from it
-   */
-  async createFromCSVForProducts(data) {
-    const { url, path } = await buckets(data).then(x => x).catch(err => err);
-
-    const assetData = {
-      _id: uuid(),
-      status: "UPLOADED",
-      owner: data.owner,
-      path: path,
-      url: url,
-      type: "IMAGE",
-      size: 1000,
-      mimetype: 'image/jpeg',
-    }
-    const asset = new this.model(assetData);
-    return await asset.save().then(asset => {
-      return asset
-    }).catch(err => this.getByPath(path));
   }
 }
 
