@@ -23,6 +23,25 @@ class OrganizationRepository {
     return organization.save();
   }
 
+  async findOrCreate(data) {
+    if (!data.owner) {
+      throw Error('Owner is required!');
+    }
+
+    const organization = await this.getByUser(data.owner);
+
+    if (organization) {
+      return organization;
+    } else {
+      const organization = new this.model({
+        ...data,
+        _id: uuid(),
+      });
+  
+      return organization.save();
+    }
+  }
+
   async update(organization, data) {
 
     if (!organization) {
