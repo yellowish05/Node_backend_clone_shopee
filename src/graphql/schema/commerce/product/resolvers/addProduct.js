@@ -2,14 +2,13 @@ const uuid = require('uuid/v4');
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
-const { ForbiddenError } = require('apollo-server');
 
-const { InventoryLogType, NotificationType } = require(path.resolve('src/lib/Enums'));
+const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
-const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
-const logger = require(path.resolve('config/logger'));
+
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const { ForbiddenError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -67,7 +66,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const {
         quantity, price, discountPrice, ...productData
       } = data;
-
+      
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
@@ -98,34 +97,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         repository.product.create(productData),
         repository.productInventoryLog.add(inventoryLog),
       ])
-        .then(([product]) => {
-          // var messageText = 'Finished adding a product to your store';            // 10-06
-          // var device_ids = [user.device_id]; 
-          // // TODO: we need to add queue here
-          // Promise.all(() => {
-          //   repository.notification.create({
-          //     type: NotificationType.SELLER_ORDER,
-          //     user: user._id,
-          //     data: {
-          //       content: messageText,
-          //       title: product.title,
-          //       photo: product.assets,
-          //       status: 'DELIVERED',            // product's status
-          //       linkID: product._id,
-          //     },
-          //     tags: ['Product'],
-          //   })
-          // })
-          //   // 10-06
-          //   .then(() => {
-          //     console.log("receivers => ", device_ids);
-          //     PushNotificationService.sendPushNotification({ messageText, device_ids });
-          //   })
-          //   .catch((error) => {
-          //     logger.error(`Failed to create Notification on Add Product page for user "${user._id}", Original error: ${error}`);
-          //   }); 
-          return product;
-        })
-        .then((product) => product);
+        .then(([product]) => product);
     });
 };

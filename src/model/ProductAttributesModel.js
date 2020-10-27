@@ -23,7 +23,7 @@ const schema = new Schema({
       required: true,
       index: true,
     },
-    discountPrice: {
+    oldPrice: {
         type: Number,
     },
     asset: {
