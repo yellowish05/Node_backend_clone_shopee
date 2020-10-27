@@ -8,21 +8,10 @@ const provider = require("stripe")(stripe.secret);
 
 module.exports.InvoiceService = {
   async getOrderDetails(paymentIntentID, userID) {
-    const orderDetails = {}
     const user = await repository.user.load(userID)
-    
-    // Object.defineProperties(orderDetails, {
-    //   shipping_address: {
-    //     value: {
-
-    //     },
-    //     writable: fals
-    //   }
-    // })
     const paymentIntent = await provider.paymentIntents.retrieve(paymentIntentID)
-    console.log("Client_Secret: ", paymentIntent.client_secret)
+    const orderDate = new Date(paymentIntent.created * 1000).toDateString()
     const order = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret)
-    console.log("Order: ", order)
     const order_query = gql`
         query getPurchaseOrder($orderID: ID!){
           purchaseOrder (
@@ -30,6 +19,18 @@ module.exports.InvoiceService = {
           ) {
             id
             total {
+              amount
+              currency
+              formatted
+            }
+            price {
+              amount
+              currency
+              formatted
+            }
+            deliveryPrice {
+              amount
+              currency
               formatted
             }
             items {
@@ -66,7 +67,40 @@ module.exports.InvoiceService = {
       orderID: order.id
     }
 
-    return request('http://localhost:4000/graphql', order_query, variables)
+    const items_detail = await request('http://localhost:4000/graphql', order_query, variables)
+
+    const orderDetails = {
+      orderDate,
+      orderID: order.id,
+      shipping_address: {
+        client_name: user.name,
+        street: user.address.street,
+        city: user.address.city,
+        state: user.address.region,
+        country: user.address.country
+      },
+      payment_info: {
+        payment_method: {
+          type: paymentIntent.charges.data[0].payment_method_details.type,
+          details: paymentIntent.charges.data[0].payment_method_details.type == 'card' ? paymentIntent.charges.data[0].payment_method_details.card : null
+        },
+        billing_address: paymentIntent.charges.data[0].billing_details.address
+      },
+      items: items_detail.purchaseOrder.items,
+      price_summary: {
+        items: items_detail.purchaseOrder.price,
+        shipping: items_detail.purchaseOrder.deliveryPrice,
+        before_tax: items_detail.purchaseOrder.total,
+        tax: '$0.00',
+        total: items_detail.purchaseOrder.total
+      }
+    }
+
+    return orderDetails
+
+  },
+
+  async createInvoicePDF(orderDetails) {
 
   }
 };
