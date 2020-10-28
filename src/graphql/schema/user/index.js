@@ -21,6 +21,16 @@ const schema = gql`
       roles: [String]! @auth(requires: ADMIN) 
     }
 
+    type UserInfo {
+      id: ID!
+      email: String
+      name: String
+      phone: String
+      address: Address
+      location: LatLng
+      photo: Asset
+    }
+
     input RegistrationInput {
       email: String!
       password: String!
@@ -48,6 +58,7 @@ const schema = gql`
     }
 
     extend type Query {
+      getUserById(id: ID!): UserInfo!
       """Allows: authorized user"""
       me: User! @auth(requires: USER) 
     }
@@ -69,6 +80,9 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     me: async (obj, args, { user }) => user,
+    getUserById: async (_, { id }, { dataSources: { repository } }) => (
+      repository.user.getById(id)
+    ),
   },
   Mutation: {
     addUser,
@@ -87,4 +101,9 @@ module.exports.resolvers = {
       return repository.organization.getByUser(user.id);
     },
   },
+  UserInfo: {
+    photo(user, args, { dataSources: { repository } }) {
+      return repository.asset.load(user.photo);
+    },
+  }
 };
