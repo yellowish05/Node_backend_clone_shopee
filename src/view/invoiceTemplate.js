@@ -1,11 +1,35 @@
-module.exports = (orderDetails) => {
+const puppeteer = require('puppeteer')
+
+module.exports = async (orderDetails) => {
     let payment_method = ''
+    let items = ''
+
     if(orderDetails.payment_info.payment_method.type == 'card')
         payment_method = `${orderDetails.payment_info.payment_method.details.brand} Card ending in  ${orderDetails.payment_info.payment_method.details.last4}`
     else
         payment_method = orderDetails.payment_info.payment_method.type
 
     const billing_address = orderDetails.payment_info.billing_address
+
+    orderDetails.items.map((item) =>{
+        const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'unknown'
+        items += `
+            <tr>
+                <td>
+                    <img class="product_image" src="${item.image}">
+                    <div class="product_name">
+                        <p class="line_break"><b>${item.title}</b></p>
+                        <p>Delivery Estimate</p>
+                        <p class="delivery_estimate">${deliveryDate}</p>
+                        <p>Sold by: ${item.seller.name}</p>
+                    </div>
+                </td>
+                <td>${item.price.formatted}</td>
+                <td>${item.quantity}</td>
+                <td>${item.total.formatted}</td>
+            </tr>
+        `
+    })
 
     const pdfTemplate = `<!DOCTYPE html>
     <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
@@ -284,7 +308,7 @@ module.exports = (orderDetails) => {
                     <div id="order_summary">
                         <div class="order_summary_item">
                             <p>Order Date:</p>
-                            <p>${orderDetails.orderDate}</p>
+                            <p>${orderDetails.orderDate ? orderDetails.orderDate : 'unknown'}</p>
                         </div>
                         <div class="order_summary_item">
                             <p>Order #:</p>
@@ -292,7 +316,7 @@ module.exports = (orderDetails) => {
                         </div>
                         <div class="order_summary_item">
                             <p>Order Total:</p>
-                            <p>${orderDetails.price_summary.total} (${orderDetails.items.length} item)</p>
+                            <p>${orderDetails.price_summary.total.formatted} (${orderDetails.items.length} item)</p>
                         </div>
                     </div>
                 </div>
@@ -301,11 +325,11 @@ module.exports = (orderDetails) => {
             <div id="shipping_address">
                 <h2>Shipping Address</h2>
                 <div>
-                    <p><b>${orderDetails.shipping_address.client_name}</b></p>
-                    <p>${orderDetails.shipping_address.street}</p>
-                    <p>${orderDetails.shipping_address.city}</p>
-                    <p>${orderDetails.shipping_address.state}</p>
-                    <p>${orderDetails.shipping_address.country}</p>
+                    <p><b>${orderDetails.shipping_address.client_name ? orderDetails.shipping_address.client_name : 'unknown'}</b></p>
+                    <p>${orderDetails.shipping_address.street ? orderDetails.shipping_address.street : ''}</p>
+                    <p>${orderDetails.shipping_address.city ? orderDetails.shipping_address.city : ''}</p>
+                    <p>${orderDetails.shipping_address.state ? orderDetails.shipping_address.state : ''}</p>
+                    <p>${orderDetails.shipping_address.country ? orderDetails.shipping_address.country : ''}</p>
                 </div>
             </div>
             <div class="border_line"></div>
@@ -317,10 +341,10 @@ module.exports = (orderDetails) => {
                     </div>
                     <div class="billing_address">
                         <p><b>Billing Address:</b></p>
-                        <p>${billing_address.line1}</p>
-                        <p>${billing_address.city}</p>
-                        <p>${billing_address.state}</p>
-                        <p>${billing_address.country}</p>
+                        <p>${billing_address.line1 ? billing_address.line1 : ''}</p>
+                        <p>${billing_address.city ? billing_address.city : ''}</p>
+                        <p>${billing_address.state ? billing_address.state : ''}</p>
+                        <p>${billing_address.country ? billing_address.country : ''}</p>
                     </div>
                 </div>
             </div>
@@ -343,146 +367,7 @@ module.exports = (orderDetails) => {
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 12345678913245ads321fa3d2s1f32ads1f32as1f32a3d1f3a1d3f2a1ds32f1a3s2d1f3a2sd1f3a21sdf32ad1s3f21a3sd2f1a3s2f1a3sd2f1a3sd2f1asd3f213216789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 12345678913245ads321fa3d2s1f32ads1f32as1f32a3d1f3a1d3f2a1ds32f1a3s2d1f3a2sd1f3a21sdf32ad1s3f21a3sd2f1a3s2f1a3sd2f1a3sd2f1asd3f213216789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <img class="product_image" src="http://ae01.alicdn.com/kf/H604f784ffa6846009d12cd66ac1d92eeb.jpg">
-                                <div class="product_name">
-                                    <p class="line_break"><b>Product Name 123456789132456789123456789123465498423156ds5fasd132f1a65sf1a3d2s1fad3sf165adf32a1sf3a5ewf3a2ds1fda3s2f15ew132d15a312</b></p>
-                                    <p>Delivery Estimate</p>
-                                    <p class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</p>
-                                    <p>Sold by: Give Me</p>
-                                </div>
-                            </td>
-                            <td>$100</td>
-                            <td>1</td>
-                            <td>$100</td>
-                        </tr>
+                        ${items}
                     </tbody>
                 </table>
             </div>
@@ -490,26 +375,44 @@ module.exports = (orderDetails) => {
             <div id="price_summary">
                 <div class="price_summary_item">
                     <p>Items: </p>
-                    <p>$109.09</p>
+                    <p>${orderDetails.price_summary.items.formatted}</p>
                 </div>
                 <div class="price_summary_item">
                     <p>Shipping & Handling: </p>
-                    <p>$0.00</p>
+                    <p>${orderDetails.price_summary.shipping.formatted}</p>
                 </div>
                 <div class="price_summary_item">
                     <p>Total Before Tax: </p>
-                    <p>$109.09</p>
+                    <p>${orderDetails.price_summary.before_tax.formatted}</p>
                 </div>
                 <div class="price_summary_item">
                     <p>Estimated Tax Collected: </p>
-                    <p>$10.45</p>
+                    <p>${orderDetails.price_summary.tax}</p>
                 </div>
                 <div class="price_summary_item">
                     <p><b>Order Total</b></p>
-                    <p><b>$120.44</b></p>
+                    <p><b>${orderDetails.price_summary.total.formatted}</b></p>
                 </div>
             </div>
         </div>
         
     </body></html>`
+
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage()
+    await page.setContent(pdfTemplate)
+    const invoicePDF = await page.pdf({ 
+        path: 'invoice.pdf', 
+        format: 'A4',
+        margin: {
+            top: '2cm',
+            bottom: '2cm',
+            left: '1.5cm',
+            right: '1.5cm'
+        }
+     })
+
+    await browser.close();
+
+    return invoicePDF
 };

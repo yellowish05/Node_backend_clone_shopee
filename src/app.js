@@ -33,7 +33,7 @@ app.get('/health', (req, res) => {
 app.post('/invoice', async (req, res) => {
   const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID)
   const invoicePDF = await InvoiceService.createInvoicePDF(orderDetails)
-  res.status(200).send(JSON.stringify(orderDetails))
+  res.status(200).send(invoicePDF)
 })
 
 app.use('/webhooks', webhookRouters);

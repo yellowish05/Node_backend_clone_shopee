@@ -1,10 +1,14 @@
-const NodeGeocoder = require('node-geocoder');
+const uuid = require('uuid/v4');
 const path = require('path');
-const logger = require(path.resolve('config/logger'));
+const { baseURL } = require(path.resolve('config'));
 const { request, gql } = require('graphql-request');
 const repository = require(path.resolve('src/repository'));
 const { payment: { providers: { stripe } } } = require(path.resolve('config'));
 const provider = require("stripe")(stripe.secret);
+const invoiceTemplate = require(path.resolve('src/view/invoiceTemplate'));
+const AWS = require('aws-sdk');
+const { aws, cdn } = require(path.resolve('config'));
+const s3 = new AWS.S3();
 
 module.exports.InvoiceService = {
   async getOrderDetails(paymentIntentID, userID) {
@@ -67,7 +71,30 @@ module.exports.InvoiceService = {
       orderID: order.id
     }
 
-    const items_detail = await request('http://localhost:4000/graphql', order_query, variables)
+    const items_detail = await request(`${baseURL}graphql`, order_query, variables)
+    let items = []
+    await Promise.all(items_detail.purchaseOrder.items.map( async (item) => {
+      const orderItem = await repository.orderItem.getById(item.id)
+      const product = await request(`${baseURL}graphql`, 
+        gql`
+        query getProduct($ID: ID!){
+          product (
+            id: $ID
+          ) {
+            id
+            assets {
+              id
+              url
+            }
+          }
+        }`, 
+        {
+          ID: orderItem.product
+        }
+      )
+      const image = product.product.assets.length > 0 ? product.product.assets[0].url : ''
+      items.push({...item, image})
+    }))
 
     const orderDetails = {
       orderDate,
@@ -86,7 +113,7 @@ module.exports.InvoiceService = {
         },
         billing_address: paymentIntent.charges.data[0].billing_details.address
       },
-      items: items_detail.purchaseOrder.items,
+      items,
       price_summary: {
         items: items_detail.purchaseOrder.price,
         shipping: items_detail.purchaseOrder.deliveryPrice,
@@ -101,6 +128,21 @@ module.exports.InvoiceService = {
   },
 
   async createInvoicePDF(orderDetails) {
-
+    const html = await invoiceTemplate(orderDetails)
+    console.log("Invoice PDF: ", html)
+    const id = uuid();
+    const path = `invoicepdf/${id}.pdf`;
+    await Promise.all([s3.putObject({
+      Bucket: aws.user_bucket,
+      Key: path,
+      Body: html,
+    }).promise()])
+    .then((url) => {
+      console.log("upload link: ", url)
+    })
+    .catch((error) => {
+      throw new Error(error);
+    });
+    return html
   }
 };
