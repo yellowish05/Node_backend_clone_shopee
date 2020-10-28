@@ -55,6 +55,10 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  proofPhoto: {
+    type: String,
+    ref: 'Asset',
+  }
 });
 
 schema.methods.getTagName = function getTagName() {
