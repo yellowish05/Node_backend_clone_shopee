@@ -1,19 +1,16 @@
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
-    let payment_method = ''
-    let items = ''
+  let payment_method = '';
+  let items = '';
 
-    if(orderDetails.payment_info.payment_method.type == 'card')
-        payment_method = `${orderDetails.payment_info.payment_method.details.brand} Card ending in  ${orderDetails.payment_info.payment_method.details.last4}`
-    else
-        payment_method = orderDetails.payment_info.payment_method.type
+  if (orderDetails.payment_info.payment_method.type == 'card') { payment_method = `${orderDetails.payment_info.payment_method.details.brand} Card ending in  ${orderDetails.payment_info.payment_method.details.last4}`; } else { payment_method = orderDetails.payment_info.payment_method.type; }
 
-    const billing_address = orderDetails.payment_info.billing_address
+  const { billing_address } = orderDetails.payment_info;
 
-    orderDetails.items.map((item) =>{
-        const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'unknown'
-        items += `
+  orderDetails.items.map((item) => {
+    const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'unknown';
+    items += `
             <tr>
                 <td>
                     <img class="product_image" src="${item.image}">
@@ -28,10 +25,10 @@ module.exports = async (orderDetails) => {
                 <td>${item.quantity}</td>
                 <td>${item.total.formatted}</td>
             </tr>
-        `
-    })
+        `;
+  });
 
-    const pdfTemplate = `<!DOCTYPE html>
+  const pdfTemplate = `<!DOCTYPE html>
     <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
         <title>INVOICE</title>
         <style>
@@ -396,23 +393,23 @@ module.exports = async (orderDetails) => {
             </div>
         </div>
         
-    </body></html>`
+    </body></html>`;
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage()
-    await page.setContent(pdfTemplate)
-    const invoicePDF = await page.pdf({ 
-        path: 'invoice.pdf', 
-        format: 'A4',
-        margin: {
-            top: '2cm',
-            bottom: '2cm',
-            left: '1.5cm',
-            right: '1.5cm'
-        }
-     })
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.setContent(pdfTemplate);
+  const invoicePDF = await page.pdf({
+    path: 'invoice.pdf',
+    format: 'A4',
+    margin: {
+      top: '2cm',
+      bottom: '2cm',
+      left: '1.5cm',
+      right: '1.5cm',
+    },
+  });
 
-    await browser.close();
+  await browser.close();
 
-    return invoicePDF
+  return invoicePDF;
 };
