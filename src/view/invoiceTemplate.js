@@ -9,7 +9,7 @@ module.exports = async (orderDetails) => {
   const { billing_address } = orderDetails.payment_info;
 
   orderDetails.items.map((item) => {
-    const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'unknown';
+    const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
     items += `
             <tr>
                 <td>
@@ -116,7 +116,7 @@ module.exports = async (orderDetails) => {
         }
     
         th {
-            background-color: #41dede;
+            background-color: #00838F;
             color: white;
             text-transform: uppercase;
             padding: 10px 10px;
@@ -160,7 +160,7 @@ module.exports = async (orderDetails) => {
     
         #invoice_log {
             padding: 4px 20px;
-            background-color: #41dede;
+            background-color: #00838F;
             color: white;
             text-align: center;
             -webkit-print-color-adjust: exact;
@@ -232,7 +232,7 @@ module.exports = async (orderDetails) => {
         }
     
         .price_summary_item:last-child p:last-child {
-            color: red;
+            color: #434343;
         }
     
         #order_summary {
@@ -272,7 +272,7 @@ module.exports = async (orderDetails) => {
         }
     
         .delivery_estimate {
-            color: green
+            color: #00695C
         }
     
         .border_line {
@@ -298,14 +298,14 @@ module.exports = async (orderDetails) => {
         <div class="flex-container">
             <div id="header">
                 <div style="display: table-cell; vertical-align: top; padding-right: 25px;">
-                    <img id="logo" src="https://cerebral-overload.com/wp-content/uploads/2018/09/1-7-1.jpg">
+                    <img id="logo" src="https://shoclef-android-apk.s3.amazonaws.com/Square%403x.png">
                 </div>
                 <div style="float: right;">
                     <h2 id="invoice_log"><b>INVOICE</b></h2>
                     <div id="order_summary">
                         <div class="order_summary_item">
                             <p>Order Date:</p>
-                            <p>${orderDetails.orderDate ? orderDetails.orderDate : 'unknown'}</p>
+                            <p>${orderDetails.orderDate ? orderDetails.orderDate : 'N/A'}</p>
                         </div>
                         <div class="order_summary_item">
                             <p>Order #:</p>
@@ -322,7 +322,7 @@ module.exports = async (orderDetails) => {
             <div id="shipping_address">
                 <h2>Shipping Address</h2>
                 <div>
-                    <p><b>${orderDetails.shipping_address.client_name ? orderDetails.shipping_address.client_name : 'unknown'}</b></p>
+                    <p><b>${orderDetails.shipping_address.client_name ? orderDetails.shipping_address.client_name : 'N/A'}</b></p>
                     <p>${orderDetails.shipping_address.street ? orderDetails.shipping_address.street : ''}</p>
                     <p>${orderDetails.shipping_address.city ? orderDetails.shipping_address.city : ''}</p>
                     <p>${orderDetails.shipping_address.state ? orderDetails.shipping_address.state : ''}</p>
@@ -371,7 +371,7 @@ module.exports = async (orderDetails) => {
             
             <div id="price_summary">
                 <div class="price_summary_item">
-                    <p>Items: </p>
+                    <p>Items: </p>  
                     <p>${orderDetails.price_summary.items.formatted}</p>
                 </div>
                 <div class="price_summary_item">
@@ -399,7 +399,7 @@ module.exports = async (orderDetails) => {
   const page = await browser.newPage();
   await page.setContent(pdfTemplate);
   const invoicePDF = await page.pdf({
-    path: 'invoice.pdf',
+    // path: 'invoice.pdf',
     format: 'A4',
     margin: {
       top: '2cm',
