@@ -108,7 +108,7 @@ class ProductRepository {
   }
 
   async findDuplicate(data) {
-    return this.model.find({
+    return this.model.findOne({
       title: data.title,
       description: data.description,
       price: data.price,
@@ -149,7 +149,7 @@ class ProductRepository {
     // avoid duplicate if title, description, and price are exactly the same
     const existing = await this.findDuplicate(data);
 
-    if (existing && existing.length > 0) {
+    if (existing) {
       return existing;
     } else {
       const product = new this.model(data);

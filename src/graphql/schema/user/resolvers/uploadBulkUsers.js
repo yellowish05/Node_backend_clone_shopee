@@ -188,7 +188,7 @@ module.exports = async (_, { path }) => {
                     zipCode: user.billing_address_zipcode,
                     addressId: `adr_${addressId}`
                 },
-                workInMarketTypes: user.workInMarketTypes
+                // workInMarketTypes: user.workInMarketTypes
             }
 
             organization = await new Promise((resolve) => {
