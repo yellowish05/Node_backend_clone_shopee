@@ -178,72 +178,63 @@ const addProduct = async (product, index) => {
     }
 
     try {
-        // let attributeNames = product.attributeNames.split('|');
-        // let attributeValues = product.attributeValues.split('|');
-        // let prices = product.variationPrices.split('|');
-        // let oldPrices = product.variationOldPrices.split('|');
-
-        // let colors = attributeValues[0].split("-");
-        // let sizes = attributeValues[1].split("-");
-
-        // for (let i = 0; i < colors.length; i++) {
-        //     let pricesByColor = prices.split("-");
-        //     let oldPricesByColor = oldPrices.split("-");
-        //     for (let j = 0; j < sizes.length; j++) {
-        //         let variationIds = new Array();
-        //         variationIds.push(variationArr[colors[i]]);
-        //         variationIds.push(variationArr[sizes[j]]);
-        //         let price = pricesByColor[j];
-        //         let oldPrice = oldPricesByColor[j];
-
-        //         product.variations.push({
-        //             variation: variationIds,
-        //             price: price,
-        //             oldPrice: oldPrice
-        //         })
-        //     }
-        // }
-
-        // product.variations = await promise.map(product.variations, (variation) => {
-        //     return repository.productVariationPrice.addVariationPrice(variation).then(res => res.id);
-        // });
-
         product.attrs = [];
 
-        const colors = product.colors.split("|");
-        const sizes = product.sizes.split("|");
-        const prices = product.variationPrices.split('|');
-        const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
-        const quantity = product.variationQuantity.split('|')
+        const attributeNames = product.attributeNames.split(";");
+        const attributeValues = product.attributeValues.split(";");
 
-        for (let i = 0; i < colors.length; i++) {
-            let pricesByColor = prices[i].split("-");
-            let oldPricesByColor = oldPrices[i].split("-");
-            let quantityByColor = quantity[i].split("-");
-            for (let j = 0; j < sizes.length; j++) {
-                if (pricesByColor[j] != "") {
-                    const attributeData = {
-                        color: colors[i],
-                        size: sizes[j],
-                        price: parseInt(pricesByColor[j]),
-                        discountPrice: parseInt(oldPricesByColor[j]),
-                        currency: product.currency,
-                        quantity: parseInt(quantityByColor[j]),
-                        productId: product._id
-                    };
-    
-                    product.attrs.push(attributeData);
-                }
+        for (let i = 0; i < attributeValues.length; i++) {
+            const oneValue = attributeValues[i].split("|");
+            const attributeData = {};
+
+            if (oneValue.length < 3) continue;
+
+            attributeData["variation"] = {};
+            for (let j = 0; j < oneValue.length - 3; j++) {
+                attributeData["variation"][attributeNames[j]] = oneValue[j]; // set attributes
             }
+            attributeData["price"] = oneValue[oneValue.length - 3];
+            attributeData["oldPrice"] = oneValue[oneValue.length - 2];
+            attributeData["quantity"] = oneValue[oneValue.length - 1];
+            attributeData["currency"] = product.currency;
+            attributeData["productId"] = product._id;
+
+            product.attrs.push(attributeData);
         }
+
+        // const colors = product.colors.split("|");
+        // const sizes = product.sizes.split("|");
+        // const prices = product.variationPrices.split('|');
+        // const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
+        // const quantity = product.variationQuantity.split('|')
+
+        // for (let i = 0; i < colors.length; i++) {
+        //     let pricesByColor = prices[i].split("-");
+        //     let oldPricesByColor = oldPrices[i].split("-");
+        //     let quantityByColor = quantity[i].split("-");
+        //     for (let j = 0; j < sizes.length; j++) {
+        //         if (pricesByColor[j] != "") {
+        //             const attributeData = {
+        //                 color: colors[i],
+        //                 size: sizes[j],
+        //                 price: parseInt(pricesByColor[j]),
+        //                 discountPrice: parseInt(oldPricesByColor[j]),
+        //                 currency: product.currency,
+        //                 quantity: parseInt(quantityByColor[j]),
+        //                 productId: product._id
+        //             };
+    
+        //             product.attrs.push(attributeData);
+        //         }
+        //     }
+        // }
  
         product.attrs = await promise.map(product.attrs, (attr) => {
-            return repository.productAttributes.findOrCreate(attr).then(res => res.id);
+            return repository.productAttributes.findOrCreate(attr).then(res => res.id).catch(err => console.log(err));
         });
     } catch(error) {
         console.log("error occured while add variationPrice", error);
     }
-
 
     const inventoryLog = {
         _id: uuid(),
@@ -427,22 +418,10 @@ const loopProductRows = async (rows, header) => {
                 organization = null;
             }
 
-            try {
-                variations = {
-                    names: product.attributeNames,
-                    values: product.attributeValues,
-                    price: product.variationPrices,
-                    oldPrice: product.variationOldPrices
-                }
-            } catch (error) {
-                variations = null;
-            }
-
             await pushShippingBoxes(shippingBoxProperties);
             await pushBrands(product.brand_name);
             await pushProducts(product);
             await pushOrganizations(organization);
-            // await pushVariations(variations);
         }
     }
 }
