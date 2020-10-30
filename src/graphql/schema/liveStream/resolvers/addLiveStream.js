@@ -72,9 +72,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       let sources = [];
 
-      if(args.data.liveStreamRecord)
+      if(args.data.liveStreamRecord.length > 0)
       {
-        sources.push(await getlivestreamsource(user,args.data.liveStreamRecord,repository));
+        await Promise.all(
+          args.data.liveStreamRecord.map(async (recordItem) => {
+            sources.push(await getlivestreamsource(user, recordItem, repository));
+          })
+        );
       }
       else
       {
@@ -86,12 +90,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const channel = {
         _id: channelId,
         type: StreamChannelType.BROADCASTING,
-        finishedAt:args.data.liveStreamRecord?finisheddate:null,
-        startedAt:args.data.liveStreamRecord?starteddate:null,
-        status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
+        finishedAt:args.data.liveStreamRecord.length > 0?finisheddate:null,
+        startedAt:args.data.liveStreamRecord.length > 0?starteddate:null,
+        status: args.data.liveStreamRecord.length > 0?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         record: {
           enabled: true,
-          status: args.data.liveStreamRecord?StreamRecordStatus.FINISHED:StreamRecordStatus.PENDING,
+          status: args.data.liveStreamRecord.length > 0?StreamRecordStatus.FINISHED:StreamRecordStatus.PENDING,
           sources:sources
         },
       };
@@ -126,12 +130,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }).catch((error) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
-
+console.log("channel =>", streamChannel);
       return repository.liveStream.create({
         _id,
         streamer: user,
         title: args.data.title,
-        status: args.data.liveStreamRecord?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
+        status: args.data.liveStreamRecord.length > 0?StreamChannelStatus.FINISHED:StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
         city:args.data.city,
