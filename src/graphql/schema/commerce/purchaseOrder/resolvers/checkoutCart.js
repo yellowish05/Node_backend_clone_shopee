@@ -30,7 +30,8 @@ module.exports = async function checkoutCart(
     if(result.paymentClientSecret)
       order.paymentClientSecret = result.paymentClientSecret
 
-    return order;
+    order.deliveryOrders = null
+    return repository.purchaseOrder.update(order)
   })
   .then(async (order) => {
     cartItems.map(async (item) => {

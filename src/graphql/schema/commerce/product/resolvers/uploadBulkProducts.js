@@ -26,10 +26,10 @@ let variationArr;
 const getDataFromCsv = async (params) => {
     const csv = await new Promise((resolve, reject) => {
         s3.getObject(params, async (err, data) => {
-            const dataRes = await data.Body.toString("UTF-8").split('\n');
             if (err)
                 reject(err);
 
+            const dataRes = await data.Body.toString("UTF-8");
             resolve(dataRes);
         });
     })
@@ -99,16 +99,20 @@ const addProduct = async (product, index) => {
     }
 
     product.weight = {
-        value: parseInt(product.weightValue),
+        // value: parseInt(product.weightValue),
+        value: parseFloat(product.weightValue),
         unit: product.weightUnit
     }
 
     const shippingBoxProperties = {
         label: product.shippingBoxName || "medium",
         owner: product.seller,
-        width: parseInt(product.shippingBoxWidth),
-        height: parseInt(product.shippingBoxHeight),
-        length: parseInt(product.shippingBoxLength),
+        // width: parseInt(product.shippingBoxWidth),
+        // height: parseInt(product.shippingBoxHeight),
+        // length: parseInt(product.shippingBoxLength),
+        width: parseFloat(product.shippingBoxWidth),
+        height: parseFloat(product.shippingBoxHeight),
+        length: parseFloat(product.shippingBoxLength),
         weight: product.weight.value,
         unit: product.weight.unit,
         unitWeight: product.unitWeight || "OUNCE"
@@ -178,72 +182,63 @@ const addProduct = async (product, index) => {
     }
 
     try {
-        // let attributeNames = product.attributeNames.split('|');
-        // let attributeValues = product.attributeValues.split('|');
-        // let prices = product.variationPrices.split('|');
-        // let oldPrices = product.variationOldPrices.split('|');
-
-        // let colors = attributeValues[0].split("-");
-        // let sizes = attributeValues[1].split("-");
-
-        // for (let i = 0; i < colors.length; i++) {
-        //     let pricesByColor = prices.split("-");
-        //     let oldPricesByColor = oldPrices.split("-");
-        //     for (let j = 0; j < sizes.length; j++) {
-        //         let variationIds = new Array();
-        //         variationIds.push(variationArr[colors[i]]);
-        //         variationIds.push(variationArr[sizes[j]]);
-        //         let price = pricesByColor[j];
-        //         let oldPrice = oldPricesByColor[j];
-
-        //         product.variations.push({
-        //             variation: variationIds,
-        //             price: price,
-        //             oldPrice: oldPrice
-        //         })
-        //     }
-        // }
-
-        // product.variations = await promise.map(product.variations, (variation) => {
-        //     return repository.productVariationPrice.addVariationPrice(variation).then(res => res.id);
-        // });
-
         product.attrs = [];
 
-        const colors = product.colors.split("|");
-        const sizes = product.sizes.split("|");
-        const prices = product.variationPrices.split('|');
-        const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
-        const quantity = product.variationQuantity.split('|')
+        const attributeNames = product.attributeNames.split(";");
+        const attributeValues = product.attributeValues.split(";");
 
-        for (let i = 0; i < colors.length; i++) {
-            let pricesByColor = prices[i].split("-");
-            let oldPricesByColor = oldPrices[i].split("-");
-            let quantityByColor = quantity[i].split("-");
-            for (let j = 0; j < sizes.length; j++) {
-                if (pricesByColor[j] != "") {
-                    const attributeData = {
-                        color: colors[i],
-                        size: sizes[j],
-                        price: parseInt(pricesByColor[j]),
-                        discountPrice: parseInt(oldPricesByColor[j]),
-                        currency: product.currency,
-                        quantity: parseInt(quantityByColor[j]),
-                        productId: product._id
-                    };
-    
-                    product.attrs.push(attributeData);
-                }
+        for (let i = 0; i < attributeValues.length; i++) {
+            const oneValue = attributeValues[i].split("|");
+            const attributeData = {};
+
+            if (oneValue.length < 3) continue;
+
+            attributeData["variation"] = {};
+            for (let j = 0; j < oneValue.length - 3; j++) {
+                attributeData["variation"][attributeNames[j]] = oneValue[j]; // set attributes
             }
+            attributeData["price"] = oneValue[oneValue.length - 3];
+            attributeData["oldPrice"] = oneValue[oneValue.length - 2];
+            attributeData["quantity"] = oneValue[oneValue.length - 1];
+            attributeData["currency"] = product.currency;
+            attributeData["productId"] = product._id;
+
+            product.attrs.push(attributeData);
         }
+
+        // const colors = product.colors.split("|");
+        // const sizes = product.sizes.split("|");
+        // const prices = product.variationPrices.split('|');
+        // const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
+        // const quantity = product.variationQuantity.split('|')
+
+        // for (let i = 0; i < colors.length; i++) {
+        //     let pricesByColor = prices[i].split("-");
+        //     let oldPricesByColor = oldPrices[i].split("-");
+        //     let quantityByColor = quantity[i].split("-");
+        //     for (let j = 0; j < sizes.length; j++) {
+        //         if (pricesByColor[j] != "") {
+        //             const attributeData = {
+        //                 color: colors[i],
+        //                 size: sizes[j],
+        //                 price: parseInt(pricesByColor[j]),
+        //                 discountPrice: parseInt(oldPricesByColor[j]),
+        //                 currency: product.currency,
+        //                 quantity: parseInt(quantityByColor[j]),
+        //                 productId: product._id
+        //             };
+    
+        //             product.attrs.push(attributeData);
+        //         }
+        //     }
+        // }
  
         product.attrs = await promise.map(product.attrs, (attr) => {
-            return repository.productAttributes.findOrCreate(attr).then(res => res.id);
+            return repository.productAttributes.findOrCreate(attr).then(res => res.id).catch(err => console.log(err));
         });
     } catch(error) {
         console.log("error occured while add variationPrice", error);
     }
-
 
     const inventoryLog = {
         _id: uuid(),
@@ -350,100 +345,91 @@ const pushVariations = async (variations) => {
 }
 
 const csvGetRecord = (text) => {
-    let ret = [''], i = 0, p = '', s = true;
-    for (let l in text) {
-        l = text[l];
+    let p = '', row = [''], ret = [row], i = 0, r = 0, s = !0, l;
+    for (l of text) {
         if ('"' === l) {
+            if (s && l === p) row[i] += l;
             s = !s;
-            if ('"' === p) {
-                ret[i] += '"';
-                l = '-';
-            } else if ('' === p)
-                l = '-';
-        } else if (s && ',' === l)
-            l = ret[++i] = '';
-        else
-            ret[i] += l;
+        } else if (',' === l && s) l = row[++i] = '';
+        else if ('\n' === l && s) {
+            if ('\r' === p) row[i] = row[i].slice(0, -1);
+            row = ret[++r] = [l = '']; i = 0;
+        } else row[i] += l;
         p = l;
     }
     return ret;
 }
 
-const loopProductRows = async (rows, header) => {
+const loopProductRows = async (csv) => {
+    const csvRows = csvGetRecord(csv);
+    let [header, ...rows] = csvRows;
+    
     let index = 0;
     for (const row of rows) {
+        if (row.length <= 1)
+            continue;
+        
         index++;
-        if (row !== "") {
-            const columns = csvGetRecord(row);
-            let product = {};
+        let product = {};
 
-            await columns.forEach((column, colIndex) => {
-                product[header[colIndex]] = column.trim();
+        await row.forEach((column, colIndex) => {
+            product[header[colIndex]] = column.trim();
+        })
+
+        const email = product.email ? product.email.toLowerCase() : 'null';
+        product.seller = await new Promise((resolve) => {
+            return repository.user.findByEmail(email).then(res => {
+                resolve(res._id || res);
+            }).catch(err => {
+                failedParsing.push(`While reading the csv could not find seller ${index}`);
+                resolve(undefined);
             })
+        })
 
-            const email = product.email ? product.email.toLowerCase() : 'null';
-            product.seller = await new Promise((resolve) => {
-                return repository.user.findByEmail(email).then(res => {
-                    resolve(res._id || res);
-                }).catch(err => {
-                    failedParsing.push(`While reading the csv could not find seller ${index}`);
-                    resolve(undefined);
-                })
-            })
-
-            product.weight = {
-                value: product.weightValue,
-                unit: product.weightUnit
-            }
-
-            let shippingBoxProperties
-            let organization
-            let variations
-
-            try {
-                if (!product.seller)
-                    throw err;
-
-                shippingBoxProperties = {
-                    label: product.shippingBoxName || "medium",
-                    owner: product.seller,
-                    width: parseInt(product.shippingBoxWidth),
-                    height: parseInt(product.shippingBoxHeight),
-                    length: parseInt(product.shippingBoxLength),
-                    weight: parseInt(product.weight.value),
-                    unit: product.unit,
-                    unitWeight: product.unitWeight || "OUNCE"
-                }
-            } catch (error) {
-                failedParsing.push("Couldn't parse shippingBox properties");
-            }
-
-            try {
-                organization = {
-                    owner: product.seller,
-                    customCarrier: product.customCarrier
-                }
-            } catch (error) {
-                organization = null;
-            }
-
-            try {
-                variations = {
-                    names: product.attributeNames,
-                    values: product.attributeValues,
-                    price: product.variationPrices,
-                    oldPrice: product.variationOldPrices
-                }
-            } catch (error) {
-                variations = null;
-            }
-
-            await pushShippingBoxes(shippingBoxProperties);
-            await pushBrands(product.brand_name);
-            await pushProducts(product);
-            await pushOrganizations(organization);
-            // await pushVariations(variations);
+        product.weight = {
+            value: product.weightValue,
+            unit: product.weightUnit
         }
+
+        let shippingBoxProperties
+        let organization
+        let variations
+
+        try {
+            if (!product.seller)
+                throw err;
+
+            shippingBoxProperties = {
+                label: product.shippingBoxName || "medium",
+                owner: product.seller,
+                // width: parseInt(product.shippingBoxWidth),
+                // height: parseInt(product.shippingBoxHeight),
+                // length: parseInt(product.shippingBoxLength),
+                // weight: parseInt(product.weight.value),
+                width: parseFloat(product.shippingBoxWidth),
+                height: parseFloat(product.shippingBoxHeight),
+                length: parseFloat(product.shippingBoxLength),
+                weight: parseFloat(product.weight.value),
+                unit: product.unit,
+                unitWeight: product.unitWeight || "OUNCE"
+            }
+        } catch (error) {
+            failedParsing.push("Couldn't parse shippingBox properties");
+        }
+
+        try {
+            organization = {
+                owner: product.seller,
+                customCarrier: product.customCarrier
+            }
+        } catch (error) {
+            organization = null;
+        }
+
+        await pushShippingBoxes(shippingBoxProperties);
+        await pushBrands(product.brand_name);
+        await pushProducts(product);
+        await pushOrganizations(organization);
     }
 }
 
@@ -465,10 +451,7 @@ module.exports = async (_, { fileName, bucket }) => {
         .then(res => res)
         .catch(err => err);
 
-    let [header, ...rows] = csv;
-    header = header.trim().split(',');
-
-    await loopProductRows(rows, header);
+    await loopProductRows(csv);
 
     const uniqueShippingBoxes = lodash.uniqWith(shippingBoxesCollection, lodash.isEqual);
     const uniqueBrands = lodash.uniqWith(brands, lodash.isEqual);
@@ -502,10 +485,10 @@ module.exports = async (_, { fileName, bucket }) => {
         return repository.shippingBox.findOrAdd({
             label: item.label,
             owner: item.owner,
-            width: item.width,
-            height: item.height,
-            length: item.length,
-            weight: item.weight,
+            width: item.width | 1.0,
+            height: item.height | 1.0,
+            length: item.length | 1.0,
+            weight: item.weight | 1.0,
             unit: item.unit,
             unitWeight: item.unitWeight
         }).then(res => {

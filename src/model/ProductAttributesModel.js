@@ -8,13 +8,8 @@ const collectionName = 'ProductAttributes';
 const schema = new Schema({
     ...uuidField(collectionName),
     ...createdAtField,
-    color: {
-      type: String,
-      required: true,
-      index: true,
-    },
-    size: {
-      type: String,
+    variation: {
+      type: Object,
       required: true,
       index: true,
     },
