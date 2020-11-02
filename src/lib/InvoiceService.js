@@ -109,13 +109,20 @@ module.exports.InvoiceService = {
         city: user.address.city,
         state: user.address.region,
         country: user.address.country,
+        phone: user.phone,
+        email: user.email,
       },
       payment_info: {
         payment_method: {
           type: paymentIntent.charges.data[0].payment_method_details.type,
           details: paymentIntent.charges.data[0].payment_method_details.type == 'card' ? paymentIntent.charges.data[0].payment_method_details.card : null,
         },
-        billing_address: paymentIntent.charges.data[0].billing_details.address,
+        billing_address: {
+          ...paymentIntent.charges.data[0].billing_details.address,
+          name: paymentIntent.charges.data[0].billing_details.name,
+          email: paymentIntent.charges.data[0].billing_details.email,
+          phone: paymentIntent.charges.data[0].billing_details.phone,
+        },
       },
       items,
       price_summary: {
@@ -146,5 +153,9 @@ module.exports.InvoiceService = {
         throw new Error(error);
       });
     return `${cdn.appAssets}/${key}`;
+  },
+
+  async getSalesOrderDetails(orderID) {
+
   },
 };
