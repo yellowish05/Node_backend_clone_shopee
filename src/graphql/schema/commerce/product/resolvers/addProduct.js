@@ -23,6 +23,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:9,1',
+    thumbnailId: "required"
   }, {
     'assets.length': "You can not upload more than 9 images!"
   });
@@ -31,8 +32,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
     repository.shippingBox.findOne(provider.inputs.shippingBox),
-  ])
-    .then(([category, brand, shippingBox, customCarrier]) => {
+    repository.asset.load(provider.inputs.thumbnailId)
+  ]).then(([category, brand, shippingBox, thumbnail]) => {
       if (!category) {
         provider.error('category', 'custom', `Category with id "${provider.inputs.category}" does not exist!`);
       }
@@ -44,7 +45,15 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       if (!shippingBox) {
         provider.error('shippingBox', 'custom', `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
       }
-    }));
+      if (!thumbnail) {
+        provider.error(
+          "thumbnailId",
+          "custom",
+          `Asset with id "${provider.inputs.thumbnailId}" does not exist!`
+        );
+      }
+    })
+  );
 
   return validator.check()
     .then(async (matched) => {
@@ -63,10 +72,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const productId = uuid();
       const inventoryId = uuid();
 
-      const {
-        quantity, price, discountPrice, ...productData
-      } = data;
-      
+      const { quantity, price, discountPrice, thumbnailId, ...productData } = data;
+
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
@@ -76,6 +83,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
+      productData.thumbnail = thumbnailId;
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
       
       // options

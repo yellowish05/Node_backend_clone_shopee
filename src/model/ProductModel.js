@@ -46,6 +46,10 @@ const schema = new Schema({
     type: String,
     ref: 'Asset',
   }],
+  thumbnail: {
+    type: String,
+    ref: 'Asset',
+  },
   category: {
     type: String,
     ref: 'ProductCategory',
