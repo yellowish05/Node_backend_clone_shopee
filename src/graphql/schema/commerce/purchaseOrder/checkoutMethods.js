@@ -70,7 +70,7 @@ module.exports = {
   async createOrder({
     cartItems, currency, buyerId,
   }, repository) {
-    console.log("cartItems => ", cartItems);
+    console.log("cartItems => ", cartItems); 
     const factory = new OrderFactory(cartItems, currency);
 
     const orderItems = await factory.createOrderItems()
@@ -91,7 +91,23 @@ module.exports = {
 
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 
-    return repository.purchaseOrder.create(order);
+    const purchaseOrder = repository.purchaseOrder.create(order);
+    await createSaleOrders({orderItems, deliveryOrders, cartItems, currency, buyerId}, repository);
+    return purchaseOrder;
+  },
+
+  async createSaleOrders({orderItems, deliveryOrders, cartItems, currency, buyerId}, repository) {
+    var saleOrderData = [];
+
+    saleOrderData.map((saleOrderItem) => {
+      var factory = new OrderFactory(saleOrderItem.cartItems, currency);
+      var order = factory.createOrder();
+      order.buyer = buyerId;
+      order.deliveryOrders = saleOrderItem.deliveryOrders;
+      order.items = saleOrderItem.orderItems;
+      order.seller = saleOrderItem.seller;
+      
+    })
   },
 
   async clearUserCart(userId, repository) {
