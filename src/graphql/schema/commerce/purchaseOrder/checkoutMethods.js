@@ -70,6 +70,7 @@ module.exports = {
   async createOrder({
     cartItems, currency, buyerId,
   }, repository) {
+    console.log("cartItems => ", cartItems);
     const factory = new OrderFactory(cartItems, currency);
 
     const orderItems = await factory.createOrderItems()
@@ -94,6 +95,6 @@ module.exports = {
   },
 
   async clearUserCart(userId, repository) {
-    return repository.userCartItem.clear(userId);
+    // return repository.userCartItem.clear(userId);
   },
 };

@@ -1,0 +1,42 @@
+{
+    quantity: 2,
+    _id: 'b5a398b2-02cc-4a6b-9412-a87af3be18a8',
+    product: {
+      assets: [Array],
+      freeDeliveryTo: [],
+      isDeleted: false,
+      attrs: [],
+      _id: '0005c866-fa9b-4d2d-8d39-7338a9c56338',
+      title: 'Cooking-Machine Non-Stick-Pan Electric-Rice-Cooker Hot-Pot Multifunction Mini 220V Available',
+      description: 'Brand Name: Artence, Certification: CE / EU, Function: Fry, Pot Bottom Material: Compound Multi-layer Bottom, Power: Other, Voltage: 220V, Material: STAINLESS STEEL,',
+      currency: 'USD',
+      price: 2043,
+      oldPrice: 2500,
+      quantity: null,
+      customCarrier: '51cd6f40-728c-4f63-8dca-64ded22149d8',
+      customCarrierValue: 625,
+      seller: '9d401977-9734-4405-8fe2-a0800d5074cf',
+      category: '0732af22-62f2-437f-bd37-8781ac6f4930',
+      brand: '12f70077-68ec-4e37-bc67-64164edabf1f',
+      shippingBox: 'f8dd14ab-b0a9-446d-bf58-2bc3bccc8501',
+      createdAt: 2020-08-22T00:52:32.426Z,
+      __v: 1,
+      sortPrice: 2043
+    },
+    deliveryRate: {
+      _id: '1695a68f-637e-4c85-9fc4-3a95e909b591',
+      carrier: 'dd6abfa2-bf72-4195-9c0d-09802b03a26c',
+      deliveryAddress: 'cc76b0a7-82c7-4eb2-a24d-953c4e2fe365',
+      rate_id: null,
+      deliveryDays: null,
+      estimatedDeliveryDate: null,
+      amount: 1000,
+      currency: 'USD',
+      createdAt: 2020-09-04T21:33:30.593Z,
+      __v: 0
+    },
+    user: '1b64a01e-9161-45a5-ad2c-094213f6cfaf',
+    createdAt: 2020-10-27T14:57:54.114Z,
+    __v: 0
+  }
+]

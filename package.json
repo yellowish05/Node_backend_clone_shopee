@@ -84,7 +84,7 @@
     "redis": "^3.0.2",
     "request": "^2.88.0",
     "require-dir": "^1.2.0",
-    "reverse-md5": "0.0.4",
+    "reverse-md5": "^0.0.4",
     "s3-upload-stream": "^1.0.7",
     "stripe": "^7.14.0",
     "uuid": "^3.3.3",
