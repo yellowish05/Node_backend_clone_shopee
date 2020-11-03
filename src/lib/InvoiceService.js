@@ -9,6 +9,8 @@ const { payment: { providers: { stripe } } } = require(path.resolve('config'));
 const provider = require('stripe')(stripe.secret);
 
 const invoiceTemplate = require(path.resolve('src/view/invoiceTemplate'));
+const packingTemplate = require(path.resolve('src/view/packingTemplate'));
+
 const AWS = require('aws-sdk');
 
 const { aws, cdn } = require(path.resolve('config'));
@@ -155,7 +157,24 @@ module.exports.InvoiceService = {
     return `${cdn.appAssets}/${key}`;
   },
 
+  async createPackingSlip(orderDetails) {
+    const html = await packingTemplate(orderDetails);
+    const id = uuid();
+    const key = `packingSlip/${id}.pdf`;
+    await Promise.all([s3.putObject({
+      Bucket: aws.app_bucket,
+      Key: key,
+      Body: html,
+    }).promise(),
+    // repository.purchaseOrder.addPackingSlip(orderDetails.orderID, `${cdn.appAssets}/${key}`),
+    ])
+      .then(() => `${cdn.appAssets}/${key}`)
+      .catch((error) => {
+        throw new Error(error);
+      });
+    return `${cdn.appAssets}/${key}`;
+  },
   async getSalesOrderDetails(orderID) {
-
+    return orderID;
   },
 };

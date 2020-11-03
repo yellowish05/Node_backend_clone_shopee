@@ -7,14 +7,19 @@ const morgan = require('morgan');
 const logger = require('../config/logger');
 const repository = require('./repository');
 const { AgoraService } = require('./lib/AgoraService');
+
 const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
 const viewersRouters = require('./viewers');
+
 const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 
-var multiparty = require('connect-multiparty');
+const multiparty = require('connect-multiparty');
+
+const multipartymiddleware = multiparty();
+
 const fs = require('fs');
 
 process.on('SIGINT', () => {
@@ -31,28 +36,33 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/invoice', async (req, res) => {
-  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID)
-  const invoicePDF = await InvoiceService.createInvoicePDF(orderDetails)
-  res.status(200).send(invoicePDF)
-})
+  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID);
+  const invoicePDF = await InvoiceService.createInvoicePDF(orderDetails);
+  res.status(200).send(invoicePDF);
+});
+
+app.post('/packing', async (req, res) => {
+  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID);
+  const invoicePDF = await InvoiceService.createPackingSlip(orderDetails);
+  res.status(200).send(invoicePDF);
+});
 
 app.use('/webhooks', webhookRouters);
 app.use('/viewers', viewersRouters);
-var multipartymiddleware = multiparty();
-app.route('/upload').post(multipartymiddleware, function (req, res) {
-  let file = req.files.file;
-  fs.readFile(file.path, function (err, data) {
-    AgoraService.upload(data, function (location) {
+app.route('/upload').post(multipartymiddleware, (req, res) => {
+  const { file } = req.files;
+  fs.readFile(file.path, (err, data) => {
+    AgoraService.upload(data, (location) => {
       res.send(location);
-      fs.unlink(file.path, function (err) {
+      fs.unlink(file.path, (err) => {
         console.log('Temp File Deleted');
-      })
-      //AgoraService.publish(location);
-    })
-  })
-})
+      });
+      // AgoraService.publish(location);
+    });
+  });
+});
 
-app.use('/terms_conditions', express.static('terms_conditions'))
+app.use('/terms_conditions', express.static('terms_conditions'));
 
 app.use(cors({
   origin: corsDomain,
@@ -60,13 +70,13 @@ app.use(cors({
 }));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Origin', '*');
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, x-timebase"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, x-timebase',
   );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
     return res.status(200).json({});
   }
   next();

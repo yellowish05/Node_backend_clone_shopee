@@ -63,11 +63,22 @@ class PurchaseOrderRepository {
     return purchaseOrder.save();
   }
 
-  async getInvoicePDF(id) {
+  async addPackingSlip(id, url) {
     const purchaseOrder = await this.getById(id);
+    purchaseOrder.packingSlips.push(url);
 
-    return purchaseOrder.invoicePDF;
+    return purchaseOrder.save();
   }
+
+  // async getInvoicePDF(id) {
+  //   const purchaseOrder = await this.getById(id);
+
+  //   return purchaseOrder.invoicePDF;
+  // }
+
+  // async getPackingSlips(id) {
+
+  // }
 }
 
 module.exports = PurchaseOrderRepository;
