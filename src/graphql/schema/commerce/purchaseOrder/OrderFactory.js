@@ -75,6 +75,11 @@ class OrderFactory {
     this.purchaseOrder = null;
   }
 
+  setProperties(orderItems, deliveryOrders) {
+    this.purchaseItems = orderItems;
+    this.deliveryOrders = deliveryOrders;
+  }
+
   async createOrderItems() {
     return Promise.all(
       this.cartItems.map((cartItem) => createOrderItem(cartItem, this.currency)),

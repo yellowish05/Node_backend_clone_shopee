@@ -21,14 +21,15 @@ class ProductAttributesRepository {
 
     async findDuplicate(data) {
         return this.model.find({
-            variation: data.variation,
+            color: data.color,
+            size: data.size,
             productId: data.productId
         });
     }
 
-    async getByAttr(productId, variation) {
-        if (Object.keys(variation).length === 0 )
-            return this.model.findOne({ productId, variation });
+    async getByAttr(productId, color, size) {
+        if (color != "" && size != "")
+            return this.model.findOne({ productId, color, size });
         return null;
     }
   
@@ -38,9 +39,7 @@ class ProductAttributesRepository {
             // throw Error(`"${path}" does not exist!`);
             return null;
         }
-
         attribute.productId = productId;
-
         return attribute.save();
     }
 
