@@ -1,6 +1,48 @@
 const { UserInputError } = require('apollo-server');
 const OrderFactory = require('./OrderFactory');
 
+const createSaleOrders = async ({orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder}, repository) => {
+  var saleOrderData = [];
+  // group by using seller 
+  for (var i = 0; i < cartItems.length; i++) {
+    var saleOrderItem = {
+      seller: "",
+      cartItems: [],
+      orderItems: [],
+      deliveryOrders: []
+    };
+    saleOrderItem.seller = cartItems[i].product.seller;
+    saleOrderItem.cartItems.push(cartItems[i]);
+    saleOrderItem.orderItems.push(orderItems[i]);
+    saleOrderItem.deliveryOrders.push(deliveryOrders[i]);
+    for (var j = i + 1; j < cartItems.length; j++) {
+      if (saleOrderItem.seller == cartItems[j].product.seller) {
+        saleOrderItem.cartItems.push(cartItems[j]);
+        saleOrderItem.orderItems.push(orderItems[j]);
+        saleOrderItem.deliveryOrders.push(deliveryOrders[j]);
+        cartItems.splice(j, 1);
+        orderItems.splice(j, 1);
+        deliveryOrders.splice(j, 1);
+        j = j - 1;
+      }
+    }
+    saleOrderData.push(saleOrderItem);
+  }
+
+  saleOrderData.map(async (saleOrderItem) => {
+    var factory = new OrderFactory(saleOrderItem.cartItems, currency);
+    factory.setProperties(saleOrderItem.orderItems, saleOrderItem.deliveryOrders);    
+    var order = factory.createOrder();
+    order.buyer = buyerId;
+    order.deliveryOrders = saleOrderItem.deliveryOrders;
+    order.items = saleOrderItem.orderItems.map((item) => item.id);
+    order.seller = saleOrderItem.seller;
+    order.purchaseOrder = purchaseOrder.id;
+
+    await repository.saleOrder.create(order);
+  })
+}
+
 module.exports = {
   async validateDeliveryAddress(id, repository) {
     return repository.deliveryAddress.getById(id)
@@ -47,7 +89,7 @@ module.exports = {
       repository.product.getById(productId),
       repository.deliveryRateCache.getById(deliveryRateId),
     ])
-      .then(([product, deliveryRate, productAttribute]) => ([{
+      .then(([product, deliveryRate]) => ([{
         product,
         deliveryRate,
         quantity,
@@ -90,7 +132,9 @@ module.exports = {
 
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 
-    return repository.purchaseOrder.create(order);
+    const purchaseOrder = await repository.purchaseOrder.create(order);
+    await createSaleOrders({orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder}, repository);
+    return purchaseOrder;
   },
 
   async clearUserCart(userId, repository) {
