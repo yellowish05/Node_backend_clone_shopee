@@ -24,7 +24,6 @@ const schema = gql`
       estimatedDeliveryDate: Date
       deliveryPrice: AmountOfMoney!
       deliveryAddress: DeliveryAddress!
-      logs: [DeliveryOrderLog]!
       proofPhoto: [Asset]
     }
 
@@ -44,6 +43,17 @@ const schema = gql`
       updateDeliveryOrder(id: ID!, data: UpdateDeliveryOrderInput!): DeliveryOrder! @auth(requires: USER)
   }
 `;
+// 10-29
+// type DeliveryOrder {
+//   id: ID!
+//   trackingNumber: String!
+//   status: DeliveryOrderStatus!
+//   estimatedDeliveryDate: Date
+//   deliveryPrice: AmountOfMoney!
+//   deliveryAddress: DeliveryAddress!
+//   logs: [DeliveryOrderLog]!
+//   proofPhoto: [Asset]
+// }
 
 module.exports.typeDefs = [schema];
 

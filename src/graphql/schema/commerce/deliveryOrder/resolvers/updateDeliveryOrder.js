@@ -51,8 +51,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
                 deliveryOrder.save()
             ])
               .then(async ([updatedDeliveryOrder]) => {
-                  
-                  return updatedDeliveryOrder;
+                // push notification
+                
+                return updatedDeliveryOrder;
               })
         });
 }

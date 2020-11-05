@@ -7,6 +7,7 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
+const setProductThumbnail = require('./resolvers/setProductThumbnail');
 const products = require('./resolvers/products');
 const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
 const previewBulkProducts = require('./resolvers/previewBulkProducts');
@@ -45,6 +46,7 @@ const schema = gql`
         oldPrice(currency: Currency): AmountOfMoney
         quantity: Int!
         assets: [Asset!]!
+        thumbnail: Asset
         attrs: [ProductAttribute]
         category: ProductCategory!
         # weight: Weight!
@@ -170,6 +172,7 @@ const schema = gql`
         freeDeliveryTo: [MarketType!]
         customCarrier: String
         customCarrierValue: Float
+        thumbnailId:  ID!
     }
 
     extend type Mutation {
@@ -191,7 +194,7 @@ const schema = gql`
         addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
-
+        setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
     }
 `;
@@ -210,6 +213,7 @@ module.exports.resolvers = {
     addProduct,
     updateProduct,
     deleteProduct,
+    setProductThumbnail,
     uploadBulkProducts,
     addProductAttr,
     updateProductAttr,
@@ -221,6 +225,9 @@ module.exports.resolvers = {
     ),
     assets: async ({ assets }, _, { dataSources: { repository } }) => (
       repository.asset.getByIds(assets)
+    ),
+    thumbnail: async ({ thumbnail: assetId }, _, { dataSources: { repository }}) => (
+      repository.asset.getById(assetId)
     ),
     category: async ({ category }, _, { dataSources: { repository } }) => (
       repository.productCategory.getById(category)
