@@ -54,8 +54,8 @@ const schema = new Schema({
   },
   packingslip: {
     type: String,
-    ref: 'Asset'
-  }
+    default: null,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

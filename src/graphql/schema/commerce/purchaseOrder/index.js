@@ -5,9 +5,10 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
+
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
-const LinePayConfirm  = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
+const LinePayConfirm = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
 
 const schema = gql`
     enum PurchaseOrderStatus {
@@ -57,7 +58,8 @@ const schema = gql`
 
     extend type Query {
         purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
-        purchaseOrder(id: ID!): PurchaseOrder  @auth(requires: USER)
+        purchaseOrder(id: ID!): PurchaseOrder
+        getInvoicePDF(id: ID!): String
     }
 
     extend type Mutation {
@@ -98,12 +100,16 @@ module.exports.resolvers = {
     purchaseOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.purchaseOrder.getById(id)
     ),
+
+    getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => (
+      repository.purchaseOrder.getInvoicePDF(id)
+    ),
   },
   Mutation: {
     checkoutCart,
     checkoutOneProduct,
     payPurchaseOrder,
-    LinePayConfirm, 
+    LinePayConfirm,
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (
