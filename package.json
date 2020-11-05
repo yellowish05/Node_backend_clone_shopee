@@ -92,6 +92,7 @@
     "uuid": "^3.3.3",
     "winston": "^3.2.1",
     "winston-cloudwatch": "^2.0.9",
+    "woocommerce-api": "^1.5.0",
     "zlib": "^1.0.5"
   },
   "devDependencies": {

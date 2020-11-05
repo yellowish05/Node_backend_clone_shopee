@@ -20,7 +20,7 @@ const addressSchema = new Schema({
     type: Boolean,
     default: false,
   },
-  description: String
+  description: String,
 }, { _id: false });
 
 module.exports = addressSchema;
