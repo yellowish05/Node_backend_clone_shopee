@@ -60,16 +60,20 @@ const schema = new Schema({
   },
   error: {
     type: String,
-    default: null
+    default: null,
   },
   publishableKey: {
     type: String,
-    default: null
+    default: null,
   },
   paymentClientSecret: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
+  invoicePDF: {
+    type: String,
+    default: null,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {
