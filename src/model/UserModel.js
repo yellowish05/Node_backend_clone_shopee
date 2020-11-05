@@ -86,10 +86,6 @@ const schema = new Schema({
     type: String,
     default: '',
   },
-  sku: {
-    type: Number,
-    default: null,
-  },
 });
 
 module.exports = new model(collectionName, schema);
