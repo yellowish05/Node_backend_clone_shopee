@@ -38,7 +38,7 @@ const schema = new Schema({
   },
   // xinhua-11-05
   sku: {
-    type: Number,
+    type: String,
     default: null,
   },
 });
