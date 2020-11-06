@@ -52,7 +52,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         } = data;
 
         discountPrice = data.discountPrice ? data.discountPrice : 0;
-
+        if (productData.sku && /[^0-9]/g.test(productData.sku)) {
+            console.log("asdfasdf");
+            throw new ForbiddenError('SKU must be number!');
+        }
         productData._id = productAttrId;
         productData.quantity = quantity;
         productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: data.currency }).getCentsAmount();
