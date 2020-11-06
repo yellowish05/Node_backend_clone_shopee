@@ -19,6 +19,19 @@ class ProductAttributesRepository {
         return this.model.find({ productId: id });
     }
 
+    // async findDuplicate(data) {
+    //     return this.model.find({
+    //         variation: data.variation,
+    //         productId: data.productId
+    //     });
+    // }
+
+    // async getByAttr(productId, variation) {
+    //     if (Object.keys(variation).length === 0 )
+    //         return this.model.findOne({ productId, variation });
+    //     return null;
+    // }
+    
     async findDuplicate(data) {
         return this.model.find({
             color: data.color,
@@ -39,9 +52,7 @@ class ProductAttributesRepository {
             // throw Error(`"${path}" does not exist!`);
             return null;
         }
-
         attribute.productId = productId;
-
         return attribute.save();
     }
 
@@ -54,17 +65,17 @@ class ProductAttributesRepository {
     }
 
     async findOrCreate(data) {
-        const attribute = await this.findDuplicate(data);
+        // const attribute = await this.findDuplicate(data);
 
-        if (attribute && attribute.length > 0) {
-            return attribute;
-        } else {
+        // if (attribute && attribute.length > 0) {
+        //     return attribute;
+        // } else {
             const productAttr = new this.model({
                 _id: uuid(),
                 ...data
             });
             return productAttr.save();
-        }
+        // }
     }
 }
 
