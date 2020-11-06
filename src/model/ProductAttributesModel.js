@@ -41,6 +41,12 @@ const schema = new Schema({
     type: String,
     default: null,
   },
+  color: {
+    type: String,
+  },
+  size: {
+    type: String,
+  },
 });
 
 schema.indexes([
