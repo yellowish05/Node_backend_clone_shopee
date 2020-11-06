@@ -15,7 +15,7 @@ const schema = gql`
         """ Collected status """
         status: SaleOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ Address for ship products """

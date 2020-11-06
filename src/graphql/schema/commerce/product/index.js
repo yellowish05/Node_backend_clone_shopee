@@ -115,6 +115,7 @@ const schema = gql`
       color: String!
       size: String!
       asset: ID!
+      sku: String
     }
 
     input UpdateProductAttributeInput {
@@ -287,6 +288,7 @@ module.exports.resolvers = {
       await Promise.all(attributes.map(async (attr, index) => {
         attributes[index].asset = await repository.asset.getById(attr.asset);
       }));
+      console.log("asdf => ", attributes);
       return attributes;
     },
   },
