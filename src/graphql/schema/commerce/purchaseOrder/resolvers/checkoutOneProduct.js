@@ -13,7 +13,7 @@ module.exports = async function checkoutOneProduct(
   },
   { dataSources: { repository }, user },
 ) {
-  var productAttr = await repository.productAttributes.getByAttr(product, color, size);
+  var productAttr = await repository.productAttributes.getByAttr(product, color.toUpperCase(), size.toUpperCase());
   if (!productAttr && color != "" && size != "") {
     throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
   }

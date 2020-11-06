@@ -115,6 +115,7 @@ const schema = gql`
       color: String!
       size: String!
       asset: ID!
+      sku: String
     }
 
     input UpdateProductAttributeInput {
