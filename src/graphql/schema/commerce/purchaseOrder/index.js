@@ -28,7 +28,7 @@ const schema = gql`
         """ Collected status """
         status: PurchaseOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         price: AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
@@ -71,7 +71,16 @@ const schema = gql`
         checkoutCart(currency: Currency!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
-        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!, color: String!, size: String!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
+        checkoutOneProduct(
+          deliveryRate: ID!, 
+          product: ID!, 
+          quantity: Int!, 
+          currency: Currency!, 
+          color: String!, 
+          size: String!, 
+          provider: PaymentMethodProviders!
+          billingAddress: ID!
+        ): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)

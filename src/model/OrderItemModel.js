@@ -67,6 +67,12 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  shippingAddress: {
+    type: String,
+  },
+  billingAddress: {
+    type: String,
+  },
 });
 
 module.exports = new model(collectionName, schema);

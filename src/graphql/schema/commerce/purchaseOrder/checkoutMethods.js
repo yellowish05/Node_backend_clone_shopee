@@ -1,21 +1,23 @@
 const { UserInputError } = require('apollo-server');
 const OrderFactory = require('./OrderFactory');
 
-const createSaleOrders = async ({orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder}, repository) => {
-  var saleOrderData = [];
-  // group by using seller 
-  for (var i = 0; i < cartItems.length; i++) {
-    var saleOrderItem = {
-      seller: "",
+const createSaleOrders = async ({
+  orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder,
+}, repository) => {
+  const saleOrderData = [];
+  // group by using seller
+  for (let i = 0; i < cartItems.length; i++) {
+    const saleOrderItem = {
+      seller: '',
       cartItems: [],
       orderItems: [],
-      deliveryOrders: []
+      deliveryOrders: [],
     };
     saleOrderItem.seller = cartItems[i].product.seller;
     saleOrderItem.cartItems.push(cartItems[i]);
     saleOrderItem.orderItems.push(orderItems[i]);
     saleOrderItem.deliveryOrders.push(deliveryOrders[i]);
-    for (var j = i + 1; j < cartItems.length; j++) {
+    for (let j = i + 1; j < cartItems.length; j++) {
       if (saleOrderItem.seller == cartItems[j].product.seller) {
         saleOrderItem.cartItems.push(cartItems[j]);
         saleOrderItem.orderItems.push(orderItems[j]);
@@ -23,16 +25,16 @@ const createSaleOrders = async ({orderItems, deliveryOrders, cartItems, currency
         cartItems.splice(j, 1);
         orderItems.splice(j, 1);
         deliveryOrders.splice(j, 1);
-        j = j - 1;
+        j -= 1;
       }
     }
     saleOrderData.push(saleOrderItem);
   }
 
   saleOrderData.map(async (saleOrderItem) => {
-    var factory = new OrderFactory(saleOrderItem.cartItems, currency);
-    factory.setProperties(saleOrderItem.orderItems, saleOrderItem.deliveryOrders);    
-    var order = factory.createOrder();
+    const factory = new OrderFactory(saleOrderItem.cartItems, currency);
+    factory.setProperties(saleOrderItem.orderItems, saleOrderItem.deliveryOrders);
+    const order = factory.createOrder();
     order.buyer = buyerId;
     order.deliveryOrders = saleOrderItem.deliveryOrders;
     order.items = saleOrderItem.orderItems.map((item) => item.id);
@@ -40,8 +42,8 @@ const createSaleOrders = async ({orderItems, deliveryOrders, cartItems, currency
     order.purchaseOrder = purchaseOrder.id;
 
     await repository.saleOrder.create(order);
-  })
-}
+  });
+};
 
 module.exports = {
   async validateDeliveryAddress(id, repository) {
@@ -84,7 +86,7 @@ module.exports = {
       });
   },
 
-  async loadProductAsCart(deliveryRateId, productId, quantity, repository) {
+  async loadProductAsCart(deliveryRateId, productId, quantity, repository, billingAddress) {
     return Promise.all([
       repository.product.getById(productId),
       repository.deliveryRateCache.getById(deliveryRateId),
@@ -93,10 +95,11 @@ module.exports = {
         product,
         deliveryRate,
         quantity,
+        billingAddress,
       }]));
   },
 
-  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttribute) {
+  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttribute, billingAddress) {
     return Promise.all([
       repository.product.getById(productId),
       repository.deliveryRateCache.getById(deliveryRateId),
@@ -106,6 +109,7 @@ module.exports = {
         productAttribute,
         deliveryRate,
         quantity,
+        billingAddress,
       }]));
   },
 
@@ -133,7 +137,9 @@ module.exports = {
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 
     const purchaseOrder = await repository.purchaseOrder.create(order);
-    await createSaleOrders({orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder}, repository);
+    await createSaleOrders({
+      orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder,
+    }, repository);
     return purchaseOrder;
   },
 

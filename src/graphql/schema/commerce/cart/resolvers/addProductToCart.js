@@ -31,7 +31,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
 
-      if (!productAttr && args.color != "" && args.size != "") {
+      if (!productAttr && args.color != '' && args.size != '') {
         throw new ForbiddenError(`Product that has color: "${args.color}" and size: "${args.size}" does not exist.`);
       }
 
