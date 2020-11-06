@@ -24,7 +24,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
-      repository.productAttributes.getByAttr(args.product, args.color, args.size),
+      repository.productAttributes.getByAttr(args.product, args.color.toUpperCase(), args.size.toUpperCase()),
     ]))
     .then(([product, deliveryRate, productAttr]) => {
       if (!product) {
