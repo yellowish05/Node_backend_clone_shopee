@@ -2,6 +2,8 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
+
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
@@ -41,6 +43,8 @@ const schema = gql`
         error: String
         publishableKey: String
         paymentClientSecret: String
+        buyer: User!
+        createdAt: Date!
     }
 
     type PurchaseOrderCollection {
@@ -101,9 +105,12 @@ module.exports.resolvers = {
       repository.purchaseOrder.getById(id)
     ),
 
-    getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => (
-      repository.purchaseOrder.getInvoicePDF(id)
-    ),
+    getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => repository.purchaseOrder.getInvoicePDF(id)
+      .then((pdf) => {
+        if (pdf) {
+          return pdf;
+        }
+      }),
   },
   Mutation: {
     checkoutCart,
@@ -139,5 +146,9 @@ module.exports.resolvers = {
         currency: order.currency,
       })
     ),
+    buyer: async (order, _, { dataSources: { repository } }) => (
+      repository.user.getById(order.buyer)
+    ),
+    createdAt: (order) => new Date(order.createdAt).toDateString(),
   },
 };

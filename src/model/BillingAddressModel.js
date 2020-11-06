@@ -31,8 +31,8 @@ const schema = new Schema({
   },
   shippingAddress: {
     type: String,
-    default: null
-  }
+    default: null,
+  },
 });
 
 module.exports = new model(collectionName, schema);
