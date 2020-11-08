@@ -57,7 +57,7 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1, billingAddress: ID) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """

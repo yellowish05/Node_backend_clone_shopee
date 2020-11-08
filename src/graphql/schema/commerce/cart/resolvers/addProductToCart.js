@@ -13,6 +13,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     { quantity: 'required|min:1|integer' },
     { size: 'required' },
     { color: 'required' },
+    { billingAddress: 'required' },
   );
 
   return validator.check()
@@ -39,6 +40,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         productId: product.id,
         quantity: args.quantity,
         productAttribute: productAttr,
+        billingAddress: args.billingAddress,
       };
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;

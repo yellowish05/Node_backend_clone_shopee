@@ -32,7 +32,9 @@ class UserCartItemRepository {
     return this.model.find({ user: userId });
   }
 
-  async add({ productId, deliveryRateId, quantity }, userId) {
+  async add({
+    productId, deliveryRateId, quantity, billingAddress,
+  }, userId) {
     return this.findOne({ productId }, userId)
       .then((cartItem) => {
         if (cartItem) {
@@ -42,7 +44,7 @@ class UserCartItemRepository {
         }
 
         return this.model.create({
-          _id: uuid(), product: productId, deliveryRate: deliveryRateId, user: userId, quantity,
+          _id: uuid(), product: productId, deliveryRate: deliveryRateId, user: userId, quantity, billingAddress,
         });
       });
   }
