@@ -17,11 +17,8 @@ const { aws, cdn } = require(path.resolve('config'));
 const s3 = new AWS.S3();
 
 module.exports.InvoiceService = {
-  async getOrderDetails(paymentIntentID, userID) {
-    const user = await repository.user.load(userID);
+  async getOrderDetails(orderID) {
     const paymentIntent = await provider.paymentIntents.retrieve(paymentIntentID);
-    const orderDate = new Date(paymentIntent.created * 1000).toDateString();
-    const order = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret);
 
     const orderQuery = gql`
         query getPurchaseOrder($orderID: ID!){
@@ -44,6 +41,23 @@ module.exports.InvoiceService = {
               currency
               formatted
             }
+            buyer {
+              id
+              email
+              name
+              phone
+              address {
+                street
+                city
+                region {
+                  name
+                }
+                country {
+                  name
+                }
+              }
+            }
+            createdAt
             items {
               id
               title
@@ -75,11 +89,15 @@ module.exports.InvoiceService = {
     `;
 
     const variables = {
-      orderID: order.id,
+      orderID,
     };
 
     const itemsDetail = await request(`${baseURL}graphql`, orderQuery, variables);
     const items = [];
+    const user = itemsDetail.purchaseOrder.buyer;
+    const orderDate = itemsDetail.purchaseOrder.createdAt;
+
+
     await Promise.all(itemsDetail.purchaseOrder.items.map(async (item) => {
       const orderItem = await repository.orderItem.getById(item.id);
       const product = await request(`${baseURL}graphql`,
@@ -104,7 +122,7 @@ module.exports.InvoiceService = {
 
     const orderDetails = {
       orderDate,
-      orderID: order.id,
+      orderID,
       shipping_address: {
         client_name: user.name,
         street: user.address.street,

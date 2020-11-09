@@ -39,6 +39,7 @@ async function createOrderItem(cartItem, currency) {
     total: price.getCentsAmount() * cartItem.quantity,
     seller: cartItem.product.seller,
     title: cartItem.product.title,
+    billingAddress: cartItem.billingAddress,
   };
 }
 

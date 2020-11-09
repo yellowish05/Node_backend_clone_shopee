@@ -70,11 +70,11 @@ class PurchaseOrderRepository {
     return purchaseOrder.save();
   }
 
-  // async getInvoicePDF(id) {
-  //   const purchaseOrder = await this.getById(id);
+  async getInvoicePDF(id) {
+    const purchaseOrder = await this.getById(id);
 
-  //   return purchaseOrder.invoicePDF;
-  // }
+    return purchaseOrder.invoicePDF;
+  }
 
   // async getPackingSlips(id) {
 

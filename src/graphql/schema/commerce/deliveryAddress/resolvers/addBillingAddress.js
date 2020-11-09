@@ -8,17 +8,16 @@ const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery')
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
-  
   if (data.shippingAddress) {
     if (data.shippingAddress.length > 0 && data.shippingAddress.search('[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}') === 0) {
       return repository.deliveryAddress.getById(data.shippingAddress)
-      .then((address) => {
-        if(!address)
-          throw new ApolloError(`Failed to add Billing Address. Original error: No Shipping Address`, 400);
-        return repository.billingAddress.addAddress(address)})
-      .catch((error) => {
-        throw new ApolloError(`Failed to add Billing Address. Original error: ${error.message}`, 400);
-      })
+        .then((address) => {
+          if (!address) { throw new ApolloError('Failed to add Billing Address. Original error: No Shipping Address', 400); }
+          return repository.billingAddress.addAddress(address);
+        })
+        .catch((error) => {
+          throw new ApolloError(`Failed to add Billing Address. Original error: ${error.message}`, 400);
+        });
     }
   } else {
     const validator = new Validator(data, {
@@ -50,7 +49,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
           throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
         }
 
-        return EasyPost.addAddress({ phone: user.phone, email: user.email, address: data }).then(response => repository.billingAddress.create({
+        return EasyPost.addAddress({ phone: user.phone, email: user.email, address: data }).then((response) => repository.billingAddress.create({
           region,
           owner: user.id,
           addressId: response.id,

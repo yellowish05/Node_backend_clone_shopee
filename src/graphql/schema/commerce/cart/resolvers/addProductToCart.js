@@ -13,6 +13,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     { quantity: 'required|min:1|integer' },
     { size: 'required' },
     { color: 'required' },
+    { billingAddress: 'required' },
   );
 
   return validator.check()
@@ -31,7 +32,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
 
-      if (!productAttr && args.color != "" && args.size != "") {
+      if (!productAttr && args.color != '' && args.size != '') {
         throw new ForbiddenError(`Product that has color: "${args.color}" and size: "${args.size}" does not exist.`);
       }
 
@@ -39,6 +40,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         productId: product.id,
         quantity: args.quantity,
         productAttribute: productAttr,
+        billingAddress: args.billingAddress,
       };
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;

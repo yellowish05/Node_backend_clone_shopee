@@ -41,10 +41,10 @@ const schema = new Schema({
     type: String,
     default: null,
   },
-  size: {
+  color: {
     type: String,
   },
-  color: {
+  size: {
     type: String,
   },
 });

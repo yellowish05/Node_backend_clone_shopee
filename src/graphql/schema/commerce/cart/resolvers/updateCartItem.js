@@ -10,6 +10,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(
     args,
     { id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
+    { billingAddress: ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'] },
     { quantity: 'required|min:1|integer' },
   );
 
@@ -33,6 +34,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       };
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;
+      }
+      if (args.billingAddress) {
+        cartItemData.billingAddress = args.billingAddress;
       }
 
       return repository.deliveryRate.getById(deliveryRate.id)
