@@ -57,9 +57,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         } = data;
 
         discountPrice = data.discountPrice ? data.discountPrice : 0;
-        if (productData.sku && /[^0-9]/g.test(productData.sku)) {
-            console.log("asdfasdf");
-            throw new ForbiddenError('SKU must be number!');
+        if (productData.sku && productData.sku.indexOf(" ") >= 0) {
+            throw new ForbiddenError('SKU should not include space!');
         }
         productData.color = data.color.toUpperCase();
         productData.size = data.size.toUpperCase();
