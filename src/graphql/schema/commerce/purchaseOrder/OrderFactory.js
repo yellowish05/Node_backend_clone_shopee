@@ -39,6 +39,7 @@ async function createOrderItem(cartItem, currency) {
     total: price.getCentsAmount() * cartItem.quantity,
     seller: cartItem.product.seller,
     title: cartItem.product.title,
+    billingAddress: cartItem.billingAddress,
   };
 }
 
@@ -73,6 +74,11 @@ class OrderFactory {
     this.purchaseItems = null;
     this.deliveryOrders = null;
     this.purchaseOrder = null;
+  }
+
+  setProperties(orderItems, deliveryOrders) {
+    this.purchaseItems = orderItems;
+    this.deliveryOrders = deliveryOrders;
   }
 
   async createOrderItems() {

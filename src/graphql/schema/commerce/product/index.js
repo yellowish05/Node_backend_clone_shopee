@@ -26,6 +26,7 @@ const schema = gql`
       oldPrice(currency: Currency): AmountOfMoney!
       quantity: Int!
       asset: Asset!
+      sku: String
     }
 
     type Product {
@@ -114,6 +115,7 @@ const schema = gql`
       color: String!
       size: String!
       asset: ID!
+      sku: String
     }
 
     input UpdateProductAttributeInput {
@@ -207,6 +209,7 @@ module.exports.resolvers = {
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
     productAttributes,
+
   },
   Mutation: {
     addProduct,
@@ -225,7 +228,7 @@ module.exports.resolvers = {
     assets: async ({ assets }, _, { dataSources: { repository } }) => (
       repository.asset.getByIds(assets)
     ),
-    thumbnail: async ({ thumbnail: assetId }, _, { dataSources: { repository }}) => (
+    thumbnail: async ({ thumbnail: assetId }, _, { dataSources: { repository } }) => (
       repository.asset.getById(assetId)
     ),
     category: async ({ category }, _, { dataSources: { repository } }) => (
@@ -245,7 +248,7 @@ module.exports.resolvers = {
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
-      return amountOfMoney
+      return amountOfMoney;
     },
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
@@ -280,13 +283,13 @@ module.exports.resolvers = {
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product
-    attrs: async ({ attrs }, _, { dataSources: { repository }}) => {
-      var attributes = await repository.productAttributes.getByIds(attrs);
-      await Promise.all( attributes.map(async (attr, index) => {
+    attrs: async ({ attrs }, _, { dataSources: { repository } }) => {
+      const attributes = await repository.productAttributes.getByIds(attrs);
+      await Promise.all(attributes.map(async (attr, index) => {
         attributes[index].asset = await repository.asset.getById(attr.asset);
       }));
       return attributes;
-    }
+    },
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (

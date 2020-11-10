@@ -48,6 +48,14 @@ const schema = new Schema({
     enum: SaleOrderStatus.toList(),
     default: SaleOrderStatus.CREATED,
   },
+  purchaseOrder: {
+    type: String,
+    ref: 'PurchaseOrder',
+  },
+  packingslip: {
+    type: String,
+    default: null,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

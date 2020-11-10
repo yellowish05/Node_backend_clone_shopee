@@ -2,12 +2,15 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
+
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
+
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
-const LinePayConfirm  = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
+const LinePayConfirm = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
 
 const schema = gql`
     enum PurchaseOrderStatus {
@@ -25,7 +28,7 @@ const schema = gql`
         """ Collected status """
         status: PurchaseOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         price: AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
@@ -40,6 +43,8 @@ const schema = gql`
         error: String
         publishableKey: String
         paymentClientSecret: String
+        buyer: User!
+        createdAt: Date!
     }
 
     type PurchaseOrderCollection {
@@ -57,7 +62,8 @@ const schema = gql`
 
     extend type Query {
         purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
-        purchaseOrder(id: ID!): PurchaseOrder  @auth(requires: USER)
+        purchaseOrder(id: ID!): PurchaseOrder
+        getInvoicePDF(id: ID!): String
     }
 
     extend type Mutation {
@@ -65,7 +71,16 @@ const schema = gql`
         checkoutCart(currency: Currency!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
-        checkoutOneProduct(deliveryRate: ID!, product: ID!, quantity: Int!, currency: Currency!, color: String!, size: String!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
+        checkoutOneProduct(
+          deliveryRate: ID!, 
+          product: ID!, 
+          quantity: Int!, 
+          currency: Currency!, 
+          color: String!, 
+          size: String!, 
+          provider: PaymentMethodProviders!
+          billingAddress: ID!
+        ): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
@@ -98,12 +113,19 @@ module.exports.resolvers = {
     purchaseOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.purchaseOrder.getById(id)
     ),
+
+    getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => repository.purchaseOrder.getInvoicePDF(id)
+      .then((pdf) => {
+        if (pdf) {
+          return pdf;
+        }
+      }),
   },
   Mutation: {
     checkoutCart,
     checkoutOneProduct,
     payPurchaseOrder,
-    LinePayConfirm, 
+    LinePayConfirm,
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (
@@ -133,5 +155,9 @@ module.exports.resolvers = {
         currency: order.currency,
       })
     ),
+    buyer: async (order, _, { dataSources: { repository } }) => (
+      repository.user.getById(order.buyer)
+    ),
+    createdAt: (order) => new Date(order.createdAt).toDateString(),
   },
 };

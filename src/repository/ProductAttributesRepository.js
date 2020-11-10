@@ -52,9 +52,7 @@ class ProductAttributesRepository {
             // throw Error(`"${path}" does not exist!`);
             return null;
         }
-
         attribute.productId = productId;
-
         return attribute.save();
     }
 
