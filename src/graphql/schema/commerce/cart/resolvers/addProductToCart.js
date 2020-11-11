@@ -11,7 +11,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
-    { productAttrId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
+    { productAttr: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { billingAddress: 'required' },
   );
 
@@ -26,15 +26,14 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       repository.deliveryRateCache.getById(args.deliveryRate),
       repository.productAttributes.getById(args.productAttr),
     ]))
-    .then(([product, deliveryRate, productAttr]) => {
+    .then(([product, deliveryRate, productAttribute]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
-
       const cartItemData = {
         productId: product.id,
         quantity: args.quantity,
-        productAttribute: productAttr,
+        productAttribute: productAttribute,
         billingAddress: args.billingAddress,
       };
       if (deliveryRate) {

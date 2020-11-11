@@ -9,11 +9,11 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency, provider, productAttr, billingAddress,
+    deliveryRate, product, quantity, currency, provider, productAttribute, billingAddress,
   },
   { dataSources: { repository }, user },
 ) {
-  var productAttr = await repository.productAttributes.getById(productAttr);
+  var productAttr = await repository.productAttributes.getById(productAttribute);
   if (!productAttr) {
     throw new ForbiddenError(`Product does not exist.`);
   }
