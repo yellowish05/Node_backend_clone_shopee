@@ -1,6 +1,6 @@
 const path = require('path');
-const { ForbiddenError } = require('apollo-server');
 const checkout = require('../checkoutMethods');
+const { ForbiddenError } = require('apollo-server');
 
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 const { NotificationType, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
@@ -9,38 +9,38 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency, provider, color, size, billingAddress,
+    deliveryRate, product, quantity, currency, provider, productAttribute, billingAddress,
   },
   { dataSources: { repository }, user },
 ) {
-  const productAttr = await repository.productAttributes.getByAttr(product, color.toUpperCase(), size.toUpperCase());
-  if (!productAttr && color != '' && size != '') {
-    throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
+  var productAttr = await repository.productAttributes.getById(productAttribute);
+  if (!productAttr) {
+    throw new ForbiddenError(`Product does not exist.`);
   }
-  const checkAmount = productAttr != null
-    ? await repository.productInventoryLog.checkAmountByAttr(product, productAttr._id, quantity)
-    : await repository.productInventoryLog.checkAmount(product, quantity);
-  const cartItems = productAttr != null
-    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttr, billingAddress)
-    : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);
+  const checkAmount = productAttr != null ? 
+    await repository.productInventoryLog.checkAmountByAttr(product, productAttr._id, quantity) : 
+    await repository.productInventoryLog.checkAmount(product, quantity);
+  const cartItems = productAttr != null ? 
+    await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttr) :
+    await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
     if (!delivery) {
-      throw new ForbiddenError('Product\'s delivery information is incorrect.');
+      throw new ForbiddenError(`Product's delivery information is incorrect.`);
     }
     const cartItemData = {
       productId: product,
-      quantity,
+      quantity: quantity,
       productAttribute: productAttr, // != null ? cartItems[0].productAttribute : null,
       deliveryRateId: delivery.id,
       billingAddress,
     };
 
     const deliveryrate = await repository.deliveryRate.getById(delivery.id);
-    if (!deliveryrate) {
-      const cart = await repository.deliveryRate.create(delivery.toObject());
+    if(! deliveryrate) {
+      const cart = await repository.deliveryRate.create(delivery.toObject())
     }
-
+    
     await repository.userCartItem.add(cartItemData, user.id);
 
     // creating order
@@ -52,13 +52,16 @@ module.exports = async function checkoutOneProduct(
 
     return payPurchaseOrder({ order, provider, user })
       .then(async (result) => {
-        if (result.error) { order.error = result.error; }
-
-        if (result.publishableKey) { order.publishableKey = result.publishableKey; }
-        if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
-
-        order.deliveryOrders = null;
-        return repository.purchaseOrder.update(order);
+        if(result.error)
+          order.error = result.error
+        
+        if(result.publishableKey)
+          order.publishableKey = result.publishableKey
+        if(result.paymentClientSecret)
+          order.paymentClientSecret = result.paymentClientSecret
+        
+        order.deliveryOrders = null
+        return repository.purchaseOrder.update(order)
       })
       .then(async (order) => {
         // save notification to buyer
@@ -92,11 +95,13 @@ module.exports = async function checkoutOneProduct(
           tags: ['Order:order.id'],
         });
         // send push notification to buyer
-        if (user.device_id) { await PushNotificationService.sendPushNotification({ message: `You paid your money to buy the product-${productInfo.title}`, device_ids: [user.device_id] }); }
+        if (user.device_id)
+          await PushNotificationService.sendPushNotification({ message: "You paid your money to buy the product-" + productInfo.title, device_ids: [user.device_id] });
         // send push notification to seller
-        if (seller.device_id) { await PushNotificationService.sendPushNotification({ message: `Your product-${productInfo.title} was sold.`, device_ids: [seller.device_id] }); }
+        if (seller.device_id)
+          await PushNotificationService.sendPushNotification({ message: "Your product-" + productInfo.title + " was sold.", device_ids: [seller.device_id] });
         return order;
-      });
+      })
 
     // if (!prod) {
     //   return payPurchaseOrder({ order, paymentMethod, user })
@@ -122,6 +127,6 @@ module.exports = async function checkoutOneProduct(
   const order = await checkout.createOrder({
     cartItems, currency, buyerId: user.id,
   }, repository);
-  order.error = 'This product is not enough now';
+  order.error = "This product is not enough now";
   return order;
 };

@@ -173,6 +173,7 @@ module.exports = async (_, { path }) => {
                 owner: user._id,
                 customCarrier: user.customCarrier,
                 address: {
+                    isDeliveryAvailable: true,
                     street: user.ship_from_address_street,
                     city: user.ship_from_address_city,
                     region: user.ship_from_address_region,
@@ -181,6 +182,7 @@ module.exports = async (_, { path }) => {
                     addressId: `adr_${addressId}`
                 },
                 billingAddress: {
+                    isDeliveryAvailable: true,
                     street: user.billing_address_street,
                     city: user.billing_address_city,
                     region: user.billing_address_region,

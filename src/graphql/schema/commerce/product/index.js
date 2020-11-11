@@ -20,13 +20,20 @@ const schema = gql`
     type ProductAttribute {
       id: ID!
       productId: ID!
-      color: String!
-      size: String!
+      variation: [Variation]
+      """
+          Price in cents. Use the Currency for show it in correct format
+      """
       price(currency: Currency): AmountOfMoney!
-      oldPrice(currency: Currency): AmountOfMoney!
+      oldPrice(currency: Currency): AmountOfMoney
       quantity: Int!
-      asset: Asset!
+      asset: Asset
       sku: String
+    }
+
+    type Variation {
+      name: String!
+      value: String!
     }
 
     type Product {
@@ -57,6 +64,7 @@ const schema = gql`
         freeDeliveryTo: [MarketType!]
         rating: Float!
         customCarrier: CustomCarrier
+        sku: String
         customCarrierValue(currency: Currency):AmountOfMoney
     }
 
@@ -112,10 +120,14 @@ const schema = gql`
       price: Float!
       discountPrice: Float
       currency: Currency!
-      color: String!
-      size: String!
+      variation: [VariationInput!]!
       asset: ID!
       sku: String
+    }
+
+    input VariationInput {
+      name: String!
+      value: String!
     }
 
     input UpdateProductAttributeInput {
@@ -124,8 +136,7 @@ const schema = gql`
       price: Float
       discountPrice: Float
       currency: Currency
-      color: String
-      size: String
+      variation: [VariationInput!]
       asset: ID
     }
 
@@ -209,7 +220,6 @@ module.exports.resolvers = {
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
     productAttributes,
-
   },
   Mutation: {
     addProduct,
@@ -248,7 +258,7 @@ module.exports.resolvers = {
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
-      return amountOfMoney;
+      return amountOfMoney
     },
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
@@ -283,13 +293,13 @@ module.exports.resolvers = {
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product
-    attrs: async ({ attrs }, _, { dataSources: { repository } }) => {
-      const attributes = await repository.productAttributes.getByIds(attrs);
-      await Promise.all(attributes.map(async (attr, index) => {
+    attrs: async ({ attrs }, _, { dataSources: { repository }}) => {
+      var attributes = await repository.productAttributes.getByIds(attrs);
+      await Promise.all( attributes.map(async (attr, index) => {
         attributes[index].asset = await repository.asset.getById(attr.asset);
       }));
       return attributes;
-    },
+    }
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (

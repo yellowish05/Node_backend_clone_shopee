@@ -30,6 +30,12 @@ const buckets = async (data) => {
   return { url, path };
 }
 
+function getPathFromUrl(href) {
+  var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+  var uri = match[5];
+  return uri.substring(1);
+}
+
 class AssetRepository {
 
   constructor(model) {
@@ -154,9 +160,22 @@ class AssetRepository {
     }
   }
 
-  // async createAssetFromCSVForProducts(data) {
-
-  // }
+  async createAssetFromCSVForProducts(data) {
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: data.path,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => this.getByPath(path));
+  }
 
   /**
    * @deprecated
@@ -170,7 +189,7 @@ class AssetRepository {
       _id: uuid(),
       status: "UPLOADED",
       owner: data.owner,
-      path: path,
+      path: getPathFromUrl(path),
       url: url,
       type: "IMAGE",
       size: 1000,
