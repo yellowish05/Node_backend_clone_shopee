@@ -48,7 +48,7 @@ const schema = gql`
         """
         addProductToCart(
           product: ID!, 
-          productAttr: ID!,
+          productAttr: ID!, 
           deliveryRate: ID, 
           quantity: Int! = 1,
           billingAddress: ID!

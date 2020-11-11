@@ -31,20 +31,6 @@ class ProductAttributesRepository {
             return this.model.findOne({ productId, variation });
         return null;
     }
-    
-    // async findDuplicate(data) {
-    //     return this.model.find({
-    //         color: data.color,
-    //         size: data.size,
-    //         productId: data.productId
-    //     });
-    // }
-
-    // async getByAttr(productId, color, size) {
-    //     if (color != "" && size != "")
-    //         return this.model.findOne({ productId, color, size });
-    //     return null;
-    // }
   
     async updateProductId(id, productId) {
         const attribute = await this.getById(id);
@@ -52,7 +38,9 @@ class ProductAttributesRepository {
             // throw Error(`"${path}" does not exist!`);
             return null;
         }
+
         attribute.productId = productId;
+
         return attribute.save();
     }
 

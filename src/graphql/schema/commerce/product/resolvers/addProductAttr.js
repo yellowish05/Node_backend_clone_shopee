@@ -43,11 +43,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             throw new ForbiddenError('You can not update product!');
         }
 
-        // var productAttr = await repository.productAttributes.getByAttr(data.productId, data.color.toUpperCase(), data.size.toUpperCase());
-        // if (productAttr && data.color != "" && data.size != "") {
-        //     throw new ForbiddenError(`Product that has color: "${data.color}" and size: "${data.size}" is exist.`);
-        // }
-
         const productAttrId = uuid();
         const inventoryId = uuid();
 
@@ -59,8 +54,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         if (productData.sku && productData.sku.indexOf(" ") >= 0) {
             throw new ForbiddenError('SKU should not include space!');
         }
-        productData.color = data.color.toUpperCase();
-        productData.size = data.size.toUpperCase();
         productData._id = productAttrId;
         productData.quantity = quantity;
         productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: data.currency }).getCentsAmount();
