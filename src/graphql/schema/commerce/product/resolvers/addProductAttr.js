@@ -14,8 +14,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     const validator = new Validator(data, {
         productId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
-        color: 'required',
-        size: 'required',
+        variation: 'required',
         price: 'required|decimal',
         // discountPrice: 'required|decimal',
         quantity: 'required|integer',
@@ -44,10 +43,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             throw new ForbiddenError('You can not update product!');
         }
 
-        var productAttr = await repository.productAttributes.getByAttr(data.productId, data.color.toUpperCase(), data.size.toUpperCase());
-        if (productAttr && data.color != "" && data.size != "") {
-            throw new ForbiddenError(`Product that has color: "${data.color}" and size: "${data.size}" is exist.`);
-        }
+        // var productAttr = await repository.productAttributes.getByAttr(data.productId, data.color.toUpperCase(), data.size.toUpperCase());
+        // if (productAttr && data.color != "" && data.size != "") {
+        //     throw new ForbiddenError(`Product that has color: "${data.color}" and size: "${data.size}" is exist.`);
+        // }
 
         const productAttrId = uuid();
         const inventoryId = uuid();

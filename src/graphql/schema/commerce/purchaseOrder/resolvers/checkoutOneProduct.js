@@ -9,13 +9,13 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency, provider, color, size, billingAddress,
+    deliveryRate, product, quantity, currency, provider, productAttr, billingAddress,
   },
   { dataSources: { repository }, user },
 ) {
-  const productAttr = await repository.productAttributes.getByAttr(product, color.toUpperCase(), size.toUpperCase());
-  if (!productAttr && color != '' && size != '') {
-    throw new ForbiddenError(`Product that has color: "${color}" and size: "${size}" does not exist.`);
+  var productAttr = await repository.productAttributes.getById(productAttr);
+  if (!productAttr) {
+    throw new ForbiddenError(`Product does not exist.`);
   }
   const checkAmount = productAttr != null
     ? await repository.productInventoryLog.checkAmountByAttr(product, productAttr._id, quantity)

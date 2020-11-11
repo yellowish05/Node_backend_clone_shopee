@@ -49,8 +49,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         quantity, price, discountPrice, ...productAttrData
       } = data;
 
-      productAttr.color = productAttrData.color ? productAttrData.color.toUpperCase() : productAttr.color;
-      productAttr.size = productAttrData.size ? productAttrData.size.toUpperCase() : productAttr.size;
+      productAttr.variation = productAttrData.variation ? productAttrData.variation : productAttr.variation;
+      // productAttr.color = productAttrData.color ? productAttrData.color.toUpperCase() : productAttr.color;
+      // productAttr.size = productAttrData.size ? productAttrData.size.toUpperCase() : productAttr.size;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
       productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
       productAttr.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;

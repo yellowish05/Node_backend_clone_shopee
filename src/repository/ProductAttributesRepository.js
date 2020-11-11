@@ -19,32 +19,32 @@ class ProductAttributesRepository {
         return this.model.find({ productId: id });
     }
 
-    // async findDuplicate(data) {
-    //     return this.model.find({
-    //         variation: data.variation,
-    //         productId: data.productId
-    //     });
-    // }
-
-    // async getByAttr(productId, variation) {
-    //     if (Object.keys(variation).length === 0 )
-    //         return this.model.findOne({ productId, variation });
-    //     return null;
-    // }
-    
     async findDuplicate(data) {
         return this.model.find({
-            color: data.color,
-            size: data.size,
+            variation: data.variation,
             productId: data.productId
         });
     }
 
-    async getByAttr(productId, color, size) {
-        if (color != "" && size != "")
-            return this.model.findOne({ productId, color, size });
+    async getByAttr(productId, variation) {
+        if (Object.keys(variation).length === 0 )
+            return this.model.findOne({ productId, variation });
         return null;
     }
+    
+    // async findDuplicate(data) {
+    //     return this.model.find({
+    //         color: data.color,
+    //         size: data.size,
+    //         productId: data.productId
+    //     });
+    // }
+
+    // async getByAttr(productId, color, size) {
+    //     if (color != "" && size != "")
+    //         return this.model.findOne({ productId, color, size });
+    //     return null;
+    // }
   
     async updateProductId(id, productId) {
         const attribute = await this.getById(id);

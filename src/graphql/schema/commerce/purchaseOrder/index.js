@@ -76,8 +76,7 @@ const schema = gql`
           product: ID!, 
           quantity: Int!, 
           currency: Currency!, 
-          color: String!, 
-          size: String!, 
+          productAttribute: ID!,
           provider: PaymentMethodProviders!
           billingAddress: ID!
         ): PurchaseOrder! @auth(requires: USER)

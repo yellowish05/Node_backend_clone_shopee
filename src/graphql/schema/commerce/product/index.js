@@ -20,13 +20,20 @@ const schema = gql`
     type ProductAttribute {
       id: ID!
       productId: ID!
-      color: String!
-      size: String!
+      variation: [Variation]
+      """
+          Price in cents. Use the Currency for show it in correct format
+      """
       price(currency: Currency): AmountOfMoney!
-      oldPrice(currency: Currency): AmountOfMoney!
+      oldPrice(currency: Currency): AmountOfMoney
       quantity: Int!
-      asset: Asset!
+      asset: Asset!,
       sku: String
+    }
+
+    type Variation {
+      name: String!
+      value: String!
     }
 
     type Product {
@@ -57,6 +64,7 @@ const schema = gql`
         freeDeliveryTo: [MarketType!]
         rating: Float!
         customCarrier: CustomCarrier
+        sku: String
         customCarrierValue(currency: Currency):AmountOfMoney
     }
 
@@ -112,10 +120,14 @@ const schema = gql`
       price: Float!
       discountPrice: Float
       currency: Currency!
-      color: String!
-      size: String!
+      variation: [VariationInput!]!
       asset: ID!
       sku: String
+    }
+
+    input VariationInput {
+      name: String!
+      value: String!
     }
 
     input UpdateProductAttributeInput {
@@ -124,8 +136,7 @@ const schema = gql`
       price: Float
       discountPrice: Float
       currency: Currency
-      color: String
-      size: String
+      variation: [VariationInput!]
       asset: ID
     }
 
