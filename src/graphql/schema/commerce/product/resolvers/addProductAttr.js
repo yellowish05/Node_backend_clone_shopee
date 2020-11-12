@@ -25,10 +25,14 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
 
     validator.addPostRule(async (provider) => Promise.all([
         repository.product.getById(provider.inputs.productId),
+        provider.inputs.sku ? repository.productAttributes.checkDuplicatedSKU(provider.inputs.sku) : 0
     ])
-    .then(([product]) => {
+    .then(([product, countDuplicatedSku]) => {
         if (!product) {
             provider.error('Product', 'custom', `Product with id "${provider.inputs.productId}" does not exist!`);
+        }
+        if (countDuplicatedSku > 0) {
+            provider.error('SKU', 'custom', `SKU with value "${provider.inputs.productId}" is already exist!`);
         }
         foundProduct = product;
     }));

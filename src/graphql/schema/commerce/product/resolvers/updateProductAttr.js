@@ -58,8 +58,20 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       
       return Promise.all([
         productAttr.save(),
+        repository.productInventoryLog.getByProductIdAndAttrId(product.id, productAttr.id),
       ])
-        .then(async ([updatedproductAttr]) => {
+        .then(async ([updatedproductAttr, inventory]) => {
+          if (!inventory) {
+            const inventoryLog = {
+              _id: uuid(),
+              product: product.id,
+              productAttribute: updatedproductAttr.id,
+              shift: updatedproductAttr.quantity,
+              type: InventoryLogType.USER_ACTION,
+            };
+            inventory = await repository.productInventoryLog.add(inventoryLog)
+          }
+          await repository.productInventoryLog.update(inventory.id, updatedproductAttr.quantity);
           return updatedproductAttr;
         });
     });
