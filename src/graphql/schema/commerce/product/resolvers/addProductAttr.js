@@ -50,7 +50,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         quantity, price, ...productData
       } = data;
 
-      discountPrice = data.discountPrice ? data.discountPrice : 0;
+      const discountPrice = data.discountPrice ? data.discountPrice : 0;
       if (productData.sku && productData.sku.indexOf(' ') >= 0) {
         throw new ForbiddenError('SKU should not include space!');
       }
