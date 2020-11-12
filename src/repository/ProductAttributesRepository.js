@@ -67,6 +67,10 @@ class ProductAttributesRepository {
   async getByProduct(id) {
     return this.model.find({ productId: id });
   }
+
+  async checkDuplicatedSKU(sku) {
+    return this.model.countDocuments({ sku });
+  }
 }
 
 module.exports = ProductAttributesRepository;
