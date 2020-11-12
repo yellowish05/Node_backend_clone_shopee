@@ -184,7 +184,7 @@ const schema = gql`
         freeDeliveryTo: [MarketType!]
         customCarrier: String
         customCarrierValue: Float
-        thumbnailId:  ID!
+        thumbnailId: ID
     }
 
     extend type Mutation {
