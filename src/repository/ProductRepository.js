@@ -150,6 +150,10 @@ class ProductRepository {
     const existing = await this.findDuplicate(data);
 
     if (existing) {
+      if (existing.attrs === undefined || existing.attrs.length == 0) {
+        existing.attrs = data.attrs;
+        return existing.save();
+      }
       return existing;
     } else {
       const product = new this.model(data);

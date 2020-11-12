@@ -5,7 +5,6 @@ class LanguageRepository {
   }
 
   async getById(id) {
-    console.log(id)
     return this.model.findOne({ _id: id });
   }
 

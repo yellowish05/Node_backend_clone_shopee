@@ -46,11 +46,17 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        addProductToCart(product: ID!, color: String!, size: String!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        addProductToCart(
+          product: ID!, 
+          productAttr: ID!, 
+          deliveryRate: ID, 
+          quantity: Int! = 1,
+          billingAddress: ID!
+        ) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
-        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1, billingAddress: ID) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """

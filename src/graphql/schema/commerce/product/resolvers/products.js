@@ -5,18 +5,17 @@ const { Promise } = require('bluebird');
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const axios = require('axios');
-const querystring = require('querystring');
 
 // const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
 // const currencyServiceUrl = 'https://api.exchangerate.host/latest';
-const jsonFile = 'http://www.floatrates.com/daily/usd.json'
-const { Currency } = require('../../../../../lib/Enums');
+const jsonFile = 'http://www.floatrates.com/daily/usd.json';
+// const { Currency } = require('../../../../../lib/Enums');
 
-const parameters = {
-  base: Currency.USD,
-  symbols: Currency,
-  // symbols: Currency.toList().toString(),
-};
+// const parameters = {
+//   base: Currency.USD,
+//   symbols: Currency,
+//   // symbols: Currency.toList().toString(),
+// };
 
 async function exchangeOnSupportedCurrencies(price) {
   const currencies = CurrencyFactory.getCurrencies();
@@ -50,17 +49,17 @@ module.exports = async (_, {
     filter.blackList = user.blackList;
   }
 
-  if(filter.categories) {
+  if (filter.categories) {
     const categories = [...filter.categories];
     await Promise.all(categories.map(async (category) => {
       await repository.productCategory.getByParent(category)
-      .then((subcategories) => {
-        if(subcategories.length > 0) {
-          subcategories.map((item) => {
-            filter.categories.push(item.id);
-          })
-        }
-      });
+        .then((subcategories) => {
+          if (subcategories.length > 0) {
+            subcategories.map((item) => {
+              filter.categories.push(item.id);
+            });
+          }
+        });
     }));
   }
 
@@ -85,11 +84,11 @@ module.exports = async (_, {
       repository.product.getTotal(filter),
     ]).then(([allProducts, total]) => axios.get(jsonFile)
       .then(({ data }) => {
-        const  rates  = {};
+        const rates = {};
         Object.keys(data).some((key) => {
-          rates[key.toUpperCase()] = data[key].rate
-        })
-        rates['USD'] = 1
+          rates[key.toUpperCase()] = data[key].rate;
+        });
+        rates.USD = 1;
         if (sort.type == 'ASC') { allProducts.sort((a, b) => a.price / rates[a.currency] - b.price / rates[b.currency]); } else { allProducts.sort((a, b) => b.price / rates[b.currency] - a.price / rates[a.currency]); }
         let collection;
         if (page.limit > 0) { collection = allProducts.slice(page.skip, page.skip + page.limit); } else { collection = allProducts.slice(page.skip); }
