@@ -5,8 +5,6 @@ const { baseURL } = require(path.resolve('config'));
 const { request, gql } = require('graphql-request');
 
 const repository = require(path.resolve('src/repository'));
-const { payment: { providers: { stripe } } } = require(path.resolve('config'));
-const provider = require('stripe')(stripe.secret);
 
 const invoiceTemplate = require(path.resolve('src/view/invoiceTemplate'));
 const packingTemplate = require(path.resolve('src/view/packingTemplate'));
@@ -18,8 +16,6 @@ const s3 = new AWS.S3();
 
 module.exports.InvoiceService = {
   async getOrderDetails(orderID) {
-    // const paymentIntent = await provider.paymentIntents.retrieve(paymentIntentID);
-
     const orderQuery = gql`
         query getPurchaseOrder($orderID: ID!){
           purchaseOrder (
