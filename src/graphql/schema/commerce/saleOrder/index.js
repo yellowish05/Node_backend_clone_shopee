@@ -15,7 +15,7 @@ const schema = gql`
         """ Collected status """
         status: SaleOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ Address for ship products """
@@ -35,6 +35,7 @@ const schema = gql`
     }
 
     extend type Query {
+      saleOrdersList(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection!
       """Allows: authorized user"""
       saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
       """Allows: authorized user"""
@@ -54,6 +55,16 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     saleOrders: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.saleOrder.find({ user })
+        .then((collection) => ({
+          collection: collection || [],
+          pager: {
+            ...page,
+            total: 0,
+          },
+        }))
+    ),
+    saleOrdersList: async (_, { page }, { dataSources: { repository }, user }) => (
       repository.saleOrder.find({ user })
         .then((collection) => ({
           collection: collection || [],
