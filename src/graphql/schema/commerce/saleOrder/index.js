@@ -22,6 +22,8 @@ const schema = gql`
         deliveryOrders: [DeliveryOrder]!
         """ Relation to Payout """
         payout: PayoutOrder
+        createdAt: Date
+        purchaseOrder: OrderProductItem!
         cancelationReason: String
     }
 
@@ -87,6 +89,9 @@ module.exports.resolvers = {
     ),
     deliveryOrders: async (order, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.getByIds(order.deliveryOrders)
+    ),
+    purchaseOrder: async (order, _, { dataSources: { repository } }) => (
+      repository.purchaseOrder.getById(order.purchaseOrder)
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({
