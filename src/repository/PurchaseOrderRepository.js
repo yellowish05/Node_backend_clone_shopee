@@ -57,8 +57,10 @@ class PurchaseOrderRepository {
   }
 
   async addInovicePDF(id, url) {
+    console.log('Add Invoice PDF to DB: ', url);
     const purchaseOrder = await this.getById(id);
-    purchaseOrder.invoicePDF = url || purchaseOrder.invoicePDF;
+
+    if (purchaseOrder.invoicePDF) { purchaseOrder.invoicePDF.push(url); } else { purchaseOrder.invoicePDF = [url]; }
 
     return purchaseOrder.save();
   }
