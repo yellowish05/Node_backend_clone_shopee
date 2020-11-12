@@ -23,7 +23,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     currency: 'required',
     assets: 'required|length:9,1',
   }, {
-    'assets.length': "You can not upload more than 9 images!"
+    'assets.length': 'You can not upload more than 9 images!',
   });
 
   let product;
@@ -92,18 +92,16 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
       if (productData.thumbnailId) {
-        var thumbnail = await repository.asset.load(productData.thumbnailId);
-        if (thumbnail)
-          productData.thumbnail = thumbnailId;
-        else 
-          throw new ForbiddenError(`Thumbnail with id "${productData.thumbnailId}" does not exist!`);
+        const thumbnail = await repository.asset.load(productData.thumbnailId);
+        if (thumbnail) { productData.thumbnail = productData.thumbnailId; } else { throw new ForbiddenError(`Thumbnail with id "${productData.thumbnailId}" does not exist!`); }
       }
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-        { centsAmount: data.price, currency: data.currency })
-      const sortPrice = await CurrencyService.exchange(amountOfMoney, "USD")
+        { centsAmount: data.price, currency: data.currency },
+      );
+      const sortPrice = await CurrencyService.exchange(amountOfMoney, 'USD')
         .then((exchangedMoney) => exchangedMoney.getCentsAmount());
-      product.sortPrice = sortPrice
+      product.sortPrice = sortPrice;
 
       // product.weight = data.weight;
       return Promise.all([
