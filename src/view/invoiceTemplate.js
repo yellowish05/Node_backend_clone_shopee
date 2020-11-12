@@ -1,12 +1,7 @@
 const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
-  let payment_method = '';
   let items = '';
-
-  if (orderDetails.payment_info.payment_method.type == 'card') { payment_method = `${orderDetails.payment_info.payment_method.details.brand} Card ending in  ${orderDetails.payment_info.payment_method.details.last4}`; } else { payment_method = orderDetails.payment_info.payment_method.type; }
-
-  const { billing_address } = orderDetails.payment_info;
 
   orderDetails.items.map((item) => {
     const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
@@ -356,7 +351,7 @@ module.exports = async (orderDetails) => {
                     <h2>Billing Address</h2>
                     <div>
                         <p><b>${orderDetails.payment_info.billing_address.name ? orderDetails.payment_info.billing_address.name : 'N/A'}</b></p>
-                        <p>${orderDetails.payment_info.billing_address.line1 ? orderDetails.payment_info.billing_address.line1 : ''}</p>
+                        <p>${orderDetails.payment_info.billing_address.street ? orderDetails.payment_info.billing_address.street : ''}</p>
                         <p>${orderDetails.payment_info.billing_address.city ? orderDetails.payment_info.billing_address.city : ''}</p>
                         <p>${orderDetails.payment_info.billing_address.state ? orderDetails.payment_info.billing_address.state : ''}</p>
                         <p>${orderDetails.payment_info.billing_address.country ? orderDetails.payment_info.billing_address.country : ''}</p>
@@ -370,7 +365,7 @@ module.exports = async (orderDetails) => {
                 <h2>Payment Information</h2>
                 <div>
                     <div>
-                        <p><b>Payment Method: </b>${payment_method}</p>
+                        <p><b>Payment Method: </b>${orderDetails.payment_info.payment_method}</p>
                     </div>
                 </div>
             </div>

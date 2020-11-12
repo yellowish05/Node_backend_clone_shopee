@@ -7,6 +7,7 @@ const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
+const invoiceService = require('../../../../bundles/invoice');
 
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
@@ -64,7 +65,7 @@ const schema = gql`
     extend type Query {
         purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
         purchaseOrder(id: ID!): PurchaseOrder
-        getInvoicePDF(id: ID!): String
+        getInvoicePDF(id: ID!): [String]
     }
 
     extend type Mutation {
@@ -116,9 +117,23 @@ module.exports.resolvers = {
 
     getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => repository.purchaseOrder.getInvoicePDF(id)
       .then((pdf) => {
-        if (pdf) {
+        if (pdf && pdf.length > 0) {
           return pdf;
         }
+
+        return InvoiceService.getOrderDetails(id)
+          .then(async (orderDetails) => {
+            const PDFs = [];
+            await Promise.all(orderDetails.map(async (orderDetail) => {
+              const url = InvoiceService.createInvoicePDF(orderDetail);
+              PDFs.push(url);
+            }));
+
+            return PDFs;
+          })
+          .catch((err) => {
+            throw new Error(err.message);
+          });
       }),
   },
   Mutation: {
