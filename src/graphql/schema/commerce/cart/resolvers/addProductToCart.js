@@ -11,8 +11,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
-    { size: 'required' },
-    { color: 'required' },
+    { productAttr: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { billingAddress: 'required' },
   );
 
@@ -25,21 +24,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
-      repository.productAttributes.getByAttr(args.product, args.color.toUpperCase(), args.size.toUpperCase()),
+      repository.productAttributes.getById(args.productAttr),
     ]))
-    .then(([product, deliveryRate, productAttr]) => {
+    .then(([product, deliveryRate, productAttribute]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
-
-      if (!productAttr && args.color != '' && args.size != '') {
-        throw new ForbiddenError(`Product that has color: "${args.color}" and size: "${args.size}" does not exist.`);
-      }
-
       const cartItemData = {
         productId: product.id,
         quantity: args.quantity,
-        productAttribute: productAttr,
+        productAttribute: productAttribute,
         billingAddress: args.billingAddress,
       };
       if (deliveryRate) {

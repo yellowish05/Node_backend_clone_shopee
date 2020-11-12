@@ -102,6 +102,9 @@ const schema = new Schema({
     type: String,
     ref: 'ProductAttributes',
   }],
+  sku: {
+    type: String,
+  }
 });
 
 schema.indexes([

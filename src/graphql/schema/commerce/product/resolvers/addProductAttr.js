@@ -14,8 +14,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     const validator = new Validator(data, {
         productId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
-        color: 'required',
-        size: 'required',
+        variation: 'required',
         price: 'required|decimal',
         // discountPrice: 'required|decimal',
         quantity: 'required|integer',
@@ -44,11 +43,6 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             throw new ForbiddenError('You can not update product!');
         }
 
-        var productAttr = await repository.productAttributes.getByAttr(data.productId, data.color.toUpperCase(), data.size.toUpperCase());
-        if (productAttr && data.color != "" && data.size != "") {
-            throw new ForbiddenError(`Product that has color: "${data.color}" and size: "${data.size}" is exist.`);
-        }
-
         const productAttrId = uuid();
         const inventoryId = uuid();
 
@@ -57,12 +51,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         } = data;
 
         discountPrice = data.discountPrice ? data.discountPrice : 0;
-        if (productData.sku && /[^0-9]/g.test(productData.sku)) {
-            console.log("asdfasdf");
-            throw new ForbiddenError('SKU must be number!');
+        if (productData.sku && productData.sku.indexOf(" ") >= 0) {
+            throw new ForbiddenError('SKU should not include space!');
         }
-        productData.color = data.color.toUpperCase();
-        productData.size = data.size.toUpperCase();
         productData._id = productAttrId;
         productData.quantity = quantity;
         productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: data.currency }).getCentsAmount();

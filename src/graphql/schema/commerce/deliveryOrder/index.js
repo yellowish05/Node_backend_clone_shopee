@@ -33,7 +33,8 @@ const schema = gql`
       estimatedDeliveryDate: Date!
       currency: Currency!
       deliveryPrice: Float!
-      proofPhoto: ID
+      proofPhoto: ID,
+      saleOrderId: ID!
     }
 
     extend type Mutation {

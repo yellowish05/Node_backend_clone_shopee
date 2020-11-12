@@ -49,29 +49,22 @@ const addProduct = async (product, index) => {
         })
     });
 
-    product.assets = [
-        product.assets0,
-        product.assets1,
-        product.assets2,
-        product.assets3,
-        product.assets4,
-        product.assets5,
-        product.assets6
-    ];
+    product.assets = JSON.parse(product.assets);
 
     const path = `/${product.username}/Product Images/`;
     product.assets = await promise.map(product.assets, (asset) => {
         if (asset !== "") {
             const assetData = {
                 owner: product.seller,
-                path: `${path}${asset}`,
+                path: asset,
+                // path: `${path}${asset}`,
                 photo: asset,
                 name: product.username,
-                url: aws.vendor_bucket,
+                // url: aws.vendor_bucket,
                 bucket: assetsS3bucket
             }
 
-            return repository.asset.createFromCSVForProducts(assetData).then(res => {
+            return repository.asset.createAssetFromCSVForProducts(assetData).then(res => {
                 return res.id || res;
             });
         }
@@ -83,6 +76,8 @@ const addProduct = async (product, index) => {
 
     product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: product.currency }).getCentsAmount();
     product.oldPrice = product.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice, currency: product.currency }).getCentsAmount() : null;
+    if (product.oldPrice == 0)
+        product.oldPrice = null;
     product.assets = product.assets.filter(asset => asset) || [];
     product.isDeleted = (product.isDeleted === 'true');
 
@@ -100,7 +95,7 @@ const addProduct = async (product, index) => {
 
     product.weight = {
         // value: parseInt(product.weightValue),
-        value: parseFloat(product.weightValue),
+        value: parseFloat(product.weightValue || 1.0),
         unit: product.weightUnit
     }
 
@@ -110,9 +105,9 @@ const addProduct = async (product, index) => {
         // width: parseInt(product.shippingBoxWidth),
         // height: parseInt(product.shippingBoxHeight),
         // length: parseInt(product.shippingBoxLength),
-        width: parseFloat(product.shippingBoxWidth),
-        height: parseFloat(product.shippingBoxHeight),
-        length: parseFloat(product.shippingBoxLength),
+        width: parseFloat(product.shippingBoxWidth || 1.0),
+        height: parseFloat(product.shippingBoxHeight || 1.0),
+        length: parseFloat(product.shippingBoxLength || 1.0),
         weight: product.weight.value,
         unit: product.weight.unit,
         unitWeight: product.unitWeight || "OUNCE"
@@ -128,7 +123,7 @@ const addProduct = async (product, index) => {
             weight: shippingBoxProperties.weight
         }).then(res => {
             resolve(res._id || res);
-        }).catch(() => {
+        }).catch((err) => {
             resolve(null);
         });
     });
@@ -157,7 +152,7 @@ const addProduct = async (product, index) => {
     product.sortPrice = await CurrencyService.exchange(amountOfMoney, "USD").then((exchangedMoney) => exchangedMoney.getCentsAmount());
 
     const {
-        id,
+        _id,
         assets0,
         assets1,
         assets2,
@@ -174,11 +169,22 @@ const addProduct = async (product, index) => {
         ...finalProduct
     } = product;
 
-    if (id) {
-        product = { _id: id, ...finalProduct };
+    // if (id) {
+    //     product = { _id: id, ...finalProduct };
+    // } else {
+    //     product = { ...finalProduct };
+    //     product["_id"] = uuid();
+    // }
+    const existing = await repository.product.findDuplicate(product);
+    if (existing) {
+        product = { _id: existing["_id"], ...finalProduct };
     } else {
-        product = { ...finalProduct };
-        product["_id"] = uuid();
+        if (_id) {
+            product = { _id: _id, ...finalProduct };
+        } else {
+            product = { ...finalProduct };
+            product["_id"] = uuid();
+        }
     }
 
     try {
@@ -193,12 +199,17 @@ const addProduct = async (product, index) => {
 
             if (oneValue.length < 3) continue;
 
-            attributeData["variation"] = {};
+            attributeData["variation"] = [];
             for (let j = 0; j < oneValue.length - 3; j++) {
-                attributeData["variation"][attributeNames[j]] = oneValue[j]; // set attributes
+                attributeData["variation"].push({
+                    name: attributeNames[j],
+                    value: oneValue[j]
+                });
             }
-            attributeData["price"] = oneValue[oneValue.length - 3];
-            attributeData["oldPrice"] = oneValue[oneValue.length - 2];
+            attributeData["price"] = parseFloat(oneValue[oneValue.length - 3]);
+            attributeData["price"] = CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData["price"], currency: product.currency }).getCentsAmount();
+            attributeData["oldPrice"] = parseFloat(oneValue[oneValue.length - 2]);
+            attributeData["oldPrice"] = product.oldPrice != 0 ? CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData["oldPrice"], currency: product.currency }).getCentsAmount() : null;
             attributeData["quantity"] = oneValue[oneValue.length - 1];
             attributeData["currency"] = product.currency;
             attributeData["productId"] = product._id;
@@ -232,7 +243,7 @@ const addProduct = async (product, index) => {
         //         }
         //     }
         // }
- 
+        
         product.attrs = await promise.map(product.attrs, (attr) => {
             return repository.productAttributes.findOrCreate(attr).then(res => res.id).catch(err => console.log(err));
         });
@@ -387,7 +398,7 @@ const loopProductRows = async (csv) => {
         })
 
         product.weight = {
-            value: product.weightValue,
+            value: parseFloat(product.weightValue || 1.0),
             unit: product.weightUnit
         }
 
@@ -406,10 +417,10 @@ const loopProductRows = async (csv) => {
                 // height: parseInt(product.shippingBoxHeight),
                 // length: parseInt(product.shippingBoxLength),
                 // weight: parseInt(product.weight.value),
-                width: parseFloat(product.shippingBoxWidth),
-                height: parseFloat(product.shippingBoxHeight),
-                length: parseFloat(product.shippingBoxLength),
-                weight: parseFloat(product.weight.value),
+                width: parseFloat(product.shippingBoxWidth || 1.0),
+                height: parseFloat(product.shippingBoxHeight || 1.0),
+                length: parseFloat(product.shippingBoxLength || 1.0),
+                weight: product.weight.value,
                 unit: product.unit,
                 unitWeight: product.unitWeight || "OUNCE"
             }
@@ -485,10 +496,10 @@ module.exports = async (_, { fileName, bucket }) => {
         return repository.shippingBox.findOrAdd({
             label: item.label,
             owner: item.owner,
-            width: item.width | 1.0,
-            height: item.height | 1.0,
-            length: item.length | 1.0,
-            weight: item.weight | 1.0,
+            width: item.width || 1.0,
+            height: item.height || 1.0,
+            length: item.length || 1.0,
+            weight: item.weight || 1.0,
             unit: item.unit,
             unitWeight: item.unitWeight
         }).then(res => {
