@@ -91,6 +91,13 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.freeDeliveryTo = data.freeDeliveryTo;
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
+      if (productData.thumbnailId) {
+        var thumbnail = await repository.asset.load(productData.thumbnailId);
+        if (thumbnail)
+          productData.thumbnail = thumbnailId;
+        else 
+          throw new ForbiddenError(`Thumbnail with id "${productData.thumbnailId}" does not exist!`);
+      }
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
         { centsAmount: data.price, currency: data.currency })
