@@ -3,8 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { createServer } = require('http');
-const morgan = require('morgan');
-const logger = require('../config/logger');
+
 const repository = require('./repository');
 const { AgoraService } = require('./lib/AgoraService');
 
@@ -21,6 +20,10 @@ const multiparty = require('connect-multiparty');
 const multipartymiddleware = multiparty();
 
 const fs = require('fs');
+
+
+const morgan = require('morgan');
+const logger = require('../config/logger');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();

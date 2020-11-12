@@ -74,6 +74,10 @@ const schema = new Schema({
     type: String,
     default: null,
   },
+  paymentInfo: {
+    type: String,
+    default: null,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {
