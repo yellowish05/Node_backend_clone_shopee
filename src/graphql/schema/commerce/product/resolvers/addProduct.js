@@ -24,31 +24,30 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     currency: 'required',
     assets: 'required|length:9,1',
   }, {
-    'assets.length': "You can not upload more than 9 images!"
+    'assets.length': 'You can not upload more than 9 images!',
   });
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
     repository.shippingBox.findOne(provider.inputs.shippingBox),
-    provider.inputs.thumbnailId ? repository.asset.load(provider.inputs.thumbnailId) : null
+    provider.inputs.thumbnailId ? repository.asset.load(provider.inputs.thumbnailId) : null,
   ]).then(([category, brand, shippingBox, thumbnail]) => {
-      if (!category) {
-        provider.error('category', 'custom', `Category with id "${provider.inputs.category}" does not exist!`);
-      }
+    if (!category) {
+      provider.error('category', 'custom', `Category with id "${provider.inputs.category}" does not exist!`);
+    }
 
-      if (!brand) {
-        provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" does not exist!`);
-      }
+    if (!brand) {
+      provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" does not exist!`);
+    }
 
-      if (!shippingBox) {
-        provider.error('shippingBox', 'custom', `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
-      }
-      if (!thumbnail && provider.inputs.thumbnailId) {
-        provider.error("thumbnailId", "custom", `Thumbnail with id "${provider.inputs.thumbnailId}" does not exist!`);
-      }
-    })
-  );
+    if (!shippingBox) {
+      provider.error('shippingBox', 'custom', `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
+    }
+    if (!thumbnail && provider.inputs.thumbnailId) {
+      provider.error('thumbnailId', 'custom', `Thumbnail with id "${provider.inputs.thumbnailId}" does not exist!`);
+    }
+  }));
 
   return validator.check()
     .then(async (matched) => {
@@ -67,29 +66,30 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const productId = uuid();
       const inventoryId = uuid();
 
-      const { quantity, price, discountPrice, thumbnailId, ...productData } = data;
+      const {
+        quantity, price, discountPrice, thumbnailId, ...productData
+      } = data;
 
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
       // productData.weight = data.weight;
       productData.quantity = quantity;
-      productData.sortPrice = 
       productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
-      if (thumbnailId)
-        productData.thumbnail = thumbnailId;
+      if (thumbnailId) { productData.thumbnail = thumbnailId; }
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-      
+
       // options
       productData.attrs = [];
-      
+
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-        { currencyAmount: data.price, currency: data.currency })
-      const sortPrice = await CurrencyService.exchange(amountOfMoney, "USD")
+        { currencyAmount: data.price, currency: data.currency },
+      );
+      const sortPrice = await CurrencyService.exchange(amountOfMoney, 'USD')
         .then((exchangedMoney) => exchangedMoney.getCentsAmount());
-      productData.sortPrice = sortPrice
+      productData.sortPrice = sortPrice;
 
       const inventoryLog = {
         _id: inventoryId,
