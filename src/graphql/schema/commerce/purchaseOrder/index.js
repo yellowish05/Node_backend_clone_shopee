@@ -45,6 +45,7 @@ const schema = gql`
         paymentClientSecret: String
         buyer: User!
         createdAt: Date!
+        paymentInfo: String
     }
 
     type PurchaseOrderCollection {
