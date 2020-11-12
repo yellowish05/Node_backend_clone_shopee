@@ -76,6 +76,13 @@ class PurchaseOrderRepository {
     return purchaseOrder.invoicePDF;
   }
 
+  async addPaymentInfo(clientSecret, paymentInfo) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.paymentInfo = paymentInfo;
+
+    return purchaseOrder.save();
+  }
+
   // async getPackingSlips(id) {
 
   // }

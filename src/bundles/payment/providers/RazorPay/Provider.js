@@ -16,7 +16,8 @@ class Provider extends ProviderAbstract {
     super();
     this.client = new Razorpay({
       key_id: keyID,
-      key_secret: keySecret,});
+      key_secret: keySecret,
+    });
     this.repository = repository;
   }
 
@@ -35,26 +36,24 @@ class Provider extends ProviderAbstract {
   }
 
   async createOrder(currency, amount, buyer) {
-    if(!this.client)
-      console.log("RazorPay Connection Error !");
-    
+    if (!this.client) { console.log('RazorPay Connection Error !'); }
+
     const customer = await this.repository.paymentStripeCustomer.getByProvider(this.getName(), buyer);
     const orderDetails = {
-      amount: amount,
-      currency: currency,
-      payment_capture: 1
+      amount,
+      currency,
+      payment_capture: 1,
     };
-    
-    if( !customer ) {
-      const user = await this.repository.user.getById(buyer);
-      if(!user.phone)
-        throw new UserInputError("There is no phone number.");
 
-      
+    if (!customer) {
+      const user = await this.repository.user.getById(buyer);
+      if (!user.phone) { throw new UserInputError('There is no phone number.'); }
+
+
       const newCustomer = await this.client.customers.create({
         name: user.name ? user.name : '',
         contact: user.phone.replace('+', ''),
-        email: user.email
+        email: user.email,
       }).then((response) => this.repository.paymentStripeCustomer.create({
         user: user.id,
         customerId: response.id,
@@ -64,21 +63,21 @@ class Provider extends ProviderAbstract {
         console.log(error);
         return false;
       });
-    
-      if(!newCustomer)
+
+      if (!newCustomer) {
         return {
-          error: 'Creating new Razorpay customer failed!'
+          error: 'Creating new Razorpay customer failed!',
         };
-    } 
+      }
+    }
 
     try {
-      const response = await this.client.orders.create(orderDetails);
-      return response
-
+      const orderResponse = await this.client.orders.create(orderDetails);
+      return { paymentClientSecret: orderResponse.id };
     } catch (error) {
       return {
         error: error.error.description,
-      }
+      };
     }
   }
 }
