@@ -1,9 +1,7 @@
-const uuid = require('uuid/v4');
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { ForbiddenError } = require('apollo-server');
 
-const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
@@ -20,7 +18,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.productAttributes.getById(provider.inputs.id),
-    repository.product.getById(provider.inputs.productId)
+    repository.product.getById(provider.inputs.productId),
   ])
     .then(([foundProductAttr, productInfo]) => {
       if (!foundProductAttr) {
@@ -49,18 +47,29 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         quantity, price, discountPrice, ...productAttrData
       } = data;
 
-      productAttr.color = productAttrData.color ? productAttrData.color : productAttr.color;
-      productAttr.size = productAttrData.size ? productAttrData.size : productAttr.size;
+      productAttr.variation = productAttrData.variation ? productAttrData.variation : productAttr.variation;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
       productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
       productAttr.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
-      productAttr.quantity = quantity ? quantity : productAttr.quantity;
+      productAttr.quantity = quantity || productAttr.quantity;
       productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
-      
+
       return Promise.all([
         productAttr.save(),
+        repository.productInventoryLog.getByProductIdAndAttrId(product.id, productAttr.id),
       ])
-        .then(async ([updatedproductAttr]) => {
+        .then(async ([updatedproductAttr, inventory]) => {
+          if (!inventory) {
+            const inventoryLog = {
+              _id: uuid(),
+              product: product.id,
+              productAttribute: updatedproductAttr.id,
+              shift: updatedproductAttr.quantity,
+              type: InventoryLogType.USER_ACTION,
+            };
+            inventory = await repository.productInventoryLog.add(inventoryLog)
+          }
+          await repository.productInventoryLog.update(inventory.id, updatedproductAttr.quantity);
           return updatedproductAttr;
         });
     });

@@ -1,82 +1,87 @@
 const uuid = require('uuid/v4');
 
 class ProductAttributesRepository {
-    constructor(model) {
-        this.model = model;
+  constructor(model) {
+    this.model = model;
+  }
+
+  async getByIds(ids) {
+    if (ids != null) { return this.model.find({ _id: ids }); }
+    return {};
+  }
+
+  async getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+
+  async findAttributesByProductId(id) {
+    return this.model.find({ productId: id });
+  }
+
+  async findDuplicate(data) {
+    return this.model.find({
+      variation: data.variation,
+      productId: data.productId,
+    });
+  }
+
+  async getByAttr(productId, variation) {
+    if (Object.keys(variation).length === 0) { return this.model.findOne({ productId, variation }); }
+    return null;
+  }
+
+  async updateProductId(id, productId) {
+    const attribute = await this.getById(id);
+    if (!attribute) {
+      // throw Error(`"${path}" does not exist!`);
+      return null;
     }
 
-    async getByIds(ids) {
-        if (ids != null)
-            return this.model.find({ _id: ids });
-        return {}
-    }
+    attribute.productId = productId;
 
-    async getById(id) {
-        return this.model.findOne({ _id: id });
-    }
+    return attribute.save();
+  }
 
-    async findAttributesByProductId(id) {
-        return this.model.find({ productId: id });
-    }
+  async create(data) {
+    const productAttr = new this.model({
+      _id: uuid(),
+      ...data,
+    });
+    return productAttr.save();
+  }
 
-    // async findDuplicate(data) {
-    //     return this.model.find({
-    //         variation: data.variation,
-    //         productId: data.productId
-    //     });
+  async findOrCreate(data) {
+    // const attribute = await this.findDuplicate(data);
+
+    // if (attribute && attribute.length > 0) {
+    //     return attribute;
+    // } else {
+    const productAttr = new this.model({
+      _id: uuid(),
+      ...data,
+    });
+    return productAttr.save();
     // }
+  }
 
-    // async getByAttr(productId, variation) {
-    //     if (Object.keys(variation).length === 0 )
-    //         return this.model.findOne({ productId, variation });
-    //     return null;
-    // }
-    
-    async findDuplicate(data) {
-        return this.model.find({
-            color: data.color,
-            size: data.size,
-            productId: data.productId
-        });
-    }
+  async getByProduct(id) {
+    return this.model.find({ productId: id });
+  }
 
-    async getByAttr(productId, color, size) {
-        if (color != "" && size != "")
-            return this.model.findOne({ productId, color, size });
-        return null;
-    }
-  
-    async updateProductId(id, productId) {
-        const attribute = await this.getById(id);
-        if (!attribute) {
-            // throw Error(`"${path}" does not exist!`);
-            return null;
-        }
-        attribute.productId = productId;
-        return attribute.save();
-    }
+  async checkDuplicatedSKU(sku) {
+    return this.model.countDocuments({ sku });
+  }
 
-    async create(data) {
-        const productAttr = new this.model({
-            _id: uuid(),
-            ...data
-        });
-        return productAttr.save();
+  async checkAmountByAttr(productAttrId, quantity) {
+    try {
+      const productAttr = await this.getById(productAttrId);
+      if (!productAttr) { throw Error(`Product Attribute with id "${productAttrId}" does not exist!`); }
+      if (productAttr.quantity - quantity < 1) { return false; }
+      return true;
+    } catch (err) {
+      throw new Error(err);
     }
-
-    async findOrCreate(data) {
-        // const attribute = await this.findDuplicate(data);
-
-        // if (attribute && attribute.length > 0) {
-        //     return attribute;
-        // } else {
-            const productAttr = new this.model({
-                _id: uuid(),
-                ...data
-            });
-            return productAttr.save();
-        // }
-    }
+  }
 }
 
 module.exports = ProductAttributesRepository;

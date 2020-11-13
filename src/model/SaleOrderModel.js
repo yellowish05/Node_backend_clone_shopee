@@ -52,10 +52,10 @@ const schema = new Schema({
     type: String,
     ref: 'PurchaseOrder',
   },
-  packingslip: {
+  packingslip: [{
     type: String,
     default: null,
-  },
+  }],
 });
 
 schema.methods.getTagName = function getTagName() {

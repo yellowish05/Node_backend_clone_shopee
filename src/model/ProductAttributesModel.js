@@ -3,16 +3,15 @@ const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 const { Currency, WeightUnitSystem, MarketType } = require('../lib/Enums');
 
-const collectionName = 'ProductAttributes';
+const collectionName = 'ProductAttribute';
 
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
-  variation: {
+  variation: [{
     type: Object,
     required: true,
-    index: true,
-  },
+  }],
   price: {
     type: Number,
     required: true,
@@ -36,16 +35,10 @@ const schema = new Schema({
     type: String,
     ref: 'Product',
   },
-  // xinhua-11-05
   sku: {
     type: String,
     default: null,
-  },
-  color: {
-    type: String,
-  },
-  size: {
-    type: String,
+    unique: true,
   },
 });
 

@@ -58,7 +58,8 @@ class PurchaseOrderRepository {
 
   async addInovicePDF(id, url) {
     const purchaseOrder = await this.getById(id);
-    purchaseOrder.invoicePDF = url || purchaseOrder.invoicePDF;
+
+    if (purchaseOrder.invoicePDF) { purchaseOrder.invoicePDF.push(url); } else { purchaseOrder.invoicePDF = [url]; }
 
     return purchaseOrder.save();
   }
@@ -70,11 +71,25 @@ class PurchaseOrderRepository {
     return purchaseOrder.save();
   }
 
-  // async getInvoicePDF(id) {
-  //   const purchaseOrder = await this.getById(id);
+  async getInvoicePDF(id) {
+    const purchaseOrder = await this.getById(id);
 
-  //   return purchaseOrder.invoicePDF;
-  // }
+    return purchaseOrder.invoicePDF;
+  }
+
+  async addPaymentInfo(clientSecret, paymentInfo) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.paymentInfo = paymentInfo;
+
+    return purchaseOrder.save();
+  }
+
+  async updateStatusByClientSecret(clientSecret, status) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.status = status;
+
+    return purchaseOrder.save();
+  }
 
   // async getPackingSlips(id) {
 

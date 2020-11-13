@@ -150,6 +150,10 @@ class ProductRepository {
     const existing = await this.findDuplicate(data);
 
     if (existing) {
+      if (existing.attrs === undefined || existing.attrs.length == 0) {
+        existing.attrs = data.attrs;
+        return existing.save();
+      }
       return existing;
     } else {
       const product = new this.model(data);
@@ -199,6 +203,19 @@ class ProductRepository {
     const query = {};
     elasticFilter(query, filter);
     return this.model.countDocuments(query);
+  }
+
+  async checkAmount(productId, quantity) {
+    try {
+      const product = await this.getById(productId);
+      if (!product)
+        throw Error(`Product with id "${productId}" does not exist!`);
+      if (product.quantity - quantity < 1) 
+        return false;
+      return true;
+    } catch (err) {
+      throw new Error(err);
+    }
   }
 }
 

@@ -42,6 +42,7 @@ const schema = new Schema({
   },
   unit: {
     type: String,
+    default: 'INCH',
     enum: SizeUnitSystem.toList(),
   },
   unitWeight: {

@@ -6,7 +6,7 @@ const createdAtField = require('./commonFields/CreatedAtField');
 
 const collectionName = 'Product';
 
-let SchemaTypes = Schema.Types;
+const SchemaTypes = Schema.Types;
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -100,8 +100,11 @@ const schema = new Schema({
   },
   attrs: [{
     type: String,
-    ref: 'ProductAttributes',
+    ref: 'ProductAttribute',
   }],
+  sku: {
+    type: String,
+  },
 });
 
 schema.indexes([

@@ -15,13 +15,15 @@ const schema = gql`
         """ Collected status """
         status: SaleOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ Address for ship products """
         deliveryOrders: [DeliveryOrder]!
         """ Relation to Payout """
         payout: PayoutOrder
+        createdAt: Date
+        purchaseOrder: OrderProductItem!
         cancelationReason: String
     }
 
@@ -32,21 +34,20 @@ const schema = gql`
 
     input SaleOrderFilterInput {
         statuses: [SaleOrderStatus!]
-        purchaseOrder: ID
     }
 
     extend type Query {
+      saleOrdersList(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection!
       """Allows: authorized user"""
       saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
-      
       """Allows: authorized user"""
-      saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+      saleOrder(id: ID!): SaleOrder
+      getPackingSlip(id: ID!): [String]
     }
 
     extend type Mutation {
         # """Allows: authorized user"""
         # deliverySaleOrder(id: ID, carrier: Carrier!, trackCode: String!): SaleOrder! @auth(requires: USER)
-        
         """Allows: authorized user"""
         cancelSaleOrder(id: ID!, reason: String!): SaleOrder! @auth(requires: USER)
     }
@@ -56,24 +57,33 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    saleOrders: async (_, { filter, page }, { dataSources: { repository }, user }) => {
-      const pager = {
-        limit: page.limit,
-        skip: page.skip,
-        total: 0,
-      };
-      return Promise.all([
-        repository.saleOrder.get({ filter, page, user }),
-        repository.saleOrder.getTotal(filter, user),
-      ])
-        .then(([collection, total]) => ({
-          collection,
-          pager: { ...pager, total },
-        }));
-    },
+    saleOrders: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.saleOrder.find({ user })
+        .then((collection) => ({
+          collection: collection || [],
+          pager: {
+            ...page,
+            total: 0,
+          },
+        }))
+    ),
+    saleOrdersList: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.saleOrder.find({ user })
+        .then((collection) => ({
+          collection: collection || [],
+          pager: {
+            ...page,
+            total: 0,
+          },
+        }))
+    ),
     saleOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.saleOrder.getById(id)
     ),
+    getPackingSlip: (_, { id }, { dataSources: { repository } }) => repository.saleOrder.getPackingSlip(id)
+      .then((orders) => {
+        if (orders && orders.length > 0) { return orders; }
+      }),
   },
   SaleOrder: {
     buyer: async (order, _, { dataSources: { repository } }) => (
@@ -84,6 +94,9 @@ module.exports.resolvers = {
     ),
     deliveryOrders: async (order, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.getByIds(order.deliveryOrders)
+    ),
+    purchaseOrder: async (order, _, { dataSources: { repository } }) => (
+      repository.purchaseOrder.getById(order.purchaseOrder)
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({

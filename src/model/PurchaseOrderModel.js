@@ -70,7 +70,11 @@ const schema = new Schema({
     type: String,
     default: null,
   },
-  invoicePDF: {
+  invoicePDF: [{
+    type: String,
+    default: null,
+  }],
+  paymentInfo: {
     type: String,
     default: null,
   },

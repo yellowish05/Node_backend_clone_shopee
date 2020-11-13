@@ -25,6 +25,16 @@ const schema = new Schema({
     type: Number,
     default: 1,
   },
+
+  billingAddress: {
+    type: String,
+    default: null,
+  },
+
+  productAttribute: {
+    type: String,
+    ref: 'ProductAttribute',
+  },
 });
 
 module.exports = new model(collectionName, schema);
