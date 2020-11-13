@@ -19,7 +19,7 @@ module.exports = async function checkoutOneProduct(
   }
   const checkAmount = productAttr
     ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity)
-    : await repository.product.checkAmount(product, quantity);
+    : await repository.productInventoryLog.checkAmount(product, quantity);
   const cartItems = productAttr
     ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttribute, billingAddress)
     : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);

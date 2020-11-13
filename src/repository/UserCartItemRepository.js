@@ -14,9 +14,9 @@ class UserCartItemRepository {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof userId}"`);
     }
 
-    return productAttribute ? 
-      this.model.findOne({ product: productId, productAttribute, user: userId }) : 
-      this.model.findOne({ product: productId, productuser: userId })
+    return productAttribute
+      ? this.model.findOne({ product: productId, productAttribute, user: userId })
+      : this.model.findOne({ product: productId, user: userId });
   }
 
   async getById(itemId) {

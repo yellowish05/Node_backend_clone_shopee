@@ -12,7 +12,7 @@ const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
 const schema = gql`
     type Cart {
-      items: [CartItemInterface]!
+      items: [CartProductItem]!
       price(currency: Currency!): AmountOfMoney!
       deliveryPrice(currency: Currency!): AmountOfMoney!
       total(currency: Currency!): AmountOfMoney!
