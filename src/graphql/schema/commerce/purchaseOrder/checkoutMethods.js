@@ -67,20 +67,28 @@ module.exports = {
         }
         const productIds = cartItems.map((item) => item.product).filter((id) => id);
         const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
+        const productAttributeIds = cartItems.map((item) => item.productAttribute).filter((id) => id);
         cartItems.map((item) => {
           if (!repository.productInventoryLog.checkAmount(item.product, item.quantity)) { throw new Error('Invalide to checkout this cart'); }
         });
         return Promise.all([
           repository.product.getByIds(productIds),
           repository.deliveryRate.getByIds(deliveryRateIds),
+          repository.productAttributes.getByIds(productAttributeIds),
         ])
-          .then(([products, deliveryRates]) => cartItems.map((item) => {
+          .then(([products, deliveryRates, productAttributes]) => cartItems.map((item) => {
             if (products.length !== deliveryRates.length) {
               throw new UserInputError('Not all cart items have delivery rate');
             }
+
+            console.log('********** Item **********');
+            console.log(item);
             // eslint-disable-next-line no-param-reassign
             [item.product] = products.filter((product) => product.id === item.product);
             [item.deliveryRate] = deliveryRates.filter((deliveryRate) => deliveryRate.id === item.deliveryRate);
+            [item.productAttribute] = productAttributes.filter((productAttribute) => productAttribute.id === item.productAttribute);
+            console.log('********** Item **********');
+            console.log(item);
             return item;
           }));
       });
@@ -117,6 +125,8 @@ module.exports = {
   async createOrder({
     cartItems, currency, buyerId,
   }, repository) {
+    console.log('****** Create Order Currency ******');
+    console.log(currency);
     const factory = new OrderFactory(cartItems, currency);
 
     const orderItems = await factory.createOrderItems()

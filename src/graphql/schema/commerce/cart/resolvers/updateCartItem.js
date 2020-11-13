@@ -40,22 +40,20 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const cartItemData = {
         quantity: args.quantity,
       };
-      console.log("delivery =>", deliveryRate);
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;
       }
       if (args.billingAddress) {
         cartItemData.billingAddress = args.billingAddress;
       }
-      console.log("productInfo =>", productInfo);
-      return repository.deliveryRate.getById(deliveryRate.id)
-        .then((saveDeliveryRate) => {
+      return repository.deliveryRate.getById(deliveryRate ? deliveryRate.id : userCartItem.deliveryRate)
+        .then(async (saveDeliveryRate) => {
+          await productInfo.save();
           if (saveDeliveryRate) {
             return repository.userCartItem.update(args.id, cartItemData);
           }
           
           return repository.deliveryRate.create(deliveryRate.toObject())
-            .then(() => productInfo.save())
             .then(() => repository.userCartItem.update(args.id, cartItemData));
         });
     })

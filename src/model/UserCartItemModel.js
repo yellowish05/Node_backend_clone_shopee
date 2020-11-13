@@ -33,7 +33,7 @@ const schema = new Schema({
 
   productAttribute: {
     type: String,
-    default: null,
+    ref: 'ProductAttribute',
   },
 });
 
