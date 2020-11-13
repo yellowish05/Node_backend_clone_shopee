@@ -84,6 +84,13 @@ class PurchaseOrderRepository {
     return purchaseOrder.save();
   }
 
+  async updateStatusByClientSecret(clientSecret, status) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.status = status;
+
+    return purchaseOrder.save();
+  }
+
   // async getPackingSlips(id) {
 
   // }

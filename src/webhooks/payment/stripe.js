@@ -3,6 +3,7 @@ const path = require('path');
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
+const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const { payment } = require(path.resolve('config'));
 const stripe = require('stripe')(payment.providers.stripe.secret);
 
@@ -77,6 +78,7 @@ module.exports = async (req, res) => {
     }
 
     await repository.purchaseOrder.addPaymentInfo(paymentIntent.client_secret, paymentInfo);
+    await repository.purchaseOrder.updateStatusByClientSecret(paymentIntent.client_secret, PurchaseOrderStatus.ORDERED);
   } else if (eventType === 'payment_intent.canceled' || eventType === 'payment_intent.payment_failed') {
     const pID = data.object.id;
     const { customer } = data.object;

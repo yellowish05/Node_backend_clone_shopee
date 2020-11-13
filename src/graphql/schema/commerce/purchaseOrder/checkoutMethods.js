@@ -108,8 +108,6 @@ module.exports = {
   async createOrder({
     cartItems, currency, buyerId,
   }, repository) {
-    console.log('****** Create Order Currency ******');
-    console.log(currency);
     const factory = new OrderFactory(cartItems, currency);
 
     const orderItems = await factory.createOrderItems()

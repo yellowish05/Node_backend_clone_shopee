@@ -5,8 +5,7 @@ const app = express();
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
-// const { payment } = require(path.resolve('config'));
-// const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
+const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 module.exports = async (req, res) => {
   const { event } = req.body;
@@ -42,6 +41,7 @@ module.exports = async (req, res) => {
     }
 
     await repository.purchaseOrder.addPaymentInfo(payment.order_id, paymentInfo);
+    await repository.purchaseOrder.updateStatusByClientSecret(payment.order_id, PurchaseOrderStatus.ORDERED);
   } else if (event === 'payment.failed') {
     const pID = payment.id;
   }
