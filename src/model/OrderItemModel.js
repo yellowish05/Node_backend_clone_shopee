@@ -75,6 +75,7 @@ const schema = new Schema({
   },
   productAttribute: {
     type: String,
+    ref: 'ProductAttribute',
     default: null,
   },
 });

@@ -75,10 +75,8 @@ class ProductAttributesRepository {
   async checkAmountByAttr(productAttrId, quantity) {
     try {
       const productAttr = await this.getById(productAttrId);
-      if (!productAttr)
-        throw Error(`Product Attribute with id "${productAttrId}" does not exist!`);
-      if (productAttr.quantity - quantity < 1) 
-        return false;
+      if (!productAttr) { throw Error(`Product Attribute with id "${productAttrId}" does not exist!`); }
+      if (productAttr.quantity - quantity < 1) { return false; }
       return true;
     } catch (err) {
       throw new Error(err);

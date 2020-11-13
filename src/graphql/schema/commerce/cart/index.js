@@ -193,6 +193,7 @@ module.exports.resolvers = {
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
+    seller: async (cartItem, _, { dataSources: { repository } }) => repository.users.getById(cartItem.seller),
   },
   CartItemInterface: {
     __resolveType(cartItem) {
