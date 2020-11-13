@@ -29,8 +29,8 @@ function elasticFilter(filter) {
       $or: [
         { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
         { city: { $regex: `^.*${filter}.*`, $options: 'i' } },
-      ]
-    })
+      ],
+    });
   }
   query.$and.push({
     status: { $ne: 'CANCELED' },
@@ -221,12 +221,12 @@ class LiveStreamRepository {
 
   async es_search(filter, page) {
     return this.model.find(
-        elasticFilter(filter),
-        null,
-        {
-          limit: page.limit,
-          skip: page.skip,
-        },
+      elasticFilter(filter),
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
     );
   }
 

@@ -8,7 +8,7 @@ const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 async function createOrderItem(cartItem, currency) {
   let price = CurrencyFactory.getAmountOfMoney({
     centsAmount: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
-    currency: cartItem.product.currency,
+    currency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
   });
 
   let deliveryPrice = CurrencyFactory.getAmountOfMoney({
@@ -28,8 +28,9 @@ async function createOrderItem(cartItem, currency) {
     status: OrderItemStatus.CREATED,
     createdAt: new Date(),
     product: cartItem.product,
+    productAttribute: cartItem.productAttribute,
     quantity: cartItem.quantity,
-    originCurrency: cartItem.product.currency,
+    originCurrency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
     originPrice: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
     originDeliveryCurrency: cartItem.deliveryRate.currency,
     originDeliveryPrice: cartItem.deliveryRate.amount,
@@ -40,6 +41,7 @@ async function createOrderItem(cartItem, currency) {
     seller: cartItem.product.seller,
     title: cartItem.product.title,
     billingAddress: cartItem.billingAddress,
+    productAttribute: cartItem.productAttribute,
   };
 }
 

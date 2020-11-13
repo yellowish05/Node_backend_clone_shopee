@@ -13,15 +13,15 @@ module.exports = async function checkoutOneProduct(
   },
   { dataSources: { repository }, user },
 ) {
-  const productAttr = await repository.productAttributes.getById(productAttribute);
-  if (!productAttr) {
+  const productAttr = productAttribute ? await repository.productAttributes.getById(productAttribute) : null;
+  if (!productAttr && productAttribute) {
     throw new ForbiddenError('Product does not exist.');
   }
-  const checkAmount = productAttr != null
-    ? await repository.productInventoryLog.checkAmountByAttr(product, productAttr._id, quantity)
-    : await repository.productInventoryLog.checkAmount(product, quantity);
-  const cartItems = productAttr != null
-    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttr, billingAddress)
+  const checkAmount = productAttr
+    ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity)
+    : await repository.product.checkAmount(product, quantity);
+  const cartItems = productAttr
+    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttribute, billingAddress)
     : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
@@ -31,7 +31,7 @@ module.exports = async function checkoutOneProduct(
     const cartItemData = {
       productId: product,
       quantity,
-      productAttribute: productAttr, // != null ? cartItems[0].productAttribute : null,
+      productAttribute, // != null ? cartItems[0].productAttribute : null,
       deliveryRateId: delivery.id,
       billingAddress,
     };
@@ -61,8 +61,16 @@ module.exports = async function checkoutOneProduct(
         return repository.purchaseOrder.update(order);
       })
       .then(async (order) => {
-        // save notification to buyer
         const productInfo = await repository.product.getById(product);
+        // calculate quantity
+        if (productAttr) {
+          productAttr.quantity -= quantity;
+          await productAttr.save();
+        } else {
+          productInfo.quantity -= quantity;
+          await productInfo.save();
+        }
+        // save notification to buyer
         const seller = await repository.user.getById(productInfo.seller);
         await repository.notification.create({
           type: NotificationType.BUYER_ORDER,

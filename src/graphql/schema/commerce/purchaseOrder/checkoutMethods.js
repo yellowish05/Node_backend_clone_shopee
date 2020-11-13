@@ -99,12 +99,13 @@ module.exports = {
       }]));
   },
 
-  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttribute, billingAddress) {
+  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttributeId, billingAddress) {
     return Promise.all([
       repository.product.getById(productId),
+      repository.productAttributes.getById(productAttributeId),
       repository.deliveryRateCache.getById(deliveryRateId),
     ])
-      .then(([product, deliveryRate]) => ([{
+      .then(([product, productAttribute, deliveryRate]) => ([{
         product,
         productAttribute,
         deliveryRate,

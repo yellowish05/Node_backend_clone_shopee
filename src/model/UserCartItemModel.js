@@ -30,6 +30,11 @@ const schema = new Schema({
     type: String,
     default: null,
   },
+
+  productAttribute: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = new model(collectionName, schema);

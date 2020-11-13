@@ -73,6 +73,10 @@ const schema = new Schema({
   billingAddress: {
     type: String,
   },
+  productAttribute: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = new model(collectionName, schema);

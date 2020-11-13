@@ -1,7 +1,6 @@
 const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
-  console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
   let payment_method = '';
   let items = '';
 
