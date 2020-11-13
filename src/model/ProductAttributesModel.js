@@ -3,7 +3,7 @@ const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 const { Currency, WeightUnitSystem, MarketType } = require('../lib/Enums');
 
-const collectionName = 'ProductAttributes';
+const collectionName = 'ProductAttribute';
 
 const schema = new Schema({
   ...uuidField(collectionName),

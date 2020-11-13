@@ -14,14 +14,14 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     { billingAddress: 'required' },
   );
 
-  validator.addPostRule(async (provider) => {
-    if (provider.inputs.productAttribute) {
-      await repository.productAttributes.getById(provider.inputs.productAttribute)
-        .then((attr) => {
-          if (!attr) { provider.error('Invalid Product Attribute'); }
-        });
-    }
-  });
+  // validator.addPostRule(async (provider) => {
+  //   if (provider.inputs.productAttribute) {
+  //     await repository.productAttributes.getById(provider.inputs.productAttribute)
+  //       .then((attr) => {
+  //         if (!attr) { provider.error('Invalid Product Attribute'); }
+  //       });
+  //   }
+  // });
 
   return validator.check()
     .then(async (matched) => {
@@ -44,10 +44,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       const checkAmount = productAttr != null
         ? await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)
-        : await repository.product.checkAmount(args.product, args.quantity);
-      
-      if (!checkAmount) 
-        throw new ForbiddenError('This product is not enough now');
+        : await repository.productInventoryLog.checkAmount(args.product, args.quantity);
+
+      if (!checkAmount) { throw new ForbiddenError('This product is not enough now'); }
 
       const cartItemData = {
         productId: product.id,
@@ -61,14 +60,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       return repository.deliveryRate.create(deliveryRate.toObject())
         .then(async () => {
-          const productInfo = await repository.product.getById(args.product);
           // calculate quantity
           if (productAttr) {
             productAttr.quantity -= args.quantity;
             await productAttr.save();
           } else {
-            productInfo.quantity -= args.quantity;
-            await productInfo.save();
+            repository.productInventoryLog.decreaseQuantity(args.product, args.quantity);
           }
           return repository.userCartItem.add(cartItemData, user.id);
         });
