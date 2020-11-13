@@ -7,19 +7,19 @@ function applyFilter(query, { statuses, purchaseOrder }, user) {
 
   if (user) {
     query.$and.push({
-      seller: user.id
+      seller: user.id,
     });
   }
 
   if (statuses.length > 0) {
     query.$and.push({
-      $or: statuses.map((item) => ({ status: item }))
+      $or: statuses.map((item) => ({ status: item })),
     });
   }
 
   if (purchaseOrder) {
     query.$and.push({
-      purchaseOrder: purchaseOrder,
+      purchaseOrder,
     });
   }
 }
@@ -75,9 +75,15 @@ class SaleOrderRepository {
   }
 
   async updateInvoiceUrl(url, id) {
-    const order = await this.getById(id);
-    order.packingslip = url;
-    return order.save();
+    const saleOrder = await this.getById(id);
+    if (saleOrder.packingslip) { saleOrder.packingslip.push(url); } else { saleOrder.packingslip = [url]; }
+
+    return saleOrder.save();
+  }
+
+  async getPackingSlip(id) {
+    const saleOrder = await this.getById(id);
+    return saleOrder.packingslip;
   }
 }
 

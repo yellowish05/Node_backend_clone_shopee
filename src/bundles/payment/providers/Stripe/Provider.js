@@ -125,7 +125,7 @@ class Provider extends ProviderAbstract {
     const newCard = await this.client.customers.createSource(customer.customerId, { source: cardToken.id });
     const expiredAt = new Date(`01.${newCard.exp_month}.20${newCard.exp_year}`);
     expiredAt.setMonth(1); // Usualy card works during expire month
-    return await repository.cardDetails.create({ ...details, providerID: newCard.id })
+    return repository.cardDetails.create({ ...details, providerID: newCard.id })
       .then((response) => repository.paymentMethod.create({
         user: user.id,
         provider: this.getName(),

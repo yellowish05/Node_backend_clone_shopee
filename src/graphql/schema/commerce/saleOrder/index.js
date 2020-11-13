@@ -41,7 +41,8 @@ const schema = gql`
       """Allows: authorized user"""
       saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
       """Allows: authorized user"""
-      saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+      saleOrder(id: ID!): SaleOrder
+      getPackingSlip(id: ID!): [String]
     }
 
     extend type Mutation {
@@ -79,6 +80,10 @@ module.exports.resolvers = {
     saleOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.saleOrder.getById(id)
     ),
+    getPackingSlip: (_, { id }, { dataSources: { repository } }) => repository.saleOrder.getPackingSlip(id)
+      .then((orders) => {
+        if (orders && orders.length > 0) { return orders; }
+      }),
   },
   SaleOrder: {
     buyer: async (order, _, { dataSources: { repository } }) => (

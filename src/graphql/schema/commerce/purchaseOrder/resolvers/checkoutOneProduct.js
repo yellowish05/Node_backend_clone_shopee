@@ -17,11 +17,11 @@ module.exports = async function checkoutOneProduct(
   if (!productAttr && productAttribute) {
     throw new ForbiddenError('Product does not exist.');
   }
-  const checkAmount = productAttr != null
-    ? await repository.productAttributes.checkAmountByAttr(productAttr._id, quantity)
+  const checkAmount = productAttr
+    ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity)
     : await repository.product.checkAmount(product, quantity);
-  const cartItems = productAttr != null
-    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttr, billingAddress)
+  const cartItems = productAttr
+    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttribute, billingAddress)
     : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
@@ -31,7 +31,7 @@ module.exports = async function checkoutOneProduct(
     const cartItemData = {
       productId: product,
       quantity,
-      productAttribute: productAttribute, // != null ? cartItems[0].productAttribute : null,
+      productAttribute, // != null ? cartItems[0].productAttribute : null,
       deliveryRateId: delivery.id,
       billingAddress,
     };

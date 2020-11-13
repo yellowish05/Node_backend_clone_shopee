@@ -14,6 +14,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     { billingAddress: 'required' },
   );
 
+  validator.addPostRule(async (provider) => {
+    if (provider.inputs.productAttribute) {
+      await repository.productAttributes.getById(provider.inputs.productAttribute)
+        .then((attr) => {
+          if (!attr) { provider.error('Invalid Product Attribute'); }
+        });
+    }
+  });
+
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
