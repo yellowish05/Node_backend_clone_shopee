@@ -64,10 +64,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           const productInfo = await repository.product.getById(args.product);
           // calculate quantity
           if (productAttr) {
-            productAttr.quantity -= quantity;
+            productAttr.quantity -= args.quantity;
             await productAttr.save();
           } else {
-            productInfo.quantity -= quantity;
+            productInfo.quantity -= args.quantity;
             await productInfo.save();
           }
           return repository.userCartItem.add(cartItemData, user.id);
