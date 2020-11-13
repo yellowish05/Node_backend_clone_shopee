@@ -6,7 +6,7 @@ class UserCartItemRepository {
     this.model = model;
   }
 
-  async findOne({ productId }, userId) {
+  async findOne({ productId, productAttribute }, userId) {
     if (typeof productId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof productId}"`);
     }
@@ -14,7 +14,9 @@ class UserCartItemRepository {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof userId}"`);
     }
 
-    return this.model.findOne({ product: productId, user: userId });
+    return productAttribute ? 
+      this.model.findOne({ product: productId, productAttribute, user: userId }) : 
+      this.model.findOne({ product: productId, productuser: userId })
   }
 
   async getById(itemId) {

@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -32,11 +32,23 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
+      args.productAttribute ? repository.productAttributes.getById(args.productAttribute) : null,
     ]))
-    .then(([product, deliveryRate]) => {
+    .then(async ([product, deliveryRate, productAttr]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
+      if (args.productAttribute && !productAttr) {
+        throw new ForbiddenError('Product does not exist.');
+      }
+
+      const checkAmount = productAttr != null
+        ? await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)
+        : await repository.product.checkAmount(args.product, args.quantity);
+      
+      if (!checkAmount) 
+        throw new ForbiddenError('This product is not enough now');
+
       const cartItemData = {
         productId: product.id,
         quantity: args.quantity,
@@ -48,7 +60,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
       return repository.deliveryRate.create(deliveryRate.toObject())
-        .then(() => repository.userCartItem.add(cartItemData, user.id));
+        .then(async () => {
+          const productInfo = await repository.product.getById(args.product);
+          // calculate quantity
+          if (productAttr) {
+            productAttr.quantity -= quantity;
+            await productAttr.save();
+          } else {
+            productInfo.quantity -= quantity;
+            await productInfo.save();
+          }
+          return repository.userCartItem.add(cartItemData, user.id);
+        });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);

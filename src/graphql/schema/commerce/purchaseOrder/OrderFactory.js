@@ -28,6 +28,7 @@ async function createOrderItem(cartItem, currency) {
     status: OrderItemStatus.CREATED,
     createdAt: new Date(),
     product: cartItem.product,
+    productAttribute: cartItem.productAttribute,
     quantity: cartItem.quantity,
     originCurrency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
     originPrice: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,

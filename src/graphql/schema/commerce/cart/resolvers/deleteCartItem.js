@@ -19,7 +19,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
     })
     .then(() => repository.userCartItem.getById(args.id))
-    .then((userCartItem) => {
+    .then(async (userCartItem) => {
       if (!userCartItem) {
         throw new UserInputError(`Cart item (${args.id}) does not exist`, { invalidArgs: 'id' });
       }
@@ -27,6 +27,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       if (userCartItem.user !== user.id) {
         throw new ForbiddenError('You can not delete this Cart Item');
       }
+
+      const productInfo = userCartItem.productAttribute ? 
+        await repository.productAttributes.getById(userCartItem.productAttribute) : 
+        await repository.product.getById(userCartItem.product);
+      productInfo.quantity += userCartItem.quantity;
+      await productInfo.save();
 
       return repository.userCartItem.delete(args.id);
     })
