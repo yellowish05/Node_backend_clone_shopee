@@ -71,6 +71,13 @@ class ProductAttributesRepository {
   async checkDuplicatedSKU(sku) {
     return this.model.countDocuments({ sku });
   }
+
+  async checkAmountByAttr(id, qty) {
+    const attribute = await this.getById(id);
+    if (attribute.quantity - qty > 1) { return true; }
+
+    return false;
+  }
 }
 
 module.exports = ProductAttributesRepository;

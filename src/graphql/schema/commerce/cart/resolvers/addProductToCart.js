@@ -11,9 +11,17 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
-    { productAttr: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { billingAddress: 'required' },
   );
+
+  validator.addPostRule(async (provider) => {
+    if (provider.inputs.productAttribute) {
+      await repository.productAttributes.getById(provider.inputs.productAttribute)
+        .then((attr) => {
+          if (!attr) { provider.error('Invalid Product Attribute'); }
+        });
+    }
+  });
 
   return validator.check()
     .then(async (matched) => {
@@ -24,16 +32,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
-      repository.productAttributes.getById(args.productAttr),
     ]))
-    .then(([product, deliveryRate, productAttribute]) => {
+    .then(([product, deliveryRate]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
       const cartItemData = {
         productId: product.id,
         quantity: args.quantity,
-        productAttribute: productAttribute,
+        productAttribute: args.productAttribute,
         billingAddress: args.billingAddress,
       };
       if (deliveryRate) {
