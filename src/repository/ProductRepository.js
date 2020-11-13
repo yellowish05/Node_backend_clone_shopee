@@ -204,6 +204,19 @@ class ProductRepository {
     elasticFilter(query, filter);
     return this.model.countDocuments(query);
   }
+
+  async checkAmount(productId, quantity) {
+    try {
+      const product = await this.getById(productId);
+      if (!product)
+        throw Error(`Product with id "${productId}" does not exist!`);
+      if (product.quantity - quantity < 1) 
+        return false;
+      return true;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
 }
 
 module.exports = ProductRepository;

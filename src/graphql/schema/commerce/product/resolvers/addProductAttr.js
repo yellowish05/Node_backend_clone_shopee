@@ -32,7 +32,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
           provider.error('Product', 'custom', `Product with id "${provider.inputs.productId}" does not exist!`);
       }
       if (countDuplicatedSku > 0) {
-          provider.error('SKU', 'custom', `SKU with value "${provider.inputs.productId}" is already exist!`);
+          provider.error('SKU', 'custom', `SKU with value "${provider.inputs.sku}" is already exist!`);
       }
       foundProduct = product;
   }));
