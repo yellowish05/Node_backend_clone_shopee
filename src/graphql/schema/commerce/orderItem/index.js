@@ -30,6 +30,7 @@ const schema = gql`
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
+        billingAddress: DeliveryAddress!
     }
 
     type OrderProductItem implements OrderItemInterface {
@@ -45,6 +46,7 @@ const schema = gql`
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
+        billingAddress: DeliveryAddress!
     }
 `;
 
@@ -79,6 +81,7 @@ module.exports.resolvers = {
     deliveryOrder: async (item, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.findByOrderItem(item.id)
     ),
+    billingAddress: async (item, _, { dataSources: { repository } }) => repository.billingAddress.getById(item.billingAddress),
   },
   OrderItemInterface: {
     __resolveType(item) {

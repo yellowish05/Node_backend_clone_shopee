@@ -124,6 +124,7 @@ class UserRepository {
         currency: data.settings.currency,
         measureSystem: data.settings.measureSystem,
       },
+      phone: data.phone
     });
 
     return user.save();
@@ -264,6 +265,18 @@ class UserRepository {
     user.settings.language = langCode;
     return user.save();
   }
+  
+  async updateEmailAndPassword(id, data) {
+    const user = await this.load(id);
+    if (!user) {
+      throw Error(`User "${id}" does not exist!`);
+    }
+
+    user.email = data.email;
+    user.password = md5(data.password);
+
+    return user.save();
+  }
 
   async findByEmailAndPassword({ email, password }) {
     const query = {
@@ -274,9 +287,22 @@ class UserRepository {
     return this.model.findOne(query);
   }
 
+  async findByPhoneAndPassword({ phone, password }) {
+    const query = {
+      password: md5(password),
+      phone: phone,
+    };
+
+    return this.model.findOne(query);
+  }
+
   async findByEmail(email) {
     email = email.toLowerCase();
     return this.model.findOne({ email });
+  }
+
+  async findByPhone(phone) {
+    return this.model.findOne({ phone });
   }
 
   async findByProvider(provider, value) {
@@ -296,6 +322,13 @@ class UserRepository {
       { _id: userId },
       { $set: { isApprovedEmail: true } },
       { new: true },
+    );
+  }
+
+  async changeDeviceId(userId, device_id) {
+    return this.model.update(
+      { _id: userId },
+      { $set: { device_id } },
     );
   }
 

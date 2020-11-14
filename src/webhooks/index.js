@@ -9,6 +9,7 @@ const deliveryShipEngineAction = require('./delivery/shipengine');
 const getStripeAction = require('./payment/stripe');
 const getRazorpayAction = require('./payment/razorpay');
 const getPayPalAction = require('./payment/paypal');
+const getLinepayAction = require('./payment/linepay')
 
 const path = require('path');
 const { payment } = require(path.resolve('config'));
@@ -26,5 +27,6 @@ app.get('/delivery/shipengine', deliveryShipEngineAction);
 app.post('/payment/stripe', getStripeAction);
 app.post('/payment/razorpay', getRazorpayAction);
 app.post('/payment/paypal', getPayPalAction);
+app.post('/payment/linepay', getLinepayAction);
 
 module.exports = app;

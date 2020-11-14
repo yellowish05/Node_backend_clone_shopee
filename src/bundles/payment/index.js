@@ -10,6 +10,7 @@ const providers = {
   Stripe: require('./providers/Stripe'),
   RazorPay: require('./providers/RazorPay'),
   PayPal: require('./providers/PayPal'),
+  LinePay: require('./providers/LinePay'),
 };
 
 if (payment.testMode) {

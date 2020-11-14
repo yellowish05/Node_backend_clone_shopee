@@ -26,6 +26,7 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
         throw new UserInputError('Invalid login or password');
       }
       // console.log('[user]', user);
+
       return repository.accessToken.create(user, {
         ip: data.ip || null,
         userAgent: data.userAgent || null,

@@ -16,7 +16,8 @@ class Provider extends ProviderAbstract {
     super();
     this.client = new Razorpay({
       key_id: keyID,
-      key_secret: keySecret,});
+      key_secret: keySecret,
+    });
     this.repository = repository;
   }
 

@@ -26,6 +26,11 @@ const schema = new Schema({
     type: String,
     index: true,
   },
+  productAttribute: {
+    type: String,
+    ref: 'ProductAttribute',
+    index: true,
+  }
 });
 
 module.exports = new model(collectionName, schema);

@@ -32,6 +32,68 @@ class PurchaseOrderRepository {
     });
     return document.save();
   }
+
+  async update(data) {
+    const order = await this.getById(data.id);
+
+    order.deliveryOrders = data.deliveryOrders ? data.deliveryOrders : order.deliveryOrders;
+    order.items = data.items ? data.items : order.items;
+    order.payments = data.payments ? data.payments : order.payments;
+    order.isPaid = data.isPaid ? data.isPaid : order.isPaid;
+    order.currency = data.currency ? data.currency : order.currency;
+    order.quantity = data.quantity ? data.quantity : order.quantity;
+    order.price = data.price ? data.price : order.price;
+    order.deliveryPrice = data.deliveryPrice ? data.deliveryPrice : order.deliveryPrice;
+    order.total = data.total ? data.total : order.total;
+    order.buyer = data.buyer ? data.buyer : order.buyer;
+    order.paymentClientSecret = data.paymentClientSecret ? data.paymentClientSecret : order.paymentClientSecret;
+    order.publishableKey = data.publishableKey ? data.publishableKey : order.publishableKey;
+
+    return order.save();
+  }
+
+  async getByClientSecret(id) {
+    return this.model.findOne({ paymentClientSecret: id });
+  }
+
+  async addInovicePDF(id, url) {
+    const purchaseOrder = await this.getById(id);
+
+    if (purchaseOrder.invoicePDF) { purchaseOrder.invoicePDF.push(url); } else { purchaseOrder.invoicePDF = [url]; }
+
+    return purchaseOrder.save();
+  }
+
+  async addPackingSlip(id, url) {
+    const purchaseOrder = await this.getById(id);
+    purchaseOrder.packingSlips.push(url);
+
+    return purchaseOrder.save();
+  }
+
+  async getInvoicePDF(id) {
+    const purchaseOrder = await this.getById(id);
+
+    return purchaseOrder.invoicePDF;
+  }
+
+  async addPaymentInfo(clientSecret, paymentInfo) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.paymentInfo = paymentInfo;
+
+    return purchaseOrder.save();
+  }
+
+  async updateStatusByClientSecret(clientSecret, status) {
+    const purchaseOrder = await this.getByClientSecret(clientSecret);
+    purchaseOrder.status = status;
+
+    return purchaseOrder.save();
+  }
+
+  // async getPackingSlips(id) {
+
+  // }
 }
 
 module.exports = PurchaseOrderRepository;

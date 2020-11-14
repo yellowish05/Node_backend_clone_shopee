@@ -123,6 +123,9 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   }
+  sku: {
+    type: String,
+  },
 });
 
 schema.indexes([

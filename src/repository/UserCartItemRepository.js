@@ -6,14 +6,14 @@ class UserCartItemRepository {
     this.model = model;
   }
 
-  async findOne({ productId, metricUnit }, userId) {
+  async findOne({ productId, metricUnit, productAttribute }, userId) {
     if (typeof productId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof productId}"`);
     }
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof userId}"`);
     }
-    let query = { product: productId, user: userId, metricUnit };
+    let query = { product: productId, user: userId, metricUnit, productAttribute };
     // if (metricUnit) query.metricUnit = metricUnit;
     return this.model.findOne(query);
   }
@@ -33,8 +33,8 @@ class UserCartItemRepository {
     return this.model.find({ user: userId });
   }
 
-  async add({ productId, deliveryRateId, quantity, metricUnit, attrId }, userId) {
-    return this.findOne({ productId, metricUnit }, userId)
+  async add({ productId, deliveryRateId, quantity, metricUnit, attrId, billingAddress, productAttribute, }, userId) {
+    return this.findOne({ productId, metricUnit, productAttribute }, userId)
       .then((cartItem) => {
         if (cartItem && cartItem.metricUnit === metricUnit && cartItem.attrId == attrId) {
           cartItem.quantity += quantity;
@@ -43,7 +43,15 @@ class UserCartItemRepository {
         }
 
         return this.model.create({
-          _id: uuid(), product: productId, deliveryRate: deliveryRateId, user: userId, quantity, metricUnit, attrId
+          _id: uuid(),
+          product: productId,
+          deliveryRate: deliveryRateId,
+          user: userId,
+          quantity, 
+          metricUnit, 
+          attrId,
+          billingAddress,
+          productAttribute,
         });
       });
   }

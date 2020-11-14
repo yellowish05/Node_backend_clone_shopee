@@ -22,9 +22,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     quantity: 'required|integer',
     currency: 'required',
     assets: 'required|length:9,1',
-    thunbailId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']]
   }, {
-    'assets.length': "You can not upload more than 9 images!"
+    'assets.length': 'You can not upload more than 9 images!',
   });
 
   let product;

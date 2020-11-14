@@ -83,13 +83,9 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
 
       let customCarrier;
       if (data.customCarrier) {
-        customCarrier = await repository.customCarrier.findByName(
-          data.customCarrier
-        );
+        customCarrier = await repository.customCarrier.findByName(data.customCarrier);
         if (!customCarrier) {
-          throw new ForbiddenError(
-            `Can not find customCarrier with "${data.customCarrier}" name`
-          );
+          throw new ForbiddenError(`Can not find customCarrier with "${data.customCarrier}" name`);
         }
       }
 
@@ -103,25 +99,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.shippingBox = data.shippingBox;
       // productData.weight = data.weight;
       productData.quantity = quantity;
-      productData.sortPrice = productData.customCarrier = customCarrier
-        ? customCarrier.id
-        : null;
-      productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({
-        currencyAmount: data.customCarrierValue || 0,
-        currency: data.currency,
-      }).getCentsAmount();
-      productData.price = CurrencyFactory.getAmountOfMoney({
-        currencyAmount: data.discountPrice || data.price,
-        currency: data.currency,
-      }).getCentsAmount();
-      productData.oldPrice = data.discountPrice
-        ? CurrencyFactory.getAmountOfMoney({
-            currencyAmount: data.price,
-            currency: data.currency,
-          }).getCentsAmount()
-        : null;
-      productData.thumbnail = thumbnailId;
-
+      productData.customCarrier = customCarrier ? customCarrier.id : null;
+      productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
+      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
+      if (thumbnailId) { productData.thumbnail = thumbnailId; }
+      productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
 
       // options
       productData.attrs = [];

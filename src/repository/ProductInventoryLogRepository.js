@@ -35,7 +35,10 @@ class ProductRepository {
         },
       },
     ])
-      .then(([{ quantity }]) => quantity);
+      .then(([{ quantity }]) => quantity)
+      .catch(err => {
+        return 0
+      });
   }
 
   async decreaseQuantity(id, quantity) {
@@ -50,6 +53,20 @@ class ProductRepository {
   async checkAmount(id, quantity) {
     try {
       const inventory = await this.getByProductId(id);
+      if (inventory.shift - quantity < 1) return false;
+      return true;
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
+  async getByProductIdAndAttrId(productId, productAttrId) {
+    return this.model.findOne({ product: productId, productAttribute: productAttrId });
+  }
+
+  async checkAmountByAttr(productId, productAttrId, quantity) {
+    try {
+      const inventory = await this.getByProductIdAndAttrId(productId, productAttrId);
       if (inventory.shift - quantity < 1) return false;
       return true;
     } catch (err) {

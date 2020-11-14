@@ -13,7 +13,10 @@ async function up () {
   // Write migration here
   const languageList = []
   await languages.forEach(item => {
-    const ID = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+    const ID = item.iso639_1.toUpperCase();
+    // const ID = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+    // const ID = item.iso639_3.toUpperCase();
+
     languageList.push({
       _id: ID.split('-')[0],
       name: item.name[0]

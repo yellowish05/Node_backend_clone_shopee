@@ -13,7 +13,7 @@ if (!email.elasticEmailOptions.apiKey) {
   logger.warn("You didn't provided APP_KEY for Elastic Email. You will not be able to send emails");
 } else {
   client = new EmailClient(email.elasticEmailOptions);
-  client.isSendingDisabled = false; // biwu temp
+  client.isSendingDisabled = false;
 
   client.Account.Load()
     .then((response) => {

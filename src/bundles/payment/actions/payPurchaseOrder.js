@@ -1,20 +1,27 @@
-const path = require('path');
-const uuid = require('uuid/v4');
+const path = require("path");
+const uuid = require("uuid/v4");
 
-const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
-const ordersBundle = require(path.resolve('src/bundles/orders'));
-const repository = require(path.resolve('src/repository'));
-const { PaymentMethodIsUnactiveException, PaymentMethodUsesWrongProviderException } = require('../Exceptions');
+const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
+const ordersBundle = require(path.resolve("src/bundles/orders"));
+const repository = require(path.resolve("src/repository"));
+const {
+  PaymentMethodIsUnactiveException,
+  PaymentMethodUsesWrongProviderException,
+} = require("../Exceptions");
 
-const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
-const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
-const logger = require(path.resolve('config/logger'));
-const { payment: { providers: { stripe }} } = require(path.resolve('config'));
+const { PaymentTransactionStatus } = require(path.resolve("src/lib/Enums"));
+const { PaymentMethodProviders } = require(path.resolve("src/lib/Enums"));
+const logger = require(path.resolve("config/logger"));
+const {
+  payment: {
+    providers: { stripe },
+  },
+} = require(path.resolve("config"));
 
 const stripeProvider = PaymentMethodProviders.STRIPE;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
 const paypalProvider = PaymentMethodProviders.PAYPAL;
-
+const linepayProvider = PaymentMethodProviders.LINEPAY;
 
 function paymentTransactionFactory(order) {
   return {
@@ -32,7 +39,7 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   const transaction = {
     ...paymentTransactionFactory(order),
     merchant: wirecardProvider.getMerchantId(),
-    type: 'purchase',
+    type: "purchase",
   };
 
   const amountISO = CurrencyFactory.getAmountOfMoney({
@@ -56,11 +63,13 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   return Promise.all([
     repository.paymentTransaction.create(transaction),
     order.save(),
-  ])
-    .then(([trans]) => trans);
+  ]).then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({ order, provider }) => {
+module.exports = ({ getProvider, availableProviders }) => async ({
+  order,
+  provider,
+}) => {
   // if (!paymentMethod) {
   //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
   // }
@@ -73,15 +82,15 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
   //   if (!method) {
   //     throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
   //   }
-  
+
   //   if (!method.isActive) {
   //     throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
   //   }
-  
+
   //   if (!availableProviders().includes(method.provider)) {
   //     throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
   //   }
-  
+
   //   // Create and Save Transaction for Purchase Order
   //   transaction = await repository.paymentTransaction.create(
   //     {
@@ -106,12 +115,10 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
   // }
 
   // Create and Save Transaction for Purchase Order
-  transaction = await repository.paymentTransaction.create(
-    {
-      ...paymentTransactionFactory(order),
-      paymentMethod: null,
-    },
-  );
+  transaction = await repository.paymentTransaction.create({
+    ...paymentTransactionFactory(order),
+    paymentMethod: null,
+  });
 
   // Add transaction to the order and save it
   order.payments.push(transaction.id);
@@ -119,73 +126,116 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
 
   // Pay the transaction here
   try {
-    if(provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY ) {
-      
-      return getProvider(stripeProvider).createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
-      .then((paymentIntent) => {
-        if(paymentIntent.error) {
-          return paymentIntent;
-        } else {
-          return {
-            publishableKey: stripe.publishable,
-            paymentClientSecret: paymentIntent.client_secret
-          };
-        }
-      });
-    } else if ( provider == PaymentMethodProviders.ALIPAY ) {
-      return getProvider(stripeProvider).createAlipayPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+    if (
+      provider == PaymentMethodProviders.STRIPE ||
+      provider == PaymentMethodProviders.APPLEPAY ||
+      provider == PaymentMethodProviders.GOOGLEPAY
+    ) {
+      return getProvider(stripeProvider)
+        .createPaymentIntent(
+          transaction.currency,
+          transaction.amount,
+          transaction.buyer
+        )
         .then((paymentIntent) => {
-          if(paymentIntent.error) {
+          if (paymentIntent.error) {
             return paymentIntent;
           } else {
             return {
               publishableKey: stripe.publishable,
-              paymentClientSecret: paymentIntent.client_secret
+              paymentClientSecret: paymentIntent.client_secret,
             };
           }
         });
-    } else if( provider == PaymentMethodProviders.WECHATPAY) {
-      return getProvider(stripeProvider).createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
+    } else if (provider == PaymentMethodProviders.ALIPAY) {
+      return getProvider(stripeProvider)
+        .createAlipayPaymentIntent(
+          transaction.currency,
+          transaction.amount,
+          transaction.buyer
+        )
         .then((paymentIntent) => {
-          if(paymentIntent.error) {
+          if (paymentIntent.error) {
             return paymentIntent;
           } else {
             return {
               publishableKey: stripe.publishable,
-              paymentClientSecret: paymentIntent.client_secret
+              paymentClientSecret: paymentIntent.client_secret,
             };
           }
         });
-    } else if ( provider == PaymentMethodProviders.RAZORPAY ) {
-      return getProvider(razorpayProvider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
+    } else if (provider == PaymentMethodProviders.WECHATPAY) {
+      return getProvider(stripeProvider)
+        .createWeChatPaySource(
+          transaction.currency,
+          transaction.amount,
+          transaction.buyer
+        )
+        .then((paymentIntent) => {
+          if (paymentIntent.error) {
+            return paymentIntent;
+          } else {
+            return {
+              publishableKey: stripe.publishable,
+              paymentClientSecret: paymentIntent.client_secret,
+            };
+          }
+        });
+    } else if (provider == PaymentMethodProviders.RAZORPAY) {
+      return getProvider(razorpayProvider)
+        .createOrder(
+          transaction.currency,
+          transaction.amount,
+          transaction.buyer
+        )
         .then((orderResponse) => {
           if (orderResponse.error) {
             return orderResponse;
           } else {
             return {
-              publishableKey: '',
-              paymentClientSecret: orderResponse.id
+              publishableKey: "",
+              paymentClientSecret: orderResponse.id,
             };
           }
         });
-    } else if ( provider == PaymentMethodProviders.PAYPAL ){
-      return getProvider(paypalProvider).createOrder(transaction.currency, transaction.amount, transaction.buyer)
+    } else if (provider == PaymentMethodProviders.PAYPAL) {
+      return getProvider(paypalProvider)
+        .createOrder(
+          transaction.currency,
+          transaction.amount,
+          transaction.buyer
+        )
         .then(async (orderResponse) => {
-          if(orderResponse.error) {
+          if (orderResponse.error) {
             return orderResponse;
           } else {
-            const [approveLink] = orderResponse.links.filter(link => link.rel==='approval_url');
+            const [approveLink] = orderResponse.links.filter(
+              (link) => link.rel === "approval_url"
+            );
             transaction.providerTransactionId = orderResponse.id;
             transaction.responsePayload = JSON.stringify(orderResponse);
             await transaction.save();
             return {
-              publishableKey: '',
-              paymentClientSecret: approveLink.href
+              publishableKey: "",
+              paymentClientSecret: approveLink.href,
+            };
+          }
+        });
+    } else if (provider == PaymentMethodProviders.LINEPAY) {
+      return getProvider(linepayProvider)
+        .createOrder(transaction)
+        .then((orderResponse) => {
+          if (orderResponse.error) {
+            return orderResponse;
+          } else {
+            return {
+              publishableKey: "",
+              paymentClientSecret: JSON.stringify(orderResponse.paymentUrl),
             };
           }
         });
     } else {
-      return { error: provider}
+      return { error: provider };
       // await getProvider(method.provider).payTransaction(transaction);
     }
     // await transaction.save();
