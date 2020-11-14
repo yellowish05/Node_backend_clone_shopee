@@ -12,5 +12,3 @@
 
 1. install `migrate-mongoose` globally `npm install -g migrate-mongoose`
 2. run migrations `migrate up` (local use) or `npm run migrate-up` (this command use on the stage and prod servers)
-
-
