@@ -122,7 +122,7 @@ const schema = new Schema({
   wholesaleEnabled: {
     type: Boolean,
     default: false,
-  }
+  },
   sku: {
     type: String,
   },

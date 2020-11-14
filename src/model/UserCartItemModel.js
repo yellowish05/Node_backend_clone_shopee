@@ -32,7 +32,7 @@ const schema = new Schema({
   },
   attrId: {
     type: String
-  }
+  },
 
   billingAddress: {
     type: String,

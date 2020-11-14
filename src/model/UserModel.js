@@ -83,7 +83,7 @@ const schema = new Schema({
   },
   streamToken: {
     type: String
-  }
+  },
   // for push notification from onesignal
   device_id: {
     type: String,

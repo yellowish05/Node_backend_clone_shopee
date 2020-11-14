@@ -125,15 +125,11 @@ module.exports = async function checkoutOneProduct(
     // return order;
   }
 
-  const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
+  // const cartItems = await checkout.loadProductAsCart(deliveryRate, product, quantity, repository);
   // creating order
   const order = await checkout.createOrder({
     cartItems, currency, buyerId: user.id,
   }, repository);
-<<<<<<< HEAD
   order.error = "This product is not enough now";
-=======
-  order.error = 'This product is not enough now';
->>>>>>> shoclef/master
   return order;
 };

@@ -1,7 +1,7 @@
 {
-  "name": "shoclef-api",
+  "name": "xiufu88-website",
   "version": "1.0.0",
-  "description": "",
+  "description": "1. add to `~/.profile` node env `export NODENV=development`",
   "main": "server.js",
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
@@ -11,8 +11,8 @@
     "debug": "nodemon -L --inspect=0.0.0.0 ./server.js",
     "test": "jest",
     "fixtures": "node bin/fixtures.js",
-    "migrate-up": "./node_modules/.bin/migrate up --autosync",
-    "migrate-down": "./node_modules/.bin/migrate down"
+    "migrate-up": "migrate up --autosync",
+    "migrate-down": "migrate down"
   },
   "repository": {
     "type": "git",
@@ -122,5 +122,11 @@
   },
   "resolutions": {
     "fs-capacitor": "6.2.0"
+  },
+  "bin": {
+    "xiufu88-website": "fixtures.js"
+  },
+  "directories": {
+    "doc": "doc"
   }
 }

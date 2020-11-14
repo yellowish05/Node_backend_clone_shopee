@@ -38,7 +38,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       repository.deliveryRateCache.getById(args.deliveryRate),
       args.productAttribute ? repository.productAttributes.getById(args.productAttribute) : null,
     ]))
-    .then(([product, deliveryRate, productAttr]) => {
+    .then(async ([product, deliveryRate, productAttr]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
@@ -59,9 +59,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           }
         }
       }
-      const checkAmount = productAttr != null
-        ? await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)
-        : await repository.productInventoryLog.checkAmount(args.product, args.quantity);
+
+      const checkAmount = productAttr !== null ? (await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)) : (await repository.productInventoryLog.checkAmount(args.product, args.quantity));
 
       if (!checkAmount) { throw new ForbiddenError('This product is not enough now'); }
 

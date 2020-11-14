@@ -23,8 +23,6 @@ const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 
-const multiparty = require('connect-multiparty');
-
 const multipartymiddleware = multiparty();
 
 process.on('SIGINT', () => {
@@ -45,7 +43,6 @@ app.use('/viewers', viewersRouters);
 app.use('/pages', pageRouters);
 app.use('/api/v1', ApiV1Routers);
 
-var multipartymiddleware = multiparty();
 app.route('/upload').post(multipartymiddleware, function (req, res) {
   let file = req.files.file;
   fs.readFile(file.path, function (err, data) {

@@ -39,11 +39,9 @@ const schema = gql`
     extend type Query {
       """Allows: authorized user"""
       saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
-      """Allows: authorized user"""
-      saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+
+      # saleOrder(id: ID!): SaleOrder @auth(requires: USER)
       saleOrdersList(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection!
-      """Allows: authorized user"""
-      saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
       """Allows: authorized user"""
       saleOrder(id: ID!): SaleOrder
       getPackingSlip(id: ID!): [String]
