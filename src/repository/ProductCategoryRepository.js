@@ -8,6 +8,10 @@ class ProductCategoryRepository {
     this.model = model;
   }
 
+  async getAll() {
+    return this.model.find().sort('level');
+  }
+
   async getById(id) {
     return this.model.findOne({ _id: id });
   }
