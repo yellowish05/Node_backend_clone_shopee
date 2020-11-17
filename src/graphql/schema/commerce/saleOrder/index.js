@@ -15,13 +15,15 @@ const schema = gql`
         """ Collected status """
         status: SaleOrderStatus!
         """ List of products or services or anything else what we going to selling """
-        items: [OrderItemInterface!]!
+        items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         """ Address for ship products """
         deliveryOrders: [DeliveryOrder]!
         """ Relation to Payout """
         payout: PayoutOrder
+        createdAt: Date
+        purchaseOrder: OrderProductItem!
         cancelationReason: String
     }
 
@@ -37,8 +39,12 @@ const schema = gql`
     extend type Query {
       """Allows: authorized user"""
       saleOrders(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection! @auth(requires: USER)
+
+      # saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+      saleOrdersList(filter: SaleOrderFilterInput, page: PageInput = {}): SaleOrderCollection!
       """Allows: authorized user"""
-      saleOrder(id: ID!): SaleOrder @auth(requires: USER)
+      saleOrder(id: ID!): SaleOrder
+      getPackingSlip(id: ID!): [String]
     }
 
     extend type Mutation {
@@ -63,9 +69,23 @@ module.exports.resolvers = {
           },
         }))
     ),
+    saleOrdersList: async (_, { page }, { dataSources: { repository }, user }) => (
+      repository.saleOrder.find({ user })
+        .then((collection) => ({
+          collection: collection || [],
+          pager: {
+            ...page,
+            total: 0,
+          },
+        }))
+    ),
     saleOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.saleOrder.getById(id)
     ),
+    getPackingSlip: (_, { id }, { dataSources: { repository } }) => repository.saleOrder.getPackingSlip(id)
+      .then((orders) => {
+        if (orders && orders.length > 0) { return orders; }
+      }),
   },
   SaleOrder: {
     buyer: async (order, _, { dataSources: { repository } }) => (
@@ -76,6 +96,9 @@ module.exports.resolvers = {
     ),
     deliveryOrders: async (order, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.getByIds(order.deliveryOrders)
+    ),
+    purchaseOrder: async (order, _, { dataSources: { repository } }) => (
+      repository.purchaseOrder.getById(order.purchaseOrder)
     ),
     total: async (order) => (
       CurrencyFactory.getAmountOfMoney({

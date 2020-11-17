@@ -39,6 +39,11 @@ async function createOrderItem(cartItem, currency) {
     metricUnit: cartItem.metricUnit, // reflects wholesales
     originCurrency: cartItem.product.currency,
     originPrice: cartItem.product.price,
+    // incoming - shoclef
+    // productAttribute: cartItem.productAttribute,
+    // quantity: cartItem.quantity,
+    // originCurrency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
+    // originPrice: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
     originDeliveryCurrency: cartItem.deliveryRate.currency,
     originDeliveryPrice: cartItem.deliveryRate.amount,
     currency,
@@ -47,6 +52,7 @@ async function createOrderItem(cartItem, currency) {
     total: price.getCentsAmount() * cartItem.quantity,
     seller: cartItem.product.seller,
     title: cartItem.product.title,
+    billingAddress: cartItem.billingAddress,
   };
 }
 
@@ -81,6 +87,11 @@ class OrderFactory {
     this.purchaseItems = null;
     this.deliveryOrders = null;
     this.purchaseOrder = null;
+  }
+
+  setProperties(orderItems, deliveryOrders) {
+    this.purchaseItems = orderItems;
+    this.deliveryOrders = deliveryOrders;
   }
 
   async createOrderItems() {

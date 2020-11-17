@@ -4,5 +4,6 @@ node_modules
 fixtures-lock.json
 .Ds_Store
 yarn-lock.json
-package-lock.json
 Readme-self.md
+package-lock.json
+Note.md

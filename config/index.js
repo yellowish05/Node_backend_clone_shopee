@@ -122,6 +122,14 @@ module.exports = {
         client_id: process.env.PAYMENT_PAYPAL_CLIENT,
         client_secret: process.env.PAYMENT_PAYPAL_SECRET,
       },
+      linepay: {
+        bot_channel_secret: process.env.PAYMENT_LINE_BOT_CHANNEL_SECRET,
+        bot_access_token: process.env.PAYMENT_LINE_BOT_ACCESS_TOKEN,
+        pay_channel_ID: process.env.PAYMENT_LINE_PAY_CHANNEL_ID,
+        pay_channel_secret: process.env.PAYMENT_LINE_PAY_CHANNEL_SECRET,
+        confirmURL: process.env.PAYMENT_LINE_PAY_CONFIRM_URL,
+        cancelUrl: process.env.PAYMENT_LINE_PAY_CANCEL_URL
+      }
     },
   },
   shipengine: {
@@ -150,6 +158,11 @@ module.exports = {
       api_secret: process.env.CHAT_GETSTREAM_API_SECRET,
       app_id: process.env.CHAT_GETSTREAM_APP_ID,
       location: process.env.CHAT_GETSTREAM_LOCATION
-    }
+    },
+  },
+  oneSignal: {
+    restApi_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_RESTAPIKEY,
+    auth_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_AUTHKEY,
+    app_id: process.env.PUSH_NOTIFICATION_ONESIGNAL_APPID
   }
 };

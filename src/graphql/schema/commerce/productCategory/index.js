@@ -22,6 +22,7 @@ const schema = gql`
         searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
         productCategories(parent: ID): [ProductCategory]!
         productCategory(id: ID!): ProductCategory
+        fullProductCategories: [ProductCategory]!
     }
 
     extend type Mutation {
@@ -70,6 +71,9 @@ module.exports.resolvers = {
     ),
     productCategory: async (_, { id }, { dataSources: { repository } }) => (
       repository.productCategory.getById(id)
+    ),
+    fullProductCategories: async (_, __, { dataSources: { repository } }) => (
+      repository.productCategory.getAll()
     ),
   },
   Mutation: {

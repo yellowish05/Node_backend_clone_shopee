@@ -16,15 +16,21 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
   }, {});
 
   let productAttr;
+  let product;
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.productAttributes.getById(provider.inputs.id),
+    repository.product.getById(provider.inputs.productId),
   ])
-    .then(([foundProductAttr]) => {
+    .then(([foundProductAttr, productInfo]) => {
       if (!foundProductAttr) {
         provider.error('id', 'custom', `ProductAttr with id "${provider.inputs.id}" doen not exist!`);
       }
+      if (!productInfo) {
+        provider.error('id', 'custom', `Product with id "${provider.inputs.productId}" doen not exist!`);
+      }
       productAttr = foundProductAttr;
+      product = productInfo;
     }));
 
   return validator.check()
@@ -33,25 +39,42 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         throw errorHandler.build(validator.errors);
       }
     })
+    .then(() => {
+      if (user.id !== product.seller) {
+        throw new ForbiddenError('You can not update product!');
+      }
+    })
     .then(async () => {
       const {
         quantity, price, discountPrice, ...productAttrData
       } = data;
 
-      productAttr.color = productAttrData.color == "" ? productAttr.color : productAttrData.color;
-      productAttr.size = productAttrData.size == "" ? productAttr.size : productAttrData.size;
-      // productAttr.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
-      // productAttr.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-      productAttr.price = price ? price : productAttr.price;
-      productAttr.discountPrice = discountPrice ? discountPrice : productAttr.discountPrice;
-      productAttr.quantity = quantity ? quantity : productAttr.quantity;
-      productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
+      // productAttr.color = productAttrData.color == "" ? productAttr.color : productAttrData.color;
+      // productAttr.size = productAttrData.size == "" ? productAttr.size : productAttrData.size;
+      productAttr.variation = productAttrData.variation ? productAttrData.variation : productAttr.variation;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
+      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
+      productAttr.discountPrice = discountPrice ? discountPrice : productAttr.discountPrice;
+      productAttr.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
+      productAttr.quantity = quantity || productAttr.quantity;
+      productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
 
       return Promise.all([
         productAttr.save(),
+        repository.productInventoryLog.getByProductIdAndAttrId(product.id, productAttr.id),
       ])
-        .then(async ([updatedproductAttr]) => {
+        .then(async ([updatedproductAttr, inventory]) => {
+          if (!inventory) {
+            const inventoryLog = {
+              _id: uuid(),
+              product: product.id,
+              productAttribute: updatedproductAttr.id,
+              shift: updatedproductAttr.quantity,
+              type: InventoryLogType.USER_ACTION,
+            };
+            inventory = await repository.productInventoryLog.add(inventoryLog)
+          }
+          await repository.productInventoryLog.update(inventory.id, updatedproductAttr.quantity);
           return updatedproductAttr;
         });
     });

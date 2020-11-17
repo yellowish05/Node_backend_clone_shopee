@@ -99,7 +99,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     deliveryAddresses: async (_, args, { dataSources: { repository }, user }) => repository.deliveryAddress.getAll({ owner: user.id }),
-    billingAddresses: async (_, args, { dataSources: { repository }, user }) => repository.billingAddress.getAll({ owner: user.id })
+    billingAddresses: async (_, args, { dataSources: { repository }, user }) => repository.billingAddress.getAll({ owner: user.id }),
   },
   Mutation: {
     addDeliveryAddress,
@@ -107,7 +107,7 @@ module.exports.resolvers = {
     updateDeliveryAddress,
     addBillingAddress,
     updateBillingAddress,
-    deleteBillingAddress
+    deleteBillingAddress,
   },
   DeliveryAddress: {
     addressId: async ({ address: { addressId } }) => addressId,

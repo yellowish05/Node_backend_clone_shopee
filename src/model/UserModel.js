@@ -83,7 +83,12 @@ const schema = new Schema({
   },
   streamToken: {
     type: String
-  }
+  },
+  // for push notification from onesignal
+  device_id: {
+    type: String,
+    default: '',
+  },
 });
 
 module.exports = new model(collectionName, schema);

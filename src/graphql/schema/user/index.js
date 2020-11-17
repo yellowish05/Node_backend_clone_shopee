@@ -2,8 +2,10 @@ const { gql } = require('apollo-server');
 
 const addUser = require('./resolvers/addUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
+const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');
+const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 
 const schema = gql`
@@ -17,6 +19,16 @@ const schema = gql`
       photo: Asset
       organization: Organization
       roles: [String]! @auth(requires: ADMIN) 
+    }
+
+    type UserInfo {
+      id: ID!
+      email: String
+      name: String
+      phone: String
+      address: Address
+      location: LatLng
+      photo: Asset
     }
 
     input RegistrationInput {
@@ -39,18 +51,28 @@ const schema = gql`
       token: String!
     }
 
+    input PhoneLoginInput {
+      phone: String!,
+      countryCode: String!
+      password: String!
+    }
+
+
     extend type Query {
+      getUserById(id: ID!): UserInfo!
       """Allows: authorized user"""
-      me: User! @auth(requires: USER)
+      me: User! @auth(requires: USER) 
       generateChatToken: String! @auth(requires: USER)
     }
 
     extend type Mutation {
       addUser (data: RegistrationInput!): User!
+      addUserByPhone (data: PhoneLoginInput!): User!
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
+      changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
     }
 `;
@@ -75,13 +97,18 @@ module.exports.resolvers = {
         return user.streamToken;
       }
     },
+    getUserById: async (_, { id }, { dataSources: { repository } }) => (
+      repository.user.getById(id)
+    ),
   },
   Mutation: {
     addUser,
     addUserBySocial,
+    addUserByPhone,
     updateUser,
     changePassword,
-    uploadBulkUsers
+    uploadBulkUsers,
+    changeDeviceId
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {
@@ -91,4 +118,9 @@ module.exports.resolvers = {
       return repository.organization.getByUser(user.id);
     },
   },
+  UserInfo: {
+    photo(user, args, { dataSources: { repository } }) {
+      return repository.asset.load(user.photo);
+    },
+  }
 };

@@ -20,7 +20,7 @@ module.exports = async (_, { id, productId }, { dataSources: { repository }, use
     repository.product.getById(provider.inputs.productId),
   ])
     .then(([foundProductAttr, foundProduct]) => {
-      var i = -1;
+      let i = -1;
       if (!foundProduct) {
         provider.error('id', 'custom', `Product with id "${provider.inputs.productId}" doen not exist!`);
       }
@@ -47,9 +47,8 @@ module.exports = async (_, { id, productId }, { dataSources: { repository }, use
     })
     .then(() => {
       product.attrs.map((item, index) => {
-        if (item == id) 
-          product.attrs.splice(index, 1);
-      });  
+        if (item == id) { product.attrs.splice(index, 1); }
+      });
       return product.save();
     })
     .then((savedProduct) => true)

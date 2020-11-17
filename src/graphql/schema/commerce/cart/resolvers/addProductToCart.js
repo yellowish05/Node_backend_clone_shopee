@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const errorHandler = new ErrorHandler();
 
@@ -11,6 +11,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     args,
     { product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
     { quantity: 'required|min:1|integer' },
+    { billingAddress: 'required' },
   );
   
   if (args.attrId) {
@@ -35,12 +36,15 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => Promise.all([
       repository.product.getById(args.product),
       repository.deliveryRateCache.getById(args.deliveryRate),
+      args.productAttribute ? repository.productAttributes.getById(args.productAttribute) : null,
     ]))
-    .then(([product, deliveryRate]) => {
+    .then(async ([product, deliveryRate, productAttr]) => {
       if (!product) {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
-
+      if (args.productAttribute && !productAttr) {
+        throw new ForbiddenError('Product does not exist.');
+      }
       if (product.wholesaleEnabled) {
         if (!args.metricUnit) {
           throw new UserInputError(`Product with id "${args.product}" is for wholesale!`, { invalidArgs: [product] })
@@ -56,20 +60,37 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
       }
 
-      const cartItemData = {
-        productId: product.id,
-        quantity: args.quantity,
-        metricUnit: args.metricUnit || null,
-        attrId: args.attrId || null
-      };
-      // if (args.metricUnit) {
-      //   cartItemData.metricUnit = args.metricUnit;
+      const checkAmount = productAttr !== null ? (await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)) : (await repository.productInventoryLog.checkAmount(args.product, args.quantity));
+
+      if (!checkAmount) { throw new ForbiddenError('This product is not enough now'); }
+
+      // Biwu's past work
+      // const cartItemData = {
+      //   productId: product.id,
+      //   quantity: args.quantity,
+      //   metricUnit: args.metricUnit || null,
+      //   attrId: args.attrId || null
+      // };
+      // // if (args.metricUnit) {
+      // //   cartItemData.metricUnit = args.metricUnit;
+      // // }
+      // if (deliveryRate) {
+      //   cartItemData.deliveryRateId = deliveryRate.id;
       // }
-      if (deliveryRate) {
-        cartItemData.deliveryRateId = deliveryRate.id;
-      }
+      // return repository.deliveryRate.create(deliveryRate.toObject())
+      //   .then(() => repository.userCartItem.add(cartItemData, user.id));
+
       return repository.deliveryRate.create(deliveryRate.toObject())
-        .then(() => repository.userCartItem.add(cartItemData, user.id));
+        .then(async () => {
+          // calculate quantity
+          if (productAttr) {
+            productAttr.quantity -= args.quantity;
+            await productAttr.save();
+          } else {
+            repository.productInventoryLog.decreaseQuantity(args.product, args.quantity);
+          }
+          return repository.userCartItem.add(cartItemData, user.id);
+        });
     })
     .catch((error) => {
       throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);

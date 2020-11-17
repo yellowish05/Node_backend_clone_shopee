@@ -9,6 +9,7 @@ const { exchangeCurrencyRates } = require(path.resolve('config'));
 const cache = new NodeCache();
 // const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
 // const currencyServiceUrl = 'https://api.exchangerate.host/latest';
+const currencyServiceUrl = 'https://api.exchangerate.host/convert';
 const jsonFile = 'http://www.floatrates.com/daily/usd.json'
 
 function UpdateRate() {
@@ -61,19 +62,32 @@ module.exports.CurrencyService = {
         currency: to,
       }));
     } 
-    logger.warn(`Currency for ${amount.getCurrency()} and ${to} was not found in cache.`);
+
     const rates = {}
-    return axios.get(jsonFile)
+    const params = {
+      from: amount.getCurrency(),
+      to: to
+    }
+    return axios({
+      url: currencyServiceUrl,
+      params: params
+    })
       .then(({ data }) => {
-        Object.keys(data).some((key) => {
-          rates[key.toUpperCase()] = data[key].rate
-        })
-        rates['USD'] = 1
-        logger.warn(`Got currency from API - ${JSON.stringify(rates)}`);
-        return CurrencyFactory.getAmountOfMoney({
-          currencyAmount: amount.getCurrencyAmount() / rates[amount.getCurrency()] * rates[to],
-          currency: to,
-        });
+        if(data.success) {
+          return CurrencyFactory.getAmountOfMoney({
+            currencyAmount: amount.getCurrencyAmount() * data.result,
+            currency: to,
+          });
+        }
+        // Object.keys(data).some((key) => {
+        //   rates[key.toUpperCase()] = data[key].rate
+        // })
+        // rates['USD'] = 1
+        // logger.warn(`Got currency from API - ${JSON.stringify(rates)}`);
+        // return CurrencyFactory.getAmountOfMoney({
+        //   currencyAmount: amount.getCurrencyAmount() / rates[amount.getCurrency()] * rates[to],
+        //   currency: to,
+        // });
       })
       .catch((error) => {
         throw new Error(error);

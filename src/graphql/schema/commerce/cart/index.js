@@ -16,6 +16,7 @@ const schema = gql`
       price(currency: Currency!): AmountOfMoney!
       deliveryPrice(currency: Currency!): AmountOfMoney!
       total(currency: Currency!): AmountOfMoney!
+      
     }
 
     type CartProductItem implements CartItemInterface {
@@ -24,10 +25,11 @@ const schema = gql`
       metricUnit: ProductMetricUnit
       seller: User!
       total(currency: Currency! = USD): AmountOfMoney!
+      attr: ProductAttribute
+      productAttribute: ProductAttribute
 
       product: Product!
       deliveryIncluded: Boolean!
-      attr: ProductAttribute
     }
 
     interface CartItemInterface {
@@ -35,6 +37,7 @@ const schema = gql`
       quantity: Int!
       metricUnit: ProductMetricUnit
       seller: User!
+      productAttribute: ProductAttribute
       total(currency: Currency! = USD): AmountOfMoney!
     }
 
@@ -49,11 +52,19 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        addProductToCart(product: ID!, deliveryRate: ID, quantity: Int! = 1, metricUnit: ProductMetricUnit, attrId: ID) : Cart! @auth(requires: USER)
+        addProductToCart(
+          product: ID!, 
+          deliveryRate: ID, 
+          quantity: Int! = 1,
+          billingAddress: ID!
+          productAttribute: ID, 
+          metricUnit: ProductMetricUnit, 
+          attrId: ID
+        ) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
-        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1) : Cart! @auth(requires: USER)
+        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1, billingAddress: ID) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
@@ -238,6 +249,7 @@ module.exports.resolvers = {
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     attr: async ({ attrId }, _, { dataSources: { repository }}) => repository.productAttributes.getById(attrId),
+    productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
   },
   CartItemInterface: {
     __resolveType(cartItem) {

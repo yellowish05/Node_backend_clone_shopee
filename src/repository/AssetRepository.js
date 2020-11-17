@@ -30,6 +30,12 @@ const buckets = async (data) => {
   return { url, path };
 }
 
+function getPathFromUrl(href) {
+  var match = href.match(/^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+  var uri = match[5];
+  return uri.substring(1);
+}
+
 class AssetRepository {
 
   constructor(model) {
@@ -71,7 +77,8 @@ class AssetRepository {
   async updateStatusByPath(path, status) {
     const asset = await this.getByPath(path);
     if (!asset) {
-      throw Error(`"${path}" does not exist!`);
+      // throw Error(`"${path}" does not exist!`);
+      return null;
     }
 
     asset.status = status;
@@ -170,6 +177,47 @@ class AssetRepository {
       const asset = new this.model(assetData);
       return asset.save();
     }
+  }
+
+  async createAssetFromCSVForProducts(data) {
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: data.path,
+      url: data.path,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => this.getByPath(path));
+  }
+
+  /**
+   * @deprecated
+   * data.phat is now full path.
+   * old version used only file name and generate path from it
+   */
+  async createFromCSVForProducts(data) {
+    const { url, path } = await buckets(data).then(x => x).catch(err => err);
+
+    const assetData = {
+      _id: uuid(),
+      status: "UPLOADED",
+      owner: data.owner,
+      path: getPathFromUrl(path),
+      url: url,
+      type: "IMAGE",
+      size: 1000,
+      mimetype: 'image/jpeg',
+    }
+    const asset = new this.model(assetData);
+    return await asset.save().then(asset => {
+      return asset
+    }).catch(err => this.getByPath(path));
   }
 }
 

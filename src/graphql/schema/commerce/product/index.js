@@ -27,10 +27,21 @@ const schema = gql`
       productId: ID!
       color: String!
       size: String!
+      """
+          Price in cents. Use the Currency for show it in correct format
+      """
       price(currency: Currency): AmountOfMoney!
       discountPrice(currency: Currency): AmountOfMoney!
       quantity: Int!
-      asset: Asset!
+      variation: [Variation]
+      oldPrice(currency: Currency): AmountOfMoney
+      asset: Asset
+      sku: String
+    }
+
+    type Variation {
+      name: String!
+      value: String!
     }
 
     type Product {
@@ -52,7 +63,7 @@ const schema = gql`
         quantity: Int!
         assets: [Asset!]!
         thumbnail: Asset
-        attrs: [ProductAttribute!]!
+        attrs: [ProductAttribute]
         category: ProductCategory!
         # weight: Weight!
         shippingBox: ShippingBox!
@@ -64,6 +75,7 @@ const schema = gql`
         customCarrierValue(currency: Currency):AmountOfMoney
         metrics: [ProductMetricItem]
         wholesaleEnabled: Boolean
+        sku: String
     }
 
     type failedProducts{
@@ -129,7 +141,10 @@ const schema = gql`
       color: String!
       size: String!
       asset: ID!
+      variation: [VariationInput!]!
+      sku: String
     }
+
 
     input ProductAttrWOProductInput {
       quantity: Int!
@@ -139,6 +154,21 @@ const schema = gql`
       color: String!
       size: String!
       asset: ID!
+    }
+
+    input VariationInput {
+      name: String!
+      value: String!
+    }
+
+    input UpdateProductAttributeInput {
+      productId: ID!
+      quantity: Int
+      price: Float
+      discountPrice: Float
+      currency: Currency
+      variation: [VariationInput!]
+      asset: ID
     }
 
     enum ProductSortFeature {
@@ -216,7 +246,7 @@ const schema = gql`
             Allows: authorized user
         """
         addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
-        updateProductAttr(id: ID!, data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+        updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
         setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
@@ -230,7 +260,7 @@ module.exports.resolvers = {
     products,
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
-    productAttributes,
+    productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
   },
   Mutation: {
     addProduct,
@@ -249,7 +279,7 @@ module.exports.resolvers = {
     assets: async ({ assets }, _, { dataSources: { repository } }) => (
       repository.asset.getByIds(assets)
     ),
-    thumbnail: async ({ thumbnail: assetId }, _, { dataSources: { repository }}) => (
+    thumbnail: async ({ thumbnail: assetId }, _, { dataSources: { repository } }) => (
       repository.asset.getById(assetId)
     ),
     category: async ({ category }, _, { dataSources: { repository } }) => (
@@ -269,7 +299,7 @@ module.exports.resolvers = {
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
-      return amountOfMoney
+      return amountOfMoney;
     },
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
@@ -304,13 +334,13 @@ module.exports.resolvers = {
     rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product
-    attrs: async ({ attrs }, _, { dataSources: { repository }}) => {
-      var attributes = await repository.productAttributes.getByIds(attrs);
-      await Promise.all( attributes.map(async (attr, index) => {
+    attrs: async ({ attrs }, _, { dataSources: { repository } }) => {
+      const attributes = await repository.productAttributes.getByIds(attrs);
+      await Promise.all(attributes.map(async (attr, index) => {
         attributes[index].asset = await repository.asset.getById(attr.asset);
       }));
       return attributes;
-    }
+    },
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (
@@ -328,6 +358,16 @@ module.exports.resolvers = {
         return null;
       }
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: discountPrice, currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    oldPrice: async ({ oldPrice, currency, price }, args) => {
+      if (!oldPrice) {
+        oldPrice = price;
+      }
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: oldPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }

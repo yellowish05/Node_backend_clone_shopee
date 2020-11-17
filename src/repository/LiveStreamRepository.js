@@ -27,11 +27,14 @@ function elasticFilter(filter) {
   if (filter) {
     query.$and.push({
       $or: [
-        { title: { $regex: `^.*${filter}.*`, $options: "i" } },
-        { city: { $regex: `^.*${filter}.*`, $options: "i" } },
+        { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
+        { city: { $regex: `^.*${filter}.*`, $options: 'i' } },
       ],
     });
   }
+  query.$and.push({
+    status: { $ne: 'CANCELED' },
+  });
   return query.$and.length > 0 ? query : emptyQuery;
 }
 
@@ -138,10 +141,8 @@ class LiveStreamRepository {
     liveStream.title = data.title || liveStream.title;
     liveStream.status = data.status || liveStream.status;
     if (flag == 0) {
-      liveStream.views =
-        Number(liveStream.views) + data.views || liveStream.views;
-      liveStream.likes =
-        Number(liveStream.likes) + data.likes || liveStream.likes;
+      liveStream.views = Number(liveStream.views) + data.views || liveStream.views;
+      liveStream.likes = Number(liveStream.likes) + data.likes || liveStream.likes;
     } else {
       liveStream.views = data.views || liveStream.views;
       liveStream.likes = data.likes || liveStream.likes;
@@ -159,9 +160,7 @@ class LiveStreamRepository {
     let index = 0;
 
     timelist.forEach((item) => {
-      if (length > item) {
-        index++;
-      }
+      if (length > item) { index++; }
     });
 
     if (timelist[index] && index > 0) {
@@ -171,6 +170,7 @@ class LiveStreamRepository {
       fakeViews = getRandomInt(viewlimit[index], 1);
       fakeLikes = getRandomInt(likelimit[index], 1);
     }
+
 
     if (!liveStream) {
       throw Error(`Live Stream "${id}" does not exist!`);
@@ -199,15 +199,23 @@ class LiveStreamRepository {
   }
 
   async get({ filter, sort, page }) {
-    return this.model.find(transformFilter(filter), null, {
-      sort: transformSortInput(sort),
-      limit: page.limit,
-      skip: page.skip,
-    });
+    return this.model
+      .find(
+        transformFilter(filter),
+        null,
+        {
+          sort: transformSortInput(sort),
+          limit: page.limit,
+          skip: page.skip,
+        },
+      );
   }
 
   async getTotal(filter) {
-    return this.model.countDocuments(transformFilter(filter));
+    return this.model
+      .countDocuments(
+        transformFilter(filter),
+      );
   }
 
   async getViews(id) {

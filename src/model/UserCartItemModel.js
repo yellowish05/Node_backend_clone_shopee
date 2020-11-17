@@ -32,7 +32,17 @@ const schema = new Schema({
   },
   attrId: {
     type: String
-  }
+  },
+
+  billingAddress: {
+    type: String,
+    default: null,
+  },
+
+  productAttribute: {
+    type: String,
+    ref: 'ProductAttribute',
+  },
 });
 
 module.exports = new model(collectionName, schema);
