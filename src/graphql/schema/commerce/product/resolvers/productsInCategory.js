@@ -37,7 +37,7 @@ async function exchangeOnSupportedCurrencies(price) {
 }
 
 module.exports = async (_, {
-  filter, page, sort,
+  category, page, sort,
 }, { user, dataSources: { repository } }) => {
   const pager = {
     limit: page.limit,
@@ -50,20 +50,17 @@ module.exports = async (_, {
   }
 
   if (filter.categories) {
-    await repository.productCategory.getUnderParents(filter.categories)
-      .then(categories => {
-        filter.categories = categories.map(item => item.id);
-      })
-  }
-
-  if (filter.price) {
-    if (filter.price.min) {
-      filter.price.min = await exchangeOnSupportedCurrencies(filter.price.min);
-    }
-
-    if (filter.price.max) {
-      filter.price.max = await exchangeOnSupportedCurrencies(filter.price.max);
-    }
+    const categories = [...filter.categories];
+    await Promise.all(categories.map(async (category) => {
+      await repository.productCategory.getByParent(category)
+        .then((subcategories) => {
+          if (subcategories.length > 0) {
+            subcategories.map((item) => {
+              filter.categories.push(item.id);
+            });
+          }
+        });
+    }));
   }
 
   if (sort.feature == 'PRICE') {

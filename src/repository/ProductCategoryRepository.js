@@ -3,6 +3,19 @@ function getSearchQueryByName(query) {
   return { name: { $regex: `^${query}.*`, $options: 'i' } };
 }
 
+function getAllUnderParent(allCategories, ids = []) {
+  if (ids.length === 0) return [];
+
+  let categories = allCategories.filter(category => ids.includes(category._id) || ids.includes(category.parent));
+  const newIds = categories.map(category => category._id);
+  const diff = newIds.filter(id => !ids.includes(id));
+  if (diff.length === 0) {
+    return allCategories.filter(category => newIds.includes(category._id));
+  } else {
+    return getAllUnderParent(allCategories, newIds);
+  }
+}
+
 class ProductCategoryRepository {
   constructor(model) {
     this.model = model;
@@ -18,6 +31,13 @@ class ProductCategoryRepository {
 
   async getByParent(id) {
     return this.model.find({ parent: id }).sort('order');
+  }
+
+  async getUnderParents(ids) {
+    return this.getAll()
+      .then(categories => {
+        return getAllUnderParent(categories, ids);
+      });
   }
 
   async findByIds(ids) {
