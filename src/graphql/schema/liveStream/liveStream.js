@@ -45,6 +45,7 @@ const schema = gql`
         products: [Product]!
         views: Int!
         likes: Int!
+        startTime: Date
     }
 
     input LiveStreamInput {
@@ -55,7 +56,8 @@ const schema = gql`
         preview: [ID]
         previewVideo: ID
         products: [ID] = [],
-        liveStreamRecord:String
+        liveStreamRecord: [String]
+        startTime: Date
     }
 
     type LiveStreamCollection {

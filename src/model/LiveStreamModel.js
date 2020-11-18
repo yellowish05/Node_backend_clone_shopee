@@ -84,6 +84,10 @@ const schema = new Schema({
   type: {
     type: String,
   },
+  startTime: {
+    type: Date,
+    default: null,
+  }
 });
 
 schema.methods.getTagName = function getTagName() {

@@ -27,10 +27,6 @@ const schema = gql`
         city(name: String!): City!
         cities(filter: CityFilterInput): [City]!
     }
-
-    # extend type Mutation {
-    #   addCity(CityInput): City
-    # }
 `;
 
 module.exports.typeDefs = [schema];

@@ -143,7 +143,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }).catch((error) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
-console.log("channel =>", streamChannel);
+      console.log("channel =>", streamChannel);
       return repository.liveStream.create({
         _id,
         streamer: user,
@@ -162,9 +162,11 @@ console.log("channel =>", streamChannel);
         realLikes: 0,
         fakeViews: 0,
         fakeLikes: 0,
+        startTime: args.data.startTime ? new Date(args.data.startTime) : new Date(),
       });
     })
     .catch((error) => {
+      console.log(error);
       throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
     });
 };
