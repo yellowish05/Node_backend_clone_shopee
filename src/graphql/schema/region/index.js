@@ -8,10 +8,10 @@ const schema = gql`
 
     input RegionFilter {
       countryId: ID!
-    } 
+    }
 
     extend type Query {
-        regions(filter: RegionFilter!): [Region]!
+      regions(filter: RegionFilter!): [Region]!
     }
 `;
 

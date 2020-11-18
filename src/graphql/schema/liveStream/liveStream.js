@@ -35,7 +35,7 @@ const schema = gql`
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
         city: City
-        preview: Asset
+        preview: [Asset]
         previewVideo: Asset
         channel: StreamChannel!
         isLiked: Boolean
@@ -52,7 +52,7 @@ const schema = gql`
         experience: ID!
         categories: [ID]!
         city: String
-        preview: ID
+        preview: [ID]
         previewVideo: ID
         products: [ID] = [],
         liveStreamRecord:String

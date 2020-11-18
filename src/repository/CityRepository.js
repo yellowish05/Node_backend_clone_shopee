@@ -49,6 +49,14 @@ class CityRepository {
   async getAll() {
     return this.model.find().sort({ name: 1 });
   }
+
+  async get(query) {
+    return this.model.find(query).sort({ name: 1 });
+  }
+
+  async getByRegions(regionIds) {
+    return this.model.find({ region: {$in: regionIds} }).sort({ name: 1 });
+  }
 }
 
 module.exports = CityRepository;

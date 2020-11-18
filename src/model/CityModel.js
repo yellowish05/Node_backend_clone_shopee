@@ -13,6 +13,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  region: {
+    type: String,
+    ref: 'Region',
+  },
   location: LatitudeLongitudeSchema,
   photo: {
     type: String,

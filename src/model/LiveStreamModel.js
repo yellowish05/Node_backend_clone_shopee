@@ -37,7 +37,7 @@ const schema = new Schema({
     ref: 'City',
   },
   preview: {
-    type: String,
+    type: [String],
     ref: 'Asset',
   },
   previewVideo: {
