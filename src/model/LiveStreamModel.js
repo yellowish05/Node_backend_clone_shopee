@@ -5,6 +5,17 @@ const uuidField = require('./commonFields/UUIDField');
 
 const collectionName = 'LiveStream';
 
+const streamProductDurationSchema = new Schema({
+  product: {
+    type: String,
+    required: true,
+  },
+  duration: {
+    type: String,
+    required: true
+  },
+}, { _id: false });
+
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
@@ -87,7 +98,8 @@ const schema = new Schema({
   startTime: {
     type: Date,
     default: null,
-  }
+  },
+  productDurations: [streamProductDurationSchema],
 });
 
 schema.methods.getTagName = function getTagName() {

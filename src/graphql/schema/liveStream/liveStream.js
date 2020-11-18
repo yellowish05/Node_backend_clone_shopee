@@ -28,6 +28,16 @@ const schema = gql`
       abs_url:String!
     }
 
+    type StreamProductDuration {
+      product: Product
+      duration: String!
+    }
+
+    input StreamProductDurationInput {
+      product: String!
+      duration: String!
+    }
+
     type LiveStream {
         id: ID!
         title: String!
@@ -42,10 +52,11 @@ const schema = gql`
         statistics: LiveStreamStats!
         publicMessageThread: MessageThread
         privateMessageThreads: [MessageThread]!
-        products: [Product]!
+        products: [Product]! @deprecated(reason: "Use 'productDurations' instead")
         views: Int!
         likes: Int!
         startTime: Date
+        productDurations: [StreamProductDuration]
     }
 
     input LiveStreamInput {
@@ -55,9 +66,10 @@ const schema = gql`
         city: String
         preview: [ID]
         previewVideo: ID
-        products: [ID] = [],
+        products: [ID] = [] 
         liveStreamRecord: [String]
         startTime: Date
+        productDurations: [StreamProductDurationInput] = []
     }
 
     type LiveStreamCollection {
@@ -108,7 +120,11 @@ const schema = gql`
     }
   
     extend type Mutation {
-      """Allows: authorized user"""
+      """
+      Allows: authorized user
+      input field 'products' is deprecated on Nov 18, 2020 to set the duration for assosicated products.
+      Use 'productDurations' instead.
+      """
       addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
 
       """Allows: authorized user"""
@@ -210,7 +226,7 @@ module.exports.resolvers = {
       return repository.city.load(liveStream.city);
     },
     preview(liveStream, args, { dataSources: { repository } }) {
-      return repository.asset.load(liveStream.preview);
+      return repository.asset.getByIds(typeof liveStream.preview === 'string' ? [liveStream.preview] : liveStream.preview);
     },
     previewVideo(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.load(liveStream.previewVideo);
@@ -268,7 +284,7 @@ module.exports.resolvers = {
     },
     likes(liveStream, _, { dataSources: { repository } }) {
       return repository.liveStream.getLikes(liveStream.id);
-    },
+    }
   },
   LiveStreamStats: {
     duration: getLiveStreamDuration,
@@ -279,4 +295,9 @@ module.exports.resolvers = {
       return repository.streamChannelParticipant.getViewersCount(liveStream.channel);
     },
   },
+  StreamProductDuration: {
+    product: async ({ product }, _, { dataSources: { repository } }) => {
+      return repository.product.getById(product);
+    }
+  }
 };

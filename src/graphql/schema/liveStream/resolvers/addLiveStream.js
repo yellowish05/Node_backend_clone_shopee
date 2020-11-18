@@ -65,6 +65,19 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         // }
       })
     )
+    .then(() => Promise.all(args.data.productDurations.map((productDuration) => repository.product.getById(productDuration.product)))
+      .then((products) => {
+        products.forEach((product) => {
+          if (!product) {
+            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+          }
+
+          if (product.seller !== user.id) {
+            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+          }
+        });
+    }))
+    // this validation is no longer needed as 'LiveStream.products' is replaced with 'productDurations' field. @from: Nov 18, 2020.
     .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
       .then((products) => {
         products.forEach((product) => {
@@ -76,7 +89,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
           }
         });
-      }))
+    }))
     .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
@@ -163,6 +176,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         fakeViews: 0,
         fakeLikes: 0,
         startTime: args.data.startTime ? new Date(args.data.startTime) : new Date(),
+        productDurations: args.data.productDurations,
       });
     })
     .catch((error) => {
