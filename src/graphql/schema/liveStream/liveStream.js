@@ -1,6 +1,8 @@
 const path = require('path');
 const { gql, withFilter } = require('apollo-server');
 
+const { OrientationMode } = require(path.resolve('src/lib/Enums'));
+
 const addLiveStream = require('./resolvers/addLiveStream');
 const likeLiveStream = require('./resolvers/likeLiveStream');
 const archiveLiveStream = require('./resolvers/archiveLiveStream');
@@ -16,6 +18,10 @@ const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPrevie
 const pubsub = require(path.resolve('config/pubsub'));
 
 const schema = gql`
+    enum OrientationMode {
+      ${OrientationMode.toGQL()}
+    }
+
     type LiveStreamStats {
       duration: Int
       likes: Int
@@ -57,6 +63,7 @@ const schema = gql`
         likes: Int!
         startTime: Date
         productDurations: [StreamProductDuration]
+        orientation: OrientationMode!
     }
 
     input LiveStreamInput {
@@ -70,6 +77,7 @@ const schema = gql`
         liveStreamRecord: [String]
         startTime: Date
         productDurations: [StreamProductDurationInput] = []
+        orientation: OrientationMode!
     }
 
     type LiveStreamCollection {

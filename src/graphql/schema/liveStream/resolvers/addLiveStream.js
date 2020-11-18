@@ -177,6 +177,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         fakeLikes: 0,
         startTime: args.data.startTime ? new Date(args.data.startTime) : new Date(),
         productDurations: args.data.productDurations,
+        orientation: args.data.orientation,
       });
     })
     .catch((error) => {

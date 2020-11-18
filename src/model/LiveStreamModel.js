@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { StreamChannelStatus } = require('../lib/Enums');
+const { OrientationMode, StreamChannelStatus } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
@@ -100,6 +100,11 @@ const schema = new Schema({
     default: null,
   },
   productDurations: [streamProductDurationSchema],
+  orientation: {
+    type: String,
+    enum: OrientationMode.toList(),
+    default: OrientationMode.LANDSCAPE,
+  }
 });
 
 schema.methods.getTagName = function getTagName() {
