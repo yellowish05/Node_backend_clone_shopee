@@ -46,21 +46,38 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         return categoryObject;
       });
     })
-    .then(() => Promise.all([
-      repository.asset.load(args.data.preview),
-      repository.asset.load(args.data.previewVideo)
-    ]))
-    .then(([asset, previewVideo]) => {
-      if (args.data.preview && !asset) {
-        throw new UserInputError(`Asset ${args.data.preview} does not exist`, { invalidArgs: 'preview' });
-      }
-      if (args.data.previewVideo && !previewVideo) {
-        throw new UserInputError(`Asset ${args.data.previewVideo} does not exist`, { invalidArgs: 'preview' });
-      }
-      // else if (!asset.forPreview) {
-      //   throw new UserInputError(`Asset ${args.data.preview} is not for preview`, { invalidArgs: 'preview' });
-      // }
-    })
+    .then(() => Promise.all(args.data.preview.map(assetId => repository.asset.load(assetId)))    
+      .then(previews => {
+        if (previews && previews.length > 0) {
+          previews.filter(item => !item).forEach((preview, i) => {
+            throw new Error(`Preview can not be addded to the Live Stream, because of Asset "${args.data.preview[i]}" does not exist!`);
+          });
+        }
+      })
+    )
+    .then(() => Promise.all([repository.asset.load(args.data.previewVideo)])
+      .then(([previewVideo]) => {
+        if (args.data.previewVideo && !previewVideo) {
+          throw new UserInputError(`Asset ${args.data.previewVideo} does not exist`, { invalidArgs: 'preview' });
+        }
+        // else if (!asset.forPreview) {
+        //   throw new UserInputError(`Asset ${args.data.preview} is not for preview`, { invalidArgs: 'preview' });
+        // }
+      })
+    )
+    .then(() => Promise.all(args.data.productDurations.map((productDuration) => repository.product.getById(productDuration.product)))
+      .then((products) => {
+        products.forEach((product) => {
+          if (!product) {
+            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+          }
+
+          if (product.seller !== user.id) {
+            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+          }
+        });
+    }))
+    // this validation is no longer needed as 'LiveStream.products' is replaced with 'productDurations' field. @from: Nov 18, 2020.
     .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
       .then((products) => {
         products.forEach((product) => {
@@ -72,7 +89,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
           }
         });
-      }))
+    }))
     .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
@@ -139,7 +156,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }).catch((error) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
-console.log("channel =>", streamChannel);
+      console.log("channel =>", streamChannel);
       return repository.liveStream.create({
         _id,
         streamer: user,
@@ -158,9 +175,13 @@ console.log("channel =>", streamChannel);
         realLikes: 0,
         fakeViews: 0,
         fakeLikes: 0,
+        startTime: args.data.startTime ? new Date(args.data.startTime) : new Date(),
+        productDurations: args.data.productDurations,
+        orientation: args.data.orientation,
       });
     })
     .catch((error) => {
+      console.log(error);
       throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
     });
 };

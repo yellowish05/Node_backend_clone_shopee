@@ -191,6 +191,11 @@ const VideoCropMode = EnumFactory({
   FILL_FRAME: 'FILL_FRAME'
 })
 
+const OrientationMode = EnumFactory({
+  LANDSCAPE: 'LANDSCAPE',
+  PORTRAIT: 'PORTRAIT',
+})
+
 const languageEnum = {};
 languages.forEach((item) => {
   const name = item.iso639_1.toUpperCase(); //item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
@@ -226,5 +231,6 @@ module.exports = {
   PaymentMethodProviders,
   LanguageList,
   ProductMetricUnits,
-  VideoCropMode
+  VideoCropMode,
+  OrientationMode
 };

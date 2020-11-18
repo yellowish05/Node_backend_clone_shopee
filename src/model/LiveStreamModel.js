@@ -1,9 +1,20 @@
 const { Schema, model } = require('mongoose');
-const { StreamChannelStatus } = require('../lib/Enums');
+const { OrientationMode, StreamChannelStatus } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
 const collectionName = 'LiveStream';
+
+const streamProductDurationSchema = new Schema({
+  product: {
+    type: String,
+    required: true,
+  },
+  duration: {
+    type: String,
+    required: true
+  },
+}, { _id: false });
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -37,7 +48,7 @@ const schema = new Schema({
     ref: 'City',
   },
   preview: {
-    type: String,
+    type: [String],
     ref: 'Asset',
   },
   previewVideo: {
@@ -84,6 +95,16 @@ const schema = new Schema({
   type: {
     type: String,
   },
+  startTime: {
+    type: Date,
+    default: null,
+  },
+  productDurations: [streamProductDurationSchema],
+  orientation: {
+    type: String,
+    enum: OrientationMode.toList(),
+    default: OrientationMode.LANDSCAPE,
+  }
 });
 
 schema.methods.getTagName = function getTagName() {
