@@ -51,6 +51,7 @@ function applyFilter(query, {
       $or: [
         { title: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
         { description: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
+        { slug: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
       ],
     });
   }

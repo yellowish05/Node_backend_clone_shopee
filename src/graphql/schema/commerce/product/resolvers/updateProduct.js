@@ -98,6 +98,10 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.shippingBox = data.shippingBox;
       product.thumbnail = thumbnailId;
       product.isFeatured = data.isFeatured !== undefined ? data.isFeatured : (product.isFeatured || false);
+      productData.slug = data.slug || "";
+      productData.metaDescription = data.metaDescription || false;
+      productData.metaTags = data.metaTags || [];
+      productData.seoTitle = data.seoTitle || "";
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
         { centsAmount: data.price, currency: data.currency })

@@ -77,6 +77,10 @@ const schema = gql`
         wholesaleEnabled: Boolean
         sku: String
         isFeatured: Boolean
+        slug: String
+        metaDescription: String
+        metaTags: [String]
+        seoTitle: String
     }
 
     type failedProducts{
@@ -230,6 +234,10 @@ const schema = gql`
         attrs: [ProductAttrWOProductInput!]
         thumbnailId:  ID!
         isFeatured: Boolean
+        slug: String!
+        metaDescription: String!
+        metaTags: [String]!
+        seoTitle: String!
     }
 
     extend type Mutation {

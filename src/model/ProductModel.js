@@ -129,7 +129,19 @@ const schema = new Schema({
   isFeatured: {
     type: Boolean,
     default: false,
-  }
+  },
+  slug: {
+    type: String
+  },
+  metaDescription: {
+    type: String,
+  },
+  metaTags: {
+    type: [String]
+  },
+  seoTitle: {
+    type: String
+  },
 });
 
 schema.indexes([
