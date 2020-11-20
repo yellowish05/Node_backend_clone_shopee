@@ -35,7 +35,7 @@ function UpdateRate() {
         return 0;
       }
 
-      logger.info(`New Rates added to cache: ${JSON.stringify(rates)}`);
+      logger.info(`New Rates added to cache:`); // ${JSON.stringify(rates)}`);
       return cache.set('CURRENCY_RATES', rates);
     })
     .catch((error) => {

@@ -1,15 +1,24 @@
 const { gql } = require('apollo-server');
 const uuid = require('uuid/v4');
 
+const updateBrand = require('./resolvers/updateBrand');
+
 const schema = gql`
     type Brand {
         id: ID!
         name: String!
         categories: [ProductCategory]!
+        images: [Asset]!
     }
 
     input BrandInput{
       name: String!
+      images: [String]!
+    }
+
+    input BrandUpdateInput{
+      name: String
+      images: [String]
     }
 
     type BrandCollection {
@@ -24,6 +33,7 @@ const schema = gql`
 
     extend type Mutation {
       addBrand(data:BrandInput!): Brand! @auth(requires: USER)
+      updateBrand(id: ID!, data: BrandUpdateInput!): Brand! @auth(requires: USER)
     }
 `;
 
@@ -63,13 +73,21 @@ module.exports.resolvers = {
       }
       return repository.productCategory.findByIds(brand.productCategories);
     },
+    images: async (brand, _, { dataSources: { repository } }) => {
+      if (!brand.images.length) {
+        return [];
+      }
+      return repository.asset.getByIds(brand.images);
+    },
   },
   Mutation: {
     addBrand: async (_, args, { dataSources: { repository } }) => {
       return repository.brand.create({
         _id: uuid(),
         name: args.data.name,
+        images: args.data.images,
       })
-    }
+    },
+    updateBrand,
   }
 };

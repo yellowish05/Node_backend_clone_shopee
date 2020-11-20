@@ -136,9 +136,9 @@ const schema = new Schema({
   metaDescription: {
     type: String,
   },
-  metaTags: {
-    type: [String]
-  },
+  metaTags: [{
+    type: String
+  }],
   seoTitle: {
     type: String
   },
