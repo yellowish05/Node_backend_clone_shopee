@@ -38,7 +38,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured
 }) {
   if (!query.$and) {
     query.$and = [
@@ -51,6 +51,7 @@ function applyFilter(query, {
       $or: [
         { title: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
         { description: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
+        { slug: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
       ],
     });
   }
@@ -102,6 +103,12 @@ function applyFilter(query, {
       seller: { $nin: blackList },
     });
   }
+
+  if (isFeatured !== undefined) {
+    query.$and.push({
+      isFeatured: isFeatured ? true : {$ne: true},
+    });
+  }  
 }
 
 class ProductRepository {

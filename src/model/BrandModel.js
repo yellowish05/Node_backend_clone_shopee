@@ -18,6 +18,10 @@ const schema = new Schema({
     ref: 'ProductCategory',
     index: true,
   }],
+  images: [{
+    type: String,
+    ref: 'Asset',
+  }]
 });
 
 module.exports = new model(collectionName, schema);
