@@ -102,6 +102,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       productData.metaDescription = data.metaDescription || false;
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
+      // resize thumbnail
+      
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
         { centsAmount: data.price, currency: data.currency })
