@@ -104,7 +104,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       if (thumbnailId) { productData.thumbnail = thumbnailId; }
       productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-
+      productData.isFeatured = data.isFeatured || false;
+      productData.slug = data.slug || "";
+      productData.metaDescription = data.metaDescription || false;
+      productData.metaTags = data.metaTags || [];
+      productData.seoTitle = data.seoTitle || "";
       // options
       productData.attrs = [];
 

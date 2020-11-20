@@ -126,6 +126,22 @@ const schema = new Schema({
   sku: {
     type: String,
   },
+  isFeatured: {
+    type: Boolean,
+    default: false,
+  },
+  slug: {
+    type: String
+  },
+  metaDescription: {
+    type: String,
+  },
+  metaTags: [{
+    type: String
+  }],
+  seoTitle: {
+    type: String
+  },
 });
 
 schema.indexes([
