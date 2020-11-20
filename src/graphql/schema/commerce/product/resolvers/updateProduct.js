@@ -6,6 +6,7 @@ const { ForbiddenError } = require('apollo-server');
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
+const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
 const errorHandler = new ErrorHandler();
@@ -103,7 +104,13 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
       // resize thumbnail
+      const thumbnail = await repository.asset.getById(thumbnailId);
       
+      if (thumbnail &&  (
+        !thumbnail.resolution ||
+        (thumbnail.resolution.width && thumbnail.resolution.width > 200))) {
+        await AssetService.resizeImage({ assetId: thumbnailId, width: 200 });
+      }
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
         { centsAmount: data.price, currency: data.currency })
