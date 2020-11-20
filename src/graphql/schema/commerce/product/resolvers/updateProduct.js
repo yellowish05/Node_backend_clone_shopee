@@ -97,6 +97,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.currency = productData.currency;
       product.shippingBox = data.shippingBox;
       product.thumbnail = thumbnailId;
+      product.isFeatured = data.isFeatured !== undefined ? data.isFeatured : (product.isFeatured || false);
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
         { centsAmount: data.price, currency: data.currency })

@@ -76,6 +76,7 @@ const schema = gql`
         metrics: [ProductMetricItem]
         wholesaleEnabled: Boolean
         sku: String
+        isFeatured: Boolean
     }
 
     type failedProducts{
@@ -130,6 +131,7 @@ const schema = gql`
         """
         sellers: [ID!]
         isWholeSale: Boolean
+        isFeatured: Boolean
     }
 
     input ProductAttributeInput {
@@ -227,6 +229,7 @@ const schema = gql`
         wholesaleEnabled: Boolean
         attrs: [ProductAttrWOProductInput!]
         thumbnailId:  ID!
+        isFeatured: Boolean
     }
 
     extend type Mutation {
