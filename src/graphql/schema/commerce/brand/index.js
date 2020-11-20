@@ -27,7 +27,7 @@ const schema = gql`
     }
 
     extend type Query {
-        searchBrand(query: String!, page: PageInput = {}): BrandCollection!
+        searchBrand(query: String, page: PageInput = {}): BrandCollection!
         brand(id: ID!): Brand
     }
 
@@ -50,9 +50,9 @@ module.exports.resolvers = {
         },
       };
 
-      if (query.length < 1) {
-        return result;
-      }
+      // if (query.length < 1) {
+      //   return result;
+      // }
 
       return Promise.all([
         repository.brand.searchByName(query, page),
