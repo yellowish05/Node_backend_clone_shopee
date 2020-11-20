@@ -104,7 +104,11 @@ const schema = new Schema({
     type: String,
     enum: OrientationMode.toList(),
     default: OrientationMode.LANDSCAPE,
-  }
+  },
+  isFeatured: {
+    type: String,
+    default: false,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {
