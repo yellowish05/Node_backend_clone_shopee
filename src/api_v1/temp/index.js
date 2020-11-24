@@ -10,10 +10,13 @@ const { listLanguageCodes, getLanguageName } = require('language-cultures');
 const CountryLanguage = require('country-language');
 const languages = CountryLanguage.getLanguages();
 const { Translate } = require('@google-cloud/translate').v2;
+const md5 = require('md5');
+
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
 const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
+const { AssetService } = require(path.resolve('src/lib/AssetService'));
 
 const tempRouter = express.Router();
 
@@ -41,5 +44,55 @@ tempRouter.route('/update-user-lang').get(async (req, res) => {
 		.then(updates => res.json({ status: true, message: 'All user langs has been updated!' }))
 		.catch(error => res.json({ status: false, message: 'Failed to update user langs' }));
 });
+
+tempRouter.route('/gen-password').post(async (req, res) => {
+  return res.json({
+    encrypt: md5(req.body.password)
+  })
+});
+
+tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
+  let total = 0;
+  return Promise.all([
+    repository.liveStream.getAll(),
+    repository.asset.getAll(),
+  ])
+    .then(([liveStreams, assets]) => {
+      let assetObj = {};
+      assets.forEach(asset => {
+        assetObj[asset._id.toString()] = asset;
+      });
+
+      return Promise.all(liveStreams.map(async liveStream => {
+        let assetId;
+        if (liveStream.thumbnail) {
+          const thumbnail = assetObj[liveStream.thumbnail];
+          if (thumbnail &&  (
+            !thumbnail.resolution ||
+            (thumbnail.resolution.width && thumbnail.resolution.width > 500))) {
+            // await AssetService.resizeImage({ assetId: args.data.thumbnail, width: 500 });
+            assetId = liveStream.thumbnail;
+          }
+        } else {
+          if (typeof liveStream.preview === 'string') {
+            assetId = liveStream.preview;
+          } else {
+            assetId = liveStream.preview[0];
+          }
+        }
+
+        if (assetId) {
+          console.log('[Converting]', assetId);
+          total ++;
+          await AssetService.resizeImage({ assetId, width: 500 });
+        }
+      }))
+    })
+    .then(() => {
+      return res.json({
+        status: true, message: "success",
+      })
+    })
+})
 
 module.exports = tempRouter;

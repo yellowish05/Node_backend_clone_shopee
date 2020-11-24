@@ -47,6 +47,12 @@ const schema = new Schema({
   forPreview: {
     type: Boolean,
     default: false,
+  },
+  resolution: {
+    type: {
+      width: Number,
+      height: Number,
+    }
   }
 });
 

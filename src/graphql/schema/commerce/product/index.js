@@ -136,6 +136,7 @@ const schema = gql`
         sellers: [ID!]
         isWholeSale: Boolean
         isFeatured: Boolean
+        hasLivestream: Boolean = false
     }
 
     input ProductAttributeInput {

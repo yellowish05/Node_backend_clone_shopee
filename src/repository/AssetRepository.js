@@ -65,6 +65,10 @@ class AssetRepository {
     return await this.model.find({ status: status, owner: userid, type: "CSV" });
   }
 
+  async getAll(query = {}) {
+    return this.model.find(query);
+  }
+
   async create(data) {
     const asset = new this.model(data);
     return asset.save();

@@ -109,6 +109,13 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.metaDescription = data.metaDescription || false;
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
+      // resize thumbnail
+      const thumbnail = await repository.asset.getById(thumbnailId);
+      if (thumbnail &&  (
+        !thumbnail.resolution ||
+        (thumbnail.resolution.width && thumbnail.resolution.width > 200))) {
+        await AssetService.resizeImage({ assetId: thumbnailId, width: 200 });
+      }
       // options
       productData.attrs = [];
 

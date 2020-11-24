@@ -109,6 +109,10 @@ const schema = new Schema({
     type: String,
     default: false,
   },
+  thumbnail: {
+    type: String,
+    ref: 'Asset',
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

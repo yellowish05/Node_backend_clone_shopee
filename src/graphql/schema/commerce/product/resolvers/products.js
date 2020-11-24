@@ -36,6 +36,13 @@ async function exchangeOnSupportedCurrencies(price) {
   return Promise.all(exchangePromises);
 }
 
+async function productInLivestream(repository) {
+  return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
+    .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
+    .then(arrays => [].concat(...arrays))
+    .then(productIds => productIds.filter((v, i, a) => a.indexOf(v) === i))
+}
+
 module.exports = async (_, {
   filter, page, sort,
 }, { user, dataSources: { repository } }) => {
@@ -64,6 +71,11 @@ module.exports = async (_, {
     if (filter.price.max) {
       filter.price.max = await exchangeOnSupportedCurrencies(filter.price.max);
     }
+  }
+
+  if (filter.hasLivestream) {
+    const productIds = await productInLivestream(repository);
+    filter.ids = productIds;
   }
 
   if (sort.feature == 'PRICE') {

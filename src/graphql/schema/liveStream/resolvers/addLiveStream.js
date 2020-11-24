@@ -9,6 +9,7 @@ const {
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
+const { AssetService } = require(path.resolve('src/lib/AssetService'));
 
 const errorHandler = new ErrorHandler();
 
@@ -77,19 +78,24 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           }
         });
     }))
-    // this validation is no longer needed as 'LiveStream.products' is replaced with 'productDurations' field. @from: Nov 18, 2020.
-    .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
-      .then((products) => {
-        products.forEach((product) => {
-          if (!product) {
-            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
-          }
-
-          if (product.seller !== user.id) {
-            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
-          }
-        });
+    .then(() => repository.asset.getById(args.data.thumbnail).then(thumbnail => {
+      if (!thumbnail) {
+        throw new Error(`Thumbnail asset does not exist with id "${args.data.thumbnail}"!`);
+      }
     }))
+    // this validation is no longer needed as 'LiveStream.products' is replaced with 'productDurations' field. @from: Nov 18, 2020.
+    // .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
+    //   .then((products) => {
+    //     products.forEach((product) => {
+    //       if (!product) {
+    //         throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+    //       }
+
+    //       if (product.seller !== user.id) {
+    //         throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+    //       }
+    //     });
+    // }))
     .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
@@ -146,7 +152,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         repository.streamChannelParticipant.create(participant)
       ]);
     })
-    .then(([_id, streamChannel, messageThread]) => {
+    .then(async ([_id, streamChannel, messageThread]) => {
       repository.userHasMessageThread.create({
         thread: messageThread.id,
         user: user.id,
@@ -157,6 +163,17 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
       console.log("channel =>", streamChannel);
+
+
+      // resize thumbnail
+      const thumbnail = await repository.asset.getById(args.data.thumbnail);
+      
+      if (thumbnail &&  (
+        !thumbnail.resolution ||
+        (thumbnail.resolution.width && thumbnail.resolution.width > 500))) {
+        await AssetService.resizeImage({ assetId: args.data.thumbnail, width: 500 });
+      }
+
       return repository.liveStream.create({
         _id,
         streamer: user,
@@ -178,6 +195,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         startTime: args.data.startTime ? new Date(args.data.startTime) : new Date(),
         productDurations: args.data.productDurations,
         orientation: args.data.orientation,
+        thumbnail: args.data.thumbnail,
       });
     })
     .catch((error) => {

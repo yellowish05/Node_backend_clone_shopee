@@ -14,6 +14,7 @@ const addProductToLiveStream = require('./resolvers/addProductToLiveStream');
 const removeProductFromLiveStream = require('./resolvers/removeProductFromLiveStream');
 const updateLiveStreamCount = require('./resolvers/updateLiveStreamCount');
 const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPreviewVideo');
+const updateLiveStreamThumbnail = require('./resolvers/updateLiveStreamThumbnail');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -64,6 +65,7 @@ const schema = gql`
         startTime: Date
         productDurations: [StreamProductDuration]
         orientation: OrientationMode!
+        thumbnail: Asset
     }
 
     input LiveStreamInput {
@@ -78,6 +80,7 @@ const schema = gql`
         startTime: Date
         productDurations: [StreamProductDurationInput] = []
         orientation: OrientationMode!
+        thumbnail: ID!
     }
 
     type LiveStreamCollection {
@@ -167,6 +170,7 @@ const schema = gql`
       removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
       updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream!
       updateLiveStreamPreviewVideo(id: ID!, assetId: ID!): LiveStream
+      updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
     }
 
     extend type Subscription {
@@ -211,6 +215,7 @@ module.exports.resolvers = {
     removeProductFromLiveStream,
     updateLiveStreamCount,
     updateLiveStreamPreviewVideo,
+    updateLiveStreamThumbnail,
   },
   Subscription: {
     liveStream: {
@@ -292,7 +297,10 @@ module.exports.resolvers = {
     },
     likes(liveStream, _, { dataSources: { repository } }) {
       return repository.liveStream.getLikes(liveStream.id);
-    }
+    },
+    thumbnail: async (liveStream, _, { dataSources: { repository} }) => {
+      return repository.asset.getById(liveStream.thumbnail);
+    },
   },
   LiveStreamStats: {
     duration: getLiveStreamDuration,
@@ -307,5 +315,5 @@ module.exports.resolvers = {
     product: async ({ product }, _, { dataSources: { repository } }) => {
       return repository.product.getById(product);
     }
-  }
+  },
 };
