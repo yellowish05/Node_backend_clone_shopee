@@ -15,6 +15,6 @@ morganBody(app, { stream: logger.stream, noColors: true, prettify: false });
 
 app.use('/translation', translationRouters);
 
-app.use('/temp', tempRouters); // this is for test and transform only
+// app.use('/temp', tempRouters); // this is for test and transform only
 
 module.exports = app;
