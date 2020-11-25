@@ -56,8 +56,7 @@ app.route('/upload').post(multipartymiddleware, function (req, res) {
   })
 })
 app.post('/invoice', async (req, res) => {
-  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID); console.log('[Order details]', typeof orderDetails, orderDetails.length, orderDetails);
-  // const invoicePDF = await InvoiceService.createInvoicePDF(orderDetails);
+  const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID);
   const PDFs = [];
   await Promise.all(orderDetails.map(async (orderDetail) => {
     const url = InvoiceService.createInvoicePDF(orderDetail);
