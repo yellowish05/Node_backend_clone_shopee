@@ -108,23 +108,23 @@ module.exports = {
     from: 'Crystal.ding1@gmail.com',
     configurationSetName: 'sendemail'
   },
-  // awsSMTP: {
-  //   headers: {
-  //     'X-SES-CONFIGURATION-SET': 'sendemail',
-  //     'X-SES-MESSAGE-TAGS': "key0=value0",
-  //     'X-SES-MESSAGE-TAGS': "key1=value1"
-  //   },
-  //   config: {
-  //     host: "email-smtp.eu-central-1.amazonaws.com",
-  //     port: 587,
-  //     secure: false, // true for 465, false for other ports
-  //     auth: {
-  //       user: process.env.AWS_SES_SMTP_USER,
-  //       pass: process.env.AWS_SES_SMTP_PASS
-  //     }
-  //   },
-  //   from: 'Crystal.ding1@gmail.com',
-  // },
+  awsSMTP: {
+    headers: {
+      'X-SES-CONFIGURATION-SET': 'sendemail',
+      'X-SES-MESSAGE-TAGS': "key0=value0",
+      'X-SES-MESSAGE-TAGS': "key1=value1"
+    },
+    config: {
+      host: "email-smtp.eu-central-1.amazonaws.com",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.AWS_SES_SMTP_USER,
+        pass: process.env.AWS_SES_SMTP_PASS
+      }
+    },
+    from: 'Crystal.ding1@gmail.com',
+  },
   payment: {
     testMode: isTestPaymentMode,
     providers: {
@@ -195,5 +195,198 @@ module.exports = {
   nexmoConfig: {
     apiKey: process.env.NEXMO_API_KEY,
     apiSecret: process.env.NEXMO_API_SECRET
+  },
+  query: {
+    getProduct: `query getProduct($ID: ID!){
+      product (
+        id: $ID
+      ) {
+        id
+        assets {
+          id
+          url
+        }
+      }
+    }`,
+    getPurchaseOrder: `query getPurchaseOrder($orderID: ID!){
+        purchaseOrder (
+          id: $orderID
+        ) {
+          id
+          total {
+            amount
+            currency
+            formatted
+          }
+          price {
+            amount
+            currency
+            formatted
+          }
+          deliveryPrice {
+            amount
+            currency
+            formatted
+          }
+          tax {
+            amount
+            currency
+            formatted
+          }
+          buyer {
+            id
+            email
+            name
+            phone
+            address {
+              street
+              city
+              region {
+                name
+              }
+              country {
+                name
+              }
+            }
+          }
+          createdAt
+          paymentInfo
+          items {
+            id
+            title
+            quantity
+            price {
+              amount
+              currency
+              formatted
+            }
+            total {
+              amount
+              currency
+              formatted
+            }
+            seller {
+              name
+            }
+            deliveryPrice {
+              amount
+              currency
+              formatted
+            }
+            deliveryOrder {
+              estimatedDeliveryDate
+              deliveryAddress {
+                id
+                city
+                street 
+                region {
+                  id
+                  name
+                }
+                country {
+                  id
+                  name
+                }
+              }
+            }
+            billingAddress {
+              id
+              city
+              street 
+              region {
+                id
+                name
+              }
+              country {
+                id
+                name
+              }
+            }
+          }
+        }
+      }
+    `,
+    getSaleOrder: `query getSaleOrder($orderID: ID!){
+      saleOrder(
+        id: $orderID
+      ){
+        id
+        buyer {
+          id
+          name
+          email
+          phone
+        }
+        purchaseOrder {
+          id
+          createdAt
+        }
+        items {
+          id
+          title
+          seller {
+            name
+            email
+            phone
+            organization {
+              address {
+                street
+                city
+                region {
+                  id
+                  name
+                }
+                country {
+                  id
+                  name
+                }
+              }
+            }
+          }
+          product {
+            id
+            title
+            sku
+          }
+          productAttribute {
+            id
+            price {
+              amount
+              currency
+              formatted
+            }
+          }
+          quantity
+          price {
+            currency
+            amount
+            formatted
+          }
+          total {
+            amount
+            currency
+            formatted
+          }
+          deliveryOrder {
+            id
+            estimatedDeliveryDate 
+            deliveryAddress {
+              id
+              city
+              region {
+                id
+                name
+              }
+              country {
+                id
+                name
+              }
+              street
+            }
+          }
+        }
+      }
+    }
+    `,
   },
 };

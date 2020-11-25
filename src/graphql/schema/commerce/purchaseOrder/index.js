@@ -37,6 +37,7 @@ const schema = gql`
         deliveryPrice: AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
+        tax: AmountOfMoney!
         """ In future buyer will be able to pay by few paymnets to one Order"""
         payments: [PaymentTransactionInterface!]
         """ Address for ship products """
@@ -164,6 +165,12 @@ module.exports.resolvers = {
     deliveryPrice: async (order) => (
       CurrencyFactory.getAmountOfMoney({
         centsAmount: order.deliveryPrice,
+        currency: order.currency,
+      })
+    ),
+    tax: async (order) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: order.tax,
         currency: order.currency,
       })
     ),
