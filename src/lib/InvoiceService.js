@@ -1,7 +1,7 @@
 const uuid = require('uuid/v4');
 const path = require('path');
 
-const { baseURL } = require(path.resolve('config'));
+const { baseURL, query: { getPurchaseOrder, getProduct, getSaleOrder } } = require(path.resolve('config'));
 const { request, gql } = require('graphql-request');
 
 const repository = require(path.resolve('src/repository'));
@@ -16,100 +16,7 @@ const s3 = new AWS.S3();
 
 module.exports.InvoiceService = {
   async getOrderDetails(orderID) {
-    const orderQuery = gql`
-        query getPurchaseOrder($orderID: ID!){
-          purchaseOrder (
-            id: $orderID
-          ) {
-            id
-            total {
-              amount
-              currency
-              formatted
-            }
-            price {
-              amount
-              currency
-              formatted
-            }
-            deliveryPrice {
-              amount
-              currency
-              formatted
-            }
-            buyer {
-              id
-              email
-              name
-              phone
-              address {
-                street
-                city
-                region {
-                  name
-                }
-                country {
-                  name
-                }
-              }
-            }
-            createdAt
-            paymentInfo
-            items {
-              id
-              title
-              quantity
-              price {
-                amount
-                currency
-                formatted
-              }
-              total {
-                amount
-                currency
-                formatted
-              }
-              seller {
-                name
-              }
-              deliveryPrice {
-                amount
-                currency
-                formatted
-              }
-              deliveryOrder {
-                estimatedDeliveryDate
-                deliveryAddress {
-                  id
-                  city
-                  street 
-                  region {
-                    id
-                    name
-                  }
-                  country {
-                    id
-                    name
-                  }
-                }
-              }
-              billingAddress {
-                id
-                city
-                street 
-                region {
-                  id
-                  name
-                }
-                country {
-                  id
-                  name
-                }
-              }
-            }
-          }
-        }
-    `;
+    const orderQuery = gql`${getPurchaseOrder}`;
 
     const variables = {
       orderID,
@@ -127,7 +34,7 @@ module.exports.InvoiceService = {
       orderID,
       price_summary: {
         items: itemsDetail.purchaseOrder.price,
-        tax: '$0.00',
+        tax: itemsDetail.purchaseOrder.tax,
         shipping: itemsDetail.purchaseOrder.deliveryPrice,
         total: itemsDetail.purchaseOrder.total,
       },
@@ -137,18 +44,7 @@ module.exports.InvoiceService = {
     await Promise.all(itemsDetail.purchaseOrder.items.map(async (item) => {
       const orderItem = await repository.orderItem.getById(item.id);
       const product = await request(`${baseURL}graphql`,
-        gql`
-        query getProduct($ID: ID!){
-          product (
-            id: $ID
-          ) {
-            id
-            assets {
-              id
-              url
-            }
-          }
-        }`,
+        gql`${getProduct}`,
         {
           ID: orderItem.product,
         });
@@ -248,7 +144,7 @@ module.exports.InvoiceService = {
       Key: key,
       Body: html,
     }).promise(),
-    // repository.purchaseOrder.addPackingSlip(orderDetails.orderID, `${cdn.appAssets}/${key}`),
+    repository.saleOrder.addPackingSlip(orderDetails.saleOrderID, `${cdn.appAssets}/${key}`),
     ])
       .then(() => `${cdn.appAssets}/${key}`)
       .catch((error) => {
@@ -257,6 +153,81 @@ module.exports.InvoiceService = {
     return `${cdn.appAssets}/${key}`;
   },
   async getSalesOrderDetails(orderID) {
-    return orderID;
+    const saleOrderQuery = gql`${getSaleOrder}`;
+    const variables = {
+      orderID,
+    };
+
+    const saleOrder = await request(`${baseURL}graphql`, saleOrderQuery, variables);
+    const orderDate = saleOrder.saleOrder.purchaseOrder.createdAt;
+    const shippingFrom = {
+      name: saleOrder.saleOrder.items[0].seller.name,
+      phone: saleOrder.saleOrder.items[0].seller.phone,
+      email: saleOrder.saleOrder.items[0].seller.email,
+      street: saleOrder.saleOrder.items[0].seller.organization.address.street,
+      city: saleOrder.saleOrder.items[0].seller.organization.address.city,
+      state: saleOrder.saleOrder.items[0].seller.organization.address.region.name,
+      country: saleOrder.saleOrder.items[0].seller.organization.address.country.name,
+    };
+
+
+    const orderDetails = [];
+    const newOrder = {
+      ID: saleOrder.saleOrder.purchaseOrder.id,
+      orderDate,
+      saleOrderID: orderID,
+      shippingFrom,
+    };
+    const { buyer } = saleOrder.saleOrder;
+
+    let items = [];
+    let shippingTo = { id: '' };
+    let sameItems = 0;
+
+    await Promise.all(saleOrder.saleOrder.items.map(async (item) => {
+      sameItems++;
+
+      if (shippingTo.id !== item.deliveryOrder.id) {
+        if (items.length > 0) {
+          orderDetails.push({
+            ...newOrder,
+            quantity: sameItems,
+            shippingTo: {
+              name: buyer.name,
+              phone: buyer.phone,
+              email: buyer.email,
+              street: item.deliveryOrder.deliveryAddress.street,
+              city: item.deliveryOrder.deliveryAddress.city,
+              state: item.deliveryOrder.deliveryAddress.region.name,
+              country: item.deliveryOrder.deliveryAddress.country.name,
+            },
+            items,
+          });
+        }
+
+        sameItems = 0;
+        shippingTo = item.deliveryOrder.deliveryAddress;
+        items = [item];
+      } else {
+        items.push(item);
+      }
+    }));
+
+    orderDetails.push({
+      ...newOrder,
+      quantity: items.length > 1 ? sameItems : items.length,
+      shippingTo: {
+        name: buyer.name,
+        phone: buyer.phone,
+        email: buyer.email,
+        street: shippingTo.street,
+        city: shippingTo.city,
+        state: shippingTo.region.name,
+        country: shippingTo.country.name,
+      },
+      items,
+    });
+
+    return orderDetails;
   },
 };

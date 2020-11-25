@@ -37,6 +37,7 @@ const schema = gql`
         id: ID!
         title: String!
         product: Product!
+        productAttribute: ProductAttribute
         """ In Units """
         quantity: Int!
         price: AmountOfMoney!
@@ -47,6 +48,7 @@ const schema = gql`
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
         billingAddress: DeliveryAddress!
+        note: String
     }
 `;
 
@@ -77,6 +79,9 @@ module.exports.resolvers = {
     ),
     product: async (item, _, { dataSources: { repository } }) => (
       repository.product.getById(item.product)
+    ),
+    productAttribute: async (item, _, { dataSources: { repository } }) => (
+      repository.productAttributes.getById(item.productAttribute)
     ),
     deliveryOrder: async (item, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.findByOrderItem(item.id)

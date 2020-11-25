@@ -44,6 +44,11 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
+  tax: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
   total: {
     type: Number,
     required: true,

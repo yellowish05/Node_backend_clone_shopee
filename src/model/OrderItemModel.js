@@ -81,6 +81,10 @@ const schema = new Schema({
     ref: 'ProductAttribute',
     default: null,
   },
+  note: {
+    type: String,
+    default: null,
+  },
 });
 
 module.exports = new model(collectionName, schema);

@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
   let items = '';
+  const payment_info = orderDetails.payment_info && orderDetails.payment_info.payment_method ? orderDetails.payment_info.payment_method : 'N/A';
 
   orderDetails.items.map((item) => {
     const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
@@ -365,7 +366,7 @@ module.exports = async (orderDetails) => {
                 <h2>Payment Information</h2>
                 <div>
                     <div>
-                        <p><b>Payment Method: </b>${orderDetails.payment_info.payment_method}</p>
+                        <p><b>Payment Method: </b>${payment_info}</p>
                     </div>
                 </div>
             </div>
@@ -398,7 +399,7 @@ module.exports = async (orderDetails) => {
                 </div>
                 <div class="price_summary_item">
                     <p>Tax/VAT: </p>
-                    <p>${orderDetails.price_summary.tax}</p>
+                    <p>${orderDetails.price_summary.tax.formatted}</p>
                 </div>
                 <div class="price_summary_item">
                     <p>Shipping: </p>
