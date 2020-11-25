@@ -3,6 +3,7 @@ const path = require('path');
 const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
 
+const { nexmoConfig } = require(path.resolve('config'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
@@ -10,8 +11,8 @@ const errorHandler = new ErrorHandler();
 const Nexmo = require('nexmo');
 
 const nexmo = new Nexmo({
-  apiKey: '29e68da5',
-  apiSecret: 'JKFjw8fIsz1542SO',
+  apiKey: nexmoConfig.apiKey,
+  apiSecret: nexmoConfig.apiSecret,
 });
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {

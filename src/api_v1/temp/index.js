@@ -85,6 +85,8 @@ tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
           console.log('[Converting]', assetId);
           total ++;
           await AssetService.resizeImage({ assetId, width: 500 });
+          liveStream.thumbnail = assetId;
+          await liveStream.save();
         }
       }))
     })

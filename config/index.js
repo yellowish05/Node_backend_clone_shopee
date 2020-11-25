@@ -98,6 +98,33 @@ module.exports = {
       apiVersion: 'v2',
     },
   },
+  ses: {
+    sesConfig: {
+      apiVersion: '2010-12-01',
+      accessKeyId: process.env.AWS_APP_KEY,
+      secretAccessKey: process.env.AWS_APP_SECRET,
+      region: process.env.LOGS_CLOUD_WATCH_REGION
+    },
+    from: 'Crystal.ding1@gmail.com',
+    configurationSetName: 'sendemail'
+  },
+  // awsSMTP: {
+  //   headers: {
+  //     'X-SES-CONFIGURATION-SET': 'sendemail',
+  //     'X-SES-MESSAGE-TAGS': "key0=value0",
+  //     'X-SES-MESSAGE-TAGS': "key1=value1"
+  //   },
+  //   config: {
+  //     host: "email-smtp.eu-central-1.amazonaws.com",
+  //     port: 587,
+  //     secure: false, // true for 465, false for other ports
+  //     auth: {
+  //       user: process.env.AWS_SES_SMTP_USER,
+  //       pass: process.env.AWS_SES_SMTP_PASS
+  //     }
+  //   },
+  //   from: 'Crystal.ding1@gmail.com',
+  // },
   payment: {
     testMode: isTestPaymentMode,
     providers: {
@@ -165,4 +192,8 @@ module.exports = {
     auth_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_AUTHKEY,
     app_id: process.env.PUSH_NOTIFICATION_ONESIGNAL_APPID
   }
+  nexmoConfig: {
+    apiKey: process.env.NEXMO_API_KEY,
+    apiSecret: process.env.NEXMO_API_SECRET
+  },
 };
