@@ -29,16 +29,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Cart item (${args.id}) does not exist`, { invalidArgs: 'id' });
       }
 
-      const productInfo = userCartItem.productAttribute ? 
-        await repository.productAttributes.getById(userCartItem.productAttribute) : 
-        await repository.product.getById(userCartItem.product);
+      const productInfo = userCartItem.productAttribute
+        ? await repository.productAttributes.getById(userCartItem.productAttribute)
+        : await repository.product.getById(userCartItem.product);
 
-      if (productInfo.quantity + userCartItem.quantity - args.quantity < 0) 
+      if (productInfo.quantity + userCartItem.quantity - args.quantity < 0) {
         throw new ForbiddenError('This product is not enough now');
-      
+      }
+
       productInfo.quantity = productInfo.quantity + userCartItem.quantity - args.quantity;
       const cartItemData = {
         quantity: args.quantity,
+        note: args.note,
       };
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;
@@ -52,7 +54,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           if (saveDeliveryRate) {
             return repository.userCartItem.update(args.id, cartItemData);
           }
-          
+
           return repository.deliveryRate.create(deliveryRate.toObject())
             .then(() => repository.userCartItem.update(args.id, cartItemData));
         });

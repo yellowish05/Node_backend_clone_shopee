@@ -14,19 +14,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     { billingAddress: 'required' },
   );
   
-  if (args.attrId) {
-    validator.addPostRule(async (provider) => Promise.all([
-      repository.productAttributes.getById(provider.inputs.attrId),
-    ])
-    .then(([productAttr]) => {
-        if (!productAttr) {
-          provider.error('Product Attribute', 'custom', `Product attribute with id "${provider.inputs.attrId}" does not exist!`);
-        } else if (productAttr.quantity < provider.inputs.quantity) {
-          provider.error('Product Attribute', 'custom', `You can't add items more than in stock, ${productAttr.quantity}!`);
-        }
-    }));
-  }
-
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
@@ -65,30 +52,34 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       if (!checkAmount) { throw new ForbiddenError('This product is not enough now'); }
 
       // Biwu's past work
-      // const cartItemData = {
-      //   productId: product.id,
-      //   quantity: args.quantity,
-      //   metricUnit: args.metricUnit || null,
-      //   attrId: args.attrId || null
-      // };
-      // // if (args.metricUnit) {
-      // //   cartItemData.metricUnit = args.metricUnit;
-      // // }
-      // if (deliveryRate) {
-      //   cartItemData.deliveryRateId = deliveryRate.id;
+      const cartItemData = {
+        productId: product.id,
+        quantity: args.quantity,
+        productAttribute: args.productAttribute,
+        billingAddress: args.billingAddress,
+        metricUnit: args.metricUnit || null,
+        note: args.note,
+      };
+      // if (args.metricUnit) {
+      //   cartItemData.metricUnit = args.metricUnit;
       // }
-      // return repository.deliveryRate.create(deliveryRate.toObject())
-      //   .then(() => repository.userCartItem.add(cartItemData, user.id));
 
-      return repository.deliveryRate.create(deliveryRate.toObject())
+      if (!deliveryRate) { throw new ForbiddenError('Delivery Rate does not exist'); }
+
+      cartItemData.deliveryRateId = deliveryRate.id;
+
+      return repository.deliveryRate.getById(deliveryRate.id)
+        .then(async (response) => {
+          if (!response) { await repository.deliveryRate.create(deliveryRate.toObject()); }
+        })
         .then(async () => {
-          // calculate quantity
           if (productAttr) {
             productAttr.quantity -= args.quantity;
             await productAttr.save();
           } else {
-            repository.productInventoryLog.decreaseQuantity(args.product, args.quantity);
+            await repository.productInventoryLog.decreaseQuantity(args.product, args.quantity);
           }
+
           return repository.userCartItem.add(cartItemData, user.id);
         });
     })

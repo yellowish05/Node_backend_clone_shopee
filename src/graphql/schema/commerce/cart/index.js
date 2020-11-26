@@ -25,11 +25,11 @@ const schema = gql`
       metricUnit: ProductMetricUnit
       seller: User!
       total(currency: Currency! = USD): AmountOfMoney!
-      attr: ProductAttribute
       productAttribute: ProductAttribute
 
       product: Product!
       deliveryIncluded: Boolean!
+      note: String
     }
 
     interface CartItemInterface {
@@ -39,6 +39,7 @@ const schema = gql`
       seller: User!
       productAttribute: ProductAttribute
       total(currency: Currency! = USD): AmountOfMoney!
+      note: String
     }
 
     extend type Query {
@@ -59,12 +60,12 @@ const schema = gql`
           billingAddress: ID!
           productAttribute: ID, 
           metricUnit: ProductMetricUnit, 
-          attrId: ID
+          note: String
         ) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
-        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1, billingAddress: ID) : Cart! @auth(requires: USER)
+        updateCartItem(id: ID!, deliveryRate: ID, quantity: Int! = 1, billingAddress: ID, note: String) : Cart! @auth(requires: USER)
         """
             Allows: authorized user
         """
@@ -118,7 +119,7 @@ module.exports.resolvers = {
           }
           return amountOfMoney.getCentsAmount();
         }
-        
+
         if (product) {
           let itemCurrency = product.currency;
           let unitPrice = product.price;
@@ -266,7 +267,6 @@ module.exports.resolvers = {
     },
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
-    attr: async ({ attrId }, _, { dataSources: { repository }}) => repository.productAttributes.getById(attrId),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
   },
   CartItemInterface: {
