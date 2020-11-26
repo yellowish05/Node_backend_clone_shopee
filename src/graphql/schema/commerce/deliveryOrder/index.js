@@ -17,23 +17,26 @@ const schema = gql`
         description: String!
     }
 
+    type carrierType {
+      id: ID!
+      name: String
+    }
+
     type DeliveryOrder {
       id: ID!
-      trackingNumber: String!
+      trackingNumber: String
       status: DeliveryOrderStatus!
       estimatedDeliveryDate: Date
       deliveryPrice: AmountOfMoney!
       deliveryAddress: DeliveryAddress!
-      logs: [DeliveryOrderLog]!
       proofPhoto: [Asset]
+      carrier: carrierType
     }
 
     input UpdateDeliveryOrderInput {
       trackingNumber: String!
-      carrierId: ID!
+      carrier: String!
       estimatedDeliveryDate: Date!
-      currency: Currency!
-      deliveryPrice: Float!
       proofPhoto: ID,
       saleOrderId: ID!
     }
@@ -42,7 +45,7 @@ const schema = gql`
       """
           Allows: authorized user & user must be a seller
       """
-      updateDeliveryOrder(id: ID!, data: UpdateDeliveryOrderInput!): DeliveryOrder! @auth(requires: USER)
+      updateDeliveryOrder(ids: [ID!]!, data: UpdateDeliveryOrderInput!): [DeliveryOrder!] @auth(requires: USER)
   }
 `;
 // 10-29
@@ -76,5 +79,14 @@ module.exports.resolvers = {
     deliveryAddress: async (order, _, { dataSources: { repository } }) => (
       repository.deliveryAddress.getById(order.deliveryAddress)
     ),
+    carrier: async ({ carrier }, _, { dataSources: { repository } }) => {
+      const carrierInfo = await repository.customCarrier.getById(carrier);
+      if (!carrierInfo)
+        carrierInfo = await repository.carrier.getById(carrier);
+      return {
+        id: carrierInfo.id,
+        name: carrierInfo.name,
+      }
+    }
   },
 };

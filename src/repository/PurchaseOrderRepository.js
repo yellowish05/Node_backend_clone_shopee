@@ -14,7 +14,7 @@ class PurchaseOrderRepository {
   }
 
   async find({ user }) {
-    return await this.model.find({ buyer: user.id });
+    return this.model.find({ buyer: user.id });
   }
 
   async getByBuyer(id) {
@@ -58,8 +58,7 @@ class PurchaseOrderRepository {
 
   async addInovicePDF(id, url) {
     const purchaseOrder = await this.getById(id);
-
-    if (purchaseOrder.invoicePDF) { purchaseOrder.invoicePDF.push(url); } else { purchaseOrder.invoicePDF = [url]; }
+    purchaseOrder.invoicePDF = url;
 
     return purchaseOrder.save();
   }
@@ -73,6 +72,8 @@ class PurchaseOrderRepository {
 
   async getInvoicePDF(id) {
     const purchaseOrder = await this.getById(id);
+
+    if (!purchaseOrder) { return null; }
 
     return purchaseOrder.invoicePDF;
   }
@@ -90,10 +91,6 @@ class PurchaseOrderRepository {
 
     return purchaseOrder.save();
   }
-
-  // async getPackingSlips(id) {
-
-  // }
 }
 
 module.exports = PurchaseOrderRepository;

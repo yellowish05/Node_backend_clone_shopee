@@ -1,3 +1,4 @@
+const uuid = require('uuid/v4');
 
 class CarrierRepository {
   constructor(model) {
@@ -14,6 +15,18 @@ class CarrierRepository {
 
   async loadList(ids) {
     return this.model.find({ _id: { $in: ids } });
+  }
+
+  async getByName(name) {
+    return this.model.findOne({ name });
+  }
+
+  async addByName(data) {
+    const card = new this.model({
+      _id: uuid(),
+      ...data,
+    });
+    return card.save();
   }
 }
 

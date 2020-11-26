@@ -31,6 +31,7 @@ const schema = gql`
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
         billingAddress: DeliveryAddress!
+        note: String
     }
 
     type OrderProductItem implements OrderItemInterface {

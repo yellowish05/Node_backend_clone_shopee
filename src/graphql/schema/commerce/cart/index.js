@@ -100,7 +100,25 @@ module.exports.resolvers = {
   },
   Cart: {
     price: async ({ items }, args) => (
-      Promise.all(items.map(async ({ quantity, product, metricUnit }) => {
+      Promise.all(items.map(async ({ quantity, product, metricUnit, productAttribute }) => {
+        if (!product && !productAttribute) { return 0; }
+
+        const amountOfMoney = CurrencyFactory.getAmountOfMoney({
+          centsAmount: productAttribute ? productAttribute.price * quantity : product.price * quantity,
+          currency: productAttribute ? productAttribute.currency : product.currency,
+        });
+
+        if (productAttribute) {
+          if (args.currency && args.currency !== productAttribute.currency) {
+            const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+              { centsAmount: productAttribute.price * quantity, currency: productAttribute.currency },
+            );
+            return CurrencyService.exchange(amountOfMoney, args.currency)
+              .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+          }
+          return amountOfMoney.getCentsAmount();
+        }
+        
         if (product) {
           let itemCurrency = product.currency;
           let unitPrice = product.price;

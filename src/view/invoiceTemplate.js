@@ -1,12 +1,17 @@
 const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
-  let items = '';
-  const payment_info = orderDetails.payment_info && orderDetails.payment_info.payment_method ? orderDetails.payment_info.payment_method : 'N/A';
+  let orderDetailsContent = '';
+  let itemQty = 0;
+  await Promise.all(orderDetails.orderDetails.map((orderDetail) => {
+    let items = '';
+    const payment_info = orderDetail.payment_info.payment_method ? orderDetail.payment_info.payment_method : 'N/A';
 
-  orderDetails.items.map((item) => {
-    const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
-    items += `
+    itemQty += orderDetail.items.length;
+
+    orderDetail.items.map((item) => {
+      const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
+      items += `
             <tr>
                 <td>
                     <img class="product_image" src="${item.image}">
@@ -21,7 +26,89 @@ module.exports = async (orderDetails) => {
                 <td>${item.total.formatted}</td>
             </tr>
         `;
-  });
+    });
+
+    orderDetailsContent += `
+        <div class="border_line"></div>
+        <div style="display:flex;">
+            <div id="shipping_address">
+                <h2>Shipping Address</h2>
+                <div>
+                    <p><b>${orderDetail.shipping_address.client_name ? orderDetail.shipping_address.client_name : 'N/A'}</b></p>
+                    <p>${orderDetail.shipping_address.street ? orderDetail.shipping_address.street : ''}</p>
+                    <p>${orderDetail.shipping_address.city ? orderDetail.shipping_address.city : ''}</p>
+                    <p>${orderDetail.shipping_address.state ? orderDetail.shipping_address.state : ''}</p>
+                    <p>${orderDetail.shipping_address.country ? orderDetail.shipping_address.country : ''}</p>
+                    <p>${orderDetail.shipping_address.phone ? orderDetail.shipping_address.phone : ''}</p>
+                    <p>${orderDetail.shipping_address.email ? orderDetail.shipping_address.email : ''}</p>
+                </div>
+            </div>
+            <div id="billing_address">
+                <h2>Billing Address</h2>
+                <div>
+                    <p><b>${orderDetail.payment_info.billing_address.name ? orderDetail.payment_info.billing_address.name : 'N/A'}</b></p>
+                    <p>${orderDetail.payment_info.billing_address.street ? orderDetail.payment_info.billing_address.street : ''}</p>
+                    <p>${orderDetail.payment_info.billing_address.city ? orderDetail.payment_info.billing_address.city : ''}</p>
+                    <p>${orderDetail.payment_info.billing_address.state ? orderDetail.payment_info.billing_address.state : ''}</p>
+                    <p>${orderDetail.payment_info.billing_address.country ? orderDetail.payment_info.billing_address.country : ''}</p>
+                    <p>${orderDetail.payment_info.billing_address.phone ? orderDetail.payment_info.billing_address.phone : ''}</p>
+                    <p>${orderDetail.payment_info.billing_address.email ? orderDetail.payment_info.billing_address.email : ''}</p>
+                </div>
+            </div>
+        </div>
+        <div class="border_line"></div>
+        <div id="payment_info">
+            <h2>Payment Information</h2>
+            <div>
+                <div>
+                    <p><b>Payment Method: </b>${payment_info}</p>
+                </div>
+            </div>
+        </div>
+        <div style="margin-bottom: 40px; page-break-after: always;">
+            <table id="items_table">
+                <thead>
+                    <tr>
+                        <th>Item Discription</th>
+                        <th>Price</th>
+                        <th>QTY</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="empty_row">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    ${items}
+                </tbody>
+            </table>
+        </div>
+    `;
+  }));
+  //   let items = '';
+  //   const payment_info = orderDetails.payment_info.payment_method ? orderDetails.payment_info.payment_method : 'N/A';
+
+  //   orderDetails.items.map((item) => {
+  //     const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
+  //     items += `
+  //                 <tr>
+  //                     <td>
+  //                         <img class="product_image" src="${item.image}">
+  //                         <div class="product_name">
+  //                             <p class="line_break"><b>${item.title}</b></p>
+  //                             <span>Estimate Delivery : </span>
+  //                             <span class="delivery_estimate">${deliveryDate}</span>
+  //                         </div>
+  //                     </td>
+  //                     <td>${item.price.formatted}</td>
+  //                     <td>${item.quantity}</td>
+  //                     <td>${item.total.formatted}</td>
+  //                 </tr>
+  //             `;
+  //   });
 
   const pdfTemplate = `<!DOCTYPE html>
     <html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
@@ -329,69 +416,12 @@ module.exports = async (orderDetails) => {
                         </div>
                         <div class="order_summary_item">
                             <p>Order Total:</p>
-                            <p>${orderDetails.price_summary.total.formatted} ${orderDetails.price_summary.total.currency} (${orderDetails.items.length} item)</p>
+                            <p>${orderDetails.price_summary.total.formatted} ${orderDetails.price_summary.total.currency} (${itemQty} ${itemQty == 1 ? 'item' : 'items'})</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="border_line"></div>
-            <div style="display:flex;">
-                <div id="shipping_address">
-                    <h2>Shipping Address</h2>
-                    <div>
-                        <p><b>${orderDetails.shipping_address.client_name ? orderDetails.shipping_address.client_name : 'N/A'}</b></p>
-                        <p>${orderDetails.shipping_address.street ? orderDetails.shipping_address.street : ''}</p>
-                        <p>${orderDetails.shipping_address.city ? orderDetails.shipping_address.city : ''}</p>
-                        <p>${orderDetails.shipping_address.state ? orderDetails.shipping_address.state : ''}</p>
-                        <p>${orderDetails.shipping_address.country ? orderDetails.shipping_address.country : ''}</p>
-                        <p>${orderDetails.shipping_address.phone ? orderDetails.shipping_address.phone : ''}</p>
-                        <p>${orderDetails.shipping_address.email ? orderDetails.shipping_address.email : ''}</p>
-                    </div>
-                </div>
-                <div id="billing_address">
-                    <h2>Billing Address</h2>
-                    <div>
-                        <p><b>${orderDetails.payment_info.billing_address.name ? orderDetails.payment_info.billing_address.name : 'N/A'}</b></p>
-                        <p>${orderDetails.payment_info.billing_address.street ? orderDetails.payment_info.billing_address.street : ''}</p>
-                        <p>${orderDetails.payment_info.billing_address.city ? orderDetails.payment_info.billing_address.city : ''}</p>
-                        <p>${orderDetails.payment_info.billing_address.state ? orderDetails.payment_info.billing_address.state : ''}</p>
-                        <p>${orderDetails.payment_info.billing_address.country ? orderDetails.payment_info.billing_address.country : ''}</p>
-                        <p>${orderDetails.payment_info.billing_address.phone ? orderDetails.payment_info.billing_address.phone : ''}</p>
-                        <p>${orderDetails.payment_info.billing_address.email ? orderDetails.payment_info.billing_address.email : ''}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="border_line"></div>
-            <div id="payment_info">
-                <h2>Payment Information</h2>
-                <div>
-                    <div>
-                        <p><b>Payment Method: </b>${payment_info}</p>
-                    </div>
-                </div>
-            </div>
-            <div style="margin-bottom: 40px;">
-                <table id="items_table">
-                    <thead>
-                        <tr>
-                            <th>Item Discription</th>
-                            <th>Price</th>
-                            <th>QTY</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="empty_row">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        ${items}
-                    </tbody>
-                </table>
-            </div>
-            
+            ${orderDetailsContent}            
             <div id="price_summary">
                 <div class="price_summary_item">
                     <p>Subtotal: </p>  
@@ -426,6 +456,7 @@ module.exports = async (orderDetails) => {
       left: '1.5cm',
       right: '1.5cm',
     },
+    footerTemplate: '<div style="text-align: right;width: 297mm;font-size: 8px;"><span style="margin-right: 1cm"><span class="pageNumber"></span> of <span class="totalPages"></span></span></div>',
   });
 
   await browser.close();

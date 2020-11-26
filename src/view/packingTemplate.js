@@ -1,31 +1,100 @@
 const puppeteer = require('puppeteer');
 
 module.exports = async (orderDetails) => {
-  let payment_method = '';
-  let items = '';
+  let orderDetailsContent = '';
+  let itemQty = 0;
+  const productID = '';
 
-  if (orderDetails.payment_info.payment_method.type == 'card') { payment_method = `${orderDetails.payment_info.payment_method.details.brand} Card ending in  ${orderDetails.payment_info.payment_method.details.last4}`; } else { payment_method = orderDetails.payment_info.payment_method.type; }
+  await orderDetails.orderDetails.map((orderDetail) => {
+    let items = '';
+    orderDetail.items.map((item) => {
+      const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
+      const sku = item.product.sku ? item.product.sku : 'N/A';
 
-  const { billing_address } = orderDetails.payment_info;
+      if (item.product.id !== productID) {
+        itemQty++;
+      }
 
-  orderDetails.items.map((item) => {
-    const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
-    items += `
-            <tr>
-                <td>
-                    <img class="product_image" src="${item.image}">
-                    <div class="product_name">
-                        <p class="line_break"><b>${item.title}</b></p>
-                        <span>Estimate Delivery : </span>
-                        <span class="delivery_estimate">${deliveryDate}</span>
-                    </div>
-                </td>
-                <td>${item.price.formatted}</td>
-                <td>${item.quantity}</td>
-                <td>${item.total.formatted}</td>
-            </tr>
-        `;
+      items += `
+                <tr>
+                    <td>
+                        <div class="product_name">
+                            <p class="line_break"><b>${item.title}</b></p>
+                            <p>Special Note: ${item.note ? item.note : 'NA'}</p>
+                            <p>Estimate Delivery : <span class="delivery_estimate">${deliveryDate}</span></p>
+                        </div>
+                    </td>
+                    <td>
+                        <p>SKU: ${sku}</p>
+                        <p>${item.product.id}</p>
+                    </td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price.formatted}</td>
+                </tr>
+            `;
+    });
+
+    orderDetailsContent += `
+        <div class="border_line"></div>
+        <div style="display: flex;">
+            <div id="shipping_address">
+                <h2>Shipping To: </h2>
+                <div>
+                <p><b>${orderDetail.shippingTo.name}</b></p>
+                <p>${orderDetail.shippingTo.street}</p>
+                <p>${orderDetail.shippingTo.city}</p>
+                <p>${orderDetail.shippingTo.state}</p>
+                <p>${orderDetail.shippingTo.country}</p>
+                <p>${orderDetail.shippingTo.phone}</p>
+                <p>${orderDetail.shippingTo.email}</p>
+                </div>
+            </div>
+            <div id="billing_address">
+                <h2>Shipping From:</h2>
+                <div>
+                <p><b>${orderDetails.shippingFrom.name}</b></p>
+                <p>${orderDetails.shippingFrom.street}</p>
+                <p>${orderDetails.shippingFrom.city}</p>
+                <p>${orderDetails.shippingFrom.state}</p>
+                <p>${orderDetails.shippingFrom.country}</p>
+                <p>${orderDetails.shippingFrom.phone}</p>
+                <p>${orderDetails.shippingFrom.email}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="border_line"></div>
+        <div id="payment_info">
+            <h2>Sale Order</h2>
+            <div>
+                <p><b>Sale Order #: </b></p>
+                <p>${orderDetails.saleOrderID}</p>
+            </div>
+        </div>
+        <div style="margin-bottom: 40px; page-break-after: always;">
+            <table id="items_table">
+                <thead>
+                    <tr>
+                        <th>Item Discription</th>
+                        <th>SKU/ProductID</th>
+                        <th>QTY</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="empty_row">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    ${items}
+                </tbody>
+            </table>
+        </div>
+    `;
   });
+
 
   const pdfTemplate = `<!DOCTYPE html>
   <!-- saved from url=(0037)file:///C:/Users/PC/Videos/index.html -->
@@ -157,6 +226,7 @@ module.exports = async (orderDetails) => {
       table tbody tr td:first-child {
           display: table;
           text-align: left;
+          width: 100%;
       }
   
       table tbody tr td:nth-child(2) {
@@ -337,158 +407,20 @@ module.exports = async (orderDetails) => {
                   <div id="order_summary">
                       <div class="order_summary_item">
                           <p>Order Date:</p>
-                          <p>Oct 4, 2020</p>
+                          <p>${orderDetails.orderDate}</p>
                       </div>
                       <div class="order_summary_item">
                           <p>Order #:</p>
-                          <p>01e82a91-0d85-4e68-9f81-97b287bb46ae</p>
+                          <p>${orderDetails.ID}</p>
                       </div>
                       <div class="order_summary_item">
                           <p>Product Qty:</p>
-                          <p>2 items</p>
+                          <p>${itemQty} ${itemQty > 1 ? 'items' : 'item'}</p>
                       </div>
                   </div>
               </div>
           </div>
-          <div class="border_line"></div>
-          <div style="display: flex;">
-              <div id="shipping_address">
-                  <h2>Shipping To: </h2>
-                  <div>
-                      <p><b>Crystal Ding</b></p>
-                      <p>116 Santa Monica Boulevard</p>
-                      <p>Santa Monica</p>
-                      <p>California</p>
-                      <p>United States</p>
-                      <p>+15107178878</p>
-                      <p>test.crystal@shoclef.com</p>
-                  </div>
-              </div>
-              <div id="billing_address">
-                  <h2>Shipping From:</h2>
-                  <div>
-                      <p><b>Crystal Ding</b></p>
-                      <p>116 Santa Monica Boulevard</p>
-                      <p>Santa Monica</p>
-                      <p>California</p>
-                      <p>United States</p>
-                      <p>+15107178878</p>
-                      <p>test.crystal@shoclef.com</p>
-                  </div>
-              </div>
-          </div>
-          
-          <div class="border_line"></div>
-          <div id="payment_info">
-              <h2>Sale Order</h2>
-              <div>
-                  <p><b>Sale Order #: </b></p>
-                  <p>834njfv-e09j3-2kjriu78sfdvk-skdrfl04</p>
-              </div>
-          </div>
-          <div style="margin-bottom: 40px;">
-              <table id="items_table">
-                  <thead>
-                      <tr>
-                          <th>Item Discription</th>
-                          <th>SKU/ProductID</th>
-                          <th>QTY</th>
-                          <th>Price</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr class="empty_row">
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <div class="product_name">
-                                  <p class="line_break"><b>Product Name 1 if too long just use second line and past that just use the third line blah blah blah blah balh blasdfhsrf</b></p>
-                                  <p>Special Note: N/A</p>
-                                  <p>Estimate Delivery : <span class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</span></p>
-                                  
-                              </div>
-                          </td>
-                          <td>
-                              <p>SKU: 187823849</p>
-                              <p>823br-bjjfwif8s-76317-88349</p>
-                          </td>
-                          <td>1</td>
-                          <td>$100</td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <div class="product_name">
-                                  <p class="line_break"><b>Product Name 1 if too long just use second line and past that just use the third line blah blah blah blah balh blasdfhsrf</b></p>
-                                  <p>Special Note: N/A</p>
-                                  <p>Estimate Delivery : <span class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</span></p>
-                                  
-                              </div>
-                          </td>
-                          <td>
-                              <p>SKU: 187823849</p>
-                              <p>823br-bjjfwif8s-76317-88349</p>
-                          </td>
-                          <td>1</td>
-                          <td>$100</td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <div class="product_name">
-                                  <p class="line_break"><b>Product Name 1 if too long just use second line and past that just use the third line blah blah blah blah balh blasdfhsrf</b></p>
-                                  <p>Special Note: N/A</p>
-                                  <p>Estimate Delivery : <span class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</span></p>
-                                  
-                              </div>
-                          </td>
-                          <td>
-                              <p>SKU: 187823849</p>
-                              <p>823br-bjjfwif8s-76317-88349</p>
-                          </td>
-                          <td>1</td>
-                          <td>$100</td>
-                      </tr>
-                      <tr>
-                          <td>
-                              <div class="product_name">
-                                  <p class="line_break"><b>Product Name 1 if too long just use second line and past that just use the third line blah blah blah blah balh blasdfhsrf</b></p>
-                                  <p>Special Note: N/A</p>
-                                  <p>Estimate Delivery : <span class="delivery_estimate">Tuesday, Oct 6, 2020 by 9:00 pm</span></p>
-                                  
-                              </div>
-                          </td>
-                          <td>
-                              <p>SKU: 187823849</p>
-                              <p>823br-bjjfwif8s-76317-88349</p>
-                          </td>
-                          <td>1</td>
-                          <td>$100</td>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
-          
-          <div id="price_summary">
-              <div class="price_summary_item">
-                  <p>Subtotal: </p>
-                  <p>$100.83</p>
-              </div>
-              <div class="price_summary_item">
-                  <p>Tax/VAT: </p>
-                  <p>$20.93</p>
-              </div>
-              <div class="price_summary_item">
-                  <p>Shipping: </p>
-                  <p>$10.83</p>
-              </div>
-              <div class="price_summary_item">
-                  <p><b>Order Total:</b></p>
-                  <p><b>USD </b>$100.83</p>
-              </div>
-          </div>
+          ${orderDetailsContent}
       </div>
       
   </body></html>`;
@@ -497,7 +429,6 @@ module.exports = async (orderDetails) => {
   const page = await browser.newPage();
   await page.setContent(pdfTemplate);
   const invoicePDF = await page.pdf({
-    // path: 'invoice.pdf',
     format: 'A4',
     margin: {
       top: '2cm',

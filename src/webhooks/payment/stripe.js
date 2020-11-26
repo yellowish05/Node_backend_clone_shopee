@@ -7,6 +7,8 @@ const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const { payment } = require(path.resolve('config'));
 const stripe = require('stripe')(payment.providers.stripe.secret);
 
+const { EmailService } = require(path.resolve('src/bundles/email'));
+
 module.exports = async (req, res) => {
   let data; let
     eventType;
@@ -79,6 +81,10 @@ module.exports = async (req, res) => {
 
     await repository.purchaseOrder.addPaymentInfo(paymentIntent.client_secret, paymentInfo);
     await repository.purchaseOrder.updateStatusByClientSecret(paymentIntent.client_secret, PurchaseOrderStatus.ORDERED);
+
+    const purchaseOrder = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret);
+    EmailService.sendInvoicePDFs(purchaseOrder);
+    EmailService.sendPackingSlipPDFs(purchaseOrder);
   } else if (eventType === 'payment_intent.canceled' || eventType === 'payment_intent.payment_failed') {
     const pID = data.object.id;
     const { customer } = data.object;

@@ -11,9 +11,6 @@ const getRazorpayAction = require('./payment/razorpay');
 const getPayPalAction = require('./payment/paypal');
 const getLinepayAction = require('./payment/linepay')
 
-const path = require('path');
-const { payment } = require(path.resolve('config'));
-const stripe = require("stripe")(payment.providers.secret);
 const app = express();
 
 app.use(bodyParser.json());
