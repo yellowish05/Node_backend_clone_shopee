@@ -27,6 +27,7 @@ const schema = gql`
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
+        # serviceFee: AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
@@ -44,6 +45,7 @@ const schema = gql`
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
+        # serviceFee: AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
