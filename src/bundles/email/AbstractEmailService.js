@@ -5,11 +5,12 @@ const path = require('path');
 const { ApolloError } = require('apollo-server');
 
 const logger = require(path.resolve('config/logger'));
-const EmailProvider = require(path.resolve('config/emailProvider'));
 const requireDir = require('require-dir');
 
-const { email } = require(path.resolve('config'));
+const { awsSMTP } = require(path.resolve('config'));
 const templates = requireDir('./view');
+
+const nodemailer = require("nodemailer");
 
 class AbstractEmailService {
   getTemplate(name) {
@@ -24,27 +25,26 @@ class AbstractEmailService {
 
   getParams(args) {
     const params = {
-      subject: args.template.subject,
+      from: awsSMTP.from,
       to: args.user.email,
-      from: email.from,
-      body: args.template.build({ code: args.code, user: args.user }),
-      bodyType: email.bodyType,
+      subject: args.template.subject,
+      html: args.template.build({ code: args.code, user: args.user }),
+      // Custom headers for configuration set and message tags.
+      headers: awsSMTP.headers
     };
 
     return params;
   }
 
-  send(params) {
-    if (EmailProvider.isSendingDisabled) {
-      logger.info('[EMAIL]: Sending is Disabled');
-      return;
-    }
-
+  async send(params) {
     logger.debug(`[EMAIL]: try send email ${JSON.stringify(params)}`);
-    return EmailProvider.Email.Send(params)
-      .catch((err) => {
-        logger.error(`[EMAIL]: ${JSON.stringify(err)}`);
-      });
+    let transporter = nodemailer.createTransport(awsSMTP.config);
+    try {
+      const res = await transporter.sendMail(params);
+      return res;
+    } catch (error) {
+      console.log("send email error =>", JSON.stringify(error));
+    }
   }
 }
 

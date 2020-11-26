@@ -53,6 +53,7 @@ async function createOrderItem(cartItem, currency) {
     seller: cartItem.product.seller,
     title: cartItem.product.title,
     billingAddress: cartItem.billingAddress,
+    note: cartItem.note,
   };
 }
 

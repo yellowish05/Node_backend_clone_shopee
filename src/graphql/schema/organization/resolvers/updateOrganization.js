@@ -1,7 +1,7 @@
 const { UserInputError } = require('apollo-server');
 const path = require('path');
 
-const logger = require(path.resolve('config/logger'));
+// const logger = require(path.resolve('config/logger'));
 const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
 const { ForbiddenError } = require('apollo-server');
 
@@ -26,10 +26,10 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
     let address = null;
     let easyPostAddressId = null;
     let addressObj = null;
-    let billingAddressObj = null;
+    // const billingAddressObj = null;
 
-    if (args.data.address === undefined && (!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === "") && !args.data.customCarrier) {
-      throw new UserInputError(`You can not update organization without adding a custom carrier or carriers.`);
+    if (args.data.address === undefined && (!args.data.carriers || args.data.carriers.length === 0 || args.data.carriers === '') && !args.data.customCarrier) {
+      throw new UserInputError('You can not update organization without adding a custom carrier or carriers.');
     }
 
     let customCarrier;
@@ -67,9 +67,9 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
           region: address.region ? address.region._id : null,
           zipCode: address.zipCode,
           country: address.country._id,
-        }
-      }
-      await EasyPost.addAddress(addressObj).then(res => {
+        },
+      };
+      await EasyPost.addAddress(addressObj).then((res) => {
         easyPostAddressId = res.id;
         address.addressId = res.id;
       }).catch((error) => {
@@ -107,6 +107,8 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => act
         address,
         billingAddress,
         carriers,
-        customCarrier: customCarrier ? customCarrier.id : null
-      }));
+        customCarrier: customCarrier ? customCarrier.id : null,
+      }))
+      .then((newOrganization) => repository.user.updateOrganization(user.id, newOrganization)
+        .then(() => newOrganization));
   });

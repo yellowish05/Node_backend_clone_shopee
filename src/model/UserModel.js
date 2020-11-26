@@ -89,6 +89,14 @@ const schema = new Schema({
     type: String,
     default: '',
   },
+  organization: {
+    type: String,
+    ref: 'Organization',
+  },
+  fee: {
+    type: Number,
+    default: 0.2,
+  },
 });
 
 module.exports = new model(collectionName, schema);

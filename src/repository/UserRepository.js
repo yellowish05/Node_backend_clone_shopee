@@ -356,6 +356,17 @@ class UserRepository {
         elasticFilter(filter),
       );
   }
+
+  async updateOrganization(userID, org) {
+    return this.model.findOne({ _id: userID, organization: org.id })
+      .then(async (user) => {
+        if (user) { return user; }
+
+        const newUser = await this.getById(userID);
+        newUser.organization = org.id;
+        return newUser.save();
+      });
+  }
 }
 
 module.exports = UserRepository;
