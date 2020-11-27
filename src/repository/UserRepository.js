@@ -88,6 +88,39 @@ class UserRepository {
     return user.save();
   }
 
+  async createByPhone(data, options = {}) {
+    if (!data.phone) {
+      throw Error('phone is required!');
+    }
+
+    if (!data.countryCode) {
+      throw Error('countryCode is required!');
+    }
+
+    if (data.phone && await this.findByPhone(data.phone)) {
+      throw Error(`Phone Number "${data.phone}" is already taken!`);
+    }
+
+    const user = new this.model({
+      _id: data._id,
+      email: data.email,
+      password: md5(data.password),
+      phone: data.phone,
+      roles: options.roles || [],
+      settings: {
+        pushNotifications: PushNotification.toList(),
+        language: LanguageList.ENG,
+        currency: Currency.USD,
+        measureSystem: MeasureSystem.USC,
+      },
+      address: {
+        country: data.countryCode,
+      },
+    });
+
+    return user.save();
+  }
+
   async createFromCsv(data, options = {}) {
     const {
       email,
