@@ -60,6 +60,9 @@ const schema = gql`
 
     extend type Query {
       getUserById(id: ID!): UserInfo!
+      getUserByPhone(phone: String!): User
+      getUserByEmail(email: String!): User
+      getUserByName(name: String!): User
       """Allows: authorized user"""
       me: User! @auth(requires: USER) 
       generateChatToken: String! @auth(requires: USER)
@@ -100,6 +103,15 @@ module.exports.resolvers = {
     getUserById: async (_, { id }, { dataSources: { repository } }) => (
       repository.user.getById(id)
     ),
+    getUserByPhone: async (_, { phone }, { dataSources: { repository } }) => {
+      return repository.user.findByPhone(phone);
+    },
+    getUserByEmail: async (_, { email }, { dataSources: { repository } }) => {
+      return repository.user.findByEmail(email)
+    },
+    getUserByName: async (_, { name }, { dataSources: { repository } }) => {
+      return repository.user.findByName(name);
+    },
   },
   Mutation: {
     addUser,
