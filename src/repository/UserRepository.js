@@ -338,6 +338,10 @@ class UserRepository {
     return this.model.findOne({ phone });
   }
 
+  async findByName(name) {
+    return this.model.findOne({ name });
+  }
+
   async findByProvider(provider, value) {
     return await this.model.findOne({ [`providers.${provider}`]: value });
   }
