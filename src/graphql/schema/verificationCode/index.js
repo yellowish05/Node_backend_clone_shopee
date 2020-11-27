@@ -29,6 +29,7 @@ const schema = gql`
   type VerificationResult {
     result: Boolean!
     message: String
+    code: String
   }
 
   extend type Mutation {

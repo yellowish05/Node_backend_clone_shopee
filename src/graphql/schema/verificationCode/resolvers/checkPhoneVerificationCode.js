@@ -15,6 +15,12 @@ const nexmo = new Nexmo({
   apiSecret: nexmoConfig.apiSecret,
 });
 
+const verifyResponseCode = {
+  "3": "INVALID_REQUEST_ID",
+  "16": "INVALID_CODE",
+  "6": "NOT_FOUND_OR_ALREADY_VERIFIED"
+};
+
 module.exports = async (obj, args, { dataSources: { repository } }) => {
     const validator = new Validator(args.data, {
         code: 'required',
@@ -33,18 +39,19 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
                     request_id: args.data.request_id,
                     code: args.data.code
                 }, (err, result) => {
-                    console.log(result);
                     if (result.status != 0) {
                         var message = result.error_text.replace('Nexmo', 'Shoclef');
                         message = message.replace("Request '" + args.data.request_id + "'", 'Your request');
                         resolve({
                             result: false,
-                            message
+                            message,
+                            code: verifyResponseCode[result.status],
                         });
                     } else 
                         resolve({
                             result: true,
-                            message: ''
+                            message: '',
+                            code: "SUCCESS",
                         });
                 });
             });
