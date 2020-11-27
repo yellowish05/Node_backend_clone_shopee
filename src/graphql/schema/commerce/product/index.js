@@ -25,16 +25,13 @@ const schema = gql`
     type ProductAttribute {
       id: ID!
       productId: ID!
-      color: String!
-      size: String!
       """
           Price in cents. Use the Currency for show it in correct format
       """
       price(currency: Currency): AmountOfMoney!
-      discountPrice(currency: Currency): AmountOfMoney!
+      oldPrice(currency: Currency): AmountOfMoney
       quantity: Int!
       variation: [Variation]
-      oldPrice(currency: Currency): AmountOfMoney
       asset: Asset
       sku: String
     }
@@ -143,23 +140,20 @@ const schema = gql`
       productId: ID!
       quantity: Int!
       price: Float!
-      discountPrice: Float
+      oldPrice: Float
       currency: Currency!
-      color: String!
-      size: String!
       asset: ID!
       variation: [VariationInput!]!
       sku: String
     }
 
-
+    """WO = WithOut"""
     input ProductAttrWOProductInput {
       quantity: Int!
       price: Float!
-      discountPrice: Float
+      oldPrice: Float
       currency: Currency!
-      color: String!
-      size: String!
+      variation: [VariationInput!]!
       asset: ID!
     }
 
@@ -172,7 +166,7 @@ const schema = gql`
       productId: ID!
       quantity: Int
       price: Float
-      discountPrice: Float
+      oldPrice: Float
       currency: Currency
       variation: [VariationInput!]
       asset: ID
@@ -216,7 +210,7 @@ const schema = gql`
         """
             Price in dollars. Use the Currency for convert user input in cents
         """
-        discountPrice: Float
+        oldPrice: Float
         quantity: Int!
         """
             The Active User Currency
@@ -360,16 +354,6 @@ module.exports.resolvers = {
     ),
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
-      if (args.currency && args.currency !== currency) {
-        return CurrencyService.exchange(amountOfMoney, args.currency);
-      }
-      return amountOfMoney;
-    },
-    discountPrice: async ({ discountPrice, currency }, args) => {
-      if (!discountPrice) {
-        return null;
-      }
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: discountPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
