@@ -92,18 +92,17 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const productId = uuid();
       const inventoryId = uuid();
 
-      const { quantity, price, discountPrice, thumbnailId, ...productData } = data;
+      const { quantity, price, oldPrice, thumbnailId, ...productData } = data;
 
       productData._id = productId;
       productData.seller = user.id;
       productData.shippingBox = data.shippingBox;
-      // productData.weight = data.weight;
       productData.quantity = quantity;
       productData.customCarrier = customCarrier ? customCarrier.id : null;
       productData.customCarrierValue = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue || 0, currency: data.currency }).getCentsAmount();
-      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
+      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.oldPrice || data.price, currency: data.currency }).getCentsAmount();
       if (thumbnailId) { productData.thumbnail = thumbnailId; }
-      productData.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
+      productData.oldPrice = data.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
       productData.isFeatured = data.isFeatured || false;
       productData.slug = data.slug || "";
       productData.metaDescription = data.metaDescription || false;
@@ -170,11 +169,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             _id: productAttrId,
             productId: product._id,
             quantity: attr.quantity,
-            price: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.price || attr.discountPrice, currency: attr.currency }).getCentsAmount(), //attr.price,
-            discountPrice: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.discountPrice || attr.price, currency: attr.currency }).getCentsAmount(), //attr.discountPrice,
+            price: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.price || attr.oldPrice, currency: attr.currency }).getCentsAmount(), //attr.price,
+            oldPrice: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.oldPrice || attr.price, currency: attr.currency }).getCentsAmount(), //attr.oldPrice,
             currency: attr.currency,
-            color: attr.color,
-            size: attr.size,
+            variation: attr.variation,
             asset: attr.asset,
           });
         });

@@ -101,7 +101,7 @@ module.exports = {
       });
   },
 
-  async loadProductAsCart(deliveryRateId, productId, quantity, repository, billingAddress) {
+  async loadProductAsCart(deliveryRateId, productId, quantity, repository, billingAddress, note) {
     return Promise.all([
       repository.product.getById(productId),
       repository.deliveryRateCache.getById(deliveryRateId),
@@ -111,10 +111,11 @@ module.exports = {
         deliveryRate,
         quantity,
         billingAddress,
+        note,
       }]));
   },
 
-  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttributeId, billingAddress) {
+  async loadProductAsCartByAttr(deliveryRateId, productId, quantity, repository, productAttributeId, billingAddress, note) {
     return Promise.all([
       repository.product.getById(productId),
       repository.productAttributes.getById(productAttributeId),
@@ -126,6 +127,7 @@ module.exports = {
         deliveryRate,
         quantity,
         billingAddress,
+        note,
       }]));
   },
 

@@ -30,19 +30,18 @@ const schema = new Schema({
     type: String,
     // enum: ProductMetricUnits.toList(), // fields can be null for normal cart item
   },
-  attrId: {
-    type: String
-  },
-
   billingAddress: {
     type: String,
     default: null,
   },
-
   productAttribute: {
     type: String,
     ref: 'ProductAttribute',
   },
+  note: {
+    type: String,
+    default: null,
+  }
 });
 
 module.exports = new model(collectionName, schema);

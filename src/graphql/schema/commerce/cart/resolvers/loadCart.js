@@ -1,35 +1,22 @@
 /* eslint-disable no-param-reassign */
+const { ForbiddenError } = require('apollo-server');
 
 module.exports = async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
   .getAll({ user: user.id })
-  .then((items) => {
-    const productIds = items.map((item) => item.product).filter((id) => id !== null);
-    const deliveryRateIds = items.map((item) => item.deliveryRate).filter((id) => id !== null);
+  .then((items) => Promise.all(items.map(async (item) => {
+    item.product = await repository.product.getById(item.product)
+      .then((product) => {
+        if (!product) { throw new ForbiddenError('Product does not exist'); }
 
-    return Promise.all([
-      repository.product.getByIds(productIds),
-      repository.deliveryRate.getByIds(deliveryRateIds),
-    ])
-      .then(([products, deliveryRates]) => {
-        const productsById = products.reduce((accumulator, product) => {
-          accumulator[product.id] = product;
-          return accumulator;
-        }, {});
+        return product;
+      });
+    item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
+      .then((deliveryRate) => {
+        if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
+        return deliveryRate;
+      });
+    if (item.productAttribute) { item.productAttribute = await repository.productAttributes.getById(item.productAttribute); }
 
-        const deliveryRatesById = deliveryRates.reduce((accumulator, deliveryRate) => {
-          accumulator[deliveryRate.id] = deliveryRate;
-          return accumulator;
-        }, {});
-
-        return items.map((item) => {
-          if (item.product && productsById[item.product]) {
-            item.product = productsById[item.product];
-          }
-          if (item.deliveryRate && deliveryRatesById[item.deliveryRate]) {
-            item.deliveryRate = deliveryRatesById[item.deliveryRate];
-          }
-          return item;
-        });
-      })
-      .then((itemsWithProps) => ({ items: itemsWithProps }));
-  });
+    return item;
+  }))
+    .then((items) => ({ items })));

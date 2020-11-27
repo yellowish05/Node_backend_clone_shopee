@@ -15,12 +15,17 @@ const viewersRouters = require('./viewers');
 const pageRouters = require('./pages');
 const ApiV1Routers = require('./api_v1');
 
+const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
+const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+
+const { payment: { providers: { stripe } } } = require(path.resolve('config'));
+const stripSDK = require('stripe')(stripe.secret);
+
 var multiparty = require('connect-multiparty');
 const fs = require('fs');
 
 
-const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
-const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+
 
 
 const multipartymiddleware = multiparty();
@@ -55,6 +60,7 @@ app.route('/upload').post(multipartymiddleware, function (req, res) {
     })
   })
 })
+
 app.post('/invoice', async (req, res) => {
   const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID);
   const PDFs = [];
@@ -64,6 +70,11 @@ app.post('/invoice', async (req, res) => {
   }));
 
   res.status(200).send(PDFs);
+});
+
+app.post('/cancel', async (req, res) => {
+  const paymentIntent = await stripSDK.paymentIntents.cancel(req.body.pid);
+  res.send(JSON.stringify(paymentIntent));
 });
 
 app.post('/packing', async (req, res) => {

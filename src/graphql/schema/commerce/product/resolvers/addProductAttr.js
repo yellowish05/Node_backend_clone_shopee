@@ -14,11 +14,8 @@ const errorHandler = new ErrorHandler();
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(data, {
     productId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
-    // color: 'required',
-    // size: 'required',
     variation: 'required',
     price: 'required|decimal',
-    // discountPrice: 'required|decimal',
     quantity: 'required|integer',
     asset: 'required',
   });
@@ -56,14 +53,13 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         quantity, price, ...productData
       } = data;
 
-      const discountPrice = data.discountPrice ? data.discountPrice : 0;
       if (productData.sku && productData.sku.indexOf(' ') >= 0) {
         throw new ForbiddenError('SKU should not include space!');
       }
       productData._id = productAttrId;
       productData.quantity = quantity;
-      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: data.currency }).getCentsAmount();
-      productData.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount() : null;
+      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice || price, currency: data.currency }).getCentsAmount();
+      productData.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount() : null;
 
       foundProduct.attrs.push(productAttrId);
       const inventoryLog = {

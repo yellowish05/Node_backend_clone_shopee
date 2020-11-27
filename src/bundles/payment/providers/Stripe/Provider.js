@@ -370,7 +370,7 @@ class Provider extends ProviderAbstract {
       newCustomer = customer;
     }
 
-    return await this.client.paymentIntents.create({
+    return this.client.paymentIntents.create({
       payment_method_types: ['alipay'],
       amount,
       currency: currency.toLowerCase(),

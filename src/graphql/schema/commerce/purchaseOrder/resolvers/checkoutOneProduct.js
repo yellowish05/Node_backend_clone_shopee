@@ -9,7 +9,7 @@ const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 module.exports = async function checkoutOneProduct(
   _,
   {
-    deliveryRate, product, quantity, currency, provider, productAttribute, billingAddress,
+    deliveryRate, product, quantity, currency, provider, productAttribute, billingAddress, note,
   },
   { dataSources: { repository }, user },
 ) {
@@ -21,8 +21,8 @@ module.exports = async function checkoutOneProduct(
     ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity)
     : await repository.productInventoryLog.checkAmount(product, quantity);
   const cartItems = productAttr
-    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttribute, billingAddress)
-    : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress);
+    ? await checkout.loadProductAsCartByAttr(deliveryRate, product, quantity, repository, productAttribute, billingAddress, note)
+    : await checkout.loadProductAsCart(deliveryRate, product, quantity, repository, billingAddress, note);
   if (checkAmount) {
     const delivery = await repository.deliveryRateCache.getById(deliveryRate);
     if (!delivery) {
@@ -34,6 +34,7 @@ module.exports = async function checkoutOneProduct(
       productAttribute, // != null ? cartItems[0].productAttribute : null,
       deliveryRateId: delivery.id,
       billingAddress,
+      note,
     };
 
     const deliveryrate = await repository.deliveryRate.getById(delivery.id);

@@ -5,7 +5,7 @@ const { PurchaseOrderStatus, OrderItemStatus, DeliveryOrderStatus } = require(pa
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
-async function createOrderItem(cartItem, currency) {
+async function createOrderItem(cartItem, currency, repository) {
   let unitPrice = cartItem.product.price;
   let itemCurrency = cartItem.product.currency;
   if (cartItem.metricUnit) {
@@ -31,19 +31,17 @@ async function createOrderItem(cartItem, currency) {
     deliveryPrice = await CurrencyService.exchange(deliveryPrice, currency);
   }
 
+  const seller = await repository.user.getById(cartItem.product.seller);
+
   return {
     status: OrderItemStatus.CREATED,
     createdAt: new Date(),
     product: cartItem.product,
+    productAttribute: cartItem.productAttribute,
     quantity: cartItem.quantity,
     metricUnit: cartItem.metricUnit, // reflects wholesales
     originCurrency: cartItem.product.currency,
     originPrice: cartItem.product.price,
-    // incoming - shoclef
-    // productAttribute: cartItem.productAttribute,
-    // quantity: cartItem.quantity,
-    // originCurrency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
-    // originPrice: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
     originDeliveryCurrency: cartItem.deliveryRate.currency,
     originDeliveryPrice: cartItem.deliveryRate.amount,
     currency,
@@ -53,6 +51,7 @@ async function createOrderItem(cartItem, currency) {
     seller: cartItem.product.seller,
     title: cartItem.product.title,
     billingAddress: cartItem.billingAddress,
+    note: cartItem.note,
   };
 }
 
@@ -87,6 +86,7 @@ class OrderFactory {
     this.purchaseItems = null;
     this.deliveryOrders = null;
     this.purchaseOrder = null;
+    this.repository = repository;
   }
 
   setProperties(orderItems, deliveryOrders) {
@@ -96,7 +96,7 @@ class OrderFactory {
 
   async createOrderItems() {
     return Promise.all(
-      this.cartItems.map((cartItem) => createOrderItem(cartItem, this.currency)),
+      this.cartItems.map((cartItem) => createOrderItem(cartItem, this.currency, this.repository)),
     )
       .then((purchaseItems) => {
         this.purchaseItems = purchaseItems;
@@ -122,6 +122,7 @@ class OrderFactory {
       price: this.purchaseItems.reduce((sum, item) => sum + item.total, 0),
       deliveryPrice: this.purchaseItems.reduce((sum, item) => sum + item.deliveryPrice, 0),
       total: this.purchaseItems.reduce((sum, item) => sum + item.total + item.deliveryPrice, 0),
+      tax: 0,
     };
 
     return order;

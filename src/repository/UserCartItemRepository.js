@@ -6,16 +6,29 @@ class UserCartItemRepository {
     this.model = model;
   }
 
-  async findOne({ productId, metricUnit, productAttribute }, userId) {
+  async findOne({
+    productId, productAttribute, billingAddress, deliveryRate,
+  }, userId) {
     if (typeof productId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof productId}"`);
     }
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof userId}"`);
     }
-    let query = { product: productId, user: userId, metricUnit, productAttribute };
-    // if (metricUnit) query.metricUnit = metricUnit;
-    return this.model.findOne(query);
+    if (typeof billingAddress !== 'string') {
+      throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof billingAddress}"`);
+    }
+    if (typeof deliveryRate !== 'string') {
+      throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof deliveryRate}"`);
+    }
+
+    return productAttribute
+      ? this.model.findOne({
+        product: productId, productAttribute, user: userId, billingAddress, deliveryRate,
+      })
+      : this.model.findOne({
+        product: productId, user: userId, billingAddress, deliveryRate,
+      });
   }
 
   async getById(itemId) {
@@ -33,10 +46,14 @@ class UserCartItemRepository {
     return this.model.find({ user: userId });
   }
 
-  async add({ productId, deliveryRateId, quantity, metricUnit, attrId, billingAddress, productAttribute, }, userId) {
-    return this.findOne({ productId, metricUnit, productAttribute }, userId)
+  async add({
+    productId, deliveryRateId, quantity, billingAddress, productAttribute, note,
+  }, userId) {
+    return this.findOne({
+      productId, productAttribute, billingAddress, deliveryRate: deliveryRateId,
+    }, userId)
       .then((cartItem) => {
-        if (cartItem && cartItem.metricUnit === metricUnit && cartItem.attrId == attrId) {
+        if (cartItem) {
           cartItem.quantity += quantity;
           cartItem.deliveryRate = deliveryRateId;
           return cartItem.save();
@@ -47,11 +64,10 @@ class UserCartItemRepository {
           product: productId,
           deliveryRate: deliveryRateId,
           user: userId,
-          quantity, 
-          metricUnit, 
-          attrId,
+          quantity,
           billingAddress,
           productAttribute,
+          note,
         });
       });
   }
@@ -64,11 +80,12 @@ class UserCartItemRepository {
     return this.model.deleteOne({ _id: itemId });
   }
 
-  async update(userCartId, { deliveryRateId, quantity }) {
+  async update(userCartId, { deliveryRateId, quantity, note }) {
     return this.getById(userCartId)
       .then((cartItem) => {
         cartItem.quantity = quantity;
         cartItem.deliveryRate = deliveryRateId;
+        cartItem.note = note;
         return cartItem.save();
       });
   }

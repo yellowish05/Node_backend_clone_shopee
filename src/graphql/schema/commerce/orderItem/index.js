@@ -27,10 +27,12 @@ const schema = gql`
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
+        # serviceFee: AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
         billingAddress: DeliveryAddress!
+        note: String
     }
 
     type OrderProductItem implements OrderItemInterface {
@@ -43,6 +45,7 @@ const schema = gql`
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
         total: AmountOfMoney!
+        # serviceFee: AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder

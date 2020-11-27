@@ -46,16 +46,13 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     })
     .then(async () => {
       const {
-        quantity, price, discountPrice, ...productAttrData
+        quantity, price, oldPrice, ...productAttrData
       } = data;
 
-      // productAttr.color = productAttrData.color == "" ? productAttr.color : productAttrData.color;
-      // productAttr.size = productAttrData.size == "" ? productAttr.size : productAttrData.size;
       productAttr.variation = productAttrData.variation ? productAttrData.variation : productAttr.variation;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
-      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: discountPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
-      productAttr.discountPrice = discountPrice ? discountPrice : productAttr.discountPrice;
-      productAttr.oldPrice = discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
+      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
+      productAttr.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
       productAttr.quantity = quantity || productAttr.quantity;
       productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
 

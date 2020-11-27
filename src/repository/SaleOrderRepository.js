@@ -1,7 +1,7 @@
 const uuid = require('uuid/v4');
 
 function applyFilter(query, { statuses, purchaseOrder }, user) {
-  if (!query.$and) {
+  if (!query.$and && (statuses || purchaseOrder || user)) {
     query.$and = [];
   }
 
@@ -11,7 +11,7 @@ function applyFilter(query, { statuses, purchaseOrder }, user) {
     });
   }
 
-  if (statuses.length > 0) {
+  if (statuses && statuses.length > 0) {
     query.$and.push({
       $or: statuses.map((item) => ({ status: item })),
     });
@@ -74,15 +74,16 @@ class SaleOrderRepository {
     return order.save();
   }
 
-  async updateInvoiceUrl(url, id) {
+  async addPackingSlip(id, url) {
     const saleOrder = await this.getById(id);
-    if (saleOrder.packingslip) { saleOrder.packingslip.push(url); } else { saleOrder.packingslip = [url]; }
-
+    saleOrder.packingslip = url;
     return saleOrder.save();
   }
 
   async getPackingSlip(id) {
     const saleOrder = await this.getById(id);
+    if (!saleOrder) { return null; }
+
     return saleOrder.packingslip;
   }
 }
