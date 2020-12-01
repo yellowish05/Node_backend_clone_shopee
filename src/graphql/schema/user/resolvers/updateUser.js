@@ -16,19 +16,23 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     email: 'email',
   });
 
-  const validNumber = await phoneUtil.parse(args.data.phone);
+  let validNumber;
+  if (args.data.phone) {
+    validNumber = await phoneUtil.parse(args.data.phone);
+  }
+
+  let userObj;
 
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
-
       /**
        * Use case when user is registered with Facebook provider with phone number and not an email
        */
       try {
-        let userObj = await repository.user.getById(user._id)
+        userObj = await repository.user.getById(user._id)
         if (!userObj.email) {
           if (args.data.email) {
             let checkEmail = await repository.user.findByEmail(args.data.email)
@@ -36,17 +40,16 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               throw new Error('Email already taken');
             }
           }
-          else {
-            throw new Error('Email should be provided');
-          }
+          // else {
+          //   throw new Error('Email should be provided');
+          // }
         }
       } catch (ex) {
         throw new UserInputError(ex.message, { invalidArgs: 'email' });
       }
 
 
-
-      if (!phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
+      if (args.data.phone && !phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
         if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
           || !phoneUtil.isPossibleNumber(validNumber)) {
@@ -122,25 +125,25 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               country: args.data.address.country,
             },
           };
-        } else {
-          throw new ApolloError(`Please provide an address or location.`, 400);
+        } 
+        else {
+          // throw new ApolloError(`Please provide an address or location.`, 400);
         }
       } catch (error) {
         throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
       }
 
-      const tempCountry = await repository.country.getById(addressObj.address.country);
+      const tempCountry = await repository.country.getById(addressObj.address ? addressObj.address.country : userObj.address.country);
       await repository.user.updateCurrency(user.id, tempCountry.currency);
-      return repository.user.update(user.id, {
-        name: args.data.name,
-        email: args.data.email,
-        phone: args.data.phone,
-        photo: args.data.photo,
-        location,
-        address: {
-          ...addressObj.address,
-        },
-      }).catch((error) => {
+      const updateData = { };
+      args.data.name ? updateData.name = args.data.name : null;
+      args.data.email ? updateData.email = args.data.email : null;
+      args.data.phone ? updateData.phone = args.data.phone : null;
+      args.data.photo ? updateData.photo = args.data.photo : null;
+      location ? updateData.location = location : null;
+      addressObj.address ? updateData.address = addressObj.address : null;
+      
+      return repository.user.update(user.id, updateData).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
       });
     });
