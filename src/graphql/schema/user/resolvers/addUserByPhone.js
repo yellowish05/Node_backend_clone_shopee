@@ -41,6 +41,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         .then(() => repository.user.createByPhone({
             _id: uuid(),
             phone: args.data.phone,
+            email: `${new Date().getTime()}${Number(Math.random() * 1000)}@tempmail.tmp`,
             countryCode: args.data.countryCode,
             password: args.data.password,
         }, { roles: ['USER'] }))
