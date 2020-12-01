@@ -133,7 +133,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
       }
 
-      const tempCountry = await repository.country.getById(addressObj.address ? addressObj.address.country : userObj.address.country);
+      const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
+      const tempCountry = await repository.country.getById(countryCode);
       await repository.user.updateCurrency(user.id, tempCountry.currency);
       const updateData = { };
       args.data.name ? updateData.name = args.data.name : null;

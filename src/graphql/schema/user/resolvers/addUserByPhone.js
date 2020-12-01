@@ -42,7 +42,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
             _id: uuid(),
             phone: args.data.phone,
             email: `${new Date().getTime()}${Number(Math.random() * 1000)}@tempmail.tmp`,
-            countryCode: args.data.countryCode,
+            countryCode: args.data.countryCode.toUpperCase(),
             password: args.data.password,
         }, { roles: ['USER'] }))
         .then((user) => {
