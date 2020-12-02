@@ -11,12 +11,18 @@ const CountryLanguage = require('country-language');
 const languages = CountryLanguage.getLanguages();
 const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
+const { connect } = require('getstream');
+
+const { chat: { getstream } } = require(path.resolve('config/index'));
+const client = connect(getstream.api_key, getstream.api_secret);
+
 
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
 const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
+
 
 const tempRouter = express.Router();
 
@@ -96,5 +102,19 @@ tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
       })
     })
 })
+
+tempRouter.route('/getstream-test').get(async (req, res) => {
+  try {
+    res.json({
+      status: true,
+      message: client.createUserToken('50202f78-99e8-41b4-b7b3-258728aa7350'),
+    })
+  } catch (error ) {
+    res.json({ 
+      status: false,
+      message: error.message,
+    })
+  }
+});
 
 module.exports = tempRouter;
