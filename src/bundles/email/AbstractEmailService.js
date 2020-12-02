@@ -25,12 +25,12 @@ class AbstractEmailService {
 
   getParams(args) {
     const params = {
-      from: awsSMTP.from,
+      from: args.data ? awsSMTP.fromOther : awsSMTP.from,
       to: args.user.email,
       subject: args.template.subject,
-      html: args.template.build({ code: args.code, user: args.user }),
+      html: args.template.build({ code: args.code, user: args.user, ...args }),
       // Custom headers for configuration set and message tags.
-      headers: awsSMTP.headers
+      headers: awsSMTP.headers,
     };
 
     return params;
