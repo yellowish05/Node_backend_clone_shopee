@@ -1,7 +1,7 @@
 const path = require('path');
 const { request, gql } = require('graphql-request');
 
-const { baseURL, query: { getPurchaseOrder, getSaleOrder } } = require(path.resolve('config'));
+const { baseURL, query: { getSaleOrderForEmail, getPurchaseOrderForEmail } } = require(path.resolve('config'));
 const { VerificationEmailTemplate } = require(path.resolve('src/lib/Enums'));
 const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 const AbstractEmailService = require('./AbstractEmailService');
@@ -10,7 +10,7 @@ const repository = require(path.resolve('src/repository'));
 
 class EmailService extends AbstractEmailService {
   sendWelcome(data) {
-    const template = this.getTemplate('WELCOME');
+    const template = this.getTemplate(VerificationEmailTemplate.WELCOME);
 
     const params = this.getParams({ template, user: data.user });
 
@@ -26,7 +26,7 @@ class EmailService extends AbstractEmailService {
   }
 
   sendPasswordChanged(data) {
-    const template = this.getTemplate('PASSWORD_CHANGED');
+    const template = this.getTemplate(VerificationEmailTemplate.PASSWORD_CHANGED);
 
     const params = this.getParams({ template, user: data.user });
 
@@ -34,9 +34,11 @@ class EmailService extends AbstractEmailService {
   }
 
   sendPurchasedInfo(data, type) {
-    const template = type == "invoice" ? this.getTemplate('INVOICE'): this.getTemplate("PACKINGSLIP");
+    const template = ( type == "invoice" ) 
+      ? this.getTemplate(VerificationEmailTemplate.INVOICE)
+      : this.getTemplate(VerificationEmailTemplate.PACKINGSLIP);
 
-    const params = this.getParams({ template, user: data.user });
+    const params = this.getParams({ template, user: data.user, data });
 
     return this.send(params);
   }
@@ -56,20 +58,18 @@ class EmailService extends AbstractEmailService {
           });
       })
       .then(async (invoicePdf) => {
-        const orderQuery = gql`${getPurchaseOrder}`;
+        const orderQuery = gql`${getPurchaseOrderForEmail}`;
         const variables = {
           orderID: data.id,
         };
         const itemsDetail = await request(`${baseURL}graphql`, orderQuery, variables);
-        console.log("purchase order info => ", itemsDetail);
-
         buyer.type = 'buyer';
         await this.sendPurchasedInfo({
           user: buyer,
-          orderId: itemsDetail.id,
+          orderId: itemsDetail.purchaseOrder.id,
           invoicePdf,
-          createdAt: itemsDetail.createdAt.substring(0, 10),
-          orderItems: itemsDetail.items
+          createdAt: itemsDetail.purchaseOrder.createdAt,
+          orderItems: itemsDetail.purchaseOrder.items
         }, "invoice");
       })
       .catch((err) => {
@@ -98,20 +98,19 @@ class EmailService extends AbstractEmailService {
               });
         })
         .then(async (invoicePdf) => {
-          const saleOrderQuery = gql`${getSaleOrder}`;
+          const saleOrderQuery = gql`${getSaleOrderForEmail}`;
           const variables = {
             orderID: saleOrder.id,
           };
-          const saleOrderInfo = await request(`${baseURL}graphql`, saleOrderQuery, variables);
-          console.log("sale order info => ", saleOrderInfo);
-          const seller = saleOrderInfo.items[0].seller;
+          const itemsDetail = await request(`${baseURL}graphql`, saleOrderQuery, variables);
+          const seller = itemsDetail.saleOrder.seller;
           seller.type = 'seller';
           await this.sendPurchasedInfo({
               user: seller,
-              orderId: saleOrderInfo.id,
+              orderId: itemsDetail.saleOrder.id,
               invoicePdf,
-              createdAt: saleOrderInfo.createdAt.substring(0, 10),
-              orderItems: saleOrderInfo.items
+              createdAt: itemsDetail.saleOrder.createdAt,
+              orderItems: itemsDetail.saleOrder.items
           }, "packingSlip")
         })
         .catch((err) => {
