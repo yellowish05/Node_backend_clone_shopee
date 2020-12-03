@@ -11,19 +11,27 @@ module.exports = async (orderDetails) => {
 
     orderDetail.items.map((item) => {
       const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
+      let variation = '';
+      if (item.productAttribute && item.productAttribute.variation) {
+        item.productAttribute.variation.map((vairationItem) => {
+          variation += `${vairationItem.name} : ${vairationItem.value} `;
+        });
+      }
+
       items += `
             <tr>
                 <td>
                     <img class="product_image" src="${item.image}">
                     <div class="product_name">
                         <p class="line_break"><b>${item.title}</b></p>
+                        <p class="line_break">${variation}</p>
                         <span>Estimate Delivery : </span>
                         <span class="delivery_estimate">${deliveryDate}</span>
                     </div>
                 </td>
                 <td>${item.price.formatted}</td>
                 <td>${item.quantity}</td>
-                <td>${item.total.formatted}</td>
+                <td>${item.subtotal.formatted}</td>
             </tr>
         `;
     });
@@ -444,7 +452,7 @@ module.exports = async (orderDetails) => {
         
     </body></html>`;
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   await page.setContent(pdfTemplate);
   const invoicePDF = await page.pdf({
