@@ -1,7 +1,7 @@
 const uuid = require('uuid/v4');
 const path = require('path');
 
-const { baseURL, query: { getPurchaseOrder, getProduct, getSaleOrder } } = require(path.resolve('config'));
+const { baseURL, query: { getPurchaseOrderForEmail, getProduct, getSaleOrderForEmail } } = require(path.resolve('config'));
 const { request, gql } = require('graphql-request');
 
 const repository = require(path.resolve('src/repository'));
@@ -16,7 +16,7 @@ const s3 = new AWS.S3();
 
 module.exports.InvoiceService = {
   async getOrderDetails(orderID) {
-    const orderQuery = gql`${getPurchaseOrder}`;
+    const orderQuery = gql`${getPurchaseOrderForEmail}`;
 
     const variables = {
       orderID,
@@ -54,7 +54,6 @@ module.exports.InvoiceService = {
          || billingAddress.id !== item.billingAddress.id) {
         if (items.length > 0) {
           orderDetails.push({
-            ...newOrder,
             shipping_address: {
               client_name: user.name,
               street: shippingAddress.street,
@@ -89,7 +88,6 @@ module.exports.InvoiceService = {
     }));
 
     orderDetails.push({
-      ...newOrder,
       shipping_address: {
         client_name: user.name,
         street: shippingAddress.street,
@@ -114,7 +112,10 @@ module.exports.InvoiceService = {
       items,
     });
 
-    return orderDetails;
+    return {
+      ...newOrder,
+      orderDetails,
+    };
   },
 
   async createInvoicePDF(orderDetails) {
@@ -129,7 +130,8 @@ module.exports.InvoiceService = {
     repository.purchaseOrder.addInovicePDF(orderDetails.orderID, `${cdn.appAssets}/${key}`),
     ])
       .then(() => `${cdn.appAssets}/${key}`)
-      .catch((error) => {
+      .catch(async (error) => {
+        await repository.purchaseOrder.addInovicePDF(orderDetails.orderID, null);
         throw new Error(error);
       });
     return `${cdn.appAssets}/${key}`;
@@ -147,13 +149,14 @@ module.exports.InvoiceService = {
     repository.saleOrder.addPackingSlip(orderDetails.saleOrderID, `${cdn.appAssets}/${key}`),
     ])
       .then(() => `${cdn.appAssets}/${key}`)
-      .catch((error) => {
+      .catch(async (error) => {
+        await repository.saleOrder.addPackingSlip(orderDetails.saleOrderID, null);
         throw new Error(error);
       });
     return `${cdn.appAssets}/${key}`;
   },
   async getSalesOrderDetails(orderID) {
-    const saleOrderQuery = gql`${getSaleOrder}`;
+    const saleOrderQuery = gql`${getSaleOrderForEmail}`;
     const variables = {
       orderID,
     };
@@ -187,10 +190,9 @@ module.exports.InvoiceService = {
     await Promise.all(saleOrder.saleOrder.items.map(async (item) => {
       sameItems++;
 
-      if (shippingTo.id !== item.deliveryOrder.id) {
+      if (shippingTo.id !== item.deliveryOrder.deliveryAddress.id) {
         if (items.length > 0) {
           orderDetails.push({
-            ...newOrder,
             quantity: sameItems,
             shippingTo: {
               name: buyer.name,
@@ -214,7 +216,6 @@ module.exports.InvoiceService = {
     }));
 
     orderDetails.push({
-      ...newOrder,
       quantity: items.length > 1 ? sameItems : items.length,
       shippingTo: {
         name: buyer.name,
@@ -228,6 +229,9 @@ module.exports.InvoiceService = {
       items,
     });
 
-    return orderDetails;
+    return {
+      ...newOrder,
+      orderDetails,
+    };
   },
 };

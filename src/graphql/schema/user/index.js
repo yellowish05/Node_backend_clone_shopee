@@ -77,6 +77,7 @@ const schema = gql`
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
+      requestResetPassword(email: String, phone: String): Boolean!
     }
 `;
 

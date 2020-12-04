@@ -7,7 +7,7 @@ const collectionName = 'SortPriceRate';
 const schema = new Schema({
   _id: {
     type: String,
-    enum: Currency.toList()
+    enum: Currency.toList(),
   },
   ...createdAtField,
 
