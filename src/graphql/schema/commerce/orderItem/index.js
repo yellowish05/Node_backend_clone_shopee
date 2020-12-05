@@ -74,6 +74,12 @@ module.exports.resolvers = {
         currency: item.currency,
       })
     ),
+    subtotal: async (item) => (
+      CurrencyFactory.getAmountOfMoney({
+        centsAmount: item.total,
+        currency: item.currency,
+      })
+    ),
     total: async (item) => (
       CurrencyFactory.getAmountOfMoney({
         centsAmount: item.total,
