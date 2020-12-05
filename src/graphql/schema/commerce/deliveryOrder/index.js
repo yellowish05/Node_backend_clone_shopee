@@ -80,9 +80,10 @@ module.exports.resolvers = {
       repository.deliveryAddress.getById(order.deliveryAddress)
     ),
     carrier: async ({ carrier }, _, { dataSources: { repository } }) => {
-      const carrierInfo = await repository.customCarrier.getById(carrier);
-      if (!carrierInfo)
+      let carrierInfo = await repository.customCarrier.getById(carrier);
+      if (!carrierInfo) {
         carrierInfo = await repository.carrier.getById(carrier);
+      }
       return {
         id: carrierInfo.id,
         name: carrierInfo.name,
