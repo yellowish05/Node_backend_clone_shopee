@@ -5,6 +5,9 @@ const { DeliveryOrderStatus } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 const { NotificationType, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
+const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
+
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { ids, data }, { dataSources: { repository }, user }) => {
@@ -37,6 +40,8 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
         else if (organization && provider.inputs.carrier != customCarrier.name) {
             const carrierinfo = await repository.customCarrier.addByName({name: provider.inputs.carrier});
             carrierId = carrierinfo.id;
+        } else {
+            carrierId = customCarrier.id;
         }
         foundDeliveryOrders.map(foundDeliveryOrder => {
             if (foundDeliveryOrder.seller != user.id) {
@@ -70,9 +75,14 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
             const purchaseOrder = await repository.purchaseOrder.getById(saleOrder.purchaseOrder);
             purchaseOrder.status = DeliveryOrderStatus.SHIPPED;
 
+            // update invoice
+            const orderDetails = await InvoiceService.getOrderDetails(purchaseOrder.id);
+            const pdf = InvoiceService.createInvoicePDF(orderDetails);
+            purchaseOrder.invoicePDF = pdf;
+            EmailService.sendInvoicePDFs(purchaseOrder);
             Promise.all([
                 saleOrder.save(),
-                purchaseOrder.save()
+                purchaseOrder.save(),
             ]);
             // push notification
             const orderItems = await repository.orderItem.getByIds(saleOrder.items);
