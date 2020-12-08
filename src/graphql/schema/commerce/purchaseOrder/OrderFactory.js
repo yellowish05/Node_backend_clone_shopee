@@ -6,16 +6,9 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
 async function createOrderItem(cartItem, currency, repository) {
-  let unitPrice = cartItem.product.price;
-  let itemCurrency = cartItem.product.currency;
-  if (cartItem.metricUnit) {
-    let [selectedItem] = cartItem.product.metrics.filter(metricItem => metricItem.metricUnit === cartItem.metricUnit);
-    unitPrice = selectedItem.unitPrice.amount;
-    itemCurrency = selectedItem.unitPrice.currency;
-  }
   let price = CurrencyFactory.getAmountOfMoney({
-    centsAmount: unitPrice, //cartItem.product.price,
-    currency: itemCurrency, //cartItem.product.currency,
+    centsAmount: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
+    currency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
   });
 
   let deliveryPrice = CurrencyFactory.getAmountOfMoney({
@@ -39,14 +32,13 @@ async function createOrderItem(cartItem, currency, repository) {
     product: cartItem.product,
     productAttribute: cartItem.productAttribute,
     quantity: cartItem.quantity,
-    metricUnit: cartItem.metricUnit, // reflects wholesales
-    originCurrency: cartItem.product.currency,
-    originPrice: cartItem.product.price,
+    originCurrency: cartItem.productAttribute ? cartItem.productAttribute.currency : cartItem.product.currency,
+    originPrice: cartItem.productAttribute ? cartItem.productAttribute.price : cartItem.product.price,
     originDeliveryCurrency: cartItem.deliveryRate.currency,
     originDeliveryPrice: cartItem.deliveryRate.amount,
     currency,
     price: price.getCentsAmount(),
-    deliveryPrice: deliveryPrice.getCentsAmount(),
+    deliveryPrice: deliveryPrice.getCentsAmount() * cartItem.quantity,
     total: price.getCentsAmount() * cartItem.quantity,
     seller: cartItem.product.seller,
     title: cartItem.product.title,
@@ -80,7 +72,7 @@ async function createDeliveryOrder(cartItem, currency) {
 
 
 class OrderFactory {
-  constructor(cartItems, currency) {
+  constructor(cartItems, currency, repository) {
     this.cartItems = cartItems;
     this.currency = currency;
     this.purchaseItems = null;

@@ -38,6 +38,20 @@ class VerificationCodeRepository {
     }
     return this.model.findOne({ user, code, isActive: true });
   }
+
+  async getByCode(code) {
+    if (!code) {
+      throw Error('verifiction code is required!');
+    }
+    return this.model.findOne({ code, inActive: true });
+  }
+
+  async addCode(id, code) {
+    if (!id) {
+      throw Error('User id for deactivate codes is required!');
+    }
+    return this.model.updateMany({ user: id }, { isActive: true, code });
+  }
 }
 
 module.exports = VerificationCodeRepository;

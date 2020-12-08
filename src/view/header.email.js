@@ -13,7 +13,7 @@ module.exports = (args) => `
                             <tr>
                                 <td class="editable-img" align="center">
                                     <a href="#">
-                                        <img editable="true" class="centerize" mc:edit="image101" src="logo2.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
+                                        <img editable="true" class="centerize" mc:edit="image101" src="${cdn.appAssets}/images/logo2.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
                                     </a>
                                 </td>
                             </tr>
@@ -29,12 +29,12 @@ module.exports = (args) => `
                                         <tr>
                                             <td class="editable-img" align="center">
                                                 <a href="https://twitter.com/shoclef">
-                                                    <img editable="true" class="centerize" mc:edit="image102" src="social-icon-twitter.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
+                                                    <img editable="true" class="centerize" mc:edit="image102" src="${cdn.appAssets}/images/social-icon-twitter.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
                                                 </a>
                                             </td>
                                             <td class="editable-img" align="right">
                                                 <a href="https://www.facebook.com/shoclef">
-                                                    <img editable="true" class="centerize" mc:edit="image104" src="social-icon-fb.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
+                                                    <img editable="true" class="centerize" mc:edit="image104" src="${cdn.appAssets}/images/social-icon-fb.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
                                                 </a>
                                             </td>
                                         </tr>

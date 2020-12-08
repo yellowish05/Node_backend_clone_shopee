@@ -3,32 +3,33 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { createServer } = require('http');
-const morgan = require('morgan');
-const logger = require('../config/logger');
+
 const repository = require('./repository');
 const { AgoraService } = require('./lib/AgoraService');
+
 const { corsDomain } = require(path.resolve('config'));
 const apolloServerFactory = require(path.resolve('src/graphql'));
 const { mongoClientCloseConnection } = require(path.resolve('config/mongoConnection'));
 const webhookRouters = require('./webhooks');
 const viewersRouters = require('./viewers');
-const pageRouters = require('./pages');
-const ApiV1Routers = require('./api_v1');
 
 const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
-const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
-
 const { payment: { providers: { stripe } } } = require(path.resolve('config'));
 const stripSDK = require('stripe')(stripe.secret);
 
+const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+
 var multiparty = require('connect-multiparty');
-const fs = require('fs');
-
-
-
-
 
 const multipartymiddleware = multiparty();
+
+const fs = require('fs');
+
+const morgan = require('morgan');
+const logger = require('../config/logger');
+
+const pageRouters = require('./pages');
+const ApiV1Routers = require('./api_v1');
 
 process.on('SIGINT', () => {
   mongoClientCloseConnection();

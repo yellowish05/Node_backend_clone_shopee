@@ -86,6 +86,10 @@ const InventoryLogType = EnumFactory({
 const VerificationEmailTemplate = EnumFactory({
   RESET_PASSWORD: 'RESET_PASSWORD',
   CONFIRM_EMAIL: 'CONFIRM_EMAIL',
+  WELCOME: 'WELCOME',
+  INVOICE: 'INVOICE',
+  PACKINGSLIP: 'PACKINGSLIP',
+  PASSWORD_CHANGED: 'PASSWORD_CHANGED'
 });
 
 const NotificationType = EnumFactory({

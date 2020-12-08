@@ -123,7 +123,9 @@ module.exports = {
         pass: process.env.AWS_SES_SMTP_PASS
       }
     },
-    from: 'Crystal.ding1@gmail.com',
+    // from: 'Crystal.ding1@gmail.com',
+    from: 'Xiufu <Onboard@xiufu.com>',
+    fromOther: 'Xiufu <Info@xiufu.com>',
   },
   payment: {
     testMode: isTestPaymentMode,
@@ -208,7 +210,7 @@ module.exports = {
         }
       }
     }`,
-    getPurchaseOrder: `query getPurchaseOrder($orderID: ID!){
+    getPurchaseOrderForEmail: `query getPurchaseOrder($orderID: ID!){
         purchaseOrder (
           id: $orderID
         ) {
@@ -255,7 +257,41 @@ module.exports = {
             id
             title
             quantity
+            product {
+              id
+              title
+              sku
+              assets {
+                url
+              }
+              price {
+                amount
+                currency
+                formatted
+              }
+            }
+            productAttribute {
+              id
+              sku
+              price {
+                amount
+                currency
+                formatted
+              }
+              asset {
+                url
+              }
+              variation {
+                name
+                value
+              }
+            }
             price {
+              amount
+              currency
+              formatted
+            }
+            subtotal {
               amount
               currency
               formatted
@@ -306,12 +342,18 @@ module.exports = {
         }
       }
     `,
-    getSaleOrder: `query getSaleOrder($orderID: ID!){
+    getSaleOrderForEmail: `query getSaleOrder($orderID: ID!){
       saleOrder(
         id: $orderID
       ){
         id
         buyer {
+          id
+          name
+          email
+          phone
+        }
+        seller {
           id
           name
           email
@@ -323,6 +365,7 @@ module.exports = {
         }
         items {
           id
+          note
           title
           seller {
             name
@@ -347,13 +390,29 @@ module.exports = {
             id
             title
             sku
-          }
-          productAttribute {
-            id
+            assets {
+              url
+            }
             price {
               amount
               currency
               formatted
+            }
+          }
+          productAttribute {
+            id
+            sku
+            price {
+              amount
+              currency
+              formatted
+            }
+            asset {
+              url
+            }
+            variation {
+              name
+              value
             }
           }
           quantity
@@ -363,6 +422,11 @@ module.exports = {
             formatted
           }
           total {
+            amount
+            currency
+            formatted
+          }
+          subtotal {
             amount
             currency
             formatted

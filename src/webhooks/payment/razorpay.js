@@ -7,6 +7,8 @@ const repository = require(path.resolve('src/repository'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
+const { EmailService } = require(path.resolve('src/bundles/email'));
+
 module.exports = async (req, res) => {
   const { event } = req.body;
   const payment = req.body.payload.payment.entity;
@@ -42,6 +44,10 @@ module.exports = async (req, res) => {
 
     await repository.purchaseOrder.addPaymentInfo(payment.order_id, paymentInfo);
     await repository.purchaseOrder.updateStatusByClientSecret(payment.order_id, PurchaseOrderStatus.ORDERED);
+
+    const purchaseOrder = await repository.purchaseOrder.getByClientSecret(payment.order_id);
+    EmailService.sendInvoicePDFs(purchaseOrder);
+    EmailService.sendPackingSlipPDFs(purchaseOrder);
   } else if (event === 'payment.failed') {
     const pID = payment.id;
   }

@@ -126,6 +126,10 @@ class ProductRepository {
     return this.model.findOne({ _id: id, isDeleted: false });
   }
 
+  async getAll() {
+    return this.model.find({});
+  }
+
   async getByIds(ids) {
     return this.model.find({ _id: ids, isDeleted: false });
   }

@@ -16,6 +16,7 @@ const schema = gql`
     type SaleOrder {
         id: ID!
         buyer: User!
+        seller: User
         """ Collected status """
         status: SaleOrderStatus!
         """ List of products or services or anything else what we going to selling """
@@ -87,6 +88,9 @@ module.exports.resolvers = {
   SaleOrder: {
     buyer: async (order, _, { dataSources: { repository } }) => (
       repository.user.getById(order.buyer)
+    ),
+    seller: async (order, _, { dataSources: { repository } }) => (
+      repository.user.getById(order.seller)
     ),
     items: async (order, _, { dataSources: { repository } }) => (
       repository.orderItem.getByIds(order.items)

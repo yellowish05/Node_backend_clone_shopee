@@ -11,6 +11,13 @@ module.exports = async (orderDetails) => {
       const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
       const sku = item.product.sku ? item.product.sku : 'N/A';
 
+      let variation = '';
+      if (item.productAttribute && item.productAttribute.variation) {
+        item.productAttribute.variation.map((vairationItem) => {
+          variation += `${vairationItem.name} : ${vairationItem.value} `;
+        });
+      }
+
       if (item.product.id !== productID) {
         itemQty++;
       }
@@ -20,7 +27,8 @@ module.exports = async (orderDetails) => {
                     <td>
                         <div class="product_name">
                             <p class="line_break"><b>${item.title}</b></p>
-                            <p>Special Note: ${item.note ? item.note : 'NA'}</p>
+                            <p class="line_break">${variation}</p>
+                            <p>Special Note: ${item.note ? item.note : 'N/A'}</p>
                             <p>Estimate Delivery : <span class="delivery_estimate">${deliveryDate}</span></p>
                         </div>
                     </td>
@@ -425,7 +433,7 @@ module.exports = async (orderDetails) => {
       
   </body></html>`;
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   await page.setContent(pdfTemplate);
   const invoicePDF = await page.pdf({

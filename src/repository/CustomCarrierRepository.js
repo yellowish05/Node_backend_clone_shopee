@@ -56,6 +56,14 @@ class CustomCarrierRepository {
     }
     return await this.create({ _id: uuid(), name: data.name });
   }
+
+  async addByName(data) {
+    const card = new this.model({
+      _id: uuid(),
+      ...data,
+    });
+    return card.save();
+  }
 }
 
 module.exports = CustomCarrierRepository;

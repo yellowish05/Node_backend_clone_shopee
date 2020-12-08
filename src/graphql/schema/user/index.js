@@ -7,6 +7,7 @@ const updateUser = require('./resolvers/updateUser');
 const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
+const requestResetPassword = require('./resolvers/requestResetPassword');
 
 const schema = gql`
     type User {
@@ -77,6 +78,7 @@ const schema = gql`
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
+      requestResetPassword(email: String, phone: String): Boolean!
     }
 `;
 
@@ -120,7 +122,8 @@ module.exports.resolvers = {
     updateUser,
     changePassword,
     uploadBulkUsers,
-    changeDeviceId
+    changeDeviceId,
+    requestResetPassword,
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {
