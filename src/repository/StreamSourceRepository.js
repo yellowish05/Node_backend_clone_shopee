@@ -9,6 +9,10 @@ class StreamSourceRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getByIds(ids) {
+    return this.model.find({ _id: ids });
+  }
+
   async create(data) {
     const source = new this.model({
       ...data,
