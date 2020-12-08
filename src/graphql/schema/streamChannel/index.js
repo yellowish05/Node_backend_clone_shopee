@@ -29,6 +29,7 @@ const schema = gql`
     }
 
     type StreamRecordSource {
+      id: ID!
       user: User!
       type: SourceType!
       source: String!,
@@ -71,8 +72,8 @@ const schema = gql`
 
     extend type Query {
       streamChannel(id: ID!): StreamChannel!
-      previousQueue(id: ID!): StreamRecordSource
-      nextQueue(id: ID!): StreamRecordSource
+      previousQueue(streamChannel: ID!, currentRecord: ID!): StreamRecordSource
+      nextQueue(streamChannel: ID!, currentRecord: ID!): StreamRecordSource
     }
   
     extend type Mutation {
@@ -118,14 +119,26 @@ module.exports.resolvers = {
       return repository.streamChannel.load(args.id);
     },
     previousQueue(_, args, { dataSources: { repository } }) {
-      return repository.streamSource.load(args.id)
-        .then((streamSource) => {
-          // const {  }
-          return null;
+      return repository.streamChannel.load(args.streamChannel)
+        .then((streamChannel) => {
+          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }});
         })
+        .then((streamSources) => {
+          const ids = streamSources.map(item => item._id);
+          const currentIdx = ids.indexOf(args.currentRecord);
+          return streamSources[currentIdx - 1];
+        });
     },
     nextQueue(_, args, { dataSources: { repository } }) {
-      return null;
+      return repository.streamChannel.load(args.streamChannel)
+        .then((streamChannel) => {
+          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }});
+        })
+        .then((streamSources) => {
+          const ids = streamSources.map(item => item._id);
+          const currentIdx = ids.indexOf(args.currentRecord);
+          return streamSources[currentIdx + 1];
+        });
     },
   },
   Mutation: {
