@@ -36,6 +36,28 @@ function getPathFromUrl(href) {
   return uri.substring(1);
 }
 
+function transformSortInput({ feature, type }) {
+  const availableFeatures = {
+    CREATED_AT: 'createdAt',
+    SIZE: 'size',
+  };
+
+  const availableTypes = {
+    DESC: -1,
+    ASC: 1,
+  };
+
+  if (typeof availableFeatures[feature] === 'undefined') {
+    throw Error(`Sorting by "${feature}" feature is not provided.`);
+  }
+
+  if (typeof availableTypes[type] === 'undefined') {
+    throw Error(`Sorting type "${feature}" is not provided.`);
+  }
+
+  return { [availableFeatures[feature]]: availableTypes[type] };
+}
+
 class AssetRepository {
 
   constructor(model) {
@@ -67,6 +89,27 @@ class AssetRepository {
 
   async getAll(query = {}) {
     return this.model.find(query);
+  }
+
+  async get(filter, sort, page) {
+    const pager = {};
+    if (page.limit) {
+      pager.limit = page.limit;
+      pager.skip = page.skip || 0;
+    }
+    if (page)
+    return this.model.find(
+      filter,
+      null,
+      {
+        sort: transformSortInput(sort),
+        ...pager,
+      }
+    )
+  }
+
+  async getTotal(filter) {
+    return this.model.countDocuments(filter);
   }
 
   async create(data) {
