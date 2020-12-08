@@ -24,7 +24,7 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
       let { path } = data;
       const id = uuid();
       let pathname = url.parse(path).pathname;
-      const { ext, type } = MIMEAssetTypes.detect('image/jpeg');
+      const { ext, type } = MIMEAssetTypes.detect(data.mimetype || 'image/jpeg');
       path = patch.split(' ').join('%20');
 
       const assetData = {

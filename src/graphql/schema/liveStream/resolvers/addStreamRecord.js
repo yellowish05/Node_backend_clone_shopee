@@ -4,7 +4,7 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const {
-  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
+  SourceType
 } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));

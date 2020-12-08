@@ -6,10 +6,11 @@ const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
 const uploadCsv = require('./resolvers/uploadCsv');
 const asset = require('./resolvers/asset');
+const assets = require('./resolvers/assets');
 const assetCsvByStatus = require('./resolvers/assetCsvByStatus');
 const uploadPreviewVideo = require('./resolvers/uploadPreviewVideo');
 const { aws, logs } = require(path.resolve('config'));
-const { VideoCropMode } = require(path.resolve('src/lib/Enums'));
+const { SourceType, VideoCropMode } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
     enum AssetStatusEnum {
@@ -54,6 +55,8 @@ const schema = gql`
 
     input AssetInputUrl{
       path:String!
+      """It should be a MIME type of the file"""
+      mimetype: String
     }
 
     input AssetInput {
@@ -63,9 +66,32 @@ const schema = gql`
       size: Int!
     }
 
+    type AssetCollection {
+        collection: [Asset]!
+        pager: Pager
+    }
+
+    input AssetFilterInput {
+      type: AssetTypeEnum
+    }
+
+    enum AssetSortFeature {
+      CREATED_AT
+      SIZE
+    }
+
+    input AssetSortInput {
+      feature: AssetSortFeature! = CREATED_AT
+      type: SortTypeEnum! = ASC
+    }
+
     extend type Query {
       asset(id: ID!): Asset!
       assetCsvByStatus(status: AssetStatusEnum!): [Asset]! @auth(requires: USER)
+      assets(
+        filter: AssetFilterInput, 
+        sort: AssetSortInput, 
+        page: PageInput = {}): AssetCollection! @auth(requires: USER)
     }
 
     type File {
@@ -113,6 +139,7 @@ module.exports.resolvers = {
   Query: {
     asset,
     assetCsvByStatus,
+    assets,
   },
   Mutation: {
     addAsset,
