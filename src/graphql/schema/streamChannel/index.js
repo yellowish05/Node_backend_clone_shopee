@@ -71,6 +71,8 @@ const schema = gql`
 
     extend type Query {
       streamChannel(id: ID!): StreamChannel!
+      previousQueue(id: ID!): StreamRecordSource
+      nextQueue(id: ID!): StreamRecordSource
     }
   
     extend type Mutation {
@@ -114,6 +116,16 @@ module.exports.resolvers = {
   Query: {
     streamChannel(_, args, { dataSources: { repository } }) {
       return repository.streamChannel.load(args.id);
+    },
+    previousQueue(_, args, { dataSources: { repository } }) {
+      return repository.streamSource.load(args.id)
+        .then((streamSource) => {
+          // const {  }
+          return null;
+        })
+    },
+    nextQueue(_, args, { dataSources: { repository } }) {
+      return null;
     },
   },
   Mutation: {

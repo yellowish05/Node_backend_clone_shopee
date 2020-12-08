@@ -19,7 +19,13 @@ class StreamSourceRepository {
   }
 
   async getAll(query = {}) {
-    return this.model.find(query);
+    return this.model.find(
+      query,
+      null,
+      {
+        sort: { createdAt: 1 },
+      },
+    );
   }
 }
 

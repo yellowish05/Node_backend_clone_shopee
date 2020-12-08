@@ -26,8 +26,8 @@ const schema = gql`
         quantity: Int!
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
+        subtotal: AmountOfMoney!
         total: AmountOfMoney!
-        # serviceFee: AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
@@ -44,8 +44,8 @@ const schema = gql`
         quantity: Int!
         price: AmountOfMoney!
         deliveryPrice: AmountOfMoney!
+        subtotal: AmountOfMoney!
         total: AmountOfMoney!
-        # serviceFee: AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
@@ -82,7 +82,7 @@ module.exports.resolvers = {
     ),
     total: async (item) => (
       CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.total,
+        centsAmount: item.total + item.deliveryPrice,
         currency: item.currency,
       })
     ),
