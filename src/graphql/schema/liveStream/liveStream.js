@@ -67,6 +67,7 @@ const schema = gql`
         productDurations: [StreamProductDuration]
         orientation: OrientationMode!
         thumbnail: Asset
+        isFeatured: Boolean
     }
 
     input LiveStreamInput {
@@ -83,6 +84,21 @@ const schema = gql`
         orientation: OrientationMode!
         thumbnail: ID!
     }
+
+    # input LiveStreamUpdateInput {
+    #     title: String!
+    #     experience: ID!
+    #     categories: [ID]!
+    #     city: String
+    #     preview: [ID]
+    #     previewVideo: ID
+    #     # products: [ID] = [] 
+    #     liveStreamRecord: [String]
+    #     startTime: Date
+    #     productDurations: [StreamProductDurationInput] = []
+    #     orientation: OrientationMode!
+    #     thumbnail: ID!
+    # }
 
     type LiveStreamCollection {
       collection: [LiveStream]!
