@@ -56,7 +56,8 @@ const schema = gql`
     input AssetInputUrl{
       path:String!
       """It should be a MIME type of the file"""
-      mimetype: String
+      mimetype: String!
+      filename: String
     }
 
     input AssetInput {
