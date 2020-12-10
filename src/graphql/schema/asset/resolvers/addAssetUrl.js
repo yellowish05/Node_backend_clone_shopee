@@ -21,7 +21,7 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
         throw errorHandler.build(validator.errors);
       }
 
-      let { path } = data;
+      let { path, mimetype, filename } = data;
       const id = uuid();
       let pathname = url.parse(path).pathname;
       const { ext, type } = MIMEAssetTypes.detect(data.mimetype || 'image/jpeg');
@@ -34,7 +34,8 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
         url: path,
         type: type,
         size: 100,
-        mimetype: "image/jpeg",
+        mimetype,
+        filename,
       };
 
       return repository.asset
