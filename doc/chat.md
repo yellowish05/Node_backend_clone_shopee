@@ -19,13 +19,20 @@ joinLiveStream
 ## API Usage
 
 - to load message threads(chats):
-use 
+use the below query.
 ```js
 messageThreads
 ```
 - to add a message to a message thread:
 
-use 
+use the below mutation.
 ```js
 addMessage
+```
+
+- to listen to the message threads:
+
+use the below subscription.
+```js
+messageAdded
 ```
