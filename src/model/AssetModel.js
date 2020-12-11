@@ -22,6 +22,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  thumbnail: {
+    type: String,
+    required: true,
+  },
   status: {
     type: String,
     enum: ['UPLOADING', 'UPLOADED', 'FAILED', 'CANCELED'],
