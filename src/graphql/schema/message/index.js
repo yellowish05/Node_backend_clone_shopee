@@ -55,6 +55,7 @@ const schema = gql`
 
     input MessageThreadFilterInput {
       hasUnreads: Boolean = null
+      liveStream: ID
     }
 
     extend type Query {
@@ -152,6 +153,7 @@ module.exports.resolvers = {
     unreadMessages(thread, _, { dataSources: { repository }, user }) {
       return repository.userHasMessageThread.findOne(thread.id, user.id)
         .then((threadRead) => {
+          console.log('[threadRead]', threadRead)
           if (threadRead) {
             return repository.message.getUnreadByTime({ blackList: user.blackList, thread: thread.id, time: threadRead.readBy });
           }

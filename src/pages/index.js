@@ -15,5 +15,8 @@ app.get('/paypal/success', (req, res) => {
 app.get('/paypal/cancel', (req, res) => {
     res.render('paypal-cancel');
 });
+app.get('/socket/client', (req, res) => {
+    res.render('socket-client');
+});
 
 module.exports = app;
