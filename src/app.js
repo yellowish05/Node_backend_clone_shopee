@@ -124,4 +124,9 @@ app.use('/graphql', apolloApp);
 const httpServer = createServer(app);
 apolloServer.installSubscriptionHandlers(httpServer);
 
+// socket.io
+const { bootstrapSocket } = require('./socket');
+const io = require('socket.io')(httpServer);
+bootstrapSocket(io, repository);
+
 module.exports.httpServer = httpServer;

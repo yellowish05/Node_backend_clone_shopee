@@ -100,6 +100,7 @@
     "resize-img": "^2.0.0",
     "reverse-md5": "^0.0.4",
     "s3-upload-stream": "^1.0.7",
+    "socket.io": "^3.0.4",
     "stream-chat": "^2.4.0",
     "stripe": "^7.14.0",
     "uuid": "^3.3.3",

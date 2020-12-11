@@ -1,0 +1,1 @@
+exports.SKT_HEALTH = 'socket.health.test';
