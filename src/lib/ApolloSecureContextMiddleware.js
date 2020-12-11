@@ -5,7 +5,7 @@ const logger = require('../../config/logger');
 
 function fetchAuthorization({ req, connection }) {
   if (connection) {
-    return connection.context.Authorization || null;
+    return connection.context.authorization || connection.context.Authorization || null;
   }
   return req.headers && (req.headers.authorization || null);
 }

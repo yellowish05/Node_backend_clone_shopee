@@ -5,7 +5,7 @@ const { oneSignal } = require(path.resolve('config'));
 const https = require('https');
 
 var headers = {
-  "Content-Type": "application/json; charset=utf-8",
+  "Content-Type": "application/json", //; charset=utf-8
   "Authorization": "Basic " + oneSignal.restApi_key
 };
 

@@ -55,6 +55,7 @@ const schema = gql`
 
     input MessageThreadFilterInput {
       hasUnreads: Boolean = null
+      liveStream: ID
     }
 
     extend type Query {

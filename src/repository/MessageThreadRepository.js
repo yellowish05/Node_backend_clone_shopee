@@ -81,8 +81,11 @@ class MessageThreadRepository {
     } else {
       filterQuery = { 'userhasmessagethread.hidden': false, unreadMessages: [] };
     }
+    if (filter.liveStream) {
+      filterQuery.$and = [{ tags: {$eq: `LiveStream:${filter.liveStream}`} }];
+    }
 
-    return this.model.aggregate([
+    const aggregation = [
       {
         $match: { participants: filter.user },
       },
@@ -137,7 +140,13 @@ class MessageThreadRepository {
       },
       { $group: { _id: null, total: { $sum: 1 }, collection: { $push: '$$ROOT' } } },
       { $skip: page.skip },
-      { $limit: page.limit }]).then((data) => (data.length > 0 ? data[0] : { collection: [], total: 0 }));
+    ];
+
+    if (page.limit) {
+      aggregation.push({ $limit: page.limit });
+    }
+    return this.model.aggregate(aggregation)
+      .then((data) => (data.length > 0 ? data[0] : { collection: [], total: 0 }));
   }
 }
 
