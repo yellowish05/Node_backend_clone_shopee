@@ -109,7 +109,7 @@ class UserRepository {
       roles: options.roles || [],
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: LanguageList.ENG,
+        language: LanguageList.EN,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
@@ -298,7 +298,7 @@ class UserRepository {
     user.settings.language = langCode;
     return user.save();
   }
-  
+
   async updateEmailAndPassword(id, data) {
     const user = await this.load(id);
     if (!user) {
