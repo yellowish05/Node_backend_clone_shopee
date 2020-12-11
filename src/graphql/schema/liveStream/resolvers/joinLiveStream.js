@@ -53,8 +53,18 @@ const activity = {
         })
           .then((newThread) => {
             liveStream.privateMessageThreads.push(newThread.id);
-            return liveStream.save();
-          });
+            return Promise.all([
+              liveStream.save(),
+              repository.userHasMessageThread.create({
+                thread: newThread.id,
+                user: user.id,
+                readBy: Date.now(),
+                muted: false,
+                hidden: false,
+              }),
+            ]);
+          })
+          .then(([liveStream, userHasMessageThread]) => liveStream);
       });
   },
 
