@@ -51,6 +51,8 @@ const schema = gql`
       """Size of asset in bytes"""
       size: Int!
       filename: String
+      """Public CDN URL FOR THUMBNAIL"""
+      thumbnail: String  
     }
 
     input AssetInputUrl{
