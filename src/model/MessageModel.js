@@ -29,6 +29,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  videoTime: {
+    type: Number,
+    default: 0,
+  }
 });
 
 module.exports = new model(collectionName, schema);

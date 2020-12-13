@@ -28,6 +28,7 @@ const schema = gql`
       thread: ID!
       type: MessageTypeEnum!
       data: String!
+      videoTime: Int
     }
 
     type Message {
@@ -38,6 +39,7 @@ const schema = gql`
       data: String!
       createdAt: Date!
       isRead: Boolean
+      videoTime: Int
     }
 
     type MessageThread {
