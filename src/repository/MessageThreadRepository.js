@@ -46,6 +46,27 @@ class MessageThreadRepository {
     return this.model.findOne(query);
   }
 
+  async findAllByIdsAndParticipants(ids, participants) {
+    if (!Array.isArray(ids)) {
+      throw new Error(`MessageThread.findByIdsAndParticipants expected ids as array, but got "${typeof ids}"`);
+    }
+
+    if (!Array.isArray(participants)) {
+      throw new Error(`MessageThread.findByIdsAndParticipants expected participents as Array, but got "${typeof participants}"`);
+    }
+
+    const query = {
+      $and: [
+        { _id: { $in: ids } },
+      ],
+    };
+
+    query.$and = query.$and.concat(
+      participants.map((id) => ({ participants: { $eq: id } })),
+    );
+    return this.model.find(query);
+  }
+
   async create(data) {
     const message = new this.model({
       _id: uuid(),

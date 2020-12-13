@@ -9,6 +9,7 @@ const pubsub = require(path.resolve('config/pubsub'));
 const addMessage = require('./resolvers/addMessage');
 const markMessageThreadReadBy = require('./resolvers/markMessageThreadReadBy');
 const getMessageThreadCollection = require('./resolvers/getMessageThreadCollection');
+const addMessageThread = require('./resolvers/addMessageThread');
 
 const schema = gql`
     enum MessageSortFeature {
@@ -50,6 +51,11 @@ const schema = gql`
       unreadMessages: Int!
     }
 
+    input MessageThreadInput {
+      liveStream: ID!
+      receivers: [ID]!
+    }
+
     type MessageThreadCollection {
       collection: [MessageThread]!
       pager: Pager
@@ -67,6 +73,8 @@ const schema = gql`
     }
 
     extend type Mutation {
+      """Allows: authorized user"""
+      addMessageThread(input: MessageThreadInput): MessageThread! @auth(requires: USER)
       """Allows: authorized user"""
       addMessage(input: MessageInput!): Message! @auth(requires: USER)
       """Allows: authorized user"""
@@ -94,6 +102,7 @@ module.exports.resolvers = {
   Mutation: {
     addMessage,
     markMessageThreadReadBy,
+    addMessageThread,
   },
   Subscription: {
     messageAdded: {
