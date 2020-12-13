@@ -119,6 +119,7 @@ const schema = gql`
       You can use it for fetch live streams by specific Streamer
       """
       streamers: [ID!] = []
+      isFeatured: Boolean = null
     }
 
     enum LiveStreamSortFeature {
@@ -319,6 +320,10 @@ module.exports.resolvers = {
     },
     thumbnail: async (liveStream, _, { dataSources: { repository} }) => {
       return repository.asset.getById(liveStream.thumbnail);
+    },
+    isFeatured: async (liveStream, _, { dataSources: { repository} }) => {
+      console.log('isFeatured', liveStream.isFeatured)
+      return !!liveStream.isFeatured;
     },
   },
   LiveStreamStats: {

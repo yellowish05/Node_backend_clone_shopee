@@ -106,7 +106,7 @@ const schema = new Schema({
     default: OrientationMode.LANDSCAPE,
   },
   isFeatured: {
-    type: String,
+    type: Boolean,
     default: false,
   },
   thumbnail: {

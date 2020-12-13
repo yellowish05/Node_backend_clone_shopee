@@ -43,6 +43,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         thread: thread._id,
         type: input.type,
         data: input.data,
+        videoTime: input.videoTime,
       }),
       repository.userHasMessageThread.updateTime(thread._id, user._id, Date.now()),
     ])

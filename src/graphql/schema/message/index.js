@@ -9,6 +9,7 @@ const pubsub = require(path.resolve('config/pubsub'));
 const addMessage = require('./resolvers/addMessage');
 const markMessageThreadReadBy = require('./resolvers/markMessageThreadReadBy');
 const getMessageThreadCollection = require('./resolvers/getMessageThreadCollection');
+const addMessageThread = require('./resolvers/addMessageThread');
 
 const schema = gql`
     enum MessageSortFeature {
@@ -28,6 +29,7 @@ const schema = gql`
       thread: ID!
       type: MessageTypeEnum!
       data: String!
+      videoTime: Int
     }
 
     type Message {
@@ -38,6 +40,7 @@ const schema = gql`
       data: String!
       createdAt: Date!
       isRead: Boolean
+      videoTime: Int
     }
 
     type MessageThread {
@@ -46,6 +49,11 @@ const schema = gql`
       participants: [User!]!
       messages(limit: Int! = 10, sort: MessageSortInput = {}): [Message]!
       unreadMessages: Int!
+    }
+
+    input MessageThreadInput {
+      liveStream: ID!
+      receivers: [ID]!
     }
 
     type MessageThreadCollection {
@@ -65,6 +73,8 @@ const schema = gql`
     }
 
     extend type Mutation {
+      """Allows: authorized user"""
+      addMessageThread(input: MessageThreadInput): MessageThread! @auth(requires: USER)
       """Allows: authorized user"""
       addMessage(input: MessageInput!): Message! @auth(requires: USER)
       """Allows: authorized user"""
@@ -92,6 +102,7 @@ module.exports.resolvers = {
   Mutation: {
     addMessage,
     markMessageThreadReadBy,
+    addMessageThread,
   },
   Subscription: {
     messageAdded: {
