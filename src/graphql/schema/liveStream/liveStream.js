@@ -322,7 +322,6 @@ module.exports.resolvers = {
       return repository.asset.getById(liveStream.thumbnail);
     },
     isFeatured: async (liveStream, _, { dataSources: { repository} }) => {
-      console.log('isFeatured', liveStream.isFeatured)
       return !!liveStream.isFeatured;
     },
   },
