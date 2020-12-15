@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
-const collectionName = 'Brand';
+const collectionName = 'BrandCategory';
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -13,20 +13,10 @@ const schema = new Schema({
     required: true,
     index: true,
   },
-  brandCategories: [{
-    type: String,
-    ref: 'BrandCategory',
-    index: true,
-  }],
-  productCategories: [{
-    type: String,
-    ref: 'ProductCategory',
-    index: true,
-  }],
-  images: [{
-    type: String,
-    ref: 'Asset',
-  }]
+  isRecommended: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = new model(collectionName, schema);

@@ -7,7 +7,8 @@ const schema = gql`
     type Brand {
         id: ID!
         name: String!
-        categories: [ProductCategory]!
+        brandCategories: [BrandCategory]
+        productCategories: [ProductCategory]!
         images: [Asset]!
     }
 
@@ -67,7 +68,7 @@ module.exports.resolvers = {
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
   Brand: {
-    categories: async (brand, _, { dataSources: { repository } }) => {
+    productCategories: async (brand, _, { dataSources: { repository } }) => {
       if (!brand.productCategories.length) {
         return [];
       }

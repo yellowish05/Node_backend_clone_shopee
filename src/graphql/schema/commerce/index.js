@@ -4,6 +4,7 @@ const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./comm
 const { typeDefs: carrierTypeDefs, resolvers: carrierResolvers } = require('./carrier');
 const { typeDefs: customCarrierTypeDefs, resolvers: customCarrierResolvers } = require('./customcarrier');
 const { typeDefs: brandTypeDefs, resolvers: brandResolvers } = require('./brand');
+const { typeDefs: brandCategoryTypeDefs, resolvers: brandCategoryResolvers } = require('./brandCategory');
 const { typeDefs: cartTypeDefs, resolvers: cartResolvers } = require('./cart');
 const { typeDefs: productCategoryTypeDefs, resolvers: productCategoryResolvers } = require('./productCategory');
 const { typeDefs: productTypeDefs, resolvers: productResolvers } = require('./product');
@@ -18,6 +19,7 @@ const { typeDefs: orderItemTypeDefs, resolvers: orderItemResolvers } = require('
 
 const typeDefs = [].concat(
   brandTypeDefs,
+  brandCategoryTypeDefs,
   cartTypeDefs,
   productCategoryTypeDefs,
   productTypeDefs,
@@ -35,6 +37,7 @@ const typeDefs = [].concat(
 
 const resolvers = merge(
   brandResolvers,
+  brandCategoryResolvers,
   cartResolvers,
   productCategoryResolvers,
   productResolvers,
