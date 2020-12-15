@@ -36,7 +36,6 @@ module.exports = ({ repository }) => new ApolloServer({
   subscriptions: {
     keepAlive: 10000,
     onConnect: async (connectionParams, webSocket, context) => {
-      console.log('[connect]')
       const secureContext = await secureContextMiddlewareFactory(repository)({
         connection: { context: connectionParams },
       });
@@ -53,7 +52,6 @@ module.exports = ({ repository }) => new ApolloServer({
     },
     onDisconnect: async (webSocket, context) => {
       const initialContext = await context.initPromise;
-      console.log('[disconect]')
 
       repository.user.setOnlineState(initialContext.user.id, false);
     },
