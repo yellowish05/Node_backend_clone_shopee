@@ -133,6 +133,9 @@ module.exports.resolvers = {
     organization(user, args, { dataSources: { repository } }) {
       return repository.organization.getByUser(user.id);
     },
+    isOnline(user, _, { dataSources: { repository }}) {
+      return !!user.isOnline;
+    },
   },
   UserInfo: {
     photo(user, args, { dataSources: { repository } }) {
