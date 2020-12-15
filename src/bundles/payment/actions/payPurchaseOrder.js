@@ -4,19 +4,12 @@ const uuid = require("uuid/v4");
 const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 const ordersBundle = require(path.resolve("src/bundles/orders"));
 const repository = require(path.resolve("src/repository"));
-const {
-  PaymentMethodIsUnactiveException,
-  PaymentMethodUsesWrongProviderException,
-} = require("../Exceptions");
+const { PaymentMethodIsUnactiveException, PaymentMethodUsesWrongProviderException } = require("../Exceptions");
 
 const { PaymentTransactionStatus } = require(path.resolve("src/lib/Enums"));
 const { PaymentMethodProviders } = require(path.resolve("src/lib/Enums"));
 const logger = require(path.resolve("config/logger"));
-const {
-  payment: {
-    providers: { stripe },
-  },
-} = require(path.resolve("config"));
+const { payment: { providers: { stripe } } } = require(path.resolve("config"));
 
 const stripeProvider = PaymentMethodProviders.STRIPE;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
@@ -66,10 +59,7 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   ]).then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({
-  order,
-  provider,
-}) => {
+module.exports = ({ getProvider, availableProviders }) => async ({ order, provider }) => {
   // if (!paymentMethod) {
   //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
   // }
@@ -126,17 +116,9 @@ module.exports = ({ getProvider, availableProviders }) => async ({
 
   // Pay the transaction here
   try {
-    if (
-      provider == PaymentMethodProviders.STRIPE ||
-      provider == PaymentMethodProviders.APPLEPAY ||
-      provider == PaymentMethodProviders.GOOGLEPAY
-    ) {
+    if (provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY) {
       return getProvider(stripeProvider)
-        .createPaymentIntent(
-          transaction.currency,
-          transaction.amount,
-          transaction.buyer
-        )
+        .createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
@@ -149,11 +131,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({
         });
     } else if (provider == PaymentMethodProviders.ALIPAY) {
       return getProvider(stripeProvider)
-        .createAlipayPaymentIntent(
-          transaction.currency,
-          transaction.amount,
-          transaction.buyer
-        )
+        .createAlipayPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
@@ -166,11 +144,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({
         });
     } else if (provider == PaymentMethodProviders.WECHATPAY) {
       return getProvider(stripeProvider)
-        .createWeChatPaySource(
-          transaction.currency,
-          transaction.amount,
-          transaction.buyer
-        )
+        .createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
@@ -183,11 +157,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({
         });
     } else if (provider == PaymentMethodProviders.RAZORPAY) {
       return getProvider(razorpayProvider)
-        .createOrder(
-          transaction.currency,
-          transaction.amount,
-          transaction.buyer
-        )
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((orderResponse) => {
           if (orderResponse.error) {
             return orderResponse;
@@ -200,11 +170,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({
         });
     } else if (provider == PaymentMethodProviders.PAYPAL) {
       return getProvider(paypalProvider)
-        .createOrder(
-          transaction.currency,
-          transaction.amount,
-          transaction.buyer
-        )
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then(async (orderResponse) => {
           if (orderResponse.error) {
             return orderResponse;
