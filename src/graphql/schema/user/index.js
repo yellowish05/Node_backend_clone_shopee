@@ -20,6 +20,7 @@ const schema = gql`
       photo: Asset
       organization: Organization
       roles: [String]! @auth(requires: ADMIN) 
+      isOnline: Boolean
     }
 
     type UserInfo {

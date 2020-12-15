@@ -47,6 +47,7 @@ function transformFilter({
   streamers,
   blackList,
   product,
+  isFeatured = null,
 }) {
   const emptyQuery = {};
   const query = {
@@ -99,6 +100,10 @@ function transformFilter({
     query.$and.push({
       streamer: { $nin: blackList },
     });
+  }
+
+  if (isFeatured !== null) {
+    query.$and.push({ isFeatured });
   }
 
   return query.$and.length > 0 ? query : emptyQuery;
