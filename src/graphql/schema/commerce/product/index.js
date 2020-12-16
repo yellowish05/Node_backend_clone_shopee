@@ -176,6 +176,7 @@ const schema = gql`
     enum ProductSortFeature {
       CREATED_AT
       PRICE
+      SOLD
     }
 
     input ProductSortInput {
