@@ -12,11 +12,18 @@ module.exports = async (_, { id, data = {} }, { dataSources: { repository } }) =
 	});
 
 	validator.addPostRule(async (provider) => {
-		repository.brand.getById(provider.inputs.id)
-			.then((foundBrand) => {
+    Promise.all([
+      repository.brand.getById(provider.inputs.id),
+      data.brandCategories.length ? repository.brandCategory.getByIds(data.brandCategories) : [],
+    ])
+			.then(([foundBrand, brandCategories]) => {
 				if (!foundBrand) {
 					provider.error('id', 'custom', `Brand with id "${provider.inputs.id}" does not exist!`)
-				}
+        }
+        
+        brandCategories.forEach((brandCategory, i) => {
+          provider.error('brand', 'custom', `Brand category with id "${data.brandCategories[i]}" does not exist!`);
+        })
 			})
 	});
 
@@ -30,6 +37,8 @@ module.exports = async (_, { id, data = {} }, { dataSources: { repository } }) =
 		.then((brand) => {
       brand.name = data.name || brand.name;
       brand.images = data.images && data.images.length ? data.images : brand.images;
+      brand.brandCategories = data.brandCategories || brand.brandCategories;
+      brand.productCategories = data.productCategories || brand.productCategories;
 			return brand.save();
 		})
 		// .then((savePhrase) => savePhrase)
