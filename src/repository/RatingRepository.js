@@ -26,6 +26,10 @@ class RatingRepository {
       },
     ]).then((rating) => (rating.length > 0 ? rating[0].value : 0));
   }
+
+  async getTotal(tag) {
+    return this.model.countDocuments({ tag });
+  }
 }
 
 module.exports = RatingRepository;
