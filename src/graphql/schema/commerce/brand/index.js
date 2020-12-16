@@ -7,7 +7,8 @@ const schema = gql`
     type Brand {
         id: ID!
         name: String!
-        categories: [ProductCategory]!
+        brandCategories: [BrandCategory]
+        productCategories: [ProductCategory]!
         images: [Asset]!
     }
 
@@ -19,6 +20,8 @@ const schema = gql`
     input BrandUpdateInput{
       name: String
       images: [String]
+      productCategories: [String]
+      brandCategories: [String]
     }
 
     type BrandCollection {
@@ -67,7 +70,13 @@ module.exports.resolvers = {
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
   Brand: {
-    categories: async (brand, _, { dataSources: { repository } }) => {
+    brandCategories: async (brand, _, { dataSources: { repository }}) => {
+      if (!brand.brandCategories || !brand.brandCategories.length) {
+        return [];
+      }
+      return repository.brandCategory.findByIds(brand.brandCategories);
+    },
+    productCategories: async (brand, _, { dataSources: { repository } }) => {
       if (!brand.productCategories.length) {
         return [];
       }

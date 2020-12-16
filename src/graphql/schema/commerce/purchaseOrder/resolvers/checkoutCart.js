@@ -33,9 +33,12 @@ module.exports = async function checkoutCart(
     })
     .then(async (order) => {
       cartItems.map(async (item) => {
-        const { product } = item;
+        const { product, quantity } = item;
         const productInfo = await repository.product.getById(product);
         const seller = await repository.user.getById(productInfo.seller);
+        // update sold count of product.
+        productInfo.sold += quantity;
+        await productInfo.save();
         // save notification to seller
         await repository.notification.create({
           type: NotificationType.SELLER_ORDER,
