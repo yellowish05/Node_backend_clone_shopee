@@ -142,6 +142,10 @@ const schema = new Schema({
   seoTitle: {
     type: String
   },
+  sold: {
+    type: Number,
+    default: 0,
+  }
 });
 
 schema.indexes([

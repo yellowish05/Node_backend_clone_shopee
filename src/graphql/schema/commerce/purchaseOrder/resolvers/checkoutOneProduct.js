@@ -63,6 +63,9 @@ module.exports = async function checkoutOneProduct(
       })
       .then(async (order) => {
         const productInfo = await repository.product.getById(product);
+        // update sold count of product.
+        productInfo.sold += quantity;
+        
         // calculate quantity
         if (productAttr) {
           productAttr.quantity -= quantity;
@@ -71,6 +74,7 @@ module.exports = async function checkoutOneProduct(
           productInfo.quantity -= quantity;
           await productInfo.save();
         }
+        
         // save notification to buyer
         const seller = await repository.user.getById(productInfo.seller);
         await repository.notification.create({

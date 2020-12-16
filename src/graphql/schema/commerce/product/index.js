@@ -78,6 +78,7 @@ const schema = gql`
         metaDescription: String
         metaTags: [String]
         seoTitle: String
+        sold: Int
     }
 
     type failedProducts{
