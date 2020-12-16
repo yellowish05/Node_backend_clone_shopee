@@ -41,6 +41,11 @@ const schema = gql`
       value: String!
     }
 
+    type RateStats {
+      average: Float!
+      total: Int!
+    }
+
     type Product {
         id: ID!
         """
@@ -67,7 +72,7 @@ const schema = gql`
         brand: Brand!
         relatedLiveStreams(limit: Int = 1): [LiveStream]!
         freeDeliveryTo: [MarketType!]
-        rating: Float!
+        rating: RateStats!
         customCarrier: CustomCarrier
         customCarrierValue(currency: Currency):AmountOfMoney
         metrics: [ProductMetricItem]
@@ -339,7 +344,10 @@ module.exports.resolvers = {
       page: { limit, skip: 0 },
       sort: { feature: 'CREATED_AT', type: 'DESC' },
     }),
-    rating: async (product, _, { dataSources: { repository } }) => repository.rating.getAverage(product.getTagName()),
+    rating: async (product, _, { dataSources: { repository } }) => ({
+      average: repository.rating.getAverage(product.getTagName()),
+      total: repository.rating.getTotal(product.getTagName()),
+    }),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product
     attrs: async ({ attrs }, _, { dataSources: { repository } }) => {
