@@ -38,6 +38,8 @@ const { typeDefs: translationTypeDefs, resolvers: translationResolvers } = requi
 const { typeDefs: termsConditionTypeDefs, resolvers: termsConditionResolvers } = require('./termsConditions');
 const { typeDefs: pushNotificationTypeDefs, resolvers: pushNotificationResolvers } = require('./pushNotification');
 
+const { typeDefs: themeTypeDefs, resolvers: themeResolvers } = require('./theme');
+
 const typeDefs = [].concat(
   commonTypeDefs,
   testErrorsTypeDefs,
@@ -72,6 +74,7 @@ const typeDefs = [].concat(
   translationTypeDefs,
   pushNotificationTypeDefs,
   termsConditionTypeDefs,
+  themeTypeDefs,
 );
 
 const resolvers = merge(
@@ -104,6 +107,7 @@ const resolvers = merge(
   languageResolvers,
   translationResolvers,
   termsConditionResolvers,
+  themeResolvers,
   pushNotificationResolvers,
 );
 

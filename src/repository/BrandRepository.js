@@ -13,6 +13,10 @@ class BrandRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getByIds(ids) {
+    return this.model.findOne({ _id: ids });
+  }
+
   async searchByName(query, { skip, limit }) {
     return this.model.find(
       getSearchQueryByName(query),

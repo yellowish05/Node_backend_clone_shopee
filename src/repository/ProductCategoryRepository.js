@@ -28,7 +28,7 @@ class ProductCategoryRepository {
   async getById(id) {
     return this.model.findOne({ _id: id });
   }
-
+  
   async getByParent(id) {
     return this.model.find({ parent: id }).sort('order');
   }

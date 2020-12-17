@@ -1,4 +1,5 @@
 const path = require('path');
+const uuid = require("uuid/v4");
 
 const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
 
@@ -11,55 +12,23 @@ class ThemeRepository {
     return this.model.findOne({ _id: id });
   }
 
-  /**
-   * @deprecated
-   */
-  async load(id) {
-    return this.model.findOne({ _id: id });
+  async getByIds(ids) {
+    return this.model.find({ _id: { $in: ids } });
   }
 
-  async loadList(ids) {
-    return this.model.find({ _id: { $in: ids } });
+  async getByName(name) {
+    return this.model.findOne({ name });
   }
 
   async loadAll() {
     return this.model.find();
   }
 
-  async create(data, options = {}) {
-    const {
-      email,
-      ...userProperties
-    } = data;
+  async create(data) {
+    if (!data._id) data = { ...data, _id: uuid() };
+    const theme = new this.model(data);
 
-    data = { email: email.toLowerCase(), ...userProperties };
-
-    if (!data.email) {
-      throw Error('Email is required!');
-    }
-
-    if (!data.password) {
-      throw Error('Password is required!');
-    }
-
-    if (data.email && await this.findByEmail(data.email)) {
-      throw Error(`Email "${data.email}" is already taken!`);
-    }
-
-    const user = new this.model({
-      _id: data._id,
-      email: data.email,
-      password: md5(data.password),
-      roles: options.roles || [],
-      settings: {
-        pushNotifications: PushNotification.toList(),
-        language: LanguageList.EN,
-        currency: Currency.USD,
-        measureSystem: MeasureSystem.USC,
-      },
-    });
-
-    return user.save();
+    return theme.save();
   }
 }
 
