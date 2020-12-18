@@ -30,6 +30,14 @@ class ThemeRepository {
 
     return theme.save();
   }
+
+  async deleteById(itemId) {
+    if (typeof itemId !== 'string') {
+      throw new Error(`Theme.delete expected id as String, but got "${typeof itemId}"`);
+    }
+
+    return this.model.deleteOne({ _id: itemId });
+  }
 }
 
 module.exports = ThemeRepository;

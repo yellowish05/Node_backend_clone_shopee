@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 
 const addTheme = require('./resolvers/addTheme');
 const updateTheme = require('./resolvers/updateTheme');
+const deleteTheme = require('./resolvers/deleteTheme');
 
 const schema = gql`
   type Theme {
@@ -40,6 +41,7 @@ const schema = gql`
   extend type Mutation {
     addTheme(data: ThemeInput!): Theme! @auth(requires: USER)
     updateTheme(id: ID!, data: ThemeUpdateInput): Theme @auth(requires: USER)
+    deleteTheme(id: ID!): Boolean! @auth(requires: USER)
   }
 `;
 
@@ -54,6 +56,7 @@ module.exports.resolvers = {
   Mutation: {
     addTheme,
     updateTheme,
+    deleteTheme,
   },
   Theme: {
     thumbnail: async (theme, _, { dataSources: { repository }}) => {
