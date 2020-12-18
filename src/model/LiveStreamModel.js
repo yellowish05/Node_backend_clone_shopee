@@ -113,6 +113,12 @@ const schema = new Schema({
     type: String,
     ref: 'Asset',
   },
+  hashtags: {
+    type: [{
+      type: String,
+    }],
+    default: [],
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

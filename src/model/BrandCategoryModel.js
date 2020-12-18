@@ -17,6 +17,12 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
+  hashtags: {
+    type: [{
+      type: String,
+    }],
+    default: [],
+  },
 });
 
 module.exports = new model(collectionName, schema);
