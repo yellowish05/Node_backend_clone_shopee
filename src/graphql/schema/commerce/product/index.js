@@ -140,6 +140,7 @@ const schema = gql`
         isWholeSale: Boolean
         isFeatured: Boolean
         hasLivestream: Boolean = false
+        theme: ID
     }
 
     input ProductAttributeInput {

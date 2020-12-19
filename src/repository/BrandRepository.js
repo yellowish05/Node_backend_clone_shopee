@@ -51,6 +51,27 @@ class BrandRepository {
     }
   }
 
+  async getByCategoryAndTags(categoryIds = [], tags = []) {
+    const query = {};
+    const $or = [];
+    if (Array.isArray(categoryIds) && categoryIds.length) {
+      const $orCategory = [];
+      categoryIds.forEach(categoryId => {
+        $orCategory.push({ brandCategories: categoryId });
+      })
+      $or.push({ $or: $orCategory });
+    }
+
+    if (Array.isArray(tags) && tags.length) {
+      const $orTags = [];
+      tags.forEach(tag => {
+        $orTags.push({ hashtags: { $regex: `${tag}`, $options: 'i' } });
+      });
+      $or.push({$or: $orTags});
+    }
+    if ($or.length) query.$or = $or;
+    return this.model.find(query);
+  }
 }
 
 module.exports = BrandRepository;

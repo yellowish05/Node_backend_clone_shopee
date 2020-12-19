@@ -8,6 +8,7 @@ const schema = gql`
       id: ID!
       name: String!
       isRecommended: Boolean!
+      hashtags: [String]
     }
 
     input BrandCategoryInput{

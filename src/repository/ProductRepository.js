@@ -39,7 +39,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = []
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], hashtags = [],
 }) {
   if (!query.$and) {
     query.$and = [
@@ -115,6 +115,11 @@ function applyFilter(query, {
     query.$and.push({
       _id: { $in: ids }
     });
+  }
+
+  if (hashtags.length) {  console.log('[hashtags]', hashtags.length)
+    const $orByHashtags = hashtags.map(hashtag => ({ hashtags: { $regex: `${hashtag}`, $options: 'i' } }));
+    query.$and.push({ $or: $orByHashtags });
   }
 }
 
@@ -192,7 +197,7 @@ class ProductRepository {
   async get({ filter, sort, page }) {
     const query = {};
     applyFilter(query, filter);
-
+    console.log('[query]', query)
     return this.model.find(
       query,
       null,
@@ -207,6 +212,7 @@ class ProductRepository {
   async getTotal(filter) {
     const query = {};
     applyFilter(query, filter);
+    console.log('[query]', filter.hashtags, query)
     return this.model.countDocuments(query);
   }
 
