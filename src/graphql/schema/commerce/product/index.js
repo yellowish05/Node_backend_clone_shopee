@@ -16,6 +16,7 @@ const addProductAttr = require('./resolvers/addProductAttr');
 const productAttributes = require('./resolvers/productAttributes');
 const updateProductAttr = require('./resolvers/updateProductAttr');
 const deleteProductAttr = require('./resolvers/deleteProductAttr');
+const productsByTheme = require('./resolvers/productsByTheme');
 
 const schema = gql`
     enum ProductMetricUnit {
@@ -275,6 +276,7 @@ module.exports.resolvers = {
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
+    productsByTheme,
   },
   Mutation: {
     addProduct,

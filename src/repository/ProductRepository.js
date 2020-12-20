@@ -39,16 +39,17 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], hashtags = [],
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], hashtags = [], themeBrands = [], themeCategories = [],
 }) {
-  if (!query.$and) {
-    query.$and = [
-      { isDeleted: false },
-    ];
-  }
+  const $and = [{ isDeleted: false }];
+  // if (!$and) {
+  //   $and = [
+  //     { isDeleted: false },
+  //   ];
+  // }
 
   if (searchQuery) {
-    query.$and.push({
+    $and.push({
       $or: [
         { title: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
         { description: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
@@ -59,67 +60,80 @@ function applyFilter(query, {
 
   if (price) {
     if (price.min) {
-      query.$and.push({
+      $and.push({
         $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
       });
     }
 
     if (price.max) {
-      query.$and.push({
+      $and.push({
         $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
       });
     }
   }
 
   if (categories) {
-    query.$and.push({
+    $and.push({
       category: { $in: categories },
     });
   }
 
   if (brands) {
-    query.$and.push({
+    $and.push({
       brand: { $in: brands },
     });
   }
 
   if (sellers) {
-    query.$and.push({
+    $and.push({
       seller: { $in: sellers },
     });
   }
 
   if (!isWholeSale) {
-    query.$and.push({
+    $and.push({
       wholesaleEnabled: {$ne: true}
     })
   } else {
-    query.$and.push({
+    $and.push({
       wholesaleEnabled: true
     })
   }
 
   if (blackList && blackList.length > 0) {
-    query.$and.push({
+    $and.push({
       seller: { $nin: blackList },
     });
   }
 
   if (isFeatured !== undefined) {
-    query.$and.push({
+    $and.push({
       isFeatured: isFeatured ? true : {$ne: true},
     });
   }  
 
   if (ids && ids.length > 0) {
-    query.$and.push({
+    $and.push({
       _id: { $in: ids }
     });
   }
 
-  if (hashtags.length) {  console.log('[hashtags]', hashtags.length)
-    const $orByHashtags = hashtags.map(hashtag => ({ hashtags: { $regex: `${hashtag}`, $options: 'i' } }));
-    query.$and.push({ $or: $orByHashtags });
+  if (hashtags.length || themeBrands.length || themeCategories.length) {  
+    console.log('[hashtags]', hashtags.length)
+    $orByTheme = [];
+    if (hashtags.length) {
+      $orByTheme.concat(hashtags.map(hashtag => ({ hashtags: { $regex: `${hashtag}`, $options: 'i' } })));
+    }
+    if (themeBrands.length) {
+      $orByTheme.push({ brands: {$in: themeBrands } });
+    }
+    if (themeCategories.length) {
+      $orByTheme.push({ category: { $in: themeCategories } });
+    }
+
+    query.$or = [ ...$orByTheme, { $and } ];
+  } else {
+    query.$and = $and;
   }
 }
 

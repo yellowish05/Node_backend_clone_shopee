@@ -53,27 +53,25 @@ module.exports = async (_, {
     total: 0,
   };
 
-  const { brands, productCategories, hashtags } = await ProductService.analyzeTheme(filter.theme);
-  // console.log('[theme analyze]', brands, productCategories, hashtags);
-  if (hashtags.length) {
-    filter.hashtags = hashtags;
-  }
-  
+  const { brands: themeBrands, productCategories: themeCategories, hashtags } = await ProductService.analyzeTheme(filter.theme);
+
+  filter = { ...filter, themeBrands, themeCategories, hashtags };
+    
   if (user) {
     filter.blackList = user.blackList;
   }
 
-  if (filter.categories || productCategories.length) {
-    filter.categories = (filter.categories || []).concat(productCategories.map(item => item._id));
+  if (filter.categories) {
+    // filter.categories = (filter.categories || []).concat(productCategories.map(item => item._id));
     await repository.productCategory.getUnderParents(filter.categories)
       .then(categories => {
         filter.categories = categories.map(item => item.id);
       })
   }
 
-  if (filter.brands || brands.length) {
-    filter.brands = (filter.brands || []).concat(brands.map(item => item._id));
-  }
+  // if (filter.brands || brands.length) {
+  //   filter.brands = (filter.brands || []).concat(brands.map(item => item._id));
+  // }
 
   if (filter.theme) {
 
