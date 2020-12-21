@@ -53,9 +53,9 @@ module.exports = async (_, {
     total: 0,
   };
 
-  const { brands: themeBrands, productCategories: themeCategories, hashtags } = await ProductService.analyzeTheme(filter.theme);
+  // const { brands: themeBrands, productCategories: themeCategories, hashtags } = await ProductService.analyzeTheme(filter.theme);
 
-  filter = { ...filter, themeBrands, themeCategories, hashtags };
+  // filter = { ...filter, themeBrands, themeCategories, hashtags };
     
   if (user) {
     filter.blackList = user.blackList;
@@ -72,10 +72,6 @@ module.exports = async (_, {
   // if (filter.brands || brands.length) {
   //   filter.brands = (filter.brands || []).concat(brands.map(item => item._id));
   // }
-
-  if (filter.theme) {
-
-  }
 
   if (filter.price) {
     if (filter.price.min) {

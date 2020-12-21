@@ -200,6 +200,7 @@ const schema = gql`
         product(id: ID!): Product
         previewBulkProducts(fileName:String!): String! @auth(requires: USER)
         productAttributes(productId: ID!): [ProductAttribute!]!
+        productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
     }
 
     input ProductMetricItemInput {

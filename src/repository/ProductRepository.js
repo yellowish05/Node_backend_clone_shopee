@@ -39,17 +39,17 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], hashtags = [], themeBrands = [], themeCategories = [],
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [],
 }) {
-  const $and = [{ isDeleted: false }];
-  // if (!$and) {
-  //   $and = [
-  //     { isDeleted: false },
-  //   ];
-  // }
+
+  if (!query.$and) {
+    query.$and = [
+      { isDeleted: false },
+    ];
+  }
 
   if (searchQuery) {
-    $and.push({
+    query.$and.push({
       $or: [
         { title: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
         { description: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
@@ -60,80 +60,88 @@ function applyFilter(query, {
 
   if (price) {
     if (price.min) {
-      $and.push({
+      query.$and.push({
         $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
       });
     }
 
     if (price.max) {
-      $and.push({
+      query.$and.push({
         $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
       });
     }
   }
 
   if (categories) {
-    $and.push({
+    query.$and.push({
       category: { $in: categories },
     });
   }
 
   if (brands) {
-    $and.push({
+    query.$and.push({
       brand: { $in: brands },
     });
   }
 
   if (sellers) {
-    $and.push({
+    query.$and.push({
       seller: { $in: sellers },
     });
   }
 
   if (!isWholeSale) {
-    $and.push({
+    query.$and.push({
       wholesaleEnabled: {$ne: true}
     })
   } else {
-    $and.push({
+    query.$and.push({
       wholesaleEnabled: true
     })
   }
 
   if (blackList && blackList.length > 0) {
-    $and.push({
+    query.$and.push({
       seller: { $nin: blackList },
     });
   }
 
   if (isFeatured !== undefined) {
-    $and.push({
+    query.$and.push({
       isFeatured: isFeatured ? true : {$ne: true},
     });
   }  
 
   if (ids && ids.length > 0) {
-    $and.push({
+    query.$and.push({
       _id: { $in: ids }
     });
   }
+}
 
-  if (hashtags.length || themeBrands.length || themeCategories.length) {  
-    console.log('[hashtags]', hashtags.length)
-    $orByTheme = [];
-    if (hashtags.length) {
-      $orByTheme.concat(hashtags.map(hashtag => ({ hashtags: { $regex: `${hashtag}`, $options: 'i' } })));
-    }
-    if (themeBrands.length) {
-      $orByTheme.push({ brands: {$in: themeBrands } });
-    }
-    if (themeCategories.length) {
-      $orByTheme.push({ category: { $in: themeCategories } });
-    }
+function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
+  if (!query.$and) {
+    query.$and = [
+      { isDeleted: false, wholesaleEnabled: { $ne: true } },
+    ];
+  }
+  const $or = [];
+  if (brands.length) {
+    $or.push({ brand: { $in: brands } });
+  }
 
-    query.$or = [ ...$orByTheme, { $and } ];
-  } else {
-    query.$and = $and;
+  if (productCategories.length) {
+    $or.push({ category: { $in: productCategories } });
+  }
+
+  if (hashtags.length) {
+    hashtags.forEach(hashtag => {
+      $or.push({ hashtags: { $regex: `${hashtag}`, $options: 'i' } });
+    })
+  }
+
+  if ($or.length) {
+    query.$and.push({ $or });
   }
 }
 
@@ -211,7 +219,6 @@ class ProductRepository {
   async get({ filter, sort, page }) {
     const query = {};
     applyFilter(query, filter);
-    console.log('[query]', query)
     return this.model.find(
       query,
       null,
@@ -226,7 +233,26 @@ class ProductRepository {
   async getTotal(filter) {
     const query = {};
     applyFilter(query, filter);
-    console.log('[query]', filter.hashtags, query)
+    return this.model.countDocuments(query);
+  }
+
+  async get4Theme({ filter, sort, page }) {
+    const query = {};
+    applyFilter4Theme(query, filter);
+    return this.model.find(
+      query,
+      null,
+      {
+        sort: transformSortInput(sort),
+        limit: page.limit,
+        skip: page.skip,
+      },
+    );
+  }
+
+  async getTotal4Theme(filter) {
+    const query = {};
+    applyFilter4Theme(query, filter);
     return this.model.countDocuments(query);
   }
 
@@ -247,6 +273,7 @@ class ProductRepository {
       },
     );
   }
+
   async getTotal_es(filter) {
     const query = {};
     elasticFilter(query, filter);
