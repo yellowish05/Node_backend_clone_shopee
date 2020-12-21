@@ -4,7 +4,6 @@ const { Promise } = require('bluebird');
 
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
-const ProductService = require(path.resolve('src/lib/ProductService'));
 const axios = require('axios');
 
 // const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
@@ -52,26 +51,17 @@ module.exports = async (_, {
     skip: page.skip,
     total: 0,
   };
-
-  // const { brands: themeBrands, productCategories: themeCategories, hashtags } = await ProductService.analyzeTheme(filter.theme);
-
-  // filter = { ...filter, themeBrands, themeCategories, hashtags };
     
   if (user) {
     filter.blackList = user.blackList;
   }
 
   if (filter.categories) {
-    // filter.categories = (filter.categories || []).concat(productCategories.map(item => item._id));
     await repository.productCategory.getUnderParents(filter.categories)
       .then(categories => {
         filter.categories = categories.map(item => item.id);
       })
   }
-
-  // if (filter.brands || brands.length) {
-  //   filter.brands = (filter.brands || []).concat(brands.map(item => item._id));
-  // }
 
   if (filter.price) {
     if (filter.price.min) {
