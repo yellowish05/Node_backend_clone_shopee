@@ -16,6 +16,7 @@ const addProductAttr = require('./resolvers/addProductAttr');
 const productAttributes = require('./resolvers/productAttributes');
 const updateProductAttr = require('./resolvers/updateProductAttr');
 const deleteProductAttr = require('./resolvers/deleteProductAttr');
+const productsByTheme = require('./resolvers/productsByTheme');
 
 const schema = gql`
     enum ProductMetricUnit {
@@ -140,6 +141,7 @@ const schema = gql`
         isWholeSale: Boolean
         isFeatured: Boolean
         hasLivestream: Boolean = false
+        theme: ID
     }
 
     input ProductAttributeInput {
@@ -198,6 +200,7 @@ const schema = gql`
         product(id: ID!): Product
         previewBulkProducts(fileName:String!): String! @auth(requires: USER)
         productAttributes(productId: ID!): [ProductAttribute!]!
+        productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
     }
 
     input ProductMetricItemInput {
@@ -274,6 +277,7 @@ module.exports.resolvers = {
     product: async (_, { id }, { dataSources: { repository } }) => repository.product.getById(id),
     previewBulkProducts,
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
+    productsByTheme,
   },
   Mutation: {
     addProduct,

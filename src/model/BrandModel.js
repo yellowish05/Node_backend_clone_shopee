@@ -26,7 +26,13 @@ const schema = new Schema({
   images: [{
     type: String,
     ref: 'Asset',
-  }]
+  }],
+  hashtags: {
+    type: [{
+      type: String,
+    }],
+    default: [],
+  },
 });
 
 module.exports = new model(collectionName, schema);

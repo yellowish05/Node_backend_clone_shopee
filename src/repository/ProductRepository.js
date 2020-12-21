@@ -39,8 +39,9 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = []
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [],
 }) {
+
   if (!query.$and) {
     query.$and = [
       { isDeleted: false },
@@ -118,6 +119,32 @@ function applyFilter(query, {
   }
 }
 
+function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
+  if (!query.$and) {
+    query.$and = [
+      { isDeleted: false, wholesaleEnabled: { $ne: true } },
+    ];
+  }
+  const $or = [];
+  if (brands.length) {
+    $or.push({ brand: { $in: brands } });
+  }
+
+  if (productCategories.length) {
+    $or.push({ category: { $in: productCategories } });
+  }
+
+  if (hashtags.length) {
+    hashtags.forEach(hashtag => {
+      $or.push({ hashtags: { $regex: `${hashtag}`, $options: 'i' } });
+    })
+  }
+
+  if ($or.length) {
+    query.$and.push({ $or });
+  }
+}
+
 class ProductRepository {
   constructor(model) {
     this.model = model;
@@ -192,7 +219,6 @@ class ProductRepository {
   async get({ filter, sort, page }) {
     const query = {};
     applyFilter(query, filter);
-
     return this.model.find(
       query,
       null,
@@ -207,6 +233,26 @@ class ProductRepository {
   async getTotal(filter) {
     const query = {};
     applyFilter(query, filter);
+    return this.model.countDocuments(query);
+  }
+
+  async get4Theme({ filter, sort, page }) {
+    const query = {};
+    applyFilter4Theme(query, filter);
+    return this.model.find(
+      query,
+      null,
+      {
+        sort: transformSortInput(sort),
+        limit: page.limit,
+        skip: page.skip,
+      },
+    );
+  }
+
+  async getTotal4Theme(filter) {
+    const query = {};
+    applyFilter4Theme(query, filter);
     return this.model.countDocuments(query);
   }
 
@@ -227,6 +273,7 @@ class ProductRepository {
       },
     );
   }
+
   async getTotal_es(filter) {
     const query = {};
     elasticFilter(query, filter);

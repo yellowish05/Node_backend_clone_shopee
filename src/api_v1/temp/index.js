@@ -22,6 +22,7 @@ const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
 const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 
 const tempRouter = express.Router();
@@ -115,6 +116,22 @@ tempRouter.route('/getstream-test').get(async (req, res) => {
       message: error.message,
     })
   }
+});
+
+tempRouter.route('/brand-cate-by-tags').post(async (req, res) => {
+  return repository.brandCategory.getByIdsAndTags(req.body.ids, req.body.hashtags)
+    .then(result => res.json(result));
+});
+
+tempRouter.route('/brand-by-tags').post(async (req, res) => {
+  return repository.brand.getByCategoryAndTags(req.body.ids, req.body.hashtags)
+    .then(result => res.json(result));
+});
+
+tempRouter.route('/analyze-theme').post(async (req, res) => {
+  const { id: themeId } = req.body;
+  return ProductService.analyzeTheme(themeId)
+    .then(result => res.json(result));
 });
 
 module.exports = tempRouter;

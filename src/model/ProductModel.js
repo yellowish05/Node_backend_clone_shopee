@@ -145,7 +145,13 @@ const schema = new Schema({
   sold: {
     type: Number,
     default: 0,
-  }
+  },
+  hashtags: {
+    type: [{
+      type: String,
+    }],
+    default: [],
+  },
 });
 
 schema.indexes([

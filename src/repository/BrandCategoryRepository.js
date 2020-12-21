@@ -47,6 +47,24 @@ class BrandCategoryRepository {
   async getCountBySearch(filter) {
     return this.model.countDocuments(getSearchQueryByName(filter));
   }
+
+  async getByIdsAndTags(ids = [], tags = []) {
+    const query = {};
+    const $or = [];
+    if (Array.isArray(ids) && ids.length) {
+      $or.push({ _id: { $in: ids } });
+    }
+
+    if (Array.isArray(tags) && tags.length) {
+      const $orTags = [];
+      tags.forEach(tag => {
+        $orTags.push({ hashtags: { $regex: `${tag}`, $options: 'i' } });
+      });
+      $or.push({$or: $orTags});
+    }
+    if ($or.length) query.$or = $or;
+    return this.model.find(query);
+  }
 }
 
 module.exports = BrandCategoryRepository;

@@ -3,16 +3,27 @@ function getSearchQueryByName(query) {
   return { name: { $regex: `^${query}.*`, $options: 'i' } };
 }
 
-function getAllUnderParent(allCategories, ids = []) {
+function matchHashtag(category, tags) {
+  if (!tags.length) return false;
+
+  for (let hashtag of (category.hashtags || [])) {
+    for (let tag of tags) {
+      if (hashtag.includes(tag)) return true;
+    }
+  }
+  return false;
+}
+
+function getAllUnderParent(allCategories, ids = [], tags) {
   if (ids.length === 0) return [];
 
-  let categories = allCategories.filter(category => ids.includes(category._id) || ids.includes(category.parent));
+  let categories = allCategories.filter(category => ids.includes(category._id) || ids.includes(category.parent) || matchHashtag(category, tags));
   const newIds = categories.map(category => category._id);
   const diff = newIds.filter(id => !ids.includes(id));
   if (diff.length === 0) {
     return allCategories.filter(category => newIds.includes(category._id));
   } else {
-    return getAllUnderParent(allCategories, newIds);
+    return getAllUnderParent(allCategories, newIds, tags);
   }
 }
 
@@ -28,15 +39,15 @@ class ProductCategoryRepository {
   async getById(id) {
     return this.model.findOne({ _id: id });
   }
-
+  
   async getByParent(id) {
     return this.model.find({ parent: id }).sort('order');
   }
 
-  async getUnderParents(ids) {
+  async getUnderParents(ids, tags = []) {
     return this.getAll()
       .then(categories => {
-        return getAllUnderParent(categories, ids);
+        return getAllUnderParent(categories, ids, tags);
       });
   }
 
