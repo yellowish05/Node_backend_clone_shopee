@@ -24,7 +24,6 @@ const schema = new Schema({
   },
   thumbnail: {
     type: String,
-    required: true,
   },
   status: {
     type: String,
