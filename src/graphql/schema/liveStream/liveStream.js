@@ -68,6 +68,7 @@ const schema = gql`
         orientation: OrientationMode!
         thumbnail: Asset
         isFeatured: Boolean
+        hashtags: [String]
     }
 
     input LiveStreamInput {
@@ -83,6 +84,7 @@ const schema = gql`
         productDurations: [StreamProductDurationInput] = []
         orientation: OrientationMode!
         thumbnail: ID!
+        hashtags: [String]
     }
 
     # input LiveStreamUpdateInput {

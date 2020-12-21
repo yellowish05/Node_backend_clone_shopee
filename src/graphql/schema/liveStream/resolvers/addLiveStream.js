@@ -197,6 +197,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         orientation: args.data.orientation,
         thumbnail: args.data.thumbnail,
         isFeatured: args.data.isFeatured,
+        hashtags: args.data.hashtags || [],
       });
     })
     .catch((error) => {
