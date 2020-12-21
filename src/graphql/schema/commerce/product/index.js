@@ -162,6 +162,7 @@ const schema = gql`
       currency: Currency!
       variation: [VariationInput!]!
       asset: ID!
+      sku: String
     }
 
     input VariationInput {
