@@ -17,6 +17,7 @@ const productAttributes = require('./resolvers/productAttributes');
 const updateProductAttr = require('./resolvers/updateProductAttr');
 const deleteProductAttr = require('./resolvers/deleteProductAttr');
 const productsByTheme = require('./resolvers/productsByTheme');
+const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags');
 
 const schema = gql`
     enum ProductMetricUnit {
@@ -85,6 +86,7 @@ const schema = gql`
         metaTags: [String]
         seoTitle: String
         sold: Int
+        hashtags: [String]
     }
 
     type failedProducts{
@@ -141,7 +143,6 @@ const schema = gql`
         isWholeSale: Boolean
         isFeatured: Boolean
         hasLivestream: Boolean = false
-        theme: ID
     }
 
     input ProductAttributeInput {
@@ -163,6 +164,7 @@ const schema = gql`
       currency: Currency!
       variation: [VariationInput!]!
       asset: ID!
+      sku: String
     }
 
     input VariationInput {
@@ -266,6 +268,7 @@ const schema = gql`
         deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
         setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
+        uploadBulkProductHashtags(file: Upload!): UploadedProducts!
     }
 `;
 
@@ -288,6 +291,7 @@ module.exports.resolvers = {
     addProductAttr,
     updateProductAttr,
     deleteProductAttr,
+    uploadBulkProductHashtags,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
