@@ -55,8 +55,13 @@ function transformFilter({
   };
 
   if (searchQuery) {
+    $orWithTags = searchQuery.split(' ')
+      .map(piece => piece.trim())
+      .filter(piece => !!piece)
+      .map(piece => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
     query.$and.push({
       title: { $regex: `^.*${searchQuery}.*`, $options: "i" },
+      ...$orWithTags,
     });
   }
 
