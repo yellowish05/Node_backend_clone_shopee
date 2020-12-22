@@ -4,6 +4,7 @@ const { gql } = require('apollo-server');
 const addTheme = require('./resolvers/addTheme');
 const updateTheme = require('./resolvers/updateTheme');
 const deleteTheme = require('./resolvers/deleteTheme');
+const themes = require('./resolvers/themes');
 
 const schema = gql`
   type Theme {
@@ -34,8 +35,31 @@ const schema = gql`
     brands: [String]
   }
 
+  input ThemeFilterInput {
+    searchQuery: String
+  }
+
+  input ThemeSortInput {
+    feature: ThemeSortFeature! = CREATED_AT
+    type: SortTypeEnum! = ASC
+  }
+
+  enum ThemeSortFeature {
+    NAME
+    CREATED_AT
+  }
+
+  type ThemeCollection {
+    collection: [Theme]!
+    pager: Pager
+  }
+
   extend type Query {
     theme(id: ID!): Theme
+    themes(
+        filter: ThemeFilterInput, 
+        sort: ThemeSortInput, 
+        page: PageInput = {}): ThemeCollection! @auth(requires: USER)
   }
 
   extend type Mutation {
@@ -51,7 +75,8 @@ module.exports.resolvers = {
   Query: {
     theme: async (_, { id }, { dataSources: { repository } } ) => {
       return repository.theme.getById(id);
-    }
+    },
+    themes,
   },
   Mutation: {
     addTheme,
