@@ -10,11 +10,13 @@ const schema = gql`
         brandCategories: [BrandCategory]
         productCategories: [ProductCategory]!
         images: [Asset]!
+        hashtags: [String]
     }
 
     input BrandInput{
       name: String!
       images: [String]!
+      hashtags: [String]
     }
 
     input BrandUpdateInput{
@@ -95,6 +97,7 @@ module.exports.resolvers = {
         _id: uuid(),
         name: args.data.name,
         images: args.data.images,
+        hashtags: args.data.hashtags || [],
       })
     },
     updateBrand,

@@ -14,6 +14,7 @@ const schema = gql`
     input BrandCategoryInput{
       name: String!
       isRecommended: Boolean
+      hashtags: [String]
     }
 
     input BrandCategoryUpdateInput{
@@ -73,6 +74,7 @@ module.exports.resolvers = {
         _id: uuid(),
         name: args.data.name,
         isRecommended: !!args.data.isRecommended,
+        hashtags: args.data.hashtags || [],
       })
     },
     updateBrandCategory,

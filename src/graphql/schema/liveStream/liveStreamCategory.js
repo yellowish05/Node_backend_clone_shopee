@@ -8,6 +8,7 @@ const schema = gql`
         id: ID!
         name(locale: Locale): String!
         image: String
+        hashtags: [String]
     }
 
     extend type Query {
