@@ -31,6 +31,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         throw new UserInputError('Thread does not exist', { invalidArgs: 'thread' });
       }
 
+      console.log('[participants]', thread.participants);
       if (!thread.participants.includes(user._id)) {
         throw new ForbiddenError('You can not write to this thread');
       }
