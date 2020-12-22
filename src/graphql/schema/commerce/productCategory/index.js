@@ -11,6 +11,7 @@ const schema = gql`
         hasChildren: Boolean!
         image: Asset
         liveStreamCategory: LiveStreamCategory
+        hashtags: [String]
     }
 
     type ProductCategoryCollection {
