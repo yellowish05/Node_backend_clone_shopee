@@ -245,6 +245,7 @@ const schema = gql`
         metaDescription: String!
         metaTags: [String]!
         seoTitle: String!
+        hashtags: [String]
     }
 
     extend type Mutation {

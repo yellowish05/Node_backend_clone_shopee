@@ -39,6 +39,7 @@ module.exports = async (_, { id, data = {} }, { dataSources: { repository } }) =
       brand.images = data.images && data.images.length ? data.images : brand.images;
       brand.brandCategories = data.brandCategories || brand.brandCategories;
       brand.productCategories = data.productCategories || brand.productCategories;
+      brand.hashtags = data.hashtags || brand.hashtags;
 			return brand.save();
 		})
 		// .then((savePhrase) => savePhrase)
