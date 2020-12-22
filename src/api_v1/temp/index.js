@@ -5,6 +5,7 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 const { listLanguageCodes, getLanguageName } = require('language-cultures');
 const CountryLanguage = require('country-language');
@@ -57,6 +58,11 @@ tempRouter.route('/gen-password').post(async (req, res) => {
     encrypt: md5(req.body.password)
   })
 });
+
+tempRouter.route('/decode-token').post(async (req, res) => {
+  const data = jwt.decode(req.body.token);
+  return res.json(data);
+})
 
 tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
   let total = 0;
