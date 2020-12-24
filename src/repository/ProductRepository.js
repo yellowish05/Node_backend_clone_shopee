@@ -89,7 +89,7 @@ function applyFilter(query, {
     });
   }
 
-  if (sellers) {
+  if (sellers && Array.isArray(sellers) && sellers.length) {
     query.$and.push({
       seller: { $in: sellers },
     });
