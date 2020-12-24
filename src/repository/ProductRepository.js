@@ -20,6 +20,7 @@ function transformSortInput({ feature, type }) {
     CREATED_AT: 'createdAt',
     PRICE: 'sortPrice',
     SOLD: 'sold',
+    TITLE: 'title',
   };
 
   const availableTypes = {

@@ -144,7 +144,7 @@ tempRouter.route('/fix-seller').post(async (req, res) => {
   const newSeller = req.body.seller;
   return repository.product.get({ 
     filter: {},
-    sort: { feature: 'CREATED_AT', type: 'ASC' },
+    sort: { feature: 'TITLE', type: 'ASC' },
     page: {
       limit: req.body.limit,
       skip: req.body.skip,
