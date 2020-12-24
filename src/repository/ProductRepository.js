@@ -297,10 +297,6 @@ class ProductRepository {
       throw new Error(err);
     }
   }
-
-  async deleteMany() {
-    return this.model.deleteMany();
-  }
 }
 
 module.exports = ProductRepository;
