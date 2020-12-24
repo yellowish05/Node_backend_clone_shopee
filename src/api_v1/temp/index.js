@@ -140,4 +140,35 @@ tempRouter.route('/analyze-theme').post(async (req, res) => {
     .then(result => res.json(result));
 });
 
+tempRouter.route('/fix-seller').post(async (req, res) => {
+  const newSeller = req.body.seller;
+  return repository.product.getAll()
+    .then(async products => {
+      let changed = [];
+      let errors = [];
+      await Promise.all(products.map(async (product, i) => {
+        const sellerId = product.seller;
+        const seller = await repository.user.getById(product.seller);
+        if (!seller) {
+          product.seller = newSeller;
+          product.oldPrice = product.oldPrice || product.discountPrice || product.price;
+          try {
+            product.save();
+            changed.push({ id: product._id, seller: sellerId });
+          } catch(e) {
+            errors.push({ product: product._id, error: e.message });
+          }
+        }
+        if (i % 100 === 0) console.log('Working on ', i);
+      }))
+      return { changed, errors };
+    })
+    .then(updaetedProducts => res.json(updaetedProducts));
+});
+
+tempRouter.route('/delete-products').delete(async (req, res) => {
+  return repository.product.deleteMany()
+    .then(result => res.json(result));
+})
+
 module.exports = tempRouter;

@@ -222,7 +222,7 @@ class ProductRepository {
   }
 
   async get({ filter, sort, page }) {
-    const query = {};
+    let query = {};
     applyFilter(query, filter);
     return this.model.find(
       query,
@@ -236,7 +236,7 @@ class ProductRepository {
   }
 
   async getTotal(filter) {
-    const query = {};
+    let query = {};
     applyFilter(query, filter);
     return this.model.countDocuments(query);
   }
@@ -296,6 +296,10 @@ class ProductRepository {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async deleteMany() {
+    return this.model.deleteMany();
   }
 }
 

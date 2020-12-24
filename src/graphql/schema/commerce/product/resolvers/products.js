@@ -105,8 +105,15 @@ module.exports = async (_, {
     repository.product.get({ filter, page, sort }),
     repository.product.getTotal(filter),
   ])
-    .then(([collection, total]) => ({
-      collection,
-      pager: { ...pager, total },
-    }));
+    .then(([collection, total]) => {
+      console.log('[collection]', total, collection[collection.length - 1])
+      return { 
+        collection: [],
+        pager: { ...pager, total },
+      };
+    })
+    // .then(([collection, total]) => ({
+    //   collection,
+    //   pager: { ...pager, total },
+    // }));
 };
