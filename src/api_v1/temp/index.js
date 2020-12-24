@@ -142,7 +142,14 @@ tempRouter.route('/analyze-theme').post(async (req, res) => {
 
 tempRouter.route('/fix-seller').post(async (req, res) => {
   const newSeller = req.body.seller;
-  return repository.product.getAll()
+  return repository.product.get({ 
+    filter: {},
+    sort: { feature: 'CREATED_AT', type: 'ASC' },
+    page: {
+      limit: req.body.limit,
+      skip: req.body.skip,
+    }, 
+  })
     .then(async products => {
       let changed = [];
       let errors = [];
