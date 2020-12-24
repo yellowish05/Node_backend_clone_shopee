@@ -16,6 +16,7 @@ const updateLiveStreamCount = require('./resolvers/updateLiveStreamCount');
 const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPreviewVideo');
 const updateLiveStreamThumbnail = require('./resolvers/updateLiveStreamThumbnail');
 const addStreamRecord = require('./resolvers/addStreamRecord');
+const updateStreamRecord = require('./resolvers/updateStreamRecord');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -192,6 +193,7 @@ const schema = gql`
       updateLiveStreamPreviewVideo(id: ID!, assetId: ID!): LiveStream
       updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
       addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
+      updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
     }
 
     extend type Subscription {
@@ -238,6 +240,7 @@ module.exports.resolvers = {
     updateLiveStreamPreviewVideo,
     updateLiveStreamThumbnail,
     addStreamRecord,
+    updateStreamRecord,
   },
   Subscription: {
     liveStream: {
