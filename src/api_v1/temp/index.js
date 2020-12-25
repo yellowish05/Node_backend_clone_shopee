@@ -14,6 +14,11 @@ const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
 const { connect } = require('getstream');
 
+const { transliterate: tr, slugify } = require('transliteration');
+
+// const slugify= require('@lazy-cjk/slugify');
+// const slugify= require('slugify');
+
 const { chat: { getstream } } = require(path.resolve('config/index'));
 const client = connect(getstream.api_key, getstream.api_secret);
 
@@ -177,5 +182,79 @@ tempRouter.route('/delete-products').delete(async (req, res) => {
   return repository.product.deleteMany()
     .then(result => res.json(result));
 })
+
+tempRouter.route('/slugify').post(async (req, res) => {
+  const src = req.body.source;
+
+  // console.log('[translate]', transliterate(src));
+  // slugify.config({ replace: [['_', '-'], ['_', '-'], [' ', '-']] })
+  return res.json({
+    src,
+    slug: slugify(src),
+    trans: tr(src),
+    // slug: slugify(src, {
+    //   // replacement: '-_ '
+    //   // replace: [['_', '-'], ['_', '-'], [' ', '-']],
+    //   emoji: true,
+    //   separator: '-',
+    // })
+  })
+})
+
+tempRouter.route('/product-slugify').post(async (req, res) => {
+  const { skip, limit } = req.body;
+  console.log('[test]', req.body.test, skip, limit);
+
+  return repository.product.get({
+    filter: {},
+    sort: { feature: 'TITLE', type: 'ASC' },
+    page: { skip, limit },
+  })
+    .then(async products => {
+      let changes = [];
+      let errors = [];
+      await Promise.all(products.map(async (product, i) => {
+        let slug = slugify(product.title);
+        const productsBySlug = await repository.product.getAll({ slug });
+        const others = productsBySlug.filter(item => item._id !== product._id);
+        if (others.length) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        product.slug = slug;
+        if ((i + 1) % 100 === 0) {
+          console.log('[cursor at]', i + 1);
+        }
+
+        try {
+          changes.push({
+            product: product._id,
+          })
+          product.oldPrice = product.oldPrice || product.discountPrice || product.price;
+          return product.save();
+        } catch(e) {
+          errors.push({
+            product: product._id,
+            error: e.message          
+          });
+        }
+      }));
+      return { changes, errors };
+    })
+    .then(({ changes, errors }) => {
+      return res.json({
+        changes: changes.length,
+        errors,
+      })
+    })
+});
+
+tempRouter.route('/tests').get(async (req, res) => {
+  const word = '卧室水晶吸顶灯北欧风格客厅轻奢灯具美式现代简约大气餐厅家用灯';
+  const slug = slugify(word); //console.log(slug);
+  res.send(slug);
+});
+
+
 
 module.exports = tempRouter;

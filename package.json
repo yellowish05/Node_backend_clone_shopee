@@ -28,6 +28,7 @@
   "dependencies": {
     "@easypost/api": "^3.8.1",
     "@google-cloud/translate": "^6.0.3",
+    "@lazy-cjk/slugify": "^1.0.73",
     "agora-access-token": "^1.0.2-alpha.2",
     "agora-rtc-sdk": "^3.1.1",
     "apollo-boost": "^0.4.4",
@@ -100,8 +101,10 @@
     "resize-img": "^2.0.0",
     "reverse-md5": "^0.0.4",
     "s3-upload-stream": "^1.0.7",
+    "slugify": "^1.4.6",
     "stream-chat": "^2.4.0",
     "stripe": "^7.14.0",
+    "transliteration": "^2.2.0",
     "uuid": "^3.3.3",
     "winston": "^3.2.1",
     "winston-cloudwatch": "^2.0.9",
