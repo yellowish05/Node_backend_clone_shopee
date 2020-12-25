@@ -203,6 +203,7 @@ const schema = gql`
         previewBulkProducts(fileName:String!): String! @auth(requires: USER)
         productAttributes(productId: ID!): [ProductAttribute!]!
         productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
+        productBySlug(slug: String!): Product
     }
 
     input ProductMetricItemInput {
@@ -282,6 +283,7 @@ module.exports.resolvers = {
     previewBulkProducts,
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
     productsByTheme,
+    productBySlug: async (_, { slug }, { dataSources: { repository }}) => repository.product.getBySlug(slug),
   },
   Mutation: {
     addProduct,
