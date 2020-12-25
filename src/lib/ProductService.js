@@ -1,5 +1,6 @@
 
 const path = require('path');
+const { slugify } = require('transliteration');
 
 const repository = require(path.resolve('src/repository'));
 
@@ -35,5 +36,22 @@ module.exports = {
     }
 
     return { brands, productCategories, hashtags };
+  },
+  async generateSlug({ id, slug: slugInput, title }) {
+    return Promise.all([
+      slugInput ? repository.product.getBySlug(slugInput) : null,
+      repository.product.getAll({ title }),
+    ])
+      .then(([productBySlug, productsByTitle]) => {
+        if (slugInput && (!productBySlug || (productBySlug && productBySlug._id === id))) return slugInput;
+
+        const otherProducts = productsByTitle.filter(product => product._id !== id);
+        let slug = slugify(title);
+        if (otherProducts.length) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        return slug;
+      })
   },
 }

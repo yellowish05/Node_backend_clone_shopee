@@ -258,6 +258,12 @@ tempRouter.route('/tests').get(async (req, res) => {
   res.send(slug);
 });
 
+tempRouter.route('/generateSlug').post(async (req, res) => {
+  const { id, slug, title } = req.body;
+  return ProductService.generateSlug({ id, slug, title })
+    .then(slug => res.json({ slug }));
+});
+
 
 
 module.exports = tempRouter;

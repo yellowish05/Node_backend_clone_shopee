@@ -242,7 +242,7 @@ const schema = gql`
         attrs: [ProductAttrWOProductInput!]
         thumbnailId:  ID!
         isFeatured: Boolean
-        slug: String!
+        slug: String
         metaDescription: String!
         metaTags: [String]!
         seoTitle: String!

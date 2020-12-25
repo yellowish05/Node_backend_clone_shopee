@@ -6,6 +6,7 @@ const { UserInputError, ApolloError } = require("apollo-server");
 const { InventoryLogType } = require(path.resolve("src/lib/Enums"));
 const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 const { CurrencyService } = require(path.resolve("src/lib/CurrencyService"));
+const { ProductService } = require(path.resolve("src/lib/ProductService"));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
 const { ForbiddenError } = require("apollo-server");
@@ -104,7 +105,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       if (thumbnailId) { productData.thumbnail = thumbnailId; }
       productData.oldPrice = data.oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
       productData.isFeatured = data.isFeatured || false;
-      productData.slug = data.slug || "";
+      productData.slug = await ProductService.generateSlug({ slug: "", title: data.title, id: "" });
       productData.metaDescription = data.metaDescription || false;
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
