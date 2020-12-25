@@ -205,7 +205,7 @@ tempRouter.route('/product-slugify').post(async (req, res) => {
   const { skip, limit } = req.body;
   // console.log('[test]', req.body.test, skip, limit);
 
-  const categories = await repository.productCategory.getUnderParents(["b719fa50-07c8-41b5-8683-912967862357"]);
+  // const categories = await repository.productCategory.getUnderParents(["b719fa50-07c8-41b5-8683-912967862357"]);
 
   return repository.product.get({
     filter: { },
