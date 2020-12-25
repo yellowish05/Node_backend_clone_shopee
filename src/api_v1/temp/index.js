@@ -203,10 +203,12 @@ tempRouter.route('/slugify').post(async (req, res) => {
 
 tempRouter.route('/product-slugify').post(async (req, res) => {
   const { skip, limit } = req.body;
-  console.log('[test]', req.body.test, skip, limit);
+  // console.log('[test]', req.body.test, skip, limit);
+
+  const categories = await repository.productCategory.getUnderParents(["b719fa50-07c8-41b5-8683-912967862357"]);
 
   return repository.product.get({
-    filter: {},
+    filter: { },
     sort: { feature: 'TITLE', type: 'ASC' },
     page: { skip, limit },
   })
@@ -215,8 +217,9 @@ tempRouter.route('/product-slugify').post(async (req, res) => {
       let errors = [];
       await Promise.all(products.map(async (product, i) => {
         let slug = slugify(product.title);
-        const productsBySlug = await repository.product.getAll({ slug });
+        const productsBySlug = await repository.product.getAll({ title: product.title });
         const others = productsBySlug.filter(item => item._id !== product._id);
+        // console.log('[others]', others.length, others.map(item => ({ id: item._id, slug: item.slug })));
         if (others.length) {
           const rand = Math.floor(Math.random() * 1000);
           slug += `-${rand.toString().padStart(3, '0')}`;
