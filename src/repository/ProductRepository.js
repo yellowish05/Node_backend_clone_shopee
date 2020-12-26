@@ -20,6 +20,7 @@ function transformSortInput({ feature, type }) {
     CREATED_AT: 'createdAt',
     PRICE: 'sortPrice',
     SOLD: 'sold',
+    TITLE: 'title',
   };
 
   const availableTypes = {
@@ -159,8 +160,12 @@ class ProductRepository {
     return this.model.findOne({ _id: id, isDeleted: false });
   }
 
-  async getAll() {
-    return this.model.find({});
+  async getBySlug(slug) {
+    return this.model.findOne({ slug, isDeleted: false });
+  }
+
+  async getAll(query = {}) {
+    return this.model.find(query);
   }
 
   async getByIds(ids) {
@@ -296,10 +301,6 @@ class ProductRepository {
     } catch (err) {
       throw new Error(err);
     }
-  }
-
-  async deleteMany() {
-    return this.model.deleteMany();
   }
 }
 

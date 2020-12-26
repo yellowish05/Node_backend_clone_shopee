@@ -99,7 +99,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.shippingBox = data.shippingBox;
       product.thumbnail = thumbnailId;
       product.isFeatured = data.isFeatured !== undefined ? data.isFeatured : (product.isFeatured || false);
-      product.slug = data.slug || product.slug;
+      product.slug = await ProductService.generateSlug({ slug: data.slug, title: data.title, id });
       product.metaDescription = data.metaDescription || product.metaDescription;
       product.metaTags = data.metaTags || product.metatags;
       product.seoTitle = data.seoTitle || product.setTitle;
