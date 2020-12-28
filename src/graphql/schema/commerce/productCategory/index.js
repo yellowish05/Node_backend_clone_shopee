@@ -12,6 +12,7 @@ const schema = gql`
         image: Asset
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
+        slug: String
     }
 
     type ProductCategoryCollection {
