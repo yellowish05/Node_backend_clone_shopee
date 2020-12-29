@@ -51,7 +51,7 @@ const schema = new Schema({
   },
   slug: {
     type: String,
-  }
+  },
 });
 
 schema.versionKey = false;
