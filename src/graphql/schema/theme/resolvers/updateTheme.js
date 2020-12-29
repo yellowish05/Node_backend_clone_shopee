@@ -23,8 +23,10 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       provider.inputs.productCategories ? repository.productCategory.findByIds(provider.inputs.productCategories) : [],
       provider.inputs.brandCategories ? repository.brandCategory.findByIds(provider.inputs.brandCategories) : [],
       provider.inputs.brands ? repository.brand.getByIds(provider.inputs.brands) : [],
+      provider.inputs.liveStreams ? repository.liveStream.getByIds(provider.inputs.liveStreams) : [],
+      provider.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.liveStreamCategories): [],
     ])
-    .then(([ themeById, themeByName, thumbnail, productCategories, brandCategories, brands ]) => {
+    .then(([ themeById, themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories ]) => {
       if (!themeById) provider.error('id', 'custom', `Theme with id "${provider.inputs.id}" does not exist!`);
 
       if (provider.inputs.name && themeByName && themeByName._id !== id) provider.error('name', 'custom', `"${provider.inputs.name}" already exists with other theme!`);
@@ -51,6 +53,21 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         const nonExistIds = provider.inputs.brands.filter(id => !brandObj[id]);
         nonExistIds.length > 0 ? provider.error('brands', 'custom', `Brands with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
       }
+
+      if (provider.inputs.liveStreams && liveStreams) {
+        const streamObj = {};
+        liveStreams.forEach(stream => streamObj[stream._id] = stream);
+        const nonExistIds = provider.inputs.liveStreams.filter(id => !streamObj[id]);
+        nonExistIds.length > 0 ? provider.error('liveStreams', 'custom', `Livestreams with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
+      if (provider.inputs.liveStreamCategories && liveStreamCategories) {
+        const categoryObj = {};
+        liveStreamCategories.forEach(category => categoryObj[category._id] = category);
+        const nonExistIds = provider.inputs.liveStreamCategories.filter(id => !categoryObj[id]);
+        nonExistIds.length > 0 ? provider.error('liveStreamCategories', 'custom', `Livestream categories with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
     })
   })
 
@@ -61,7 +78,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       return repository.theme.getById(id);
     })
     .then(theme => {
-      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands', 'type', 'start_time', 'end_time'];
+      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands', 'liveStreams', 'liveStreamCategories', 'type', 'start_time', 'end_time'];
       keys.forEach(key => {
         theme[key] = data[key] || theme[key];
       });

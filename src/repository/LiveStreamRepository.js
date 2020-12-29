@@ -200,6 +200,10 @@ class LiveStreamRepository {
     return liveStream;
   }
 
+  async getByIds(ids) {
+    return this.model.find({ _id, ids });
+  }
+
   async getAll(query = {}) {
     return this.model.find(query);
   }

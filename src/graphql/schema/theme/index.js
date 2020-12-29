@@ -23,6 +23,8 @@ const schema = gql`
     productCategories: [ProductCategory]
     brandCategories: [BrandCategory]
     brands: [Brand]
+    liveStreams: [LiveStream]
+    liveStreamCategories: [LiveStreamCategory]
     type: ThemeType!
     """
       needed for type "LIMITED_TIME" only
@@ -41,6 +43,8 @@ const schema = gql`
     productCategories: [String]
     brandCategories: [String]
     brands: [String]
+    liveStreams: [String]
+    liveStreamCategories: [String]
     """
       for type "LIMITED_TIME", start_time and end_time are required.
     """
@@ -127,6 +131,12 @@ module.exports.resolvers = {
     },
     brands: async (theme, _, { dataSources: { repository }}) => {
       return theme.brands && theme.brands.length ? repository.brand.getByIds(theme.brands) : [];
+    },
+    liveStreams: async ({ liveStreams }, _, { dataSources: { repository } }) => {
+      return liveStreams.length ? repository.liveStream.getByIds(liveStreams) : [];
+    },
+    liveStreamCategories: async ({ liveStreamCategories }, _, { dataSources: { repository } }) => {
+      return liveStreamCategories ? repository.liveStreamCategory.getByIds(liveStreamCategories) : []; 
     },
     type: async (theme) => (theme.type || "NORMAL"),
   }

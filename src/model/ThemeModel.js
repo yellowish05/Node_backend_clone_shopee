@@ -48,6 +48,20 @@ const schema = new Schema({
     }],
     default: [],
   },
+  liveStreams: {
+    type: [{
+      type: String,
+      ref: 'LiveStream',
+    }],
+    default: [],
+  },
+  liveStreamCategories: {
+    type: [{
+      type: String,
+      ref: 'LiveStreamCategory',
+    }],
+    default: [],
+  },
   type: {
     type: String,
     enum: ThemeType.toList(),

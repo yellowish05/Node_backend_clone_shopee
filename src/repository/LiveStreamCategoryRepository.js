@@ -30,6 +30,10 @@ class LiveStreamCategoryRepository {
     return this.model.findOne({ slug });
   }
 
+  async getByIds(ids) {
+    return this.model.find({_id: ids});
+  }
+
   async getAll(query = {}) {
     return this.model.find(query);
   }
