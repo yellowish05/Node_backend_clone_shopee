@@ -119,6 +119,9 @@ const schema = new Schema({
     }],
     default: [],
   },
+  slug: {
+    type: String,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

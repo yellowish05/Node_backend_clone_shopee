@@ -70,6 +70,7 @@ const schema = gql`
         thumbnail: Asset
         isFeatured: Boolean
         hashtags: [String]
+        slug: String
     }
 
     input LiveStreamInput {
@@ -144,6 +145,7 @@ const schema = gql`
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID): LiveStream
+        liveStreamBySlug(slug: String!): LiveStream
         liveStreamAddress(id:ID!): LiveStreamAddress
         previousLiveStream(id: ID!): LiveStream
         nextLiveStream(id: ID!): LiveStream
@@ -210,6 +212,9 @@ module.exports.resolvers = {
       return repository.liveStream.load(id);
     },
     liveStreams: getLiveStreamCollection,
+    liveStreamBySlug: (_, { slug }, { dataSources: { repository } }) => {
+      return repository.liveStream.getOne({ slug });
+    },
     liveStreamAddress(_, { id }, { dataSources: { repository } }) {
       return {
         wsurl:'ws://18.185.121.9:8188',

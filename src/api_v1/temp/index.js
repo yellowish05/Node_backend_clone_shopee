@@ -318,7 +318,7 @@ tempRouter.route('/live-category-slugify').post(async (req, res) => {
       let total = productCategories.length;
       await Promise.all(productCategories.map(async (category, i) => {
         let slug = slugify(category.name);
-        const categoryBySlug = await repository.liveStreamCategory.getAll({ slug });
+        const categoryBySlug = await repository.liveStreamCategory.getAll({ name: name });
         const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
 
         if (otherCategories.length > 0) {
@@ -334,6 +334,51 @@ tempRouter.route('/live-category-slugify').post(async (req, res) => {
           changes.push(category._id);
           category.slug = slug;
           return category.save();
+        } catch (e) {
+          console.log(e);
+          errors.push({
+            category: category._id,
+            error: e.message,
+          });
+          throw e;
+        }
+      }));
+      return { changes, errors, total };
+    })
+      .then(({ changes, errors, total }) => {
+        return res.json({ total, changes, errors });
+      })
+      .catch(e => {
+        console.log(e);
+        return res.send(e.message);
+      })
+      ;
+});
+
+tempRouter.route('/livestream-slugify').post(async (req, res) => {
+  return repository.liveStream.getAll()
+    .then(async productCategories => {
+      let changes = [];
+      let errors = [];
+      let total = productCategories.length;
+      await Promise.all(productCategories.map(async (category, i) => {
+        let slug = slugify(category.title);
+        const categoryBySlug = await repository.liveStream.getAll({ title: category.title });
+        const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
+
+        if (otherCategories.length > 0) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        if ((i + 1) % 100 === 0) {
+          console.log('[cursor at]', i + 1);
+        }
+
+
+        try {
+          changes.push(category._id);
+          category.slug = slug;
+          return await category.save();
         } catch (e) {
           console.log(e);
           errors.push({
