@@ -333,6 +333,7 @@ tempRouter.route('/live-category-slugify').post(async (req, res) => {
         try {
           changes.push(category._id);
           category.slug = slug;
+          category.categories = category.categories.filter(id => typeof id === 'string');
           return category.save();
         } catch (e) {
           console.log(e);
