@@ -54,4 +54,6 @@ const schema = new Schema({
   }
 });
 
+schema.versionKey = false;
+
 module.exports = new model(collectionName, schema);
