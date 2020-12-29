@@ -2,6 +2,7 @@ const uuid = require('uuid/v4');
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
+const { slugify } = require('transliteration');
 
 const {
   StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
@@ -20,6 +21,18 @@ async function getlivestreamsource(user,datasource,repository)
       resolve(streamsource);
     })
   })
+}
+
+async function generateSlug({ title }, repository) {
+  let slug = slugify(title);
+  const streamBySlug = await repository.liveStream.getOne({ slug });
+  if (streamBySlug) {
+    const rand = Math.floor(Math.random() * 1000);
+    slug += `-${rand.toString().padStart(3, '0')}`;
+    const streamBySlug2 = await repository.liveStream.getOne({ slug });
+    if (streamBySlug2) return generateSlug({ title }, repository);
+  }
+  return slug;
 }
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -198,6 +211,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         thumbnail: args.data.thumbnail,
         isFeatured: args.data.isFeatured,
         hashtags: args.data.hashtags || [],
+        slug: await generateSlug({ title: args.data.title }, repository),
       });
     })
     .catch((error) => {
