@@ -333,7 +333,6 @@ tempRouter.route('/live-category-slugify').post(async (req, res) => {
         try {
           changes.push(category._id);
           category.slug = slug;
-          category.categories = category.categories.filter(id => typeof id === 'string');
           return category.save();
         } catch (e) {
           console.log(e);
@@ -378,7 +377,11 @@ tempRouter.route('/livestream-slugify').post(async (req, res) => {
 
         try {
           changes.push(category._id);
-          category.slug = slug;
+          let n1, n2;
+          category.slug = slug; n1 = category.categories.length; //console.log('[Before], length=', n1 = category.categories.length)
+          category.categories = category.categories.filter(id => typeof id === 'string');
+          n2 = category.categories.length;
+          if (n1 > n2) console.log('[After] length', n2 = category.categories.length, n1 !== n2 ? `${n1} -> ${n2}` : '', category.categories);
           return await category.save();
         } catch (e) {
           console.log(e);
