@@ -61,7 +61,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       return repository.theme.getById(id);
     })
     .then(theme => {
-      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands'];
+      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands', 'type', 'start_time', 'end_time'];
       keys.forEach(key => {
         theme[key] = data[key] || theme[key];
       });

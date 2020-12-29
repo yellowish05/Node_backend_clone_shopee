@@ -3,6 +3,7 @@ const uuid = require("uuid/v4");
 const path = require("path");
 const { Validator } = require("node-input-validator");
 const { UserInputError, ApolloError } = require("apollo-server");
+const { ThemeType } = require(path.resolve("src/lib/Enums"));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
 const errorHandler = new ErrorHandler();
@@ -46,6 +47,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         brands.forEach(brand => brandObj[brand._id] = brand);
         const nonExistIds = provider.inputs.brands.filter(id => !brandObj[id]);
         nonExistIds.length > 0 ? provider.error('brands', 'custom', `Brands with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
+      // for type "LIMITED_TIME", start_time and end_time are required.
+      if (provider.inputs.type === ThemeType.LIMITED_TIME && (!provider.inputs.start_time || !provider.inputs.end_time)) {
+        provider.error('time', 'custom', `Start time and end time are required for the type "LIMITED_TIME"!`);
       }
     })
   });

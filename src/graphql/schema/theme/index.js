@@ -1,5 +1,6 @@
 const path = require('path');
 const { gql } = require('apollo-server');
+const { ThemeType } = require(path.resolve('src/lib/Enums'));
 
 const addTheme = require('./resolvers/addTheme');
 const updateTheme = require('./resolvers/updateTheme');
@@ -7,6 +8,13 @@ const deleteTheme = require('./resolvers/deleteTheme');
 const themes = require('./resolvers/themes');
 
 const schema = gql`
+  enum ThemeType {
+    ${ThemeType.toGQL()}
+  }
+
+  """
+      - start_time and end_time: needed for type "LIMITED_TIME" only
+  """
   type Theme {
     id: ID!
     name: String!
@@ -15,6 +23,15 @@ const schema = gql`
     productCategories: [ProductCategory]
     brandCategories: [BrandCategory]
     brands: [Brand]
+    type: ThemeType!
+    """
+      needed for type "LIMITED_TIME" only
+    """
+    start_time: Date
+    """
+      needed for type "LIMITED_TIME" only
+    """
+    end_time: Date
   }
 
   input ThemeInput {
@@ -24,6 +41,18 @@ const schema = gql`
     productCategories: [String]
     brandCategories: [String]
     brands: [String]
+    """
+      for type "LIMITED_TIME", start_time and end_time are required.
+    """
+    type: ThemeType = NORMAL
+    """
+      needed for type "LIMITED_TIME" only
+    """
+    start_time: Date
+    """
+      needed for type "LIMITED_TIME" only
+    """
+    end_time: Date
   }
 
   input ThemeUpdateInput {
@@ -33,6 +62,9 @@ const schema = gql`
     productCategories: [String]
     brandCategories: [String]
     brands: [String]
+    type: ThemeType
+    start_time: Date
+    end_tiem: Date
   }
 
   input ThemeFilterInput {
@@ -96,5 +128,6 @@ module.exports.resolvers = {
     brands: async (theme, _, { dataSources: { repository }}) => {
       return theme.brands && theme.brands.length ? repository.brand.getByIds(theme.brands) : [];
     },
+    type: async (theme) => (theme.type || "NORMAL"),
   }
 };

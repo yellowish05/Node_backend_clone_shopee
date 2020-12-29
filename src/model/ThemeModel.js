@@ -3,6 +3,7 @@ const { Schema, model } = require('mongoose');
 
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
+const { ThemeType } = require('../lib/Enums');
 
 const collectionName = 'Theme';
 
@@ -47,7 +48,18 @@ const schema = new Schema({
     }],
     default: [],
   },
-  
+  type: {
+    type: String,
+    enum: ThemeType.toList(),
+  },
+  start_time: {
+    type: Date,
+    default: Date.now,
+  },
+  end_time: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = new model(collectionName, schema);
