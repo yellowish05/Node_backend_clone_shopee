@@ -17,6 +17,7 @@ const schema = gql`
         liveStreamCategory(id: ID!): LiveStreamCategory
         liveStreamCategoryBySlug(slug: String!): LiveStreamCategory
     }
+
 `;
 
 module.exports.typeDefs = [schema];

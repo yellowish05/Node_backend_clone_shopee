@@ -4,6 +4,7 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const uuid = require("uuid/v4");
@@ -14,6 +15,8 @@ const languages = CountryLanguage.getLanguages();
 const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
 const { connect } = require('getstream');
+const csv = require('csv-parser');
+var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
 
@@ -31,6 +34,18 @@ const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 
+
+const parseCSVContent = (readStream) => {
+  const results = [];
+  return new Promise((resolve, reject) => {
+    readStream
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        resolve(results);
+      });
+  })
+}
 
 const tempRouter = express.Router();
 
@@ -403,6 +418,34 @@ tempRouter.route('/livestream-slugify').post(async (req, res) => {
       })
       ;
 });
+
+tempRouter.route('/upload-stream-category').post(async (req, res) => {
+  const form = new formidable.IncomingForm();
+  // path.join(os.tmpdir(), tmpFileName)
+  form.uploadDir = os.tmpdir();
+  form.keepExtensions = true;
+
+  form.parse(req, async function(err, fields, files) {
+    // res.writeHead(200, { 'content-type': 'text/plain' });
+    // res.write('received upload: \n\n');
+
+    console.log('form.bytesReceived');
+    //TESTING
+    console.log("file size: "+JSON.stringify(files.file.size));
+    console.log("file path: "+JSON.stringify(files.file.path));
+    console.log("file name: "+JSON.stringify(files.file.name));
+    console.log("file type: "+JSON.stringify(files.file.type));
+
+    fs.rename(files.file.path, path.join(os.tmpdir(), files.file.name), async function(err) {
+      if (err) throw err;
+      console.log('renamed complete');
+
+      const fileStream = fs.createReadStream(path.join(os.tmpdir(), files.file.name));
+      const csvContent = await parseCSVContent(fileStream);
+      return res.json(csvContent);
+    });
+  })
+})
 
 
 
