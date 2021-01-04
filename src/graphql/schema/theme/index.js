@@ -96,8 +96,8 @@ const schema = gql`
   extend type Query {
     theme(id: ID!): Theme
     themes(
-        filter: ThemeFilterInput, 
-        sort: ThemeSortInput, 
+        filter: ThemeFilterInput = {}, 
+        sort: ThemeSortInput = {}, 
         page: PageInput = {}): ThemeCollection! @auth(requires: USER)
   }
 
