@@ -2,7 +2,7 @@ const path = require('path');
 const uuid = require("uuid/v4");
 const { ThemeType } = require(path.resolve('src/lib/Enums'));
 
-const applyFilter = (query, { searchQuery, type }) => {
+const applyFilter = (query, { searchQuery, type, time }) => {
   if (!query.$and) {
     query.$and = [{ name: {$ne: null} }];
   }
@@ -23,9 +23,8 @@ const applyFilter = (query, { searchQuery, type }) => {
   if (type) {
     query.$and.push({ type });
     if (type === ThemeType.LIMITED_TIME) {
-      const currentTime = new Date().toISOString(); console.log('[current time]', currentTime);
-      query.$and.push({ start_time: { $lte: currentTime } });
-      query.$and.push({ end_time: { $gte: currentTime } });
+      time ? query.$and.push({ start_time: { $lte: time } }) : null;
+      time ? query.$and.push({ end_time: { $gte: time } }) : null;
     }
   }
 }
