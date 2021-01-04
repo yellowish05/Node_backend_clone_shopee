@@ -78,6 +78,5 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
           return user;
         });
     })
-    .then((user) => repository.user.updateChatToken(user))
     .then((user) => repository.accessToken.create(user));
 };

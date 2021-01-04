@@ -20,7 +20,6 @@ module.exports = async (obj, { data }, { dataSources: { repository } }) => {
 
       return repository.user.findByEmailAndPassword(data);
     })
-    .then((user) => repository.user.updateChatToken(user))
     .then((user) => {
       if (user === null) {
         throw new UserInputError('Invalid login or password');

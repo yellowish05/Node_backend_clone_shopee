@@ -2,12 +2,6 @@ const path = require('path');
 // const stream = require('getstream');
 
 const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
-const { chat: { getstream } } = require(path.resolve('config/index'));
-
-// const client = stream.connect(getstream.api_key, getstream.api_secret, getstream.app_id, { location: getstream.location });
-const StreamChat = require('stream-chat').StreamChat;
-const clientSC = new StreamChat(getstream.api_key, getstream.api_secret);
-
 
 const md5 = require('md5');
 
@@ -82,7 +76,6 @@ class UserRepository {
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
-      streamToken: clientSC.createToken(data._id),
     });
 
     return user.save();
@@ -224,22 +217,6 @@ class UserRepository {
       throw Error(`User "${id}" does not exist!`);
     }
 
-    // getstream - name, image, role, favourite_color, book
-    user.streamToken = clientSC.createToken(id);
-
-    if (user.photo !== data.photo || user.name !== data.name) {
-      try {
-        await clientSC.updateUsers([{
-          id: id,
-          name: data.name || user.name || '',
-          photo: data.photo || user.photo || ''
-        }]);
-      } catch (e) {
-
-      }
-    }
-
-    // user.streamToken = clientSC.createToken(id);
     user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
@@ -251,12 +228,6 @@ class UserRepository {
       user.providers[data.provider] = data.providerId;
     }
 
-    return user.save();
-  }
-
-  async updateChatToken(user) {
-    if (!user) return user;
-    user.streamToken = clientSC.createToken(user._id);
     return user.save();
   }
 

@@ -14,18 +14,10 @@ const CountryLanguage = require('country-language');
 const languages = CountryLanguage.getLanguages();
 const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
-const { connect } = require('getstream');
 const csv = require('csv-parser');
 var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
-
-// const slugify= require('@lazy-cjk/slugify');
-// const slugify= require('slugify');
-
-const { chat: { getstream } } = require(path.resolve('config/index'));
-const client = connect(getstream.api_key, getstream.api_secret);
-
 
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
@@ -130,20 +122,6 @@ tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
       })
     })
 })
-
-tempRouter.route('/getstream-test').get(async (req, res) => {
-  try {
-    res.json({
-      status: true,
-      message: client.createUserToken('50202f78-99e8-41b4-b7b3-258728aa7350'),
-    })
-  } catch (error ) {
-    res.json({ 
-      status: false,
-      message: error.message,
-    })
-  }
-});
 
 tempRouter.route('/brand-cate-by-tags').post(async (req, res) => {
   return repository.brandCategory.getByIdsAndTags(req.body.ids, req.body.hashtags)
