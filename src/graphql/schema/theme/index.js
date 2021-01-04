@@ -73,6 +73,7 @@ const schema = gql`
 
   input ThemeFilterInput {
     searchQuery: String
+    type: ThemeType
   }
 
   input ThemeSortInput {

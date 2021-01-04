@@ -1,9 +1,14 @@
 const path = require('path');
 const uuid = require("uuid/v4");
+const { ThemeType } = require(path.resolve('src/lib/Enums'));
 
-const applyFilter = (query, { searchQuery }) => {
-  const $or = [];
+const applyFilter = (query, { searchQuery, type }) => {
+  if (!query.$and) {
+    query.$and = [{ name: {$ne: null} }];
+  }
+    
   if (searchQuery) {
+    let $or = [];
     // query against name
     $or.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
     // query against hashtags
@@ -11,10 +16,18 @@ const applyFilter = (query, { searchQuery }) => {
       .map(piece => piece.trim())
       .filter(piece => !!piece)
       .map(piece => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
-    $or.concat($orWithTags);
+    $or = $or.concat($orWithTags);
+    query.$and.push({ $or });
   }
   
-  $or.length ? query = { $or } : null;
+  if (type) {
+    query.$and.push({ type });
+    if (type === ThemeType.LIMITED_TIME) {
+      const currentTime = new Date().toISOString(); console.log('[current time]', currentTime);
+      query.$and.push({ start_time: { $lte: currentTime } });
+      query.$and.push({ end_time: { $gte: currentTime } });
+    }
+  }
 }
 
 function transformSortInput({ feature, type }) {
