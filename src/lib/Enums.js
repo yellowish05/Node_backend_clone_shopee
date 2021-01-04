@@ -200,6 +200,12 @@ const OrientationMode = EnumFactory({
   PORTRAIT: 'PORTRAIT',
 })
 
+const ThemeType = EnumFactory({
+  NORMAL: 'NORMAL',
+  LIMITED_TIME: 'LIMITED_TIME',
+  DISCOUNT: 'DISCOUNT',
+})
+
 const languageEnum = {};
 languages.forEach((item) => {
   const name = item.iso639_1.toUpperCase(); //item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
@@ -236,5 +242,6 @@ module.exports = {
   LanguageList,
   ProductMetricUnits,
   VideoCropMode,
-  OrientationMode
+  OrientationMode,
+  ThemeType,
 };

@@ -181,14 +181,6 @@ module.exports = {
   robots: {
     cancelLiveStreamIn: 30 * 60 * 1000,
   },
-  chat: {
-    getstream: {
-      api_key: process.env.CHAT_GETSTREAM_API_KEY,
-      api_secret: process.env.CHAT_GETSTREAM_API_SECRET,
-      app_id: process.env.CHAT_GETSTREAM_APP_ID,
-      location: process.env.CHAT_GETSTREAM_LOCATION
-    },
-  },
   oneSignal: {
     restApi_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_RESTAPIKEY,
     auth_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_AUTHKEY,

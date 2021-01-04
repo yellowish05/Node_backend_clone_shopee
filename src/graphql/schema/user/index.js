@@ -67,7 +67,6 @@ const schema = gql`
       getUserByName(name: String!): User
       """Allows: authorized user"""
       me: User! @auth(requires: USER) 
-      generateChatToken: String! @auth(requires: USER)
     }
 
     extend type Mutation {
@@ -93,14 +92,6 @@ module.exports.resolvers = {
         return userUpdate;
       } else {
         return user;
-      }
-    },
-    generateChatToken: async (obj, __, { user, dataSources: { repository }}) => {
-      if (!user.streamToken) {
-        const userUpdate = await repository.user.update(user.id, {});
-        return userUpdate.streamToken;
-      } else {
-        return user.streamToken;
       }
     },
     getUserById: async (_, { id }, { dataSources: { repository } }) => (

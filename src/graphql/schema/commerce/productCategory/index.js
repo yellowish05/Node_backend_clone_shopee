@@ -12,6 +12,7 @@ const schema = gql`
         image: Asset
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
+        slug: String
     }
 
     type ProductCategoryCollection {
@@ -23,6 +24,7 @@ const schema = gql`
         searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
         productCategories(parent: ID): [ProductCategory]!
         productCategory(id: ID!): ProductCategory
+        productCategoryBySlug(slug: String!): ProductCategory
         fullProductCategories: [ProductCategory]!
     }
 
@@ -72,6 +74,9 @@ module.exports.resolvers = {
     ),
     productCategory: async (_, { id }, { dataSources: { repository } }) => (
       repository.productCategory.getById(id)
+    ),
+    productCategoryBySlug: async (_, { slug }, { dataSources: { repository } }) => (
+      repository.productCategory.getBySlug(slug)
     ),
     fullProductCategories: async (_, __, { dataSources: { repository } }) => (
       repository.productCategory.getAll()

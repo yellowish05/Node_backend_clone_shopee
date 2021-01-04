@@ -9,12 +9,15 @@ const schema = gql`
         name(locale: Locale): String!
         image: String
         hashtags: [String]
+        slug: String
     }
 
     extend type Query {
         liveStreamCategories: [LiveStreamCategory]!
         liveStreamCategory(id: ID!): LiveStreamCategory
+        liveStreamCategoryBySlug(slug: String!): LiveStreamCategory
     }
+
 `;
 
 module.exports.typeDefs = [schema];
@@ -26,6 +29,9 @@ module.exports.resolvers = {
     },
     liveStreamCategories(_, args, { dataSources: { repository } }) {
       return repository.liveStreamCategory.getAll();
+    },
+    liveStreamCategoryBySlug(_, { slug }, {dataSources: { repository } }) {
+      return repository.liveStreamCategory.getBySlug(slug);
     },
   },
   LiveStreamCategory: {

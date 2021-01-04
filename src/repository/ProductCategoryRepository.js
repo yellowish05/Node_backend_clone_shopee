@@ -32,14 +32,18 @@ class ProductCategoryRepository {
     this.model = model;
   }
 
-  async getAll() {
-    return this.model.find().sort('level');
+  async getAll(query = {}) {
+    return this.model.find(query).sort('level');
   }
 
   async getById(id) {
     return this.model.findOne({ _id: id });
   }
   
+  async getBySlug(slug) {
+    return this.model.findOne({ slug });
+  }
+
   async getByParent(id) {
     return this.model.find({ parent: id }).sort('order');
   }

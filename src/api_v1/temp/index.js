@@ -4,24 +4,20 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const uuid = require("uuid/v4");
 
 const { listLanguageCodes, getLanguageName } = require('language-cultures');
 const CountryLanguage = require('country-language');
 const languages = CountryLanguage.getLanguages();
 const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
-const { connect } = require('getstream');
+const csv = require('csv-parser');
+var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
-
-// const slugify= require('@lazy-cjk/slugify');
-// const slugify= require('slugify');
-
-const { chat: { getstream } } = require(path.resolve('config/index'));
-const client = connect(getstream.api_key, getstream.api_secret);
-
 
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
@@ -30,6 +26,18 @@ const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 
+
+const parseCSVContent = (readStream) => {
+  const results = [];
+  return new Promise((resolve, reject) => {
+    readStream
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        resolve(results);
+      });
+  })
+}
 
 const tempRouter = express.Router();
 
@@ -114,20 +122,6 @@ tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
       })
     })
 })
-
-tempRouter.route('/getstream-test').get(async (req, res) => {
-  try {
-    res.json({
-      status: true,
-      message: client.createUserToken('50202f78-99e8-41b4-b7b3-258728aa7350'),
-    })
-  } catch (error ) {
-    res.json({ 
-      status: false,
-      message: error.message,
-    })
-  }
-});
 
 tempRouter.route('/brand-cate-by-tags').post(async (req, res) => {
   return repository.brandCategory.getByIdsAndTags(req.body.ids, req.body.hashtags)
@@ -263,6 +257,173 @@ tempRouter.route('/generateSlug').post(async (req, res) => {
   return ProductService.generateSlug({ id, slug, title })
     .then(slug => res.json({ slug }));
 });
+
+tempRouter.route('/product-category-slugify').post(async (req ,res) => {
+  return repository.productCategory.getAll()
+    .then(async productCategories => {
+      let changes = [];
+      let errors = [];
+      let total = productCategories.length;
+      await Promise.all(productCategories.map(async (category, i) => {
+        let slug = slugify(category.name);
+        const categoryBySlug = await repository.productCategory.getAll({ slug });
+        const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
+
+        if (otherCategories.length > 0) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        if ((i + 1) % 100 === 0) {
+          console.log('[cursor at]', i + 1);
+        }
+
+
+        try {
+          changes.push(category._id);
+          category.slug = slug;
+          return category.save();
+        } catch (e) {
+          console.log(e);
+          errors.push({
+            category: category._id,
+            error: e.message,
+          });
+          throw e;
+        }
+      }));
+      return { changes, errors, total };
+    })
+      .then(({ changes, errors, total }) => {
+        return res.json({ total, changes, errors });
+      })
+      .catch(e => {
+        console.log(e);
+        return res.send(e.message);
+      })
+      ;
+})
+
+tempRouter.route('/live-category-slugify').post(async (req, res) => {
+  return repository.liveStreamCategory.getAll()
+    .then(async productCategories => {
+      let changes = [];
+      let errors = [];
+      let total = productCategories.length;
+      await Promise.all(productCategories.map(async (category, i) => {
+        let slug = slugify(category.name);
+        const categoryBySlug = await repository.liveStreamCategory.getAll({ name: name });
+        const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
+
+        if (otherCategories.length > 0) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        if ((i + 1) % 100 === 0) {
+          console.log('[cursor at]', i + 1);
+        }
+
+
+        try {
+          changes.push(category._id);
+          category.slug = slug;
+          return category.save();
+        } catch (e) {
+          console.log(e);
+          errors.push({
+            category: category._id,
+            error: e.message,
+          });
+          throw e;
+        }
+      }));
+      return { changes, errors, total };
+    })
+      .then(({ changes, errors, total }) => {
+        return res.json({ total, changes, errors });
+      })
+      .catch(e => {
+        console.log(e);
+        return res.send(e.message);
+      })
+      ;
+});
+
+tempRouter.route('/livestream-slugify').post(async (req, res) => {
+  return repository.liveStream.getAll()
+    .then(async productCategories => {
+      let changes = [];
+      let errors = [];
+      let total = productCategories.length;
+      await Promise.all(productCategories.map(async (category, i) => {
+        let slug = slugify(category.title);
+        const categoryBySlug = await repository.liveStream.getAll({ title: category.title });
+        const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
+
+        if (otherCategories.length > 0) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        if ((i + 1) % 100 === 0) {
+          console.log('[cursor at]', i + 1);
+        }
+
+
+        try {
+          changes.push(category._id);
+          let n1, n2;
+          category.slug = slug; n1 = category.categories.length; //console.log('[Before], length=', n1 = category.categories.length)
+          category.categories = category.categories.filter(id => typeof id === 'string');
+          n2 = category.categories.length;
+          if (n1 > n2) console.log('[After] length', n2 = category.categories.length, n1 !== n2 ? `${n1} -> ${n2}` : '', category.categories);
+          return await category.save();
+        } catch (e) {
+          console.log(e);
+          errors.push({
+            category: category._id,
+            error: e.message,
+          });
+          throw e;
+        }
+      }));
+      return { changes, errors, total };
+    })
+      .then(({ changes, errors, total }) => {
+        return res.json({ total, changes, errors });
+      })
+      .catch(e => {
+        console.log(e);
+        return res.send(e.message);
+      })
+      ;
+});
+
+tempRouter.route('/upload-stream-category').post(async (req, res) => {
+  const form = new formidable.IncomingForm();
+  // path.join(os.tmpdir(), tmpFileName)
+  form.uploadDir = os.tmpdir();
+  form.keepExtensions = true;
+
+  form.parse(req, async function(err, fields, files) {
+    // res.writeHead(200, { 'content-type': 'text/plain' });
+    // res.write('received upload: \n\n');
+
+    console.log('form.bytesReceived');
+    //TESTING
+    console.log("file size: "+JSON.stringify(files.file.size));
+    console.log("file path: "+JSON.stringify(files.file.path));
+    console.log("file name: "+JSON.stringify(files.file.name));
+    console.log("file type: "+JSON.stringify(files.file.type));
+
+    fs.rename(files.file.path, path.join(os.tmpdir(), files.file.name), async function(err) {
+      if (err) throw err;
+      console.log('renamed complete');
+
+      const fileStream = fs.createReadStream(path.join(os.tmpdir(), files.file.name));
+      const csvContent = await parseCSVContent(fileStream);
+      return res.json(csvContent);
+    });
+  })
+})
 
 
 

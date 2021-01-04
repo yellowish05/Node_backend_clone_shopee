@@ -3,6 +3,7 @@ const { Schema, model } = require('mongoose');
 
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
+const { ThemeType } = require('../lib/Enums');
 
 const collectionName = 'Theme';
 
@@ -46,6 +47,32 @@ const schema = new Schema({
       ref: 'Brand',
     }],
     default: [],
+  },
+  liveStreams: {
+    type: [{
+      type: String,
+      ref: 'LiveStream',
+    }],
+    default: [],
+  },
+  liveStreamCategories: {
+    type: [{
+      type: String,
+      ref: 'LiveStreamCategory',
+    }],
+    default: [],
+  },
+  type: {
+    type: String,
+    enum: ThemeType.toList(),
+  },
+  start_time: {
+    type: Date,
+    default: Date.now,
+  },
+  end_time: {
+    type: Date,
+    default: Date.now,
   },
 });
 

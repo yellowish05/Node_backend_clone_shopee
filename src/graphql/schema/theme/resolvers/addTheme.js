@@ -3,6 +3,7 @@ const uuid = require("uuid/v4");
 const path = require("path");
 const { Validator } = require("node-input-validator");
 const { UserInputError, ApolloError } = require("apollo-server");
+const { ThemeType } = require(path.resolve("src/lib/Enums"));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
 const errorHandler = new ErrorHandler();
@@ -21,8 +22,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       provider.inputs.productCategories ? repository.productCategory.findByIds(provider.inputs.productCategories) : [],
       provider.inputs.brandCategories ? repository.brandCategory.findByIds(provider.inputs.brandCategories) : [],
       provider.inputs.brands ? repository.brand.getByIds(provider.inputs.brands) : [],
+      provider.inputs.liveStreams ? repository.liveStream.getByIds(provider.inputs.liveStreams) : [],
+      provider.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.liveStreamCategories): [],
     ])
-    .then(([ themeByName, thumbnail, productCategories, brandCategories, brands ]) => {
+    .then(([ themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories ]) => {
       if (themeByName) provider.error('name', 'custom', `Theme with name "${provider.inputs.name}" already exists!`);
 
       if (!thumbnail) provider.error('thumbnail', 'custom', `Asset with id "${provider.inputs.thumbnail}" does not exist!`);
@@ -46,6 +49,25 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         brands.forEach(brand => brandObj[brand._id] = brand);
         const nonExistIds = provider.inputs.brands.filter(id => !brandObj[id]);
         nonExistIds.length > 0 ? provider.error('brands', 'custom', `Brands with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
+      if (provider.inputs.liveStreams && liveStreams) {
+        const streamObj = {};
+        liveStreams.forEach(stream => streamObj[stream._id] = stream);
+        const nonExistIds = provider.inputs.liveStreams.filter(id => !streamObj[id]);
+        nonExistIds.length > 0 ? provider.error('liveStreams', 'custom', `Livestreams with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
+      if (provider.inputs.liveStreamCategories && liveStreamCategories) {
+        const categoryObj = {};
+        liveStreamCategories.forEach(category => categoryObj[category._id] = category);
+        const nonExistIds = provider.inputs.liveStreamCategories.filter(id => !categoryObj[id]);
+        nonExistIds.length > 0 ? provider.error('liveStreamCategories', 'custom', `Livestream categories with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
+      }
+
+      // for type "LIMITED_TIME", start_time and end_time are required.
+      if (provider.inputs.type === ThemeType.LIMITED_TIME && (!provider.inputs.start_time || !provider.inputs.end_time)) {
+        provider.error('time', 'custom', `Start time and end time are required for the type "LIMITED_TIME"!`);
       }
     })
   });
