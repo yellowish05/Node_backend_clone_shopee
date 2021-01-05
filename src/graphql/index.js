@@ -34,7 +34,7 @@ module.exports = ({ repository }) => new ApolloServer({
     return context;
   },
   subscriptions: {
-    keepAlive: 10000,
+    keepAlive: 30000,
     onConnect: async (connectionParams, webSocket, context) => {
       const secureContext = await secureContextMiddlewareFactory(repository)({
         connection: { context: connectionParams },
