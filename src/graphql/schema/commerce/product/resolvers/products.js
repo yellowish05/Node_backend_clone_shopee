@@ -57,7 +57,12 @@ module.exports = async (_, {
   }
 
   if (filter.categories) {
-    await repository.productCategory.getUnderParents(filter.categories)
+    // get categories by id and slug
+    const categories = await repository.productCategory.getAll({ $or: [
+      { _id: {$in: filter.categories }}, 
+      { slug: { $in: filter.categories }}
+    ] });
+    await repository.productCategory.getUnderParents(categories.map(item => item._id))
       .then(categories => {
         filter.categories = categories.map(item => item.id);
       })
