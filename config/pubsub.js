@@ -6,7 +6,7 @@ const { redis } = require('./index');
 const options = {
   host: redis.host,
   port: redis.port,
-  retryStrategy: (times) => Math.min(times * 50, 30000),
+  retryStrategy: (times) => Math.min(times * 50, 2000),
 };
 
 module.exports = new RedisPubSub({
