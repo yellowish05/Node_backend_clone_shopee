@@ -2,7 +2,6 @@
 const uuid = require("uuid/v4");
 const path = require("path");
 const { Validator } = require("node-input-validator");
-const { UserInputError, ApolloError } = require("apollo-server");
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
 const errorHandler = new ErrorHandler();
@@ -14,10 +13,10 @@ module.exports = async (_, { id }, { dataSources: { repository }, user }) => {
 
   validator.addPostRule(async provider => {
     await Promise.all([
-      repository.theme.getById(provider.inputs.id),
+      repository.productVariation.getById(provider.inputs.id),
     ])
-    .then(([ themeById ]) => {
-      if (!themeById) provider.error('id', 'custom', `Theme with id "${provider.inputs.id}" does not exist!`);
+    .then(([ pvById ]) => {
+      if (!pvById) provider.error('id', 'custom', `Product variation with id "${provider.inputs.id}" does not exist!`);
     })
   });
 
@@ -25,7 +24,7 @@ module.exports = async (_, { id }, { dataSources: { repository }, user }) => {
     .then(matched => {
       if (!matched) throw errorHandler.build(validator.errors);
 
-      return repository.theme.deleteById(id);
+      return repository.productVariation.deleteById(id);
     })
     .then(() => true)
     .catch((e) => {

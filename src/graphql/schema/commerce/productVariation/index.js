@@ -33,8 +33,6 @@ const schema = gql`
 
   input ProductVariationFilterInput {
     searchQuery: String
-    type: ThemeType
-    time: Date
   }
 
   input ProductVariationSortInput {

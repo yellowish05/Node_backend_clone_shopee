@@ -8,8 +8,8 @@ module.exports = async (_, { filter, sort, page }, { dataSources: { repository }
   };
 
   return Promise.all([
-    repository.theme.get({ filter, sort, page }),
-    repository.theme.getTotal(filter),
+    repository.productVariation.get({ filter, sort, page }),
+    repository.productVariation.getTotal(filter),
   ])
     .then(([ collection, total ]) => {
       return {
