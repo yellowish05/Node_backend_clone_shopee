@@ -65,6 +65,7 @@ const schema = gql`
 
   extend type Query {
     productVariation(id: ID!): ProductVariation
+    productVariationByKeyName(keyName: String!): ProductVariation
     productVariations(
         filter: ProductVariationFilterInput = {}, 
         sort: ProductVariationSortInput = {}, 
@@ -84,6 +85,9 @@ module.exports.resolvers = {
   Query: {
     productVariation: async (_, { id }, { dataSources: { repository } } ) => {
       return repository.productVariation.getById(id);
+    },
+    productVariationByKeyName: async (_, { keyName }, { dataSources: { repository } }) => {
+      return repository.productVariation.getByKeyName(keyName);
     },
     productVariations,
   },

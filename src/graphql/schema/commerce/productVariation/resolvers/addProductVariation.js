@@ -16,7 +16,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     displayName: "required",
   });
 
-  validator.addPostRule(provider => repository.productVariation.getAll({ keyName: data.keyName })
+  validator.addPostRule(provider => repository.productVariation.loadAll({ keyName: data.keyName })
     .then((productVariations) => {
       if (productVariations.length) {
         provider.error('keyName', "custom", `Product variation with keyName "${data.keyName}" already exist!`);
