@@ -14,6 +14,16 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
   })
 
+  validator.addPostRule(provider => repository.productVariation.getAll({ keyName: data.keyName })
+    .then((productVariations) => {
+      const otherPVs = productVariations.filter(pv => pv._id !== id);
+
+      if (otherPvs.length) {
+        provider.error('keyName', "custom", `Product variation with keyName "${data.keyName}" already exist!`);
+      }
+    })
+  )
+
   return validator.check()
     .then(matched => {
       if (!matched) throw errorHandler.build(validator.errors);

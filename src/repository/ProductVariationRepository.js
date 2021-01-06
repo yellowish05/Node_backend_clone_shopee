@@ -62,8 +62,8 @@ class ProductVariationRepository {
     return this.model.findOne({ name });
   }
 
-  async loadAll() {
-    return this.model.find();
+  async loadAll(query = {}) {
+    return this.model.find(query);
   }
 
   async deleteById(itemId) {

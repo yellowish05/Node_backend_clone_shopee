@@ -23,6 +23,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  displayName: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = new model(collectionName, schema);

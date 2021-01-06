@@ -11,10 +11,21 @@ const schema = gql`
 
   type ProductVariation {
     id: ID!
+    """
+      - used on admin & seller side
+    """
     name: String!
     description: String
     values: [String!]!
+    """
+      - used in productAttributes.variations.name
+      - must be unique in the collection
+    """
     keyName: String!
+    """
+      - used to name the filter row in the group filter.
+    """
+    displayName: String!
   }
 
   input ProductVariationInput {
@@ -22,13 +33,15 @@ const schema = gql`
     description: String
     values: [String!]!
     keyName: String!
+    displayName: String!
   }
 
   input ProductVariationUpdateInput {
     name: String
     description: String
-    values: String
+    values: [String!]
     keyName: String
+    displayName: String
   }
 
   input ProductVariationFilterInput {

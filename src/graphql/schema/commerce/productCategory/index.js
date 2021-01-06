@@ -13,6 +13,7 @@ const schema = gql`
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
         slug: String
+        productVariations: [ProductVariation]
     }
 
     type ProductCategoryCollection {
@@ -109,6 +110,10 @@ module.exports.resolvers = {
         return null;
       }
       return repository.liveStreamCategory.getById(productCategory.liveStreamCategory);
+    },
+    productVariations: async ({ productVariations: pvIds }, _, { dataSources: { repository }}) => {
+      if (!!pvIds) return [];
+      return repository.productVariation.getByIds(pvIds);
     },
   },
 };
