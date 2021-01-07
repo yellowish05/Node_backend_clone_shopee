@@ -6,6 +6,7 @@ const addProductVariation = require('./resolvers/addProductVariation');
 const updateProductVariation = require('./resolvers/updateProductVariation');
 const deleteProductVariation = require('./resolvers/deleteProductVariation');
 const productVariations = require('./resolvers/productVariations');
+const productVariationsByKeyword = require('./resolvers/productVariationsByKeyword');
 
 const schema = gql`
 
@@ -70,6 +71,7 @@ const schema = gql`
         filter: ProductVariationFilterInput = {}, 
         sort: ProductVariationSortInput = {}, 
         page: PageInput = {}): ProductVariationCollection! @auth(requires: USER)
+    productVariationsByKeyword(keyword: String!): [ProductVariation]
   }
 
   extend type Mutation {
@@ -90,6 +92,7 @@ module.exports.resolvers = {
       return repository.productVariation.getByKeyName(keyName);
     },
     productVariations,
+    productVariationsByKeyword,
   },
   Mutation: {
     addProductVariation,

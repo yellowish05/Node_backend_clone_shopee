@@ -4,6 +4,8 @@ const { slugify } = require('transliteration');
 
 const repository = require(path.resolve('src/repository'));
 
+const matchWeightByLevel = [7, 5, 3]; // for level 1, 2, 3
+
 module.exports = {
   async analyzeTheme(id) {
     const themeContent = { brands: [], productCategories: [], hashtags: [] };
@@ -53,5 +55,39 @@ module.exports = {
         }
         return slug;
       })
+  },
+  async findProductVariationsFromKeyword(keyword) {
+    if (!keyword.trim()) return [];
+
+    const keywords = keyword.split(' ').map(item => item.trim());
+
+    const query = { $or: [] };
+    query.$or = keywords.map(kwd => ({ hashtags: { $regex: `${kwd}`, $options: 'i' } }));
+
+    return repository.productCategory.getAll(query)
+      .then(productCategories => {
+        // calculate match count.
+        productCategories.forEach(category => {
+          category.matchPoint = this.calcKeywordMatchPoint(keywords, category);
+        });
+
+        // sort by match point.
+        productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
+
+        return productCategories.length ? 
+          repository.productVariation.getByIds(productCategories[0].productVariations) : 
+          [];
+      })
+  },
+  calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
+    let matches = 0;
+    for (const keyword of keywords) {
+      const regExp = new RegExp(keyword, 'gi');
+      for (const hashtag of hashtags) {
+        const matched = hashtag.match(regExp);
+        matches += matched ? matched.length : 0;
+      }
+    }
+    return matches * matchWeightByLevel[level - 1];
   },
 }
