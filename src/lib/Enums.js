@@ -206,6 +206,31 @@ const ThemeType = EnumFactory({
   DISCOUNT: 'DISCOUNT',
 })
 
+const BannerAdType = EnumFactory({
+  CATEGORY: "CATEGORY",
+  PRODUCT: "PRODUCT",
+  PROMOTION: "PROMOTION",
+  SUGGESTION: "SUGGENSTION",
+  THEME: "THEME",
+  THEME_PRODUCT: "THEME_PRODUCT",
+})
+
+const BannerLayoutType = EnumFactory({
+  CAROUSEL: "CAROUSEL",
+  FLASH: "FLASH",
+  FLOATING: "FLOATING",
+  ROTATING: "ROTATING",
+  STATIC: "STATIC",
+})
+
+const BannerType = EnumFactory({
+  PNG: "PNG",
+  JPG: "JPG",
+  GIF: "GIF",
+  MP4: "MP4",
+})
+
+
 const languageEnum = {};
 languages.forEach((item) => {
   const name = item.iso639_1.toUpperCase(); //item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
@@ -244,4 +269,7 @@ module.exports = {
   VideoCropMode,
   OrientationMode,
   ThemeType,
+  BannerAdType,
+  BannerLayoutType,
+  BannerType,
 };

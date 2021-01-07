@@ -39,6 +39,7 @@ const { typeDefs: termsConditionTypeDefs, resolvers: termsConditionResolvers } =
 const { typeDefs: pushNotificationTypeDefs, resolvers: pushNotificationResolvers } = require('./pushNotification');
 
 const { typeDefs: themeTypeDefs, resolvers: themeResolvers } = require('./theme');
+const { typeDefs: bannerTypeDefs, resolvers: bannerResolvers } = require('./banner');
 
 const typeDefs = [].concat(
   commonTypeDefs,
@@ -75,6 +76,7 @@ const typeDefs = [].concat(
   pushNotificationTypeDefs,
   termsConditionTypeDefs,
   themeTypeDefs,
+  bannerTypeDefs,
 );
 
 const resolvers = merge(
@@ -108,6 +110,7 @@ const resolvers = merge(
   translationResolvers,
   termsConditionResolvers,
   themeResolvers,
+  bannerResolvers,
   pushNotificationResolvers,
 );
 
