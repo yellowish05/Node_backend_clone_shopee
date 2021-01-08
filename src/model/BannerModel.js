@@ -29,9 +29,9 @@ const schema = new Schema({
     default: [],
   },
   urls: {
-    type: {
+    type: [{
       type: String,
-    },
+    }],
     default: [],
   },
   adType: {

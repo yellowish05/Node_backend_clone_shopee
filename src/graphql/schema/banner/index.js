@@ -3,9 +3,10 @@ const path = require("path");
 
 const { BannerAdType, BannerLayoutType, BannerType } = require(path.resolve("src/lib/Enums"));
 
-const addBanner = require("./resolvers/addBanner");
 const banner = require("./resolvers/banner");
 const banners = require("./resolvers/banners");
+const addBanner = require("./resolvers/addBanner");
+const updateBanner = require('./resolvers/updateBanner');
 
 const schema = gql`
 
@@ -122,6 +123,7 @@ const schema = gql`
 
     extend type Mutation {
       addBanner (data: BannerInput!): Banner! @auth(requires: USER)
+      updateBanner(id: ID!, data: BannerUpdateInput!): Banner! @auth(requires: USER)
     }
 `;
 
@@ -134,6 +136,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     addBanner,
+    updateBanner,
   },
   Banner: {
     assets: async ({ assets: assetIds }, _, { dataSources: { repository } }) => {

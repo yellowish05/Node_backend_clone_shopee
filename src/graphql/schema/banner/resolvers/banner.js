@@ -17,10 +17,10 @@ module.exports = async (_, args, { dataSources: { repository } }) => {
         throw errorHandler.build(validator.errors);
       }
 
-      return repository.asset
-        .load(args.id)
+      return repository.banner
+        .getById(args.id)
         .catch((error) => {
-          throw new ApolloError(`Failed to load Asset "${args.id}". Original error: ${error.message}`, 400);
+          throw new ApolloError(`Failed to load Banner "${args.id}". Original error: ${error.message}`, 400);
         });
     });
 };
