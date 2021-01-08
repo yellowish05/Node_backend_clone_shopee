@@ -7,9 +7,6 @@ const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { filter = {}, sort = { feature: 'CREATED_AT', type: 'ASC' }, page = { limit: 0, skip: 0 } }, { dataSources: { repository }, user }) => {
-  console.log('[sort]', sort)
-  const query = { owner: user._id }
-  if (filter.type) query.type = filter.type;
   const pager = {
     limit: page.limit,
     skip: page.skip,
@@ -17,8 +14,8 @@ module.exports = async (_, { filter = {}, sort = { feature: 'CREATED_AT', type: 
   };
 
   return Promise.all([
-    repository.asset.get(query, sort, page),
-    repository.asset.getTotal(query),
+    repository.banner.get(filter, sort, page),
+    repository.banner.getTotal(filter),
   ])
     .then(([collection, total]) => {
       return {

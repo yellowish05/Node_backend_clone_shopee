@@ -116,8 +116,8 @@ const schema = gql`
     extend type Query {
       banner(id: ID!): Banner!
       banners(
-        filter: BannerFilterInput, 
-        sort: BannerSortInput, 
+        filter: BannerFilterInput = {},
+        sort: BannerSortInput = {}, 
         page: PageInput = {}): BannerCollection! @auth(requires: USER)
     }
 
