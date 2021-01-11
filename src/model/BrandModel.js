@@ -21,11 +21,14 @@ const schema = new Schema({
     }],
     default: []
   },
-  productCategories: [{
-    type: String,
-    ref: 'ProductCategory',
-    index: true,
-  }],
+  productCategories: {
+    type: [{
+      type: String,
+      ref: 'ProductCategory',
+      index: true,
+    }],
+    default: [],
+  },
   images: {
     type: [{
       type: String,
