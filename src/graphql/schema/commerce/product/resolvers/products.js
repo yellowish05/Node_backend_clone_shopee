@@ -4,6 +4,7 @@ const { Promise } = require('bluebird');
 
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { ProductService } = require(path.resolve('src/lib/ProductService'));
 const axios = require('axios');
 
 // const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
@@ -83,6 +84,10 @@ module.exports = async (_, {
     filter.ids = productIds;
   }
 
+  if (filter.variations) {
+    const attributes = await ProductService.getAttributesFromVariations(filter.variations);
+    filter.attributes = attributes;
+  }
   // if (sort.feature == 'PRICE') {
   //   const temppage = {
   //     limit: 0,

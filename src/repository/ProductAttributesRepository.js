@@ -14,6 +14,10 @@ class ProductAttributesRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getAll(query = {}) {
+    return this.model.find(query);
+  }
+
   async findAttributesByProductId(id) {
     return this.model.find({ productId: id });
   }

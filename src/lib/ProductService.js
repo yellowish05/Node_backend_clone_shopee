@@ -95,5 +95,12 @@ module.exports = {
       hashtags.includes(brand.name);
     }
     return hashtags;
-  }
+  },
+  async getAttributesFromVariations(variations = []) {
+    variations = variations.filter(variation => !variation.name && !variation.value);
+    if (!variations.length) return [];
+    const query = { $and: variations.map(variation => ({ variation: { $elemMatch: variation } }))};
+
+    return repository.productAttributes.getAll(query);
+  },
 }

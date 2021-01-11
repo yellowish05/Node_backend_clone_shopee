@@ -40,7 +40,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [],
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [],
 }) {
 
   if (!query.$and) {
@@ -122,6 +122,10 @@ function applyFilter(query, {
     query.$and.push({
       _id: { $in: ids }
     });
+  }
+
+  if (attributes && attributes.length) {
+    query.$and.push({ attrs: { $in: attributes } });
   }
 }
 
