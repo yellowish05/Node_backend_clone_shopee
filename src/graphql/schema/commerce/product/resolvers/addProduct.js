@@ -13,6 +13,13 @@ const { ForbiddenError } = require("apollo-server");
 
 const errorHandler = new ErrorHandler();
 
+const composeHashtags = (hashtags = [], brand) => {
+  if (brand && !hashtags.includes(brand.name)) {
+    hashtags.includes(brand.name);
+  }
+  return hashtags;
+}
+
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(
     data,
@@ -33,6 +40,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
     }
   );
 
+  let foundBrand;
   // to-do: validate attrs.asset;
   validator.addPostRule(async (provider) =>
     Promise.all([
@@ -55,6 +63,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
           "custom",
           `Brand with id "${provider.inputs.brand}" does not exist!`
         );
+      } else {
+        foundBrand = brand;
       }
 
       if (!shippingBox) {
@@ -109,6 +119,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.metaDescription = data.metaDescription || false;
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
+      productData.hashtags = composeHashtags(data.hashtags, foundBrand);
       // resize thumbnail
       const thumbnail = await repository.asset.getById(thumbnailId);
       if (thumbnail &&  (
