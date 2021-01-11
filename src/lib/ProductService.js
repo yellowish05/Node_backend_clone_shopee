@@ -90,4 +90,10 @@ module.exports = {
     }
     return matches * matchWeightByLevel[level - 1];
   },
+  composeHashtags(hashtags = [], brand) {
+    if (brand && !hashtags.includes(brand.name)) {
+      hashtags.includes(brand.name);
+    }
+    return hashtags;
+  }
 }
