@@ -23,10 +23,13 @@ const schema = new Schema({
     ref: 'ProductCategory',
     index: true,
   }],
-  images: [{
-    type: String,
-    ref: 'Asset',
-  }],
+  images: {
+    type: [{
+      type: String,
+      ref: 'Asset',
+    }],
+    default: [],
+  },
   hashtags: {
     type: [{
       type: String,
