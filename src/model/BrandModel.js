@@ -13,11 +13,14 @@ const schema = new Schema({
     required: true,
     index: true,
   },
-  brandCategories: [{
-    type: String,
-    ref: 'BrandCategory',
-    index: true,
-  }],
+  brandCategories: {
+    type: [{
+      type: String,
+      ref: 'BrandCategory',
+      index: true,
+    }],
+    default: []
+  },
   productCategories: [{
     type: String,
     ref: 'ProductCategory',
