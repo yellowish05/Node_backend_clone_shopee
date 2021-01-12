@@ -46,8 +46,9 @@ function transformFilter({
   statuses,
   streamers,
   blackList,
-  product,
+  // product,
   isFeatured = null,
+  products = [],
 }) {
   const emptyQuery = {};
   const query = {
@@ -95,10 +96,15 @@ function transformFilter({
     });
   }
 
-  if (product) {
-    query.$and.push({
-      products: product,
-    });
+  // not used.
+  // if (product) {
+  //   query.$and.push({
+  //     products: product,
+  //   });
+  // }
+
+  if (products && products.length) {
+    query.$and.push({ $or: products.map(product => ({ "productDurations.product": product })) });
   }
 
   if (blackList && blackList.length > 0) {
@@ -110,6 +116,8 @@ function transformFilter({
   if (isFeatured !== null) {
     query.$and.push({ isFeatured });
   }
+
+
 
   return query.$and.length > 0 ? query : emptyQuery;
 }

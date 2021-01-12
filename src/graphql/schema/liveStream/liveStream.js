@@ -124,7 +124,7 @@ const schema = gql`
       """
       streamers: [ID!] = []
       isFeatured: Boolean = null
-      product: ProductFilterInput
+      productFilter: ProductFilterInput
     }
 
     enum LiveStreamSortFeature {
