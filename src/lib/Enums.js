@@ -230,6 +230,12 @@ const BannerType = EnumFactory({
   MP4: "MP4",
 })
 
+const GenderType = EnumFactory({
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+  OTHER: "OTHER",
+})
+
 
 const languageEnum = {};
 languages.forEach((item) => {
@@ -272,4 +278,5 @@ module.exports = {
   BannerAdType,
   BannerLayoutType,
   BannerType,
+  GenderType,
 };

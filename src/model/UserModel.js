@@ -1,7 +1,7 @@
 const path = require('path');
 const { Schema, model } = require('mongoose');
 
-const { LoginProvider } = require(path.resolve('src/lib/Enums'));
+const { LoginProvider, GenderType } = require(path.resolve('src/lib/Enums'));
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 const LatitudeLongitudeSchema = require('./LatitudeLongitudeModel');
@@ -18,6 +18,13 @@ LoginProvider.toList().forEach((provider) => {
     required: false,
   };
 });
+
+const getColor = () => {
+
+}
+
+
+
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -94,6 +101,21 @@ const schema = new Schema({
     type: Number,
     default: 0.2,
   },
+  color: {
+    type: {
+      background: String,
+      text: String,
+    },
+    default: {
+      background: "#779ecb",
+      text: "#6e6a6c",
+    }
+  },
+  gender: {
+    type: String,
+    enum: GenderType.toList(),
+    default: GenderType.toList()[0],
+  }
 });
 
 module.exports = new model(collectionName, schema);

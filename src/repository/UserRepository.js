@@ -2,6 +2,7 @@ const path = require('path');
 // const stream = require('getstream');
 
 const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
+const UserService = require(path.resolve('src/lib/UserService'));
 
 const md5 = require('md5');
 
@@ -70,6 +71,7 @@ class UserRepository {
       email: data.email,
       password: md5(data.password),
       roles: options.roles || [],
+      color: UserService.generateColorPair(),
       settings: {
         pushNotifications: PushNotification.toList(),
         language: LanguageList.EN,
@@ -223,6 +225,8 @@ class UserRepository {
     user.photo = data.photo || user.photo;
     user.location = data.location || user.location;
     user.address = data.address || user.address;
+    user.gender = data.gender || user.gender;
+    user.color = data.color || user.color;
 
     if (data.provider && data.providerId) {
       user.providers[data.provider] = data.providerId;
