@@ -3,6 +3,8 @@ const path = require('path');
 const { slugify } = require('transliteration');
 
 const repository = require(path.resolve('src/repository'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const matchWeightByLevel = [7, 5, 3]; // for level 1, 2, 3
 
@@ -102,5 +104,68 @@ module.exports = {
     const query = { $and: variations.map(variation => ({ variation: { $elemMatch: variation } }))};
 
     return repository.productAttributes.getAll(query);
+  },
+  async exchangeOnSupportedCurrencies(price) {
+    const currencies = CurrencyFactory.getCurrencies();
+
+    const exchangePromises = currencies.map(async (currency) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({
+        currencyAmount: price.amount, currency: price.currency,
+      });
+  
+      if (price.currency === currency) {
+        return { amount: amountOfMoney.getCentsAmount(), currency };
+      }
+  
+      return CurrencyService.exchange(amountOfMoney, currency)
+        .then((money) => ({ amount: money.getCentsAmount(), currency }));
+    });
+  
+    return Promise.all(exchangePromises);
+  },
+  async productInLivestream() {
+    return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
+    .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
+    .then(arrays => [].concat(...arrays))
+    .then(productIds => productIds.filter((v, i, a) => a.indexOf(v) === i))
+  },
+  async composeProductFilter(filter, user = null) {
+    if (user) {
+      filter.blackList = user.blackList;
+    }
+      
+    if (filter.categories) {
+      // get categories by id and slug
+      const categories = await repository.productCategory.getAll({ $or: [
+        { _id: {$in: filter.categories }}, 
+        { slug: { $in: filter.categories }}
+      ] });
+      await repository.productCategory.getUnderParents(categories.map(item => item._id))
+        .then(categories => {
+          filter.categories = categories.map(item => item.id);
+        })
+    }
+
+    if (filter.price) {
+      if (filter.price.min) {
+        filter.price.min = await this.exchangeOnSupportedCurrencies(filter.price.min);
+      }
+
+      if (filter.price.max) {
+        filter.price.max = await this.exchangeOnSupportedCurrencies(filter.price.max);
+      }
+    }
+
+    if (filter.hasLivestream) {
+      const productIds = await this.productInLivestream(repository);
+      filter.ids = productIds;
+    }
+
+    if (filter.variations) {
+      const attributes = await this.getAttributesFromVariations(filter.variations);
+      filter.attributes = attributes;
+    }
+
+    return filter;
   },
 }
