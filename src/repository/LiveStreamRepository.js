@@ -48,7 +48,7 @@ function transformFilter({
   blackList,
   // product,
   isFeatured = null,
-  products = [],
+  products = null,
 }) {
   const emptyQuery = {};
   const query = {
@@ -96,14 +96,8 @@ function transformFilter({
     });
   }
 
-  // not used.
-  // if (product) {
-  //   query.$and.push({
-  //     products: product,
-  //   });
-  // }
-
-  if (products && products.length) {
+  if (products) { // && products.length
+    products.push("1"); // default id in case of length 0.
     query.$and.push({ $or: products.map(product => ({ "productDurations.product": product })) });
   }
 
