@@ -17,6 +17,8 @@ const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPrevie
 const updateLiveStreamThumbnail = require('./resolvers/updateLiveStreamThumbnail');
 const addStreamRecord = require('./resolvers/addStreamRecord');
 const updateStreamRecord = require('./resolvers/updateStreamRecord');
+const previousQueue = require('./resolvers/previousQueue');
+const nextQueue = require('./resolvers/nextQueue');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -240,34 +242,8 @@ module.exports.resolvers = {
       return repository.liveStream.getNextStream(id)
         .then(liveStream => liveStream ? liveStream._id : null)
     },
-    previousQueue(_, args, { dataSources: { repository } }) {
-      return repository.liveStream.load(args.liveStream)
-        .then(liveStream => {
-          return Promise.all([liveStream, repository.streamChannel.load(liveStream.channel)]);
-        })
-        .then(([liveStream, streamChannel]) => {
-          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }})
-            .then((streamSources) => {
-              const ids = streamSources.map(item => item._id);
-              const currentIdx = ids.indexOf(args.currentRecord);
-              return streamSources[currentIdx - 1];
-            })
-            .then(record => ({record, liveStream}))
-        })
-    },
-    nextQueue(_, args, { dataSources: { repository } }) {
-      return repository.liveStream.load(args.liveStream)
-        .then(liveStream => Promise.all([ liveStream, repository.streamChannel.load(liveStream.channel) ]))
-        .then(([liveStream, streamChannel]) => {
-          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }})
-            .then((streamSources) => {
-              const ids = streamSources.map(item => item._id);
-              const currentIdx = ids.indexOf(args.currentRecord);
-              return streamSources[currentIdx + 1];
-            })
-            .then(record => ({ liveStream, record }));
-        });
-    },
+    previousQueue,
+    nextQueue,
   },
   Mutation: {
     addLiveStream,
