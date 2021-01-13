@@ -143,6 +143,11 @@ const schema = gql`
       tag: String!
     }
 
+    type VideoQueueResponse {
+      record: StreamRecordSource
+      liveStream: LiveStream
+    }
+
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID): LiveStream
@@ -152,6 +157,8 @@ const schema = gql`
         nextLiveStream(id: ID!): LiveStream
         previousLiveStreamID(id: ID!): ID
         nextLiveStreamID(id: ID!): ID
+        previousQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
+        nextQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
     }
   
     extend type Mutation {
@@ -232,6 +239,34 @@ module.exports.resolvers = {
     nextLiveStreamID: (_, { id }, { dataSources: { repository }}) => {
       return repository.liveStream.getNextStream(id)
         .then(liveStream => liveStream ? liveStream._id : null)
+    },
+    previousQueue(_, args, { dataSources: { repository } }) {
+      return repository.liveStream.load(args.liveStream)
+        .then(liveStream => {
+          return Promise.all([liveStream, repository.streamChannel.load(liveStream.channel)]);
+        })
+        .then(([liveStream, streamChannel]) => {
+          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }})
+            .then((streamSources) => {
+              const ids = streamSources.map(item => item._id);
+              const currentIdx = ids.indexOf(args.currentRecord);
+              return streamSources[currentIdx - 1];
+            })
+            .then(record => ({record, liveStream}))
+        })
+    },
+    nextQueue(_, args, { dataSources: { repository } }) {
+      return repository.liveStream.load(args.liveStream)
+        .then(liveStream => Promise.all([ liveStream, repository.streamChannel.load(liveStream.channel) ]))
+        .then(([liveStream, streamChannel]) => {
+          return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }})
+            .then((streamSources) => {
+              const ids = streamSources.map(item => item._id);
+              const currentIdx = ids.indexOf(args.currentRecord);
+              return streamSources[currentIdx + 1];
+            })
+            .then(record => ({ liveStream, record }));
+        });
     },
   },
   Mutation: {
