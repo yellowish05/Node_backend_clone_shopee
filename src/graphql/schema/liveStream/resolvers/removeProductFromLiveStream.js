@@ -36,13 +36,16 @@ const activity = {
           throw new ForbiddenError('You cannot add products to this Live Stream');
         }
 
-        const index = liveStream.products.indexOf(productId);
+        // const index = liveStream.products.indexOf(productId);
 
-        if (index === -1) {
-          return liveStream;
-        }
+        // if (index === -1) {
+        //   return liveStream;
+        // }
 
-        liveStream.products.splice(index, 1);
+        // liveStream.products.splice(index, 1);
+
+        liveStream.productDurations = liveStream.productDurations.filter((pd) => pd.product !== productId)
+
         return liveStream.save();
       });
   },

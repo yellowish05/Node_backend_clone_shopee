@@ -94,21 +94,6 @@ const schema = gql`
         hashtags: [String]
     }
 
-    # input LiveStreamUpdateInput {
-    #     title: String!
-    #     experience: ID!
-    #     categories: [ID]!
-    #     city: String
-    #     preview: [ID]
-    #     previewVideo: ID
-    #     # products: [ID] = [] 
-    #     liveStreamRecord: [String]
-    #     startTime: Date
-    #     productDurations: [StreamProductDurationInput] = []
-    #     orientation: OrientationMode!
-    #     thumbnail: ID!
-    # }
-
     type LiveStreamCollection {
       collection: [LiveStream]!
       pager: Pager
