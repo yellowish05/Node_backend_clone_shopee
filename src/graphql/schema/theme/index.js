@@ -13,7 +13,8 @@ const schema = gql`
   }
 
   """
-      - start_time and end_time: needed for type "LIMITED_TIME" only
+    ### start_time & end_time
+      required for the type "LIMITED_TIME" only
   """
   type Theme {
     id: ID!
@@ -36,6 +37,10 @@ const schema = gql`
     end_time: Date
   }
 
+  """
+    ### start_time & end_time
+      required for the type "LIMITED_TIME" only
+  """
   input ThemeInput {
     name: String!
     thumbnail: String!
@@ -45,17 +50,8 @@ const schema = gql`
     brands: [String]
     liveStreams: [String]
     liveStreamCategories: [String]
-    """
-      for type "LIMITED_TIME", start_time and end_time are required.
-    """
     type: ThemeType = NORMAL
-    """
-      needed for type "LIMITED_TIME" only
-    """
     start_time: Date
-    """
-      needed for type "LIMITED_TIME" only
-    """
     end_time: Date
   }
 
@@ -71,8 +67,15 @@ const schema = gql`
     end_tiem: Date
   }
 
+  """
+    ### time
+      required for the type "LIMITED_TIME" only to filter themes by "start_time" and "end_time".
+      Set currnet ISO time in default on calls from client side(app, website).
+  """
   input ThemeFilterInput {
     searchQuery: String
+    type: ThemeType
+    time: Date
   }
 
   input ThemeSortInput {
@@ -93,8 +96,8 @@ const schema = gql`
   extend type Query {
     theme(id: ID!): Theme
     themes(
-        filter: ThemeFilterInput, 
-        sort: ThemeSortInput, 
+        filter: ThemeFilterInput = {}, 
+        sort: ThemeSortInput = {}, 
         page: PageInput = {}): ThemeCollection! @auth(requires: USER)
   }
 

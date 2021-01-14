@@ -52,6 +52,13 @@ const schema = new Schema({
   slug: {
     type: String,
   },
+  // productVariations: {
+  //   type: [{
+  //     type: String,
+  //     ref: 'ProductVariation',
+  //   }],
+  //   default: [],
+  // },
 });
 
 schema.versionKey = false;

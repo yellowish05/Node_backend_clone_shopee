@@ -1,4 +1,7 @@
 const { gql } = require('apollo-server');
+const path = require('path');
+
+const { GenderType } = require(path.resolve('src/lib/Enums'));
 
 const addUser = require('./resolvers/addUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
@@ -10,6 +13,15 @@ const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 const requestResetPassword = require('./resolvers/requestResetPassword');
 
 const schema = gql`
+    enum GenderType {
+      ${GenderType.toGQL()}
+    }
+
+    type Color {
+      background: String!
+      text: String!
+    }
+
     type User {
       id: ID!
       email: String
@@ -21,6 +33,8 @@ const schema = gql`
       organization: Organization
       roles: [String]! @auth(requires: ADMIN) 
       isOnline: Boolean
+      gender: GenderType
+      color: Color
     }
 
     type UserInfo {
@@ -31,11 +45,17 @@ const schema = gql`
       address: Address
       location: LatLng
       photo: Asset
+      color: Color
     }
 
     input RegistrationInput {
       email: String!
       password: String!
+    }
+
+    input ColorInput {
+      background: String!
+      text: String!
     }
 
     input UserInput {
@@ -46,6 +66,8 @@ const schema = gql`
       address: AddressInput
       location: LatLngInput
       photo: ID
+      gender: GenderType
+      color: ColorInput
     }
 
     input SocialLoginInput {

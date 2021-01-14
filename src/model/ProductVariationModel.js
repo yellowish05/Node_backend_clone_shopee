@@ -2,7 +2,7 @@ const { Schema, model } = require('mongoose');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
-const collectionName = 'Brand';
+const collectionName = 'ProductVariation';
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -11,34 +11,29 @@ const schema = new Schema({
   name: {
     type: String,
     required: true,
-    index: true,
   },
-  brandCategories: {
+  description: {
+    type: String,
+  },
+  values: {
     type: [{
       type: String,
-      ref: 'BrandCategory',
-      index: true,
-    }],
+      required: true,
+    }], 
     default: []
   },
-  productCategories: {
-    type: [{
-      type: String,
-      ref: 'ProductCategory',
-      index: true,
-    }],
-    default: [],
+  keyName: {
+    type: String,
+    required: true,
   },
-  images: {
-    type: [{
-      type: String,
-      ref: 'Asset',
-    }],
-    default: [],
+  displayName: {
+    type: String,
+    required: true,
   },
-  hashtags: {
+  categories: {
     type: [{
       type: String,
+      ref: "ProductCategory",
     }],
     default: [],
   },

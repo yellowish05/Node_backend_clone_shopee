@@ -68,10 +68,10 @@ const schema = new Schema({
     type: String,
     ref: 'MessageThread',
   }],
-  products: [{
-    type: String,
-    ref: 'Product',
-  }],
+  // products: [{
+  //   type: String,
+  //   ref: 'Product',
+  // }],
   realViews: {
     type: Number,
     required: true,

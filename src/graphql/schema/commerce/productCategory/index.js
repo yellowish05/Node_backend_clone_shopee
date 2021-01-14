@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server');
 const updateProductCategoryAssets = require('./resolvers/updateProductCategoryAssets');
+const bulkUpdateProductCategory = require('./resolvers/bulkUpdateProductCategory');
 
 const schema = gql`
     type ProductCategory {
@@ -13,11 +14,28 @@ const schema = gql`
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
         slug: String
+        productVariations: [ProductVariation]
     }
 
     type ProductCategoryCollection {
         collection: [ProductCategory]!
         pager: Pager
+    }
+
+    """
+      set the map from csv keys to db keys for the fields to be updated.
+    """
+
+    type FailedProductCategories{
+      row: [Int!]
+      errors: [String!]
+    }
+
+    type UploadedProductCategories{
+      total: Int!
+      updated: Int!
+      failed: Int!
+      failedList: FailedProductCategories!
     }
 
     extend type Query {
@@ -33,6 +51,10 @@ const schema = gql`
           Allows: authorized user
       """
       updateProductCategoryAssets(fileName:String!): [Asset] @auth(requires: USER)
+      """
+        Allows: authorized user
+      """
+      bulkUpdateProductCategory(file: Upload!): UploadedProductCategories @auth(requires: USER) 
     }
 `;
 
@@ -83,7 +105,8 @@ module.exports.resolvers = {
     ),
   },
   Mutation: {
-    updateProductCategoryAssets
+    updateProductCategoryAssets,
+    bulkUpdateProductCategory,
   },
   ProductCategory: {
     parent: async (productCategory, _, { dataSources: { repository } }) => {
@@ -109,6 +132,9 @@ module.exports.resolvers = {
         return null;
       }
       return repository.liveStreamCategory.getById(productCategory.liveStreamCategory);
+    },
+    productVariations: async ({ _id }, _, { dataSources: { repository }}) => {
+      return repository.productVariation.getByCategory(_id);
     },
   },
 };

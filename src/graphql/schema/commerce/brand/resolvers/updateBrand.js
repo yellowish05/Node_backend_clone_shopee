@@ -14,7 +14,7 @@ module.exports = async (_, { id, data = {} }, { dataSources: { repository } }) =
 	validator.addPostRule(async (provider) => {
     Promise.all([
       repository.brand.getById(provider.inputs.id),
-      data.brandCategories.length ? repository.brandCategory.getByIds(data.brandCategories) : [],
+      data.brandCategories && data.brandCategories.length ? repository.brandCategory.getByIds(data.brandCategories) : [],
     ])
 			.then(([foundBrand, brandCategories]) => {
 				if (!foundBrand) {
@@ -41,6 +41,10 @@ module.exports = async (_, { id, data = {} }, { dataSources: { repository } }) =
       brand.productCategories = data.productCategories || brand.productCategories;
       brand.hashtags = data.hashtags || brand.hashtags;
 			return brand.save();
-		})
+    })
+    .catch(error => { 
+      console.log('error', error);
+      throw errorHandler.build([error]);
+    })
 		// .then((savePhrase) => savePhrase)
 }

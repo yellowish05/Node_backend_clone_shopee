@@ -97,7 +97,7 @@ class AssetRepository {
       pager.limit = page.limit;
       pager.skip = page.skip || 0;
     }
-    if (page)
+
     return this.model.find(
       filter,
       null,

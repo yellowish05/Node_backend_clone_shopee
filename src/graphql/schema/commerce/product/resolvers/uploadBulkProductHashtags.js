@@ -33,7 +33,7 @@ const parseCSVContent = (readStream) => {
   })
 }
 
-module.exports = async (_, { fileName, bucket, file }) => {
+module.exports = async (_, { file }) => {
 
   const { createReadStream, mimetype, filename } = await file; console.log('[file]', mimetype, filename);
   const fileStream = createReadStream();

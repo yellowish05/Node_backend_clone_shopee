@@ -3,6 +3,10 @@ const path = require('path');
 const { slugify } = require('transliteration');
 
 const repository = require(path.resolve('src/repository'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
+const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+
+const matchWeightByLevel = [7, 5, 3]; // for level 1, 2, 3
 
 module.exports = {
   async analyzeTheme(id) {
@@ -53,5 +57,114 @@ module.exports = {
         }
         return slug;
       })
+  },
+  async findProductVariationsFromKeyword(keyword) {
+    if (!keyword.trim()) return [];
+
+    const keywords = keyword.split(' ').map(item => item.trim());
+
+    const query = { $or: [] };
+    query.$or = keywords.map(kwd => ({ hashtags: { $regex: `${kwd}`, $options: 'i' } }));
+
+    return repository.productCategory.getAll(query)
+      .then(productCategories => {
+        // calculate match count.
+        productCategories.forEach(category => {
+          category.matchPoint = this.calcKeywordMatchPoint(keywords, category);
+        });
+
+        // sort by match point.
+        productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
+        return productCategories.length ? 
+          repository.productVariation.getByCategory(productCategories[0].id) : 
+          [];
+      })
+  },
+  calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
+    let matches = 0;
+    for (const keyword of keywords) {
+      const regExp = new RegExp(keyword, 'gi');
+      for (const hashtag of hashtags) {
+        const matched = hashtag.match(regExp);
+        matches += matched ? matched.length : 0;
+      }
+    }
+    return matches * matchWeightByLevel[level - 1];
+  },
+  composeHashtags(hashtags = [], brand) {
+    if (brand && !hashtags.includes(brand.name)) {
+      hashtags.includes(brand.name);
+    }
+    return hashtags;
+  },
+  async getAttributesFromVariations(variations = []) {
+    variations = variations.filter(variation => !variation.name && !variation.value);
+    if (!variations.length) return [];
+    const query = { $and: variations.map(variation => ({ variation: { $elemMatch: variation } }))};
+
+    return repository.productAttributes.getAll(query);
+  },
+  async exchangeOnSupportedCurrencies(price) {
+    const currencies = CurrencyFactory.getCurrencies();
+
+    const exchangePromises = currencies.map(async (currency) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({
+        currencyAmount: price.amount, currency: price.currency,
+      });
+  
+      if (price.currency === currency) {
+        return { amount: amountOfMoney.getCentsAmount(), currency };
+      }
+  
+      return CurrencyService.exchange(amountOfMoney, currency)
+        .then((money) => ({ amount: money.getCentsAmount(), currency }));
+    });
+  
+    return Promise.all(exchangePromises);
+  },
+  async productInLivestream() {
+    return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
+    .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
+    .then(arrays => [].concat(...arrays))
+    .then(productIds => productIds.filter((v, i, a) => a.indexOf(v) === i))
+  },
+  async composeProductFilter(filter, user = null) {
+    if (user) {
+      filter.blackList = user.blackList;
+    }
+      
+    if (filter.categories) {
+      // get categories by id and slug
+      const categories = await repository.productCategory.getAll({ $or: [
+        { _id: {$in: filter.categories }}, 
+        { slug: { $in: filter.categories }}
+      ] });
+      await repository.productCategory.getUnderParents(categories.map(item => item._id))
+        .then(categories => {
+          filter.categories = categories.map(item => item.id);
+        })
+    }
+
+    if (filter.price) {
+      if (filter.price.min) {
+        filter.price.min = await this.exchangeOnSupportedCurrencies(filter.price.min);
+      }
+
+      if (filter.price.max) {
+        filter.price.max = await this.exchangeOnSupportedCurrencies(filter.price.max);
+      }
+    }
+
+    if (filter.hasLivestream) {
+      const productIds = await this.productInLivestream(repository);
+      filter.ids = productIds;
+    }
+
+    if (filter.variations) {
+      const attributes = await this.getAttributesFromVariations(filter.variations);
+      filter.attributes = attributes;
+    }
+
+    return filter;
   },
 }

@@ -17,6 +17,8 @@ const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPrevie
 const updateLiveStreamThumbnail = require('./resolvers/updateLiveStreamThumbnail');
 const addStreamRecord = require('./resolvers/addStreamRecord');
 const updateStreamRecord = require('./resolvers/updateStreamRecord');
+const previousQueue = require('./resolvers/previousQueue');
+const nextQueue = require('./resolvers/nextQueue');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -44,6 +46,9 @@ const schema = gql`
 
     input StreamProductDurationInput {
       product: String!
+      """
+        Associated time with the video. for example: "00:35-00:55"
+      """
       duration: String!
     }
 
@@ -61,7 +66,7 @@ const schema = gql`
         statistics: LiveStreamStats!
         publicMessageThread: MessageThread
         privateMessageThreads: [MessageThread]!
-        products: [Product]! @deprecated(reason: "Use 'productDurations' instead")
+        # products: [Product]! @deprecated(reason: "Use 'productDurations' instead")
         views: Int!
         likes: Int!
         startTime: Date
@@ -80,7 +85,7 @@ const schema = gql`
         city: String
         preview: [ID]
         previewVideo: ID
-        products: [ID] = [] 
+        # products: [ID] = [] 
         liveStreamRecord: [String]
         startTime: Date
         productDurations: [StreamProductDurationInput] = []
@@ -88,21 +93,6 @@ const schema = gql`
         thumbnail: ID!
         hashtags: [String]
     }
-
-    # input LiveStreamUpdateInput {
-    #     title: String!
-    #     experience: ID!
-    #     categories: [ID]!
-    #     city: String
-    #     preview: [ID]
-    #     previewVideo: ID
-    #     # products: [ID] = [] 
-    #     liveStreamRecord: [String]
-    #     startTime: Date
-    #     productDurations: [StreamProductDurationInput] = []
-    #     orientation: OrientationMode!
-    #     thumbnail: ID!
-    # }
 
     type LiveStreamCollection {
       collection: [LiveStream]!
@@ -124,6 +114,7 @@ const schema = gql`
       """
       streamers: [ID!] = []
       isFeatured: Boolean = null
+      productFilter: ProductFilterInput
     }
 
     enum LiveStreamSortFeature {
@@ -142,6 +133,11 @@ const schema = gql`
       tag: String!
     }
 
+    type VideoQueueResponse {
+      record: StreamRecordSource
+      liveStream: LiveStream
+    }
+
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID): LiveStream
@@ -151,6 +147,8 @@ const schema = gql`
         nextLiveStream(id: ID!): LiveStream
         previousLiveStreamID(id: ID!): ID
         nextLiveStreamID(id: ID!): ID
+        previousQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
+        nextQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
     }
   
     extend type Mutation {
@@ -185,7 +183,7 @@ const schema = gql`
       Allows: authorized user
       Pass ID of the Live Stream and list of Product IDs. Make sure to set Error Policy to 'all'
       """
-      addProductToLiveStream(liveStream: ID!, productIds: [ID]!): LiveStream! @auth(requires: USER)
+      addProductToLiveStream(liveStream: ID!, products: [StreamProductDurationInput]!): LiveStream! @auth(requires: USER)
       """
       Allows: authorized user
       Pass ID of the Live Stream and ID of the Product
@@ -232,6 +230,8 @@ module.exports.resolvers = {
       return repository.liveStream.getNextStream(id)
         .then(liveStream => liveStream ? liveStream._id : null)
     },
+    previousQueue,
+    nextQueue,
   },
   Mutation: {
     addLiveStream,
@@ -319,9 +319,9 @@ module.exports.resolvers = {
       )
         .then((thread) => (!thread ? [] : [thread]));
     },
-    products(liveStream, _, { dataSources: { repository } }) {
-      return repository.product.getByIds(liveStream.products);
-    },
+    // products(liveStream, _, { dataSources: { repository } }) {
+    //   return repository.product.getByIds(liveStream.products);
+    // },
     views(liveStream, _, { dataSources: { repository } }) {
       return repository.liveStream.getViews(liveStream.id);
     },

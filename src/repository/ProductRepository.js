@@ -40,7 +40,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [],
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [],
 }) {
 
   if (!query.$and) {
@@ -122,6 +122,10 @@ function applyFilter(query, {
     query.$and.push({
       _id: { $in: ids }
     });
+  }
+
+  if (attributes && attributes.length) {
+    query.$and.push({ attrs: { $in: attributes } });
   }
 }
 
@@ -229,13 +233,18 @@ class ProductRepository {
   async get({ filter, sort, page }) {
     let query = {};
     applyFilter(query, filter);
+    // if page.limit is not set, get all products without limit.
+    const pager = {};
+    if (page && page.limit) {
+      pager.limit = page.limit;
+      pager.skip = page.skip || 0;
+    }
     return this.model.find(
       query,
       null,
       {
         sort: transformSortInput(sort),
-        limit: page.limit,
-        skip: page.skip,
+        ...pager
       },
     );
   }
@@ -249,13 +258,19 @@ class ProductRepository {
   async get4Theme({ filter, sort, page }) {
     const query = {};
     applyFilter4Theme(query, filter);
+    
+    // if page.limit is not set, get all products without limit.
+    const pager = {};
+    if (page && page.limit) {
+      pager.limit = page.limit;
+      pager.skip = page.skip || 0;
+    }
     return this.model.find(
       query,
       null,
       {
         sort: transformSortInput(sort),
-        limit: page.limit,
-        skip: page.skip,
+        ...pager,
       },
     );
   }

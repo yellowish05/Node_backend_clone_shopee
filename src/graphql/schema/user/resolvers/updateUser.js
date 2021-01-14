@@ -143,6 +143,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       args.data.photo ? updateData.photo = args.data.photo : null;
       location ? updateData.location = location : null;
       addressObj.address ? updateData.address = addressObj.address : null;
+      args.data.gender ? updateData.gender = args.data.gender : null;
+      args.data.color ? updateData.color = args.data.color: null;
       
       return repository.user.update(user.id, updateData).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);

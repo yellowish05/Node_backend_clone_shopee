@@ -266,7 +266,7 @@ tempRouter.route('/product-category-slugify').post(async (req ,res) => {
       let total = productCategories.length;
       await Promise.all(productCategories.map(async (category, i) => {
         let slug = slugify(category.name);
-        const categoryBySlug = await repository.productCategory.getAll({ slug });
+        const categoryBySlug = await repository.productCategory.getAll({ name: category.name });
         const otherCategories = categoryBySlug.filter(item => item._id !== category._id);
 
         if (otherCategories.length > 0) {
@@ -276,7 +276,6 @@ tempRouter.route('/product-category-slugify').post(async (req ,res) => {
         if ((i + 1) % 100 === 0) {
           console.log('[cursor at]', i + 1);
         }
-
 
         try {
           changes.push(category._id);

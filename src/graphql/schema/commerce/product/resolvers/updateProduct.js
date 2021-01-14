@@ -27,7 +27,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     'assets.length': 'You can not upload more than 9 images!',
   });
 
-  let product;
+  let product, foundBrand;
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.product.getById(provider.inputs.id),
@@ -47,6 +47,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
       if (!brand) {
         provider.error('brand', 'custom', `Brand with id "${provider.inputs.brand}" doen not exist!`);
+      } else {
+        foundBrand = brand;
       }
 
       if (!shippingBox) {
@@ -103,7 +105,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.metaDescription = data.metaDescription || product.metaDescription;
       product.metaTags = data.metaTags || product.metatags;
       product.seoTitle = data.seoTitle || product.setTitle;
-      product.hashtags = data.hashtags || product.hashtags;
+      product.hashtags = productData.hashtags = ProductService.composeHashtags(data.hashtags || product.hashtags, foundBrand);
       // resize thumbnail
       const thumbnail = await repository.asset.getById(thumbnailId);
       
