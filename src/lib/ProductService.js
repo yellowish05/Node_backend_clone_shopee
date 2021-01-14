@@ -75,9 +75,8 @@ module.exports = {
 
         // sort by match point.
         productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
-
         return productCategories.length ? 
-          repository.productVariation.getByIds(productCategories[0].productVariations) : 
+          repository.productVariation.getByCategory(productCategories[0].id) : 
           [];
       })
   },
