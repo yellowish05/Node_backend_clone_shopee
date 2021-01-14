@@ -66,6 +66,10 @@ class ProductVariationRepository {
     return this.model.findOne({ keyName });
   }
 
+  async getByCategory(categoryId) {
+    return this.model.find({ categories: categoryId });
+  }
+
   async loadAll(query = {}) {
     return this.model.find(query);
   }

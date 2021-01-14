@@ -7,6 +7,7 @@ const updateProductVariation = require('./resolvers/updateProductVariation');
 const deleteProductVariation = require('./resolvers/deleteProductVariation');
 const productVariations = require('./resolvers/productVariations');
 const productVariationsByKeyword = require('./resolvers/productVariationsByKeyword');
+const uploadBulkProductVariations = require('./resolvers/uploadBulkProductVariations');
 
 const schema = gql`
 
@@ -64,6 +65,17 @@ const schema = gql`
     pager: Pager
   }
 
+  type FailedProductVariations{
+      row: [Int!]
+      errors: [String!]
+    }
+
+  type UploadedProductVariations{
+      total: Int!
+      success: Int!
+      failed: Int!
+      failedList: FailedProductVariations!
+    }
   extend type Query {
     productVariation(id: ID!): ProductVariation
     productVariationByKeyName(keyName: String!): ProductVariation
@@ -78,6 +90,7 @@ const schema = gql`
     addProductVariation(data: ProductVariationInput!): ProductVariation! @auth(requires: USER)
     updateProductVariation(id: ID!, data: ProductVariationUpdateInput): ProductVariation @auth(requires: USER)
     deleteProductVariation(id: ID!): Boolean! @auth(requires: USER)
+    uploadBulkProductVariations(file: Upload!): UploadedProductVariations
   }
 `;
 
@@ -98,5 +111,6 @@ module.exports.resolvers = {
     addProductVariation,
     updateProductVariation,
     deleteProductVariation,
+    uploadBulkProductVariations,
   },
 };

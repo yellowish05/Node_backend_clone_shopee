@@ -133,9 +133,8 @@ module.exports.resolvers = {
       }
       return repository.liveStreamCategory.getById(productCategory.liveStreamCategory);
     },
-    productVariations: async ({ productVariations: pvIds }, _, { dataSources: { repository }}) => {
-      if (!!pvIds) return [];
-      return repository.productVariation.getByIds(pvIds);
+    productVariations: async ({ _id }, _, { dataSources: { repository }}) => {
+      return repository.productVariation.getByCategory(_id);
     },
   },
 };

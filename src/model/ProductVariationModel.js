@@ -15,10 +15,13 @@ const schema = new Schema({
   description: {
     type: String,
   },
-  values: [{
-    type: String,
-    required: true,
-  }],
+  values: {
+    type: [{
+      type: String,
+      required: true,
+    }], 
+    default: []
+  },
   keyName: {
     type: String,
     required: true,
@@ -26,6 +29,13 @@ const schema = new Schema({
   displayName: {
     type: String,
     required: true,
+  },
+  categories: {
+    type: [{
+      type: String,
+      ref: "ProductCategory",
+    }],
+    default: [],
   },
 });
 
