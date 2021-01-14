@@ -38,9 +38,31 @@ const processProductVariation = async (row, repository) => {
   let productVariation;
   if (row._id) productVariation = await repository.productVariation.getById(row._id);
 
-  if (!productVariation) {
+  if (productVariation) {
+    // update product variation
+    productVariation.name = row.name;
+    productVariation.description = row.description;
+    productVariation.values = row.values;
+    productVariation.keyName = row.name;
+    productVariation.displayName = row.displayName;
+    productVariation.categories = row.categories;
+    return productVariation.save();
+  } else {
     // create new product variation.
-    
+    const data = {
+      name: row.name,
+      description: row.description,
+      values: row.values,
+      keyName: row.name, // name = keyname for now.
+      displayName: row.displayName,
+      categories: row.categories,
+    };
+
+    // check if keyName is duplicated or not.
+    const pdByKeyName = await repository.productVariation.getByKeyName(data.keyName);
+    if (pdByKeyName) throw new Error("Name already exists!");
+
+    productVariation = await repository.productVariation.create(data);
   }
 }
 
@@ -72,65 +94,31 @@ module.exports = async (_, { file }, { dataSources: { repository }, user }) => {
     .then(async () => {
       const csvArray = await parsecsvArray(fileStream);
       //console.log('content', csvArray[1]); return null;
+      let total = csvArray.length;
+      let success = 0;
+      let failed = 0; 
+      let failedList = { row: [], errors: [] };
 
-
-      await Promise.all(csvArray.map(async csvItem => {
+      await Promise.all(csvArray.map(async (csvItem, i) => {
         transformCSVRow(csvItem);
-        await processProductVariation(csvItem, repository);
-      }))
-      return null;
-
-
-      // const categoryIds = csvArray.map(item => item._id);
-      
-      // const categoryIndex = {};
-      // csvArray.forEach((item, i) => categoryIndex[item._id] = i);
-
-      // const data = {};
-      // csvArray.forEach(item => data[item._id] = item);
-
-      // let failedList = [], 
-      //   total = csvArray.length, 
-      //   updated = csvArray.length, 
-      //   failed = 0;
-
-      // return repository.productCategory.findByIds(categoryIds)
-      //   .then(categories => {
-      //     const categoryObj = {};
-      //     categories.forEach((category, i) => {
-      //       categoryObj[category._id] = category;
-      //     });
-
-      //     const invalidIds = categoryIds.filter(categoryId => !categoryObj[categoryId]);
-
-      //     failedList = {
-      //       row: invalidIds.map(categoryId => categoryIndex[categoryId]), 
-      //       errors: invalidIds.map(categoryId => `Not found the product category with id "${categoryId}"`) 
-      //     };
-
-      //     failed = invalidIds.length;
-      //     updated = total - failed;
-          
-      //     return Promise.all(categories.map(category => {
-      //       category.hashtags = data[category._id]["Chinese Hashtag"].split(";").map(item => item.trim());
-
-      //       return category.save();
-      //     }))
-      //     .then(newCategories => {
-      //       return {
-      //         total,
-      //         updated,
-      //         failed,
-      //         failedList,
-      //       };
-      //     })          
-      //   });
+        try {
+          await processProductVariation(csvItem, repository);
+          success ++;
+        } catch (e) {
+          failed ++;
+          failedList.row.push(i);
+          failedList.errors.push(e.message);
+        }
+      }));
+      return {
+        total, success, failed, failedList,
+      };
     })
     .catch((error) => {
       console.log('[error]', error)
       return {
         total: -1,
-        updated: 0,
+        success: 0,
         failed: -1,
         failedList: {row: [-1], errors: [error.message]},
       };
