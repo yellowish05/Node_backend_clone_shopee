@@ -199,7 +199,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         previewVideo: args.data.previewVideo || null,
         channel: streamChannel,
         publicMessageThread: messageThread,
-        products: args.data.products,
+        // products: args.data.products,
         length: 0,
         realViews: 0,
         realLikes: 0,

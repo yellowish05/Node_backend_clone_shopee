@@ -25,8 +25,8 @@ const activity = {
     return liveStream;
   },
 
-  async addProductsToLiveStream({ liveStream, productIds }, repository) {
-    return Promise.all(productIds.map((productId) => repository.product.getById(productId)))
+  async addProductsToLiveStream({ liveStream, productDurations }, repository) {
+    return Promise.all(productDurations.map(({ product, duration }) => repository.product.getById(product)))
       .then((products) => {
         products.forEach((product) => {
           if (!product) {
@@ -37,12 +37,16 @@ const activity = {
             throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
           }
 
-          if (liveStream.products.some((pId) => pId === product.id)) {
+          if (liveStream.productDurations.some(({ product: productId }) => productId === product.id)) {
             return true;
           }
 
-          return liveStream.products.push(product.id);
+          const [PDInput] = productDurations.filter(pd => pd.product === product.id);
+          return liveStream.productDurations.push(PDInput);
         });
+
+        liveStream.productDurations.sort((pd1, pd2) => pd1.duration > pd2.duration)
+
         return liveStream.save();
       });
   },
@@ -52,7 +56,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
   const validator = new Validator(
     args,
     { liveStream: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
-    { productIds: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']] },
+    { products: 'required' },
   );
 
   return validator.check()
@@ -63,9 +67,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     })
     .then(() => activity.checkIfLiveStreamExist(args.liveStream, repository))
     .then((liveStream) => activity.checkLiveStreamOwner(liveStream, user))
-    .then((liveStream) => activity.addProductsToLiveStream({ liveStream, productIds: args.productIds }, repository))
+    .then((liveStream) => activity.addProductsToLiveStream({ liveStream, productDurations: args.products }, repository))
     .then((liveStream) => {
       pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
       return liveStream;
+    })
+    .catch(e => {
+      console.log('[error]', e);
+      return null;
     });
 };

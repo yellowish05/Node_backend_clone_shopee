@@ -93,7 +93,7 @@ module.exports = async (_, { file }, { dataSources: { repository }, user }) => {
     })
     .then(async () => {
       const csvArray = await parsecsvArray(fileStream);
-      //console.log('content', csvArray[1]); return null;
+
       let total = csvArray.length;
       let success = 0;
       let failed = 0; 
@@ -115,7 +115,6 @@ module.exports = async (_, { file }, { dataSources: { repository }, user }) => {
       };
     })
     .catch((error) => {
-      console.log('[error]', error)
       return {
         total: -1,
         success: 0,
