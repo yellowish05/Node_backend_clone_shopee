@@ -44,8 +44,7 @@ const activity = {
           const [PDInput] = productDurations.filter(pd => pd.product === product.id);
           return liveStream.productDurations.push(PDInput);
         });
-
-        liveStream.productDurations.sort((pd1, pd2) => pd1.duration > pd2.duration)
+        liveStream.productDurations.sort((pd1, pd2) => pd1.duration > pd2.duration ? 1 : -1)
 
         return liveStream.save();
       });
