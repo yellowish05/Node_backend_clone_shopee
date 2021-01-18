@@ -87,14 +87,8 @@ module.exports = {
           .then((variationsArray) => {
             variationsArray = variationsArray.filter(el => el.length > 0);
             const [variations] = variationsArray.filter(el => el.length === Math.max(...variationsArray.map(el => el.length)));
-            return variations;
+            return variations || [];
           })
-
-        // console.log('[init]', productCategories.map(a => a.matchPoint))
-        
-        // return productCategories.length ? 
-        //   repository.productVariation.getByCategory(productCategories[0].id) : 
-        //   [];
       })
   },
   calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
