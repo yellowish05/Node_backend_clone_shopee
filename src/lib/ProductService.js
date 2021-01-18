@@ -133,6 +133,13 @@ module.exports = {
   
     return Promise.all(exchangePromises);
   },
+  async convertToUSD(price) {
+    const amountOfMoney = CurrencyFactory.getAmountOfMoney({ currencyAmount: price.amount, currency: price.currency });
+    if (price.currency && price.currency !== "USD") {
+      return CurrencyService.exchange(amountOfMoney, "USD");
+    }
+    return amountOfMoney;
+  },
   async productInLivestream() {
     return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
     .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
@@ -158,18 +165,24 @@ module.exports = {
 
     if (filter.price) {
       if (filter.price.min) {
-        const minPrices = await this.exchangeOnSupportedCurrencies(filter.price.min);
-        const [minInUSD] = minPrices.filter(el => el.currency === 'USD');
-        console.log(minInUSD);
-        filter.price.min = minPrices;
-        filter.price.min1 = minInUSD;
+        // const minPrices = await this.exchangeOnSupportedCurrencies(filter.price.min);
+        // const [minInUSD] = minPrices.filter(el => el.currency === 'USD');
+        // filter.price.min = minPrices;
+
+        const amount = await this.convertToUSD(filter.price.min);
+        const cent = amount.getCentsAmount();
+        filter.price.min1 = { amount: cent, currency: amount.getCurrency() };
       }
 
       if (filter.price.max) {
-        const maxPrices = await this.exchangeOnSupportedCurrencies(filter.price.max);
-        const maxInUSD = maxPrices.filter(el => el.currency === 'USD');
-        filter.price.max = maxPrices;
-        filter.price.max1 = maxInUSD;
+        // const maxPrices = await this.exchangeOnSupportedCurrencies(filter.price.max);
+        // const maxInUSD = maxPrices.filter(el => el.currency === 'USD');
+        // filter.price.max = maxPrices;
+        // filter.price.max1 = maxInUSD;
+
+        const amount = await this.convertToUSD(filter.price.max);
+        const cent = amount.getCentsAmount();
+        filter.price.max1 = { amount: cent, currency: amount.getCurrency() };
       }
     }
 

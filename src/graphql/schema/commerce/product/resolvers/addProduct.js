@@ -6,7 +6,7 @@ const { UserInputError, ApolloError } = require("apollo-server");
 const { InventoryLogType } = require(path.resolve("src/lib/Enums"));
 const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 const { CurrencyService } = require(path.resolve("src/lib/CurrencyService"));
-const AssetService = require(path.resolve('src/lib/AssetService'));
+const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve("src/lib/ProductService"));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
