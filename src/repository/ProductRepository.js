@@ -66,15 +66,17 @@ function applyFilter(query, {
 
   if (price) {
     if (price.min) {
-      query.$and.push({
-        $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
-      });
+      // query.$and.push({
+      //   $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
+      // });
+      query.$and.push({ sortPrice: {$gte: price.min1.amount} });
     }
 
     if (price.max) {
-      query.$and.push({
-        $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
-      });
+      // query.$and.push({
+      //   $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
+      // });
+      query.$and.push({ sortPrice: {$lte: price.max1.amount} });
     }
   }
 

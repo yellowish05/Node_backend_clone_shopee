@@ -158,11 +158,18 @@ module.exports = {
 
     if (filter.price) {
       if (filter.price.min) {
-        filter.price.min = await this.exchangeOnSupportedCurrencies(filter.price.min);
+        const minPrices = await this.exchangeOnSupportedCurrencies(filter.price.min);
+        const [minInUSD] = minPrices.filter(el => el.currency === 'USD');
+        console.log(minInUSD);
+        filter.price.min = minPrices;
+        filter.price.min1 = minInUSD;
       }
 
       if (filter.price.max) {
-        filter.price.max = await this.exchangeOnSupportedCurrencies(filter.price.max);
+        const maxPrices = await this.exchangeOnSupportedCurrencies(filter.price.max);
+        const maxInUSD = maxPrices.filter(el => el.currency === 'USD');
+        filter.price.max = maxPrices;
+        filter.price.max1 = maxInUSD;
       }
     }
 

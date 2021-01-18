@@ -24,6 +24,7 @@ module.exports = async (_, {
     
   filter = await ProductService.composeProductFilter(filter, user);
 
+  console.log('[filter] done');
   // if (sort.feature == 'PRICE') {
   //   const temppage = {
   //     limit: 0,
