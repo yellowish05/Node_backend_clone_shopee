@@ -68,6 +68,8 @@ module.exports = {
 
     return repository.productCategory.getAll(query)
       .then(productCategories => {
+        if (productCategories.length === 0) return [];
+
         // calculate match count.
         productCategories.forEach(category => {
           category.matchPoint = this.calcKeywordMatchPoint(keywords, category);
@@ -75,9 +77,24 @@ module.exports = {
 
         // sort by match point.
         productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
-        return productCategories.length ? 
-          repository.productVariation.getByCategory(productCategories[0].id) : 
-          [];
+        
+        const maxPoint = productCategories[0].matchPoint;
+        
+        return Promise.all(productCategories
+          // .filter(item => item.matchPoint === maxPoint)
+          .map(item => repository.productVariation.getByCategory(item._id))
+        )
+          .then((variationsArray) => {
+            variationsArray = variationsArray.filter(el => el.length > 0);
+            const [variations] = variationsArray.filter(el => el.length === Math.max(...variationsArray.map(el => el.length)));
+            return variations;
+          })
+
+        // console.log('[init]', productCategories.map(a => a.matchPoint))
+        
+        // return productCategories.length ? 
+        //   repository.productVariation.getByCategory(productCategories[0].id) : 
+        //   [];
       })
   },
   calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
