@@ -30,7 +30,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
       }
       if (args.productAttribute && !productAttr) {
-        throw new ForbiddenError('Product does not exist.');
+        throw new UserInputError('Product attribute does not exist.', { invalidArgs: [args.productAttribute]});
       }
       if (product.wholesaleEnabled) {
         if (!args.metricUnit) {
