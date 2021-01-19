@@ -43,7 +43,7 @@ class MessageThreadRepository {
     query.$and = query.$and.concat(
       participants.map((id) => ({ participants: { $eq: id } })),
     );
-    return this.model.findOne(query);
+    return this.model.find(query);
   }
 
   async findAllByIdsAndParticipants(ids, participants) {

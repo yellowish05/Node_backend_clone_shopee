@@ -315,9 +315,10 @@ module.exports.resolvers = {
 
       return repository.messageThread.findByIdsAndParticipants(
         liveStream.privateMessageThreads,
-        [user, liveStream.streamer],
+        // [user, liveStream.streamer],
+        [user.id],
       )
-        .then((thread) => (!thread ? [] : [thread]));
+        // .then((thread) => (!thread ? [] : [thread]));
     },
     // products(liveStream, _, { dataSources: { repository } }) {
     //   return repository.product.getByIds(liveStream.products);

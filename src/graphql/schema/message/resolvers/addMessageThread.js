@@ -74,9 +74,11 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
         }
       });
 
+      const newParticipants = [...input.receivers, user._id].filter((v, i, a) => a.indexOf(v) === i);
+
       // check if message thread is already created in the livestream.
-      const existingThreads = await repository.messageThread.findAllByIdsAndParticipants(liveStream.privateMessageThreads, [...input.receivers, user._id]);
-      const [existing] = existingThreads.filter(thread => arrayEquals([...input.receivers, user._id], thread.participants))
+      const existingThreads = await repository.messageThread.findAllByIdsAndParticipants(liveStream.privateMessageThreads, newParticipants);
+      const [existing] = existingThreads.filter(thread => arrayEquals(newParticipants, thread.participants))
 
       if (existing) {
         return existing;
@@ -87,13 +89,12 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
           `LiveStream:${input.liveStream}`,
           `CreatedBy:${user._id}`
         ],
-        participants: [...input.receivers, user._id],
+        participants: newParticipants,
       };
 
       return repository.messageThread.create(messageThread)
         .then(messageThread => {
           if (!messageThread) throw new Error("Failed to create a message thread!");
-
           liveStream.privateMessageThreads.push(messageThread._id);
           return Promise.all([
             messageThread, liveStream.save(),
@@ -107,6 +108,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
           ])
         })
         .then(([ messageThread, liveStream, [userHasMessageThread] ]) => {
+          pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
           return messageThread;
         })
     })
