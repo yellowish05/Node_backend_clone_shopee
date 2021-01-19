@@ -313,7 +313,7 @@ module.exports.resolvers = {
         return repository.messageThread.findByIds(liveStream.privateMessageThreads);
       }
 
-      return repository.messageThread.findByIdsAndParticipants(
+      return repository.messageThread.findAllByIdsAndParticipants(
         liveStream.privateMessageThreads,
         // [user, liveStream.streamer],
         [user.id],
