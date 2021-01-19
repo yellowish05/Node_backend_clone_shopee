@@ -68,6 +68,8 @@ module.exports = {
 
     return repository.productCategory.getAll(query)
       .then(productCategories => {
+        if (productCategories.length === 0) return [];
+
         // calculate match count.
         productCategories.forEach(category => {
           category.matchPoint = this.calcKeywordMatchPoint(keywords, category);
@@ -75,9 +77,18 @@ module.exports = {
 
         // sort by match point.
         productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
-        return productCategories.length ? 
-          repository.productVariation.getByCategory(productCategories[0].id) : 
-          [];
+        
+        const maxPoint = productCategories[0].matchPoint;
+        
+        return Promise.all(productCategories
+          // .filter(item => item.matchPoint === maxPoint)
+          .map(item => repository.productVariation.getByCategory(item._id))
+        )
+          .then((variationsArray) => {
+            variationsArray = variationsArray.filter(el => el.length > 0);
+            const [variations] = variationsArray.filter(el => el.length === Math.max(...variationsArray.map(el => el.length)));
+            return variations || [];
+          })
       })
   },
   calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
@@ -122,6 +133,13 @@ module.exports = {
   
     return Promise.all(exchangePromises);
   },
+  async convertToUSD(price) {
+    const amountOfMoney = CurrencyFactory.getAmountOfMoney({ currencyAmount: price.amount, currency: price.currency });
+    if (price.currency && price.currency !== "USD") {
+      return CurrencyService.exchange(amountOfMoney, "USD");
+    }
+    return amountOfMoney;
+  },
   async productInLivestream() {
     return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
     .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
@@ -147,11 +165,24 @@ module.exports = {
 
     if (filter.price) {
       if (filter.price.min) {
-        filter.price.min = await this.exchangeOnSupportedCurrencies(filter.price.min);
+        // const minPrices = await this.exchangeOnSupportedCurrencies(filter.price.min);
+        // const [minInUSD] = minPrices.filter(el => el.currency === 'USD');
+        // filter.price.min = minPrices;
+
+        const amount = await this.convertToUSD(filter.price.min);
+        const cent = amount.getCentsAmount();
+        filter.price.min1 = { amount: cent, currency: amount.getCurrency() };
       }
 
       if (filter.price.max) {
-        filter.price.max = await this.exchangeOnSupportedCurrencies(filter.price.max);
+        // const maxPrices = await this.exchangeOnSupportedCurrencies(filter.price.max);
+        // const maxInUSD = maxPrices.filter(el => el.currency === 'USD');
+        // filter.price.max = maxPrices;
+        // filter.price.max1 = maxInUSD;
+
+        const amount = await this.convertToUSD(filter.price.max);
+        const cent = amount.getCentsAmount();
+        filter.price.max1 = { amount: cent, currency: amount.getCurrency() };
       }
     }
 

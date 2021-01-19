@@ -53,6 +53,7 @@ const schema = new Schema({
   sortPrice: {
     type: Number,
     required: true,
+    index: true,
   },
   currency: {
     type: String,
