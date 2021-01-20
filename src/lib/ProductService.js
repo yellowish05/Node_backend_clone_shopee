@@ -91,6 +91,50 @@ module.exports = {
           })
       })
   },
+  async attributeFilter({ searchQuery: keyword }) {
+    if (!keyword.trim()) return [];
+
+    const keywords = keyword.split(' ').map(item => item.trim());
+
+    const query = { $or: [] };
+    query.$or = keywords.map(kwd => ({ hashtags: { $regex: `${kwd}`, $options: 'i' } }));
+
+    return repository.productCategory.getAll(query)
+      .then(productCategories => {
+        if (productCategories.length === 0) return [];
+
+        // calculate match count.
+        productCategories.forEach(category => {
+          category.matchPoint = this.calcKeywordMatchPoint(keywords, category);
+        });
+
+        // sort by match point.
+        productCategories.sort((a, b) => b.matchPoint - a.matchPoint);
+        
+        const maxPoint = productCategories[0].matchPoint;
+        
+        return Promise.all(productCategories
+          // .filter(item => item.matchPoint === maxPoint)
+          .map(item => repository.productVariation.getByCategory(item._id))
+        )
+          .then((variationsArray) => {
+            // WI = With Index.
+            const pcWI = productCategories.map((item, i) => ({ index: i, value: item }));
+            const vaWI = variationsArray.map((item, i) => ({ index: i, value: item }));
+
+            const [pcWIbyName] = pcWI.filter(item => item.value.name === keyword);
+            const [vaWI_MaxLen] = vaWI.filter(item => item.value.length === Math.max(...variationsArray.map(el => el.length)));
+
+            const selIndex = pcWIbyName ? pcWIbyName.index : vaWI_MaxLen.index;
+            
+            return Promise.all([
+              repository.productCategory.getByParent(pcWI[selIndex].value.id),
+              vaWI[selIndex].value
+            ]);
+          })
+          .then(([productCategories, productVariations]) => ({ productCategories, productVariations }))
+      })
+  },
   calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
     let matches = 0;
     for (const keyword of keywords) {
