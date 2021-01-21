@@ -6,6 +6,7 @@ const addProductToCart = require('./resolvers/addProductToCart');
 const deleteCartItem = require('./resolvers/deleteCartItem');
 const updateCartItem = require('./resolvers/updateCartItem');
 const loadCart = require('./resolvers/loadCart');
+const selectCartItems = require('./resolvers/selectCartItems');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -76,6 +77,7 @@ const schema = gql`
             Allows: authorized user
         """
         clearCart : Cart! @auth(requires: USER)
+        selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
     }
 `;
 
@@ -100,6 +102,7 @@ module.exports.resolvers = {
       return repository.userCartItem.clear(user.id)
         .then(() => loadCart(...args));
     },
+    selectCartItems,
   },
   Cart: {
     price: async ({ items }, args) => (
