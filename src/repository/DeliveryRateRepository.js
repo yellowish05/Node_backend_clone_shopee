@@ -14,8 +14,8 @@ class DeliveryRateRepository {
   }
 
   async create(data) {
-    const addressCache = new this.model(data);
-    return addressCache.save();
+    const deliveryRate = new this.model(data);
+    return deliveryRate.save();
   }
 }
 

@@ -6,7 +6,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
   .then((items) => Promise.all(items.map(async (item) => {
     item.product = await repository.product.getById(item.product)
       .then((product) => {
-        if (!product) { throw new ForbiddenError('Product does not exist'); }
+        if (!product) { throw new ForbiddenError(`Product with id "${item.product}" does not exist`); }
 
         return product;
       });

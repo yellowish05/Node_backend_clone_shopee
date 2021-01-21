@@ -41,7 +41,11 @@ const schema = new Schema({
   note: {
     type: String,
     default: null,
-  }
+  },
+  selected: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = new model(collectionName, schema);

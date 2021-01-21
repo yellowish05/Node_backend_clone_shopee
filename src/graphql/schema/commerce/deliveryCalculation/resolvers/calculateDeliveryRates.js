@@ -47,11 +47,11 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
     })
     .then(([product, deliveryAddress]) => {
       if (!product) {
-        throw new UserInputError('Product does not exists', { invalidArgs: 'product' });
+        throw new UserInputError('Product does not exist!', { invalidArgs: 'product' });
       }
 
       if (!deliveryAddress) {
-        throw new UserInputError('Delivery Address does not exists', { invalidArgs: 'deliveryAddress' });
+        throw new UserInputError('Delivery Address does not exist', { invalidArgs: 'deliveryAddress' });
       }
 
       if (!deliveryAddress.address.isDeliveryAvailable) {
@@ -119,7 +119,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
               carrierAccountIds.push(carrierItem.carrierId);
               carrierIds[carrierItem.carrierId] = carrierItem._id;
             });
-            const fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId;
+            const fromAddressId = organization.address.addressId ? organization.address.addressId : user.address.addressId; //biwu? maybe seller.address.addressId
             return EasyPost.calculateRates({
               fromAddress: fromAddressId, toAddress: deliveryAddress.address.addressId, parcelId: shippingBox.parcelId, carrierAccountIds,
             }).then((response) => {
@@ -142,7 +142,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
                     rate_id: id,
                     deliveryDays: delivery_days,
                     estimatedDeliveryDate: delivery_date,
-                    amount: (rateAmount * 100).toFixed(2),
+                    amount: (rateAmount * 100).toFixed(2), //biwu? maybe need to consider quantity?
                     currency,
                   },
                 );

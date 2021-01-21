@@ -29,7 +29,9 @@ const schema = gql`
 
       product: Product!
       deliveryIncluded: Boolean!
+      deliveryAddress: DeliveryAddress
       note: String
+      selected: Boolean
     }
 
     interface CartItemInterface {
@@ -266,6 +268,10 @@ module.exports.resolvers = {
       return repository.user.getById(user);
     },
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
+    deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
+      return repository.deliveryRate.getById(rateId)
+        .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
+    },
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
   },
