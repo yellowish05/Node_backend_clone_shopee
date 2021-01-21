@@ -313,11 +313,12 @@ module.exports.resolvers = {
         return repository.messageThread.findByIds(liveStream.privateMessageThreads);
       }
 
-      return repository.messageThread.findByIdsAndParticipants(
+      return repository.messageThread.findAllByIdsAndParticipants(
         liveStream.privateMessageThreads,
-        [user, liveStream.streamer],
+        // [user, liveStream.streamer],
+        [user.id],
       )
-        .then((thread) => (!thread ? [] : [thread]));
+        // .then((thread) => (!thread ? [] : [thread]));
     },
     // products(liveStream, _, { dataSources: { repository } }) {
     //   return repository.product.getByIds(liveStream.products);

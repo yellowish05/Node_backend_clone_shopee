@@ -10,6 +10,7 @@ const addMessage = require('./resolvers/addMessage');
 const markMessageThreadReadBy = require('./resolvers/markMessageThreadReadBy');
 const getMessageThreadCollection = require('./resolvers/getMessageThreadCollection');
 const addMessageThread = require('./resolvers/addMessageThread');
+const updateMessageThreadStatus = require('./resolvers/updateMessageThreadStatus');
 
 const schema = gql`
     enum MessageSortFeature {
@@ -49,6 +50,7 @@ const schema = gql`
       participants: [User!]!
       messages(limit: Int! = 10, sort: MessageSortInput = {}): [Message]!
       unreadMessages: Int!
+      status: MessageThreadStatus
     }
 
     input MessageThreadInput {
@@ -61,9 +63,19 @@ const schema = gql`
       pager: Pager
     }
 
+    type MessageThreadStatus {
+      hidden: Boolean
+      muted: Boolean
+    }
+
     input MessageThreadFilterInput {
       hasUnreads: Boolean = null
       liveStream: ID
+    }
+
+    input MessageThreadStatusInput {
+      hidden: Boolean
+      muted: Boolean
     }
 
     extend type Query {
@@ -79,6 +91,11 @@ const schema = gql`
       addMessage(input: MessageInput!): Message! @auth(requires: USER)
       """Allows: authorized user"""
       markMessageThreadReadBy(thread: ID!, time: Date!): MessageThread! @auth(requires: USER)
+      """
+      Allows: authorized user.
+      ids: array of message thread ids.
+      """
+      updateMessageThreadStatus(ids: [ID!], status: MessageThreadStatusInput!): [MessageThread]
     }
 
     extend type Subscription {
@@ -103,6 +120,7 @@ module.exports.resolvers = {
     addMessage,
     markMessageThreadReadBy,
     addMessageThread,
+    updateMessageThreadStatus,
   },
   Subscription: {
     messageAdded: {
@@ -171,6 +189,10 @@ module.exports.resolvers = {
           return repository.message.get({ blackList: user.blackList, thread: thread.id });
         })
         .then((unreadMessages) => unreadMessages.length);
+    },
+    status(thread, _, { dataSources: { repository }, user }) {
+      if (!user) return null;
+      return repository.userHasMessageThread.findOne(thread.id, user.id);
     },
   },
 };

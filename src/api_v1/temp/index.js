@@ -424,6 +424,26 @@ tempRouter.route('/upload-stream-category').post(async (req, res) => {
   })
 })
 
+tempRouter.route('/include-name-to-product-cateogry-hashtags').post(async (req, res) => {
+  return repository.productCategory.getAll()
+    .then(categories => {
+      let result = {
+        added: 0,
+        total: 0,
+      };
+      result.total = categories.length;
+      return Promise.all(categories.map(category => {
+        let hashtags = category.hashtags;
+        if (!hashtags.includes(category.name)) {
+          hashtags.push(category.name);
+          category.hashtags = hashtags;
+          result.added ++;
+        }
+      }))
+      .then(() => result);
+    })
+    .then(result => res.json(result));
+})
 
 
 module.exports = tempRouter;

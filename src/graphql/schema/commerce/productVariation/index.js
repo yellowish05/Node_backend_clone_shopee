@@ -8,6 +8,7 @@ const deleteProductVariation = require('./resolvers/deleteProductVariation');
 const productVariations = require('./resolvers/productVariations');
 const productVariationsByKeyword = require('./resolvers/productVariationsByKeyword');
 const uploadBulkProductVariations = require('./resolvers/uploadBulkProductVariations');
+const attributeFilter = require('./resolvers/attributeFilter');
 
 const schema = gql`
 
@@ -76,6 +77,15 @@ const schema = gql`
       failed: Int!
       failedList: FailedProductVariations!
     }
+  type AttributeFilter {
+    productVariations: [ProductVariation!]
+    productCategories: [ProductCategory!]
+  }
+
+  input AttributeFilterInput {
+    searchQuery: String
+  }
+
   extend type Query {
     productVariation(id: ID!): ProductVariation
     productVariationByKeyName(keyName: String!): ProductVariation
@@ -83,7 +93,12 @@ const schema = gql`
         filter: ProductVariationFilterInput = {}, 
         sort: ProductVariationSortInput = {}, 
         page: PageInput = {}): ProductVariationCollection! @auth(requires: USER)
-    productVariationsByKeyword(keyword: String!): [ProductVariation]
+    """
+      @deprecated: use "attributeFilter" instread.
+    """
+    productVariationsByKeyword(keyword: String!): [ProductVariation] @deprecated(reason: "Use 'attributeFilter' instead")
+    attributeFilter(data: AttributeFilterInput): AttributeFilter
+
   }
 
   extend type Mutation {
@@ -106,6 +121,7 @@ module.exports.resolvers = {
     },
     productVariations,
     productVariationsByKeyword,
+    attributeFilter,
   },
   Mutation: {
     addProductVariation,

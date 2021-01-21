@@ -21,19 +21,19 @@ const activity = {
       });
   },
 
-  async quitFromActiveChannels({ userId }, repository) {
+  async quitFromActiveChannels( userId, repository) {
     return repository.streamChannelParticipant
       .getParticipantActiveChannels(userId)
-      .then((channels) => channels.map(({ channelId }) => (
-        repository.streamChannelParticipant.leaveStream(channelId, userId)
-      )));
+      .then((channels) => channels.map(({ channel }) => {
+        return repository.streamChannelParticipant.leaveStream(channel, userId)
+      }));
   },
 
   async createChannelParticipant({ liveStream, user }, repository) {
     return repository.streamChannelParticipant.create({
       channel: liveStream.channel,
       token: AgoraService.buildTokenWithAccount(liveStream.channel, user.id, StreamRole.SUBSCRIBER),
-      user,
+      user: user.id,
       isPublisher: false,
     });
   },
