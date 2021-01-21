@@ -170,8 +170,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         thread: messageThread.id,
         user: user.id,
         readBy: Date.now(),
-        muted: true,
-        hidden: true,
+        muted: false,
+        hidden: false,
       }).catch((error) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });
