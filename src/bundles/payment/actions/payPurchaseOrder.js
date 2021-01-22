@@ -179,7 +179,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
               (link) => link.rel === "approval_url"
             );
             transaction.providerTransactionId = orderResponse.id;
-            transaction.responsePayload = JSON.stringify(orderResponse);
+            transaction.responsePayload = orderResponse; //JSON.stringify(orderResponse);
             await transaction.save();
             return {
               publishableKey: "",

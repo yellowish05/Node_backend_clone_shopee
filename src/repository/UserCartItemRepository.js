@@ -95,7 +95,7 @@ class UserCartItemRepository {
       throw new Error(`UserCartItem.clear expected id as String, but got "${typeof userId}"`);
     }
 
-    return this.model.deleteMany({ user: userId });
+    return this.model.deleteMany({ user: userId, selected: true });
   }
 }
 

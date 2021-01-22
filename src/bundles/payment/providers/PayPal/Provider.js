@@ -50,8 +50,8 @@ class Provider extends ProviderAbstract {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": 'https://mojie-api.shoclef.com/pages/paypal/success', //`${protocol}://${domain}/pages/paypal/success`,
-            "cancel_url": 'https://mojie-api.shoclef.com/pages/paypal/cancel', //`${protocol}://${domain}/pages/paypal/cancel`
+            "return_url": `${protocol}://${domain}/pages/paypal/success`, //,'https://mojie-api.shoclef.com/pages/paypal/success'
+            "cancel_url": `${protocol}://${domain}/pages/paypal/cancel`, //'https://mojie-api.shoclef.com/pages/paypal/cancel'
         },
         "transactions": [{
             "amount": {
@@ -60,9 +60,11 @@ class Provider extends ProviderAbstract {
             },
         }]
     };
+    console.log('[amount]', amountOfMoney.getCurrencyAmount());
     return new Promise(resolve => {
         this.client.payment.create(create_payment_json, (error, payment) => {
             if (error) {
+              console.log('[PayPal error]', error.response.details);
                 resolve({error: error.message});
             } else {
                 resolve(payment);

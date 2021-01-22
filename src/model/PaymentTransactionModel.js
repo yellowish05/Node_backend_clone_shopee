@@ -52,7 +52,7 @@ const schema = new Schema({
     type: String,
   },
   responsePayload: {
-    type: String,
+    type: Object,
   },
   paymentMethod: {
     type: String,

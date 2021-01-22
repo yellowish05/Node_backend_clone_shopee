@@ -11,7 +11,9 @@ module.exports = async function checkoutCart(
   { currency, provider },
   { dataSources: { repository }, user },
 ) {
-  const cartItems = await checkout.loadCartAndValidate(user.id, repository);
+  let cartItems = await checkout.loadCartAndValidate(user.id, repository);
+  cartItems = cartItems.filter(item => item.selected);
+  if (!cartItems.length) throw new ForbiddenError("Please select items to checkout!");
 
   // creating order and clean cart
   const order = await checkout.createOrder({
@@ -28,7 +30,7 @@ module.exports = async function checkoutCart(
       if (result.publishableKey) { order.publishableKey = result.publishableKey; }
       if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
 
-      order.deliveryOrders = null;
+      order.deliveryOrders = null;  //biwu? why?
       return repository.purchaseOrder.update(order);
     })
     .then(async (order) => {
@@ -44,14 +46,14 @@ module.exports = async function checkoutCart(
           type: NotificationType.SELLER_ORDER,
           user: productInfo.seller,
           data: {
-            content: order.title,
+            content: order.title, //biwu? no title in model.
             name: productInfo.title,
             photo: productInfo.assets,
             date: order.createdAt,
             status: OrderItemStatus.CONFIRMED,
             linkID: order.id,
           },
-          tags: ['Order:order.id'],
+          tags: [`Order:${order.id}`],
         });
         // send push notification to seller
         if (seller.device_id) { await PushNotificationService.sendPushNotification({ message: `Your product-${productInfo.title} was sold.`, device_ids: [seller.device_id] }); }

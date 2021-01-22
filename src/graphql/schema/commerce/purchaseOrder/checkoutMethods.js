@@ -126,7 +126,7 @@ module.exports = {
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
-    order.isPaid = true;
+    order.isPaid = true;  //biwu? maybe set true after successful payment via webhook? or any revert process?
 
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 

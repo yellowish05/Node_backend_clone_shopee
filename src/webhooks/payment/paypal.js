@@ -19,6 +19,7 @@ module.exports = async (req, res) => {
     if (eventType === "PAYMENTS.PAYMENT.CREATED") {
         const payId = data.id;
         const transaction = await repository.paymentTransaction.getByProviderTransactionId(payId);
+        if (!transaction) return res.json({ status: false, message: "transaction not found!" });
         // const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:', '');
         transaction.processedAt = new Date();
         transaction.status = PaymentTransactionStatus.SUCCESS;
@@ -28,15 +29,18 @@ module.exports = async (req, res) => {
             payer_id: data.payer.payer_info.payer_id,
             transactions: data.transactions.map(tx => ({amount: tx.amount}))
         };
-        paypal.payment.execute(payId, execute_details, function (error, capture) {
+        paypal.payment.execute(payId, execute_details, async function (error, capture) {
             if (error) {
                 console.error(error);
             } else {
-                console.log(capture);
+                console.log('[Captured]', capture);
                 // To-do: clear user carts
                 // Funds have been captured
                 // Fulfill any orders, e-mail receipts, etc
                 // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
+                
+                // delete selected cart items.
+                await repository.userCartItem.clear(transaction.buyer);
                 return res.json({capture,transaction});
             }
         });
