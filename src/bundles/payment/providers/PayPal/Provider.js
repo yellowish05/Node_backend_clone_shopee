@@ -14,6 +14,12 @@ const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 
 const logger = require(path.resolve('config/logger'));
 
+const activity = {
+  generateErrorString: (error) => {
+    return error.response.details.map(detail => detail.issue).join('; ');
+  },
+}
+
 class Provider extends ProviderAbstract {
   constructor({ mode, client_id, client_secret }, repository) {
     super();
@@ -60,12 +66,11 @@ class Provider extends ProviderAbstract {
             },
         }]
     };
-    console.log('[amount]', amountOfMoney.getCurrencyAmount());
     return new Promise(resolve => {
         this.client.payment.create(create_payment_json, (error, payment) => {
             if (error) {
-              console.log('[PayPal error]', error.response.details);
-                resolve({error: error.message});
+              // console.log('[PayPal error]', activity.generateErrorString(error));
+              resolve({ error: activity.generateErrorString(error) });
             } else {
                 resolve(payment);
             }

@@ -48,6 +48,7 @@ class PurchaseOrderRepository {
     order.buyer = data.buyer ? data.buyer : order.buyer;
     order.paymentClientSecret = data.paymentClientSecret ? data.paymentClientSecret : order.paymentClientSecret;
     order.publishableKey = data.publishableKey ? data.publishableKey : order.publishableKey;
+    order.error = data.error ? data.error : order.error;
 
     return order.save();
   }
