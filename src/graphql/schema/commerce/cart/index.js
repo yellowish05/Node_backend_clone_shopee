@@ -76,7 +76,7 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        clearCart : Cart! @auth(requires: USER)
+        clearCart(selected: Boolean) : Cart! @auth(requires: USER)
         selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
     }
 `;
@@ -98,8 +98,8 @@ module.exports.resolvers = {
       deleteCartItem(...args).then(() => loadCart(...args))
     ),
     clearCart: async (...args) => {
-      const [,, { dataSources: { repository }, user }] = args;
-      return repository.userCartItem.clear(user.id)
+      const [, { selected } , { dataSources: { repository }, user }] = args;
+      return repository.userCartItem.clear(user.id, selected)
         .then(() => loadCart(...args));
     },
     selectCartItems,

@@ -94,10 +94,9 @@ class UserCartItemRepository {
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.clear expected id as String, but got "${typeof userId}"`);
     }
-
     const query = { user: userId };
-    if (typeof selected === 'boolean') {
-      query.selected = selected;
+    if (typeof selected === 'boolean' && selected === true) {
+      query.selected = true;
     }
     return this.model.deleteMany(query);
   }
