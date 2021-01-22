@@ -13,7 +13,7 @@ module.exports = async function checkoutCart(
 ) {
   let cartItems = await checkout.loadCartAndValidate(user.id, repository);
   cartItems = cartItems.filter(item => item.selected);
-  // if (!cartItems.length) throw new ForbiddenError("Please select items to checkout!");
+  if (!cartItems.length) throw new ForbiddenError("Please select items to checkout!");
 
   // creating order and clean cart
   const order = await checkout.createOrder({
@@ -25,7 +25,6 @@ module.exports = async function checkoutCart(
   // generate payments with Payment Provider data and update order
   return payPurchaseOrder({ order, provider, user })
     .then(async (result) => {
-      console.log('[purcahse result]', result);
       if (result.error) { order.error = result.error; }
 
       if (result.publishableKey) { order.publishableKey = result.publishableKey; }
@@ -36,7 +35,7 @@ module.exports = async function checkoutCart(
     })
     .then(async (order) => {
       if (!order.error) {
-        console.log('[Process soldout]')
+        console.log('[Payment success]')
         cartItems.map(async (item) => {
           const { product, quantity } = item;
           const productInfo = await repository.product.getById(product);
@@ -80,9 +79,9 @@ module.exports = async function checkoutCart(
       }
       return order;
     })
-    .catch(e => {
-      console.log('[Checkout error]', e);
-      return null;
-    });
+    // .catch(e => {
+    //   console.log('[Checkout error]', e);
+    //   return null;
+    // });
 
 };

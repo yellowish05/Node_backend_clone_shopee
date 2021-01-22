@@ -41,7 +41,7 @@ module.exports = async (req, res) => {
                 // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
                 
                 // delete selected cart items.
-                await repository.userCartItem.clear(transaction.buyer);
+                await repository.userCartItem.clear(transaction.buyer, true);
                 const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:');
                 await repository.purchaseOrder.findByTransactionId(transaction.id)
                   .then(purchaseOrder => {

@@ -90,12 +90,16 @@ class UserCartItemRepository {
       });
   }
 
-  async clear(userId) {
+  async clear(userId, selected = null) {
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.clear expected id as String, but got "${typeof userId}"`);
     }
 
-    return this.model.deleteMany({ user: userId, selected: true });
+    const query = { user: userId };
+    if (typeof selected !== 'boolean') {
+      query.selected = selected;
+    }
+    return this.model.deleteMany(query);
   }
 }
 
