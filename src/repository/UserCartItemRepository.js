@@ -96,7 +96,7 @@ class UserCartItemRepository {
     }
 
     const query = { user: userId };
-    if (typeof selected !== 'boolean') {
+    if (typeof selected === 'boolean') {
       query.selected = selected;
     }
     return this.model.deleteMany(query);
