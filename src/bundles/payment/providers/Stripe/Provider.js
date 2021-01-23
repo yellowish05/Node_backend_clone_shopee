@@ -331,7 +331,7 @@ class Provider extends ProviderAbstract {
         currency: currency.toLowerCase(),
         customer: newCustomer.customerId
       });
-
+      console.log("[Stripe response]", response.id)
       return response;
     } catch (error) {
       return {

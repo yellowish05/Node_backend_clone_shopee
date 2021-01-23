@@ -42,8 +42,10 @@ class UserCartItemRepository {
     return this.model.find(query);
   }
 
-  async getItemsByUser(userId) {
-    return this.model.find({ user: userId });
+  async getItemsByUser(userId, selected = false) {
+    const query = { user: userId };
+    if (selected) query.selected = true;
+    return this.model.find(query);
   }
 
   async add({

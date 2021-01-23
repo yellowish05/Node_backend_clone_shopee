@@ -1,60 +1,86 @@
 const path = require('path');
 const logger = require(path.resolve('config/logger'));
-const { PaymentTransactionStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
-
 const repository = require(path.resolve('src/repository'));
-const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
 const { payment } = require(path.resolve('config'));
-const stripe = require("stripe")(payment.providers.stripe.secret);
 const paypal = require('paypal-rest-sdk');
-
 paypal.configure(payment.providers.paypal);
 
+const { PaymentTransactionStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
+const processTransaction = require(path.resolve('src/bundles/payment/actions/processTransaction'));
+const ordersBundle = require(path.resolve('src/bundles/orders'));
+const { TransactionAlreadyProcessedException, TransactionNotFoundException } = require(path.resolve('src/bundles/payment/Exceptions'));
+const pubsub = require(path.resolve('config/pubsub'));
+
+
+const activity = {
+  capturePayment: async ({ paymentId, execute_details }) => {
+    return new Promise((resolve, reject) => {
+      paypal.payment.execute(paymentId, execute_details, function (error, capture) {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(capture);
+        }
+      });      
+    })
+
+  },
+  paymentCreated: async (data, repository) => {
+    const _self = activity;
+    const paymentId = data.id;
+    const execute_details = {
+        payer_id: data.payer.payer_info.payer_id,
+        transactions: data.transactions.map(tx => ({amount: tx.amount}))
+    };
+    return _self.capturePayment({ paymentId, execute_details })
+      .then(() => {
+        return repository.paymentTransaction.getByProviderTransactionId(paymentId);
+      })
+      // if provider needs own transactionProcesser, use it.
+      .then((transaction) => processTransaction(repository)({ transaction, response: null }))
+      .then((transaction) => {
+        pubsub.publish('PAYMENT_TRANSACTION_CHANGED', { id: transaction._id, ...transaction.toObject() });
+        const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:', '');
+        return repository.purchaseOrder.getById(purchaseOrderId);
+      })
+      .then((purchaseOrder) => ordersBundle.executeOrderPaidFlow(purchaseOrder))
+      .then(async (purchaseOrder) => {
+        // do some extra process.
+        await checkout.clearUserCart(purchaseOrder.buyer, repository);
+        // decrease quantity of product.
+
+        return { code: 200, message: 'Success' };
+      })
+      .catch(error => {
+        console.log('[paypal webhook]', error);
+        if (error instanceof TransactionAlreadyProcessedException) {
+          return { code: 200, message: `${error.message} already processed!` };
+        } else if (error instanceof TransactionNotFoundException) {
+          return { code: 404, message: `${error.message} not found!` };
+        } else {
+          return { code: 400, message: error.message };
+        }
+      })
+  }
+};
 
 module.exports = async (req, res) => {
-    let data, eventType;
+  let data = req.body.resource;
+  let eventType = req.body.event_type;
 
-    data = req.body.resource; // console.log('[payment id]', data.id);
-    eventType = req.body.event_type;
-
-    if (eventType === "PAYMENTS.PAYMENT.CREATED") {
-        const payId = data.id;
-        const transaction = await repository.paymentTransaction.getByProviderTransactionId(payId);
-        if (!transaction) return res.json({ status: false, message: "transaction not found!" });
-        // const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:', '');
-        transaction.processedAt = new Date();
-        transaction.status = PaymentTransactionStatus.SUCCESS;
-        await transaction.save();
-
-        const execute_details = {
-            payer_id: data.payer.payer_info.payer_id,
-            transactions: data.transactions.map(tx => ({amount: tx.amount}))
-        };
-        paypal.payment.execute(payId, execute_details, async function (error, capture) {
-            if (error) {
-                console.error(error);
-            } else {
-                console.log('[Captured]', payId); // , capture
-                // To-do: clear user carts
-                // Funds have been captured
-                // Fulfill any orders, e-mail receipts, etc
-                // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
-                
-                // delete selected cart items.
-                await repository.userCartItem.clear(transaction.buyer, true);
-                const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:');
-                await repository.purchaseOrder.findByTransactionId(transaction.id)
-                  .then(purchaseOrder => {
-                    purchaseOrder.status = PurchaseOrderStatus.ORDERED;
-                    purchaseOrder.isPaid = true;
-                    return purchaseOrder.save();
-                  })
-                return res.json({capture,transaction});
-            }
+  switch (eventType) {
+    case 'PAYMENTS.PAYMENT.CREATED':
+      return activity.paymentCreated(data, repository)
+        .then(({ message, code }) => {
+          console.log('[message]', message);
+          return res.status(code).send(message)
         });
-    } else if (eventType === "PAYMENT.SALE.COMPLETED") {
-        res.sendStatus(200);
-    } else {
-        res.send('No matches in event type!');
-    }
+      break;
+    case "PAYMENT.SALE.COMPLETED":
+      res.status(200).send('Got it!');
+      break;
+    default: 
+      res.sendStatus(200);
+  }
 };

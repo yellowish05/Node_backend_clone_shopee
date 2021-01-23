@@ -126,7 +126,7 @@ module.exports = {
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
-    order.isPaid = false; // mark as paid in webhook or somewhere.
+    order.isPaid = false;
 
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 

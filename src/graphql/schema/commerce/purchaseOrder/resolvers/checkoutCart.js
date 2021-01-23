@@ -4,7 +4,7 @@ const checkout = require('../checkoutMethods');
 
 const { payPurchaseOrder } = require(path.resolve('src/bundles/payment'));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
-const { NotificationType, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
+const { NotificationType, OrderItemStatus, PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 
 module.exports = async function checkoutCart(
   _,
@@ -31,6 +31,7 @@ module.exports = async function checkoutCart(
       if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
 
       order.deliveryOrders = null;  //biwu? why?
+      order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
       return repository.purchaseOrder.update(order);
     })
     .then(async (order) => {
