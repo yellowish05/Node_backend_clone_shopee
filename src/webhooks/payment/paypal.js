@@ -11,8 +11,6 @@ const processTransaction = require(path.resolve('src/bundles/payment/actions/pro
 const ordersBundle = require(path.resolve('src/bundles/orders'));
 const { TransactionAlreadyProcessedException, TransactionNotFoundException } = require(path.resolve('src/bundles/payment/Exceptions'));
 const pubsub = require(path.resolve('config/pubsub'));
-
-
 const activity = {
   capturePayment: async ({ paymentId, execute_details }) => {
     return new Promise((resolve, reject) => {
@@ -53,7 +51,6 @@ const activity = {
         return { code: 200, message: 'Success' };
       })
       .catch(error => {
-        console.log('[paypal webhook]', error);
         if (error instanceof TransactionAlreadyProcessedException) {
           return { code: 200, message: `${error.message} already processed!` };
         } else if (error instanceof TransactionNotFoundException) {
@@ -73,11 +70,12 @@ module.exports = async (req, res) => {
     case 'PAYMENTS.PAYMENT.CREATED':
       return activity.paymentCreated(data, repository)
         .then(({ message, code }) => {
-          console.log('[message]', message);
+          logger.info(`[WEBHOOK][PAYPAL][PAYMENTS.PAYMENT.CREATED] ${code}:${message}`);
           return res.status(code).send(message)
         });
       break;
     case "PAYMENT.SALE.COMPLETED":
+      logger.info('[WEBHOOK][PAYPAL][PAYMENT.SALE.COMPLETED] 200:Got it!');
       res.status(200).send('Got it!');
       break;
     default: 

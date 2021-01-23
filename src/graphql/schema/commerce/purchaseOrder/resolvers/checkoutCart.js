@@ -30,13 +30,12 @@ module.exports = async function checkoutCart(
       if (result.publishableKey) { order.publishableKey = result.publishableKey; }
       if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
 
-      order.deliveryOrders = null;  //biwu? why?
+      order.deliveryOrders = null;
       order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
       return repository.purchaseOrder.update(order);
     })
     .then(async (order) => {
       if (!order.error) {
-        console.log('[Payment success]')
         cartItems.map(async (item) => {
           const { product, quantity } = item;
           const productInfo = await repository.product.getById(product);
