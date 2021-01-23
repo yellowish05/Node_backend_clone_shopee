@@ -11,6 +11,9 @@ const processTransaction = require(path.resolve('src/bundles/payment/actions/pro
 const ordersBundle = require(path.resolve('src/bundles/orders'));
 const { TransactionAlreadyProcessedException, TransactionNotFoundException } = require(path.resolve('src/bundles/payment/Exceptions'));
 const pubsub = require(path.resolve('config/pubsub'));
+const { EmailService } = require(path.resolve('src/bundles/email'));
+
+
 const activity = {
   capturePayment: async ({ paymentId, execute_details }) => {
     return new Promise((resolve, reject) => {
@@ -22,7 +25,6 @@ const activity = {
         }
       });      
     })
-
   },
   paymentCreated: async (data, repository) => {
     const _self = activity;
@@ -46,6 +48,8 @@ const activity = {
       .then(async (purchaseOrder) => {
         // do some extra process.
         await checkout.clearUserCart(purchaseOrder.buyer, repository);
+        EmailService.sendInvoicePDFs(purchaseOrder);
+        EmailService.sendPackingSlipPDFs(purchaseOrder);
         // decrease quantity of product.
 
         return { code: 200, message: 'Success' };
