@@ -81,13 +81,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     )
     .then(() => Promise.all(args.data.productDurations.map((productDuration) => repository.product.getById(productDuration.product)))
       .then((products) => {
-        products.forEach((product) => {
+        products.forEach((product, i) => {
           if (!product) {
-            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+            throw new Error(`Product can not be addded to the Live Stream, because of Product "${args.data.productDurations[i].product}" does not exist!`);
           }
 
           if (product.seller !== user.id) {
-            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+            throw new ForbiddenError(`You cannot add product "${args.data.productDurations[i].product}" to this Live Stream`);
           }
         });
     }))
@@ -170,8 +170,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         thread: messageThread.id,
         user: user.id,
         readBy: Date.now(),
-        muted: true,
-        hidden: true,
+        muted: false,
+        hidden: false,
       }).catch((error) => {
         logger.error(`Failed to update User Thread on join public thread for user "${user.id}". Original error: ${error}`);
       });

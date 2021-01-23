@@ -65,30 +65,6 @@ module.exports = {
         if (!cartItems.length) {
           throw new UserInputError('User Cart is empty');
         }
-        const productIds = cartItems.map((item) => item.product).filter((id) => id);
-        const deliveryRateIds = cartItems.map((item) => item.deliveryRate).filter((id) => id);
-        cartItems.map((item) => {
-          if (!repository.productInventoryLog.checkAmount(item.product, item.quantity)) { throw new Error('Invalide to checkout this cart'); }
-        });
-
-        // prev version
-  //       return Promise.all([
-  //         repository.product.getByIds(productIds),
-  //         repository.deliveryRate.getByIds(deliveryRateIds),
-  //       ])
-  //         .then(([products, deliveryRates]) => cartItems.map((item) => {
-  //           const netProductCount = products.map(product => productIds.filter(productId => productId === product.id)).reduce((sum, itemsCount) => sum + itemsCount.length, 0);
-  //           // if (products.length !== deliveryRates.length) {
-  //           if (netProductCount !== deliveryRates.length) {
-  //             throw new UserInputError('Not all cart items have delivery rate');
-  //           }
-  //           // eslint-disable-next-line no-param-reassign
-  //           [item.product] = products.filter((product) => product.id === item.product);
-  //           [item.deliveryRate] = deliveryRates.filter((deliveryRate) => deliveryRate.id === item.deliveryRate);
-  //           return item;
-  //         }));
-  //     });
-  // },
 
         return Promise.all(cartItems.map(async (item) => {
           item.product = await repository.product.getById(item.product);
@@ -134,7 +110,7 @@ module.exports = {
   async createOrder({
     cartItems, currency, buyerId,
   }, repository) {
-    const factory = new OrderFactory(cartItems, currency);
+    const factory = new OrderFactory(cartItems, currency, repository);
 
     const orderItems = await factory.createOrderItems()
       .then((items) => Promise.all(
@@ -150,7 +126,7 @@ module.exports = {
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);
-    order.isPaid = true;
+    order.isPaid = false;
 
     // cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product._id, item.quantity));
 
@@ -162,6 +138,6 @@ module.exports = {
   },
 
   async clearUserCart(userId, repository) {
-    return repository.userCartItem.clear(userId);
+    return repository.userCartItem.clear(userId, true);
   },
 };

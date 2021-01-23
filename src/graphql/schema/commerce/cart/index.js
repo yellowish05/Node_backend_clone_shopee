@@ -6,6 +6,7 @@ const addProductToCart = require('./resolvers/addProductToCart');
 const deleteCartItem = require('./resolvers/deleteCartItem');
 const updateCartItem = require('./resolvers/updateCartItem');
 const loadCart = require('./resolvers/loadCart');
+const selectCartItems = require('./resolvers/selectCartItems');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -29,7 +30,9 @@ const schema = gql`
 
       product: Product!
       deliveryIncluded: Boolean!
+      deliveryAddress: DeliveryAddress
       note: String
+      selected: Boolean
     }
 
     interface CartItemInterface {
@@ -73,7 +76,8 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        clearCart : Cart! @auth(requires: USER)
+        clearCart(selected: Boolean) : Cart! @auth(requires: USER)
+        selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
     }
 `;
 
@@ -94,10 +98,11 @@ module.exports.resolvers = {
       deleteCartItem(...args).then(() => loadCart(...args))
     ),
     clearCart: async (...args) => {
-      const [,, { dataSources: { repository }, user }] = args;
-      return repository.userCartItem.clear(user.id)
+      const [, { selected } , { dataSources: { repository }, user }] = args;
+      return repository.userCartItem.clear(user.id, selected)
         .then(() => loadCart(...args));
     },
+    selectCartItems,
   },
   Cart: {
     price: async ({ items }, args) => (
@@ -266,6 +271,10 @@ module.exports.resolvers = {
       return repository.user.getById(user);
     },
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
+    deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
+      return repository.deliveryRate.getById(rateId)
+        .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
+    },
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
   },

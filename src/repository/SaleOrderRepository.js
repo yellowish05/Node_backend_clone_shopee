@@ -33,8 +33,8 @@ class SaleOrderRepository {
     return this.model.findOne({ _id: id });
   }
 
-  async getAll() {
-    return this.model.find();
+  async getAll(query = {}) {
+    return this.model.find(query);
   }
 
   async find({ user }) {

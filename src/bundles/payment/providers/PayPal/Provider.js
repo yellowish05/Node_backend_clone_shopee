@@ -14,6 +14,12 @@ const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 
 const logger = require(path.resolve('config/logger'));
 
+const activity = {
+  generateErrorString: (error) => {
+    return error.response.details.map(detail => detail.issue).join('; ');
+  },
+}
+
 class Provider extends ProviderAbstract {
   constructor({ mode, client_id, client_secret }, repository) {
     super();
@@ -50,8 +56,8 @@ class Provider extends ProviderAbstract {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": 'https://mojie-api.shoclef.com/pages/paypal/success', //`${protocol}://${domain}/pages/paypal/success`,
-            "cancel_url": 'https://mojie-api.shoclef.com/pages/paypal/cancel', //`${protocol}://${domain}/pages/paypal/cancel`
+            "return_url": `${protocol}://${domain}/pages/paypal/success`, //,'https://mojie-api.shoclef.com/pages/paypal/success'
+            "cancel_url": `${protocol}://${domain}/pages/paypal/cancel`, //'https://mojie-api.shoclef.com/pages/paypal/cancel'
         },
         "transactions": [{
             "amount": {
@@ -63,7 +69,8 @@ class Provider extends ProviderAbstract {
     return new Promise(resolve => {
         this.client.payment.create(create_payment_json, (error, payment) => {
             if (error) {
-                resolve({error: error.message});
+              // console.log('[PayPal error]', activity.generateErrorString(error));
+              resolve({ error: activity.generateErrorString(error) });
             } else {
                 resolve(payment);
             }

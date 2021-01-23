@@ -10,8 +10,7 @@ const stripe = require('stripe')(payment.providers.stripe.secret);
 const { EmailService } = require(path.resolve('src/bundles/email'));
 
 module.exports = async (req, res) => {
-  let data; let
-    eventType;
+  let data; let eventType;
 
   data = req.body.data;
   eventType = req.body.type;
@@ -23,7 +22,7 @@ module.exports = async (req, res) => {
     console.log('💰 Payment captured!');
     const { customer } = data.object;
     const buyer = await repository.paymentStripeCustomer.getByCustomerID(customer);
-    const cartItems = await repository.userCartItem.getItemsByUser(buyer.user);
+    const cartItems = await repository.userCartItem.getItemsByUser(buyer.user, true);
     cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product, item.quantity));
     await checkout.clearUserCart(buyer.user, repository);
 

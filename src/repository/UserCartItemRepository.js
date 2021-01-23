@@ -42,8 +42,10 @@ class UserCartItemRepository {
     return this.model.find(query);
   }
 
-  async getItemsByUser(userId) {
-    return this.model.find({ user: userId });
+  async getItemsByUser(userId, selected = false) {
+    const query = { user: userId };
+    if (selected) query.selected = true;
+    return this.model.find(query);
   }
 
   async add({
@@ -90,12 +92,15 @@ class UserCartItemRepository {
       });
   }
 
-  async clear(userId) {
+  async clear(userId, selected = null) {
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.clear expected id as String, but got "${typeof userId}"`);
     }
-
-    return this.model.deleteMany({ user: userId });
+    const query = { user: userId };
+    if (typeof selected === 'boolean' && selected === true) {
+      query.selected = true;
+    }
+    return this.model.deleteMany(query);
   }
 }
 

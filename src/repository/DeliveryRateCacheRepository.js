@@ -15,11 +15,11 @@ class DeliveryRateCacheRepository {
   }
 
   async create(data) {
-    const addressCache = new this.model({
+    const deliveryRateCache = new this.model({
       _id: uuid(),
       ...data,
     });
-    return addressCache.save();
+    return deliveryRateCache.save();
   }
 }
 

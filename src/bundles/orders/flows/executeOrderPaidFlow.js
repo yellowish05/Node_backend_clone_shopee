@@ -5,6 +5,7 @@ const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
 const { PurchaseOrderStatus, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 
+
 module.exports = async (purchaseOrder) => {
   purchaseOrder.isPaid = true;
   purchaseOrder.status = PurchaseOrderStatus.ORDERED;
@@ -22,29 +23,32 @@ module.exports = async (purchaseOrder) => {
     return result;
   }, {});
 
-  const saleOrderPromisses = Object.keys(itemsBySeller).map((seller) => {
-    const saleOrder = {
-      seller,
-      buyer: purchaseOrder.buyer,
-      deliveryOrders: purchaseOrder.deliveryOrders,
-      items: itemsBySeller[seller].map((item) => item.id),
-      quantity: itemsBySeller[seller].reduce((sum, item) => sum + item.quantity, 0),
-      currency: purchaseOrder.currency,
-      total: itemsBySeller[seller].reduce((sum, item) => sum + item.total, 0),
-    };
+  // saleOrders are also created in 'src/graphql/schema/ecommerce/purchaseOrder/checkoutMethods.js
+  // const saleOrderPromisses = Object.keys(itemsBySeller).map((seller) => {
+  //   const saleOrder = {
+  //     seller,
+  //     buyer: purchaseOrder.buyer,
+  //     deliveryOrders: purchaseOrder.deliveryOrders,
+  //     items: itemsBySeller[seller].map((item) => item.id),
+  //     quantity: itemsBySeller[seller].reduce((sum, item) => sum + item.quantity, 0),
+  //     currency: purchaseOrder.currency,
+  //     total: itemsBySeller[seller].reduce((sum, item) => sum + item.total, 0),
+  //   };
 
-    return repository.saleOrder.create(saleOrder);
-  });
+  //   return repository.saleOrder.create(saleOrder);
+  // });
 
 
-  await Promise.all([
+  return Promise.all([
     purchaseOrder.save(),
     repository.orderItem.changeStatus(purchaseOrder.items, OrderItemStatus.ORDERED),
-    ...saleOrderPromisses,
+    // ...saleOrderPromisses, // #checkoutMethods
+    repository.saleOrder.getAll({ purchaseOrder: purchaseOrder.id }),
   ])
-    .then(([, , ...orders]) => {
+    .then(([purchaseOrder, , orders]) => {
       const saleOrderIds = orders.map((order) => order.id);
-      logger.info(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] success! SaleOrders "${saleOrderIds.join(', ')}" Created`);
+      logger.info(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] success! SaleOrders "${saleOrderIds.join(', ')}" paid`);
+      return purchaseOrder;
     })
     .catch((error) => {
       logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] failed! error "${error.message}" ${error.stack}`);

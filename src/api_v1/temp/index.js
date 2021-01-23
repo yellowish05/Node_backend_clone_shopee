@@ -19,6 +19,8 @@ var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
 
+const { protocol, domain } = require(path.resolve('config/index'));
+
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
@@ -71,6 +73,12 @@ tempRouter.route('/gen-password').post(async (req, res) => {
     encrypt: md5(req.body.password)
   })
 });
+
+tempRouter.route('/get-domain').get(async (req, res) => {
+  res.json({
+    domain: `${protocol}://${domain}`,
+  })
+})
 
 tempRouter.route('/decode-token').post(async (req, res) => {
   const data = jwt.decode(req.body.token);

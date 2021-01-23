@@ -39,7 +39,7 @@ class PurchaseOrderRepository {
     order.deliveryOrders = data.deliveryOrders ? data.deliveryOrders : order.deliveryOrders;
     order.items = data.items ? data.items : order.items;
     order.payments = data.payments ? data.payments : order.payments;
-    order.isPaid = data.isPaid ? data.isPaid : order.isPaid;
+    order.isPaid = data.isPaid !==undefined ? data.isPaid : order.isPaid;
     order.currency = data.currency ? data.currency : order.currency;
     order.quantity = data.quantity ? data.quantity : order.quantity;
     order.price = data.price ? data.price : order.price;
@@ -48,6 +48,7 @@ class PurchaseOrderRepository {
     order.buyer = data.buyer ? data.buyer : order.buyer;
     order.paymentClientSecret = data.paymentClientSecret ? data.paymentClientSecret : order.paymentClientSecret;
     order.publishableKey = data.publishableKey ? data.publishableKey : order.publishableKey;
+    order.error = data.error ? data.error : order.error;
 
     return order.save();
   }

@@ -27,7 +27,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     ]))
     .then(async ([product, deliveryRate, productAttr]) => {
       if (!product) {
-        throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [product] });
+        throw new UserInputError(`Product with id "${args.product}" does not exist!`, { invalidArgs: [args.product] });
       }
       if (args.productAttribute && !productAttr) {
         throw new UserInputError('Product attribute does not exist.', { invalidArgs: [args.productAttribute]});
@@ -83,7 +83,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           return repository.userCartItem.add(cartItemData, user.id);
         });
     })
-    .catch((error) => {
+    .catch((error) => { console.log(error);
       throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
     });
 };
