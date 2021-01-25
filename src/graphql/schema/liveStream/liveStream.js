@@ -19,6 +19,7 @@ const addStreamRecord = require('./resolvers/addStreamRecord');
 const updateStreamRecord = require('./resolvers/updateStreamRecord');
 const previousQueue = require('./resolvers/previousQueue');
 const nextQueue = require('./resolvers/nextQueue');
+const updateLiveStreamProducts = require('./resolvers/updateLiveStreamProducts');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -194,6 +195,7 @@ const schema = gql`
       updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
       addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
       updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
+      updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream!
     }
 
     extend type Subscription {
@@ -246,6 +248,7 @@ module.exports.resolvers = {
     updateLiveStreamThumbnail,
     addStreamRecord,
     updateStreamRecord,
+    updateLiveStreamProducts,
   },
   Subscription: {
     liveStream: {
