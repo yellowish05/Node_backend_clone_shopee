@@ -16,6 +16,7 @@ const logger = require(path.resolve('config/logger'));
 
 const activity = {
   generateErrorString: (error) => {
+    console.log('[error] repsonse:', error.response);
     return error.response.details.map(detail => detail.issue).join('; ');
   },
 }
