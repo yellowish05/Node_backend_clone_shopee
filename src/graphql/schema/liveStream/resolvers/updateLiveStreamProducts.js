@@ -14,7 +14,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     // validate livestream
     await repository.liveStream.load(liveStream)
       .then(liveStreamById => {
-        if (!liveStreamById) provider.error(`Livestream with id "${liveStream}" does not exist!`);
+        if (!liveStreamById) provider.error('liveStream', 'custom', `Livestream with id "${liveStream}" does not exist!`);
+        else if (liveStreamById.id !== user.id) provider.error('liveStream', 'custom', "You can not update this livestream!");
       })
 
     // validate products
