@@ -195,7 +195,7 @@ const schema = gql`
       updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
       addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
       updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
-      updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream!
+      updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream! @auth(requires: USER)
     }
 
     extend type Subscription {
