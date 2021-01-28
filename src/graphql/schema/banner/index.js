@@ -113,6 +113,7 @@ const schema = gql`
       type: BannerType
       adType: BannerAdType
       layout: BannerLayoutType
+      identifiers: [String!]
     }
 
     input BannerSortInput {
@@ -134,6 +135,7 @@ const schema = gql`
 
     extend type Query {
       banner(id: ID!): Banner!
+      bannerByIdentifier(identifier: String!): Banner!
       banners(
         filter: BannerFilterInput = {},
         sort: BannerSortInput = {}, 
@@ -152,6 +154,9 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     banner,
+    bannerByIdentifier: async (_, { identifier }, { dataSources: { repository }}) => {
+      return repository.banner.getOne({ identifier });
+    },
     banners,
   },
   Mutation: {

@@ -1,8 +1,6 @@
 const path = require('path');
 const uuid = require('uuid/v4');
 
-// const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
-
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
@@ -25,7 +23,7 @@ function transformSortInput({ feature, type }) {
   return { [availableFeatures[feature]]: availableTypes[type] };
 }
 
-function applyFilter(query, { searchQuery, sitePath, type, adType, layout }) {
+function applyFilter(query, { searchQuery, sitePath, type, adType, layout, identifiers = [] }) {
   if (!query.$and) {
     query.$and = [
       { name: {$ne: null} }
@@ -40,6 +38,7 @@ function applyFilter(query, { searchQuery, sitePath, type, adType, layout }) {
   if (type) query.$and.push({ type });
   if (adType) query.$and.push({ adType });
   if (layout) query.$and.push({ layout });
+  if (identifiers.length) query.$and.push({ identifier: { $in: identifiers } });
 }
 
 class BannerRepository {

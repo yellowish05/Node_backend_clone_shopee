@@ -1,14 +1,12 @@
 const path = require('path');
 const uuid = require('uuid/v4');
-const fs = require('fs');
-const os = require('os');
 const csv = require('csv-parser');
 const { Validator } = require('node-input-validator');
-const { onPossiblyUnhandledRejection } = require('bluebird');
+
 const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
 const { assets: { types: assetTypes } } = require(path.resolve('config'));
-const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
 
 
