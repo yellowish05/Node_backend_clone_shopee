@@ -7,6 +7,7 @@ const banner = require("./resolvers/banner");
 const banners = require("./resolvers/banners");
 const addBanner = require("./resolvers/addBanner");
 const updateBanner = require('./resolvers/updateBanner');
+const uploadBulkBanners = require('./resolvers/uploadBulkBanners');
 
 const schema = gql`
 
@@ -81,8 +82,6 @@ const schema = gql`
       name: String!
       page: String
       sitePath: String!
-      # assets: [String!]!
-      # urls: [String]!
       assets: [BannerAssetInput]!
       adType: BannerAdType!
       type: BannerType!
@@ -95,8 +94,7 @@ const schema = gql`
       name: String
       page: String
       sitePath: String
-      assets: [ID!]
-      urls: [String]
+      assets: [BannerAssetInput]
       adType: BannerAdType
       type: BannerType
       layout: BannerLayoutType
@@ -122,6 +120,18 @@ const schema = gql`
       type: SortTypeEnum! = ASC
     }
 
+    type FailedBanners{
+      row: [Int!]
+      errors: [String!]
+    }
+
+    type UploadedBanners {
+      total: Int!
+      success: Int!
+      failed: Int!
+      failedList: FailedBanners!
+    }
+
     extend type Query {
       banner(id: ID!): Banner!
       banners(
@@ -133,6 +143,7 @@ const schema = gql`
     extend type Mutation {
       addBanner (data: BannerInput!): Banner! @auth(requires: USER)
       updateBanner(id: ID!, data: BannerUpdateInput!): Banner! @auth(requires: USER)
+      uploadBulkBanners(file: Upload!): UploadedBanners @auth(requires: USER)
     }
 `;
 
@@ -146,7 +157,6 @@ module.exports.resolvers = {
   Mutation: {
     addBanner,
     updateBanner,
+    uploadBulkBanners,
   },
-  Banner: {
-  }
 };

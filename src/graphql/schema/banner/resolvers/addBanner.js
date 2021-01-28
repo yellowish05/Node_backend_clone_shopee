@@ -23,12 +23,12 @@ module.exports = async (_, { data }, { user, dataSources: { repository } }) => {
 
   validator.addPostRule(async (provider) => {
     // check if  identifier is duplicated or not.
-    repository.banner.getOne({ identifier: provider.inputs.identifier })
+    await repository.banner.getOne({ identifier: provider.inputs.identifier })
       .then(banner => {
         if (banner) provider.error('identifier', 'custom', 'Banner with the given identifier already exists!');
       })
     // check if name is duplicated.
-    repository.banner.getByName(provider.inputs.name)
+    await repository.banner.getByName(provider.inputs.name)
       .then(banner => {
         if (banner) provider.error('name', 'custom', 'Banner with the given name already exists!');
       })
