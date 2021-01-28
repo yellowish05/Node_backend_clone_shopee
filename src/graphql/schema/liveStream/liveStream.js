@@ -42,7 +42,7 @@ const schema = gql`
 
     type StreamProductDuration {
       product: Product
-      duration: String!
+      duration: String
     }
 
     input StreamProductDurationInput {
