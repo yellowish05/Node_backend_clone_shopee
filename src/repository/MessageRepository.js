@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-function transformSortInput({ feature = 'createdAt', type = 'DESC' }) {
+function transformSortInput({ feature = 'CREATED_AT', type = 'DESC' }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
   };
