@@ -188,11 +188,7 @@ module.exports.resolvers = {
           }
           return repository.message.get({ blackList: user.blackList, thread: thread.id });
         })
-        .then((unreadMessages) => unreadMessages.length)
-        .catch(e => {
-          console.log('[error]', e);
-          return [];
-        });
+        .then((unreadMessages) => unreadMessages.length);
     },
     status(thread, _, { dataSources: { repository }, user }) {
       if (!user) return null;

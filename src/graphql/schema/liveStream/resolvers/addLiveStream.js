@@ -96,19 +96,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new Error(`Thumbnail asset does not exist with id "${args.data.thumbnail}"!`);
       }
     }))
-    // this validation is no longer needed as 'LiveStream.products' is replaced with 'productDurations' field. @from: Nov 18, 2020.
-    // .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
-    //   .then((products) => {
-    //     products.forEach((product) => {
-    //       if (!product) {
-    //         throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
-    //       }
 
-    //       if (product.seller !== user.id) {
-    //         throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
-    //       }
-    //     });
-    // }))
     .then(async() => {
       const channelId = uuid();
       const liveStreamId = uuid();
@@ -117,16 +105,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       let sources = [];
 
-      if(args.data.liveStreamRecord.length > 0)
-      {
+      if (args.data.liveStreamRecord && args.data.liveStreamRecord.length > 0) {
         await Promise.all(
           args.data.liveStreamRecord.map(async (recordItem) => {
             sources.push(await getlivestreamsource(user, recordItem, repository));
           })
         );
-      }
-      else
-      {
+      } else {
         sources.push(await getlivestreamsource(user,"http://18.185.121.9:5000/" + channelId + "-record.mp4",repository)); 
       }
 
@@ -215,7 +200,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       });
     })
     .catch((error) => {
-      console.log(error);
       throw new ApolloError(`Failed to add Live Stream. Original error: ${error.message}`, 400);
     });
 };
