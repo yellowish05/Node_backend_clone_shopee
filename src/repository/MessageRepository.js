@@ -39,7 +39,7 @@ class MessageRepository {
   }
 
   async get({
-    blackList, thread, skip, limit, sort,
+    blackList, thread, skip, limit, sort = {},
   }) {
     const query = {
       thread,
