@@ -37,8 +37,19 @@ const schema = gql`
       height: Int!
     }
 
+    type BannerAsset {
+      image: String!
+      link: String
+    }
+
+    input BannerAssetInput {
+      image: String!
+      link: String
+    }
+
     type Banner {
       id: ID!
+      identifier: String!
       """
         Unique name for each banner.
       """
@@ -49,13 +60,9 @@ const schema = gql`
       page: String
       sitePath: String!
       """
-        Array of banner media as type of "Asset". Matches with urls by array index.
+        Array of pair of image and link. image is required, but link is optional.
       """
-      assets: [Asset!]
-      """
-        Array of redirecting link urls. Matches with assets by array index.
-      """
-      urls: [String!]
+      assets: [BannerAsset]!
       adType: BannerAdType!
       type: BannerType!
       layout: BannerLayoutType!
@@ -70,11 +77,13 @@ const schema = gql`
     }
 
     input BannerInput{
+      identifier: String!
       name: String!
       page: String
       sitePath: String!
-      assets: [ID!]
-      urls: [String]
+      # assets: [String!]!
+      # urls: [String]!
+      assets: [BannerAssetInput]!
       adType: BannerAdType!
       type: BannerType!
       layout: BannerLayoutType!
@@ -139,9 +148,5 @@ module.exports.resolvers = {
     updateBanner,
   },
   Banner: {
-    assets: async ({ assets: assetIds }, _, { dataSources: { repository } }) => {
-      if (!assetIds || !assetIds.length) return [];
-      return repository.asset.getByIds(assetIds);
-    }
   }
 };

@@ -105,7 +105,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
 
       let sources = [];
 
-      if (args.data.liveStreamRecord && args.data.liveStreamRecord.length > 0) {
+      args.data.liveStreamRecord = args.data.liveStreamRecord || [];
+      if (args.data.liveStreamRecord.length > 0) {
         await Promise.all(
           args.data.liveStreamRecord.map(async (recordItem) => {
             sources.push(await getlivestreamsource(user, recordItem, repository));
