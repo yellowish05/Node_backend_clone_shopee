@@ -118,28 +118,6 @@ module.exports.resolvers = {
     streamChannel(_, args, { dataSources: { repository } }) {
       return repository.streamChannel.load(args.id);
     },
-    // previousQueue(_, args, { dataSources: { repository } }) {
-    //   return repository.streamChannel.load(args.streamChannel)
-    //     .then((streamChannel) => {
-    //       return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }});
-    //     })
-    //     .then((streamSources) => {
-    //       const ids = streamSources.map(item => item._id);
-    //       const currentIdx = ids.indexOf(args.currentRecord);
-    //       return streamSources[currentIdx - 1];
-    //     });
-    // },
-    // nextQueue(_, args, { dataSources: { repository } }) {
-    //   return repository.streamChannel.load(args.streamChannel)
-    //     .then((streamChannel) => {
-    //       return repository.streamSource.getAll({ _id: {$in: streamChannel.record.sources || [] }});
-    //     })
-    //     .then((streamSources) => {
-    //       const ids = streamSources.map(item => item._id);
-    //       const currentIdx = ids.indexOf(args.currentRecord);
-    //       return streamSources[currentIdx + 1];
-    //     });
-    // },
   },
   Mutation: {
     joinStreamChannel,

@@ -24,7 +24,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then(() => repository.streamChannel.load(args.id))
     .then((streamChannel) => {
       if (!streamChannel) {
-        throw new UserInputError(`Stream Channel ${args.data.experience} does not exist`, { invalidArgs: 'id' });
+        throw new UserInputError(`Stream Channel ${args.id} does not exist`, { invalidArgs: 'id' });
       }
 
       if (streamChannel.status === StreamChannelStatus.FINISHED) {
