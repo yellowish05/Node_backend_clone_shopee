@@ -77,8 +77,8 @@ const schema = gql`
 
     extend type Mutation {
         """
-          Allows: authorized user
-          param.redirection: requires only for PayPal
+          - Allows: authorized user
+          - param.redirection: requires only for PayPal
         """
         checkoutCart(currency: Currency!, provider: PaymentMethodProviders!, redirection: RedirectionInput): PurchaseOrder! @auth(requires: USER)
 
