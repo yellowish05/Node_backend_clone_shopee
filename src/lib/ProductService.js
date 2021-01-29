@@ -41,6 +41,7 @@ module.exports = {
 
     return { brands, productCategories, hashtags };
   },
+
   async generateSlug({ id, slug: slugInput, title }) {
     return Promise.all([
       slugInput ? repository.product.getBySlug(slugInput) : null,
@@ -58,6 +59,7 @@ module.exports = {
         return slug;
       })
   },
+
   async findProductVariationsFromKeyword(keyword) {
     if (!keyword.trim()) return [];
 
@@ -91,6 +93,7 @@ module.exports = {
           })
       })
   },
+
   async attributeFilter({ searchQuery: keyword }) {
     if (!keyword.trim()) return [];
 
@@ -135,6 +138,7 @@ module.exports = {
           .then(([productCategories, productVariations]) => ({ productCategories, productVariations }))
       })
   },
+
   calcKeywordMatchPoint(keywords, { hashtags = [], level = 1}) {
     let matches = 0;
     for (const keyword of keywords) {
@@ -146,12 +150,14 @@ module.exports = {
     }
     return matches * matchWeightByLevel[level - 1];
   },
+
   composeHashtags(hashtags = [], brand) {
     if (brand && !hashtags.includes(brand.name)) {
       hashtags.includes(brand.name);
     }
     return hashtags;
   },
+
   async getAttributesFromVariations(variations = []) {
     variations = variations.filter(variation => !variation.name && !variation.value);
     if (!variations.length) return [];
@@ -159,6 +165,7 @@ module.exports = {
 
     return repository.productAttributes.getAll(query);
   },
+
   async exchangeOnSupportedCurrencies(price) {
     const currencies = CurrencyFactory.getCurrencies();
 
@@ -177,6 +184,7 @@ module.exports = {
   
     return Promise.all(exchangePromises);
   },
+
   async convertToUSD(price) {
     const amountOfMoney = CurrencyFactory.getAmountOfMoney({ currencyAmount: price.amount, currency: price.currency });
     if (price.currency && price.currency !== "USD") {
@@ -184,12 +192,14 @@ module.exports = {
     }
     return amountOfMoney;
   },
+
   async productInLivestream() {
     return repository.liveStream.getAll({"productDurations.0": {"$exists": true}})
     .then(livestreams => (livestreams.map(livestream => (livestream.productDurations.map(item => item.product)))))
     .then(arrays => [].concat(...arrays))
     .then(productIds => productIds.filter((v, i, a) => a.indexOf(v) === i))
   },
+
   async composeProductFilter(filter, user = null) {
     if (user) {
       filter.blackList = user.blackList;
@@ -242,12 +252,14 @@ module.exports = {
 
     return filter;
   },
+
   async checkProductQuantityAvailable({ product, quantity, productAttribute = null }, repository) {
     // to-do: should checked from product & product attributes collection.
     const available = productAttribute ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity) :
         await repository.productInventoryLog.checkAmount(product, quantity);
     return available;
   },
+
   /**
    * @description decrease the product amount
    *   - qty of product & product attribute: should be the sum of history in product inventory log.
@@ -264,11 +276,22 @@ module.exports = {
     ])
       .then(async ([ product, productAttr, inventoryLog ]) => {
         if (productAttr) {
-          productAttr.quantity -= args.quantity;
+          productAttr.quantity -= quantity;
           await productAttr.save();
         } else {
           await repository.productInventoryLog.decreaseQuantity(productId, quantity);
         }
+      })
+  },
+
+  async productSoldout({product: productId, quantity, productAttribute}, repository) {
+    // to-do: 
+    // - increase the product.sold
+    // - call decreaseProductQuantity?
+    return repository.product.getById(productId)
+      .then(product => {
+        product.sold += quantity;
+        return product.save();
       })
   },
 }

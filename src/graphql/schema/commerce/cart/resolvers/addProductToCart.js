@@ -80,6 +80,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         });
     })
     .catch((error) => { console.log(error);
-      throw new ApolloError(`Failed to add Product ot Cart. Original error: ${error.message}`, 400);
+      throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);
     });
 };
