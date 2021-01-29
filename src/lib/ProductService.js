@@ -242,4 +242,33 @@ module.exports = {
 
     return filter;
   },
+  async checkProductQuantityAvailable({ product, quantity, productAttribute = null }, repository) {
+    // to-do: should checked from product & product attributes collection.
+    const available = productAttribute ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity) :
+        await repository.productInventoryLog.checkAmount(product, quantity);
+    return available;
+  },
+  /**
+   * @description decrease the product amount
+   *   - qty of product & product attribute: should be the sum of history in product inventory log.
+   *   - inventory log: logs when admin adds & updates product, and its attributes. and when buyers buy & refund products.
+   *   - product.quatity & productAttributes.quantity: represents the current status.
+   *   - inventory.shift: represents the change quantity due to add, update, buy, refund.
+   */
+  async decreaseProductQuantity({ product: productId, quantity, productAttribute: productAttrId = null }, repository) {
+    
+    return Promise.all([
+      repository.product.getById(productId),
+      productAttrId ? repository.productAttributes.getById(productAttrId) : null,
+      repository.productInventoryLog.getByProductIdAndAttrId(productId, productAttrId),
+    ])
+      .then(async ([ product, productAttr, inventoryLog ]) => {
+        if (productAttr) {
+          productAttr.quantity -= args.quantity;
+          await productAttr.save();
+        } else {
+          await repository.productInventoryLog.decreaseQuantity(productId, quantity);
+        }
+      })
+  },
 }

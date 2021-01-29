@@ -1,6 +1,7 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
 
+const ProductService = require(path.resolve('src/lib/ProductService'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
@@ -47,7 +48,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
       }
 
-      const checkAmount = productAttr !== null ? (await repository.productAttributes.checkAmountByAttr(args.productAttribute, args.quantity)) : (await repository.productInventoryLog.checkAmount(args.product, args.quantity));
+      const checkAmount = await ProductService.checkProductQuantityAvailable(args, repository);
 
       if (!checkAmount) { throw new ForbiddenError('This product is not enough now'); }
 
@@ -73,12 +74,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           if (!response) { await repository.deliveryRate.create(deliveryRate.toObject()); }
         })
         .then(async () => {
-          if (productAttr) {
-            productAttr.quantity -= args.quantity;
-            await productAttr.save();
-          } else {
-            await repository.productInventoryLog.decreaseQuantity(args.product, args.quantity);
-          }
+          await ProductService.decreaseProductQuantity(args, repository);
 
           return repository.userCartItem.add(cartItemData, user.id);
         });

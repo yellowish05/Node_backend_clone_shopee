@@ -155,7 +155,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         repository.user.getById(user.id)
       ]);
     })
-    .then(([product, productInventoryLog, user]) => {
+    .then(async ([product, productInventoryLog, user]) => {
       if (data.attrs && data.attrs.length && data.attrs.length > 0) {
         let productAttrs = [];
         product.attrs = [];
