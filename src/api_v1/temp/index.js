@@ -27,7 +27,8 @@ const repository = require(path.resolve('src/repository'));
 const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
-
+const streamService = require(path.resolve('src/lib/StreamService'));
+const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
 const parseCSVContent = (readStream) => {
   const results = [];
@@ -452,6 +453,23 @@ tempRouter.route('/include-name-to-product-cateogry-hashtags').post(async (req, 
     })
     .then(result => res.json(result));
 })
+
+tempRouter.route('/update-stream-status').post(async (req, res) => {
+  return repository.liveStream.getAll({ status: 'CANCELED' })
+    .then(streams => Promise.all(streams.map(stream => {
+      return repository.streamChannel.load(stream.channel)
+        .then(streamChannel => {
+          if (stream.status === streamChannel.status) return [stream, streamChannel];
+          const statuses = [stream.status, streamChannel.status].filter(status => status !== StreamChannelStatus.CANCELED);
+          return streamService.updateStreamStatus(stream, statuses.length > 0 ? statuses[0] : StreamChannelStatus.CANCELED);
+        })
+        .then(([stream]) => stream.status)
+        .catch((e) => e.message);
+    })))
+    .then(statuses => res.json(statuses));
+})
+
+
 
 
 module.exports = tempRouter;

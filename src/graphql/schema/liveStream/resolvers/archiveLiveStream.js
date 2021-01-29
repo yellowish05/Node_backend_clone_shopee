@@ -4,7 +4,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
-
+const streamService = require(path.resolve('src/lib/StreamService'));
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -28,8 +28,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new ForbiddenError('You can not archive this Live Stream');
       }
 
-      liveStream.status = StreamChannelStatus.ARCHIVED;
-      return liveStream.save();
+      return streamService.updateStreamStatus(liveStream, StreamChannelStatus.ARCHIVED)
+        .then(([liveStream]) => liveStream);
     })
     .catch((error) => {
       throw new ApolloError(`Failed to archive Live Stream. Original error: ${error.message}`, 400);

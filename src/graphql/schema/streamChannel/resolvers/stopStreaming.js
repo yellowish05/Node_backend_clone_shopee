@@ -7,7 +7,7 @@ const { StreamChannelStatus, SourceType } = require(path.resolve('src/lib/Enums'
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('config/pubsub'));
-
+const streamService = require(path.resolve('src/lib/StreamService'));
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -63,12 +63,11 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             }
           }
 
-          repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
-            liveStream.status = StreamChannelStatus.FINISHED;
-            liveStream.save();
-            pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
-          });
-          return channel;
+          return streamService.updateStreamStatusByChannel(args.id, StreamChannelStatus.FINISHED);
+        })
+        .then(([liveStream, streamChannel]) => {
+          pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+          return streamChannel;
         });
     });
 };
