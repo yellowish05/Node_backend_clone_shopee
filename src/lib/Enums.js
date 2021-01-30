@@ -236,6 +236,11 @@ const GenderType = EnumFactory({
   OTHER: "OTHER",
 })
 
+const RatingTarget = EnumFactory({
+  PRODUCT: 'PRODUCT',
+  USER: 'USER',
+  ORGANIZATION: 'ORGANIZATION',
+});
 
 const languageEnum = {};
 languages.forEach((item) => {
@@ -279,4 +284,5 @@ module.exports = {
   BannerLayoutType,
   BannerType,
   GenderType,
+  RatingTarget,
 };

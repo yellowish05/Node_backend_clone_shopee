@@ -52,7 +52,7 @@ module.exports = async (purchaseOrder) => {
   //   return repository.saleOrder.create(saleOrder);
   // });
 
-  if (!purchaseOrder.error) {
+  try {
     const buyer = await repository.user.getById(purchaseOrder.buyer);
     orderItems.map(async (item) => {
       const { product, quantity } = item;
@@ -94,6 +94,8 @@ module.exports = async (purchaseOrder) => {
     });
     // send push notification to buyer
     if (buyer.device_id) { await PushNotificationService.sendPushNotification({ message: 'You paid your money to buy the products of your cart', device_ids: [buyer.device_id] }); }
+  } catch(e) {
+    logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}][NOTIFICATION & EMAIL] ${e.message}`);
   }
 
 

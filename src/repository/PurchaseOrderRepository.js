@@ -9,6 +9,10 @@ class PurchaseOrderRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getOne(query = {}) {
+    return this.model.findOne(query);
+  }
+
   async getAll() {
     return this.model.find();
   }

@@ -15,6 +15,7 @@ module.exports = {
   domain,
   protocol,
   baseURL: `${protocol}://${domain}/`,
+  pythonServer: process.env.PYTHON_SERVER,
   logs: {
     name: 'api',
     level: isDebugMode ? 'debug' : 'info',
