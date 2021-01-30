@@ -79,9 +79,4 @@ module.exports = async function checkoutCart(
       // }
       return order;
     })
-    // .catch(e => {
-    //   console.log('[Checkout error]', e);
-    //   return null;
-    // });
-
 };

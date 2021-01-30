@@ -1,3 +1,14 @@
+/**
+ * @name: executeOrderPaidFlow
+ * @description: post-process the successful purchase order. Triggered from webhooks(success).
+ * @summary:  
+ *  - update purchase order status: { isPaid: true, status: ORDERED }
+ *  - send buyer & seller notifications that the products are sold out.
+ *  - increase product.sold by orderitem.quantity
+ *  - update the status of order items -> ORDERED
+ * 
+ */
+
 /* eslint-disable no-param-reassign */
 const path = require('path');
 
@@ -42,7 +53,7 @@ module.exports = async (purchaseOrder) => {
   // });
 
   if (!purchaseOrder.error) {
-    const buyer = await repository.user.getBydId(purchaseOrder.buyer);
+    const buyer = await repository.user.getById(purchaseOrder.buyer);
     orderItems.map(async (item) => {
       const { product, quantity } = item;
       const productInfo = await repository.product.getById(product);

@@ -119,10 +119,12 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
     if (provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY) {
       return getProvider(stripeProvider)
         .createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
-        .then((paymentIntent) => {
+        .then(async (paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
           } else {
+            transaction.providerTransactionId = paymentIntent.id;
+            await transaction.save();
             return {
               publishableKey: stripe.publishable,
               paymentClientSecret: paymentIntent.client_secret,

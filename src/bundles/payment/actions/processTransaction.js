@@ -1,3 +1,9 @@
+/**
+ * @name: processTransaction
+ * @description: post-process the successful payment transaction.
+ * @summary:
+ *  - update status -> SUCCESS, processedAt, responsePayload?
+ */
 const path = require('path');
 const { TransactionAlreadyProcessedException, TransactionNotFoundException } = require('../Exceptions');
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));

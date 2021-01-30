@@ -1,36 +1,21 @@
 const path = require('path');
-
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
-const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
-const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const { payment } = require(path.resolve('config'));
 const stripe = require('stripe')(payment.providers.stripe.secret);
 
+const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
+const processTransaction = require(path.resolve('src/bundles/payment/actions/processTransaction'));
+const ordersBundle = require(path.resolve('src/bundles/orders'));
+const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const { TransactionAlreadyProcessedException, TransactionNotFoundException } = require(path.resolve('src/bundles/payment/Exceptions'));
+const pubsub = require(path.resolve('config/pubsub'));
 const { EmailService } = require(path.resolve('src/bundles/email'));
 
-module.exports = async (req, res) => {
-  let data; let eventType;
 
-  data = req.body.data;
-  eventType = req.body.type;
-
-  if (eventType === 'payment_intent.succeeded') {
-    // Funds have been captured
-    // Fulfill any orders, e-mail receipts, etc
-    // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
-    console.log('💰 Payment captured!');
-    const { customer } = data.object;
-    const buyer = await repository.paymentStripeCustomer.getByCustomerID(customer);
-    const cartItems = await repository.userCartItem.getItemsByUser(buyer.user, true);
-    cartItems.map((item) => repository.productInventoryLog.decreaseQuantity(item.product, item.quantity));
-    await checkout.clearUserCart(buyer.user, repository);
-
-    const pid = data.object.id;
-    const paymentIntent = await stripe.paymentIntents.retrieve(pid);
-    const paymentMethod = await stripe.paymentMethods.retrieve(paymentIntent.payment_method);
-    let paymentInfo = '';
-
+const activity = {
+  getPaymentInfo: (paymentMethod) => {
+    let paymentInfo;
     switch (paymentMethod.type) {
       case 'card':
         paymentInfo = `${paymentMethod.card.brand.toUpperCase()} Card Ending in ${paymentMethod.card.last4}`;
@@ -77,20 +62,67 @@ module.exports = async (req, res) => {
       default:
         break;
     }
+    return paymentInfo;
+  },
+}
+
+
+module.exports = async (req, res) => {
+  let data; let eventType;
+
+  data = req.body.data;
+  eventType = req.body.type;
+
+  if (eventType === 'payment_intent.succeeded') {
+    // Funds have been captured
+    // Fulfill any orders, e-mail receipts, etc
+    // To cancel the payment after capture you will need to issue a Refund (https://stripe.com/docs/api/refunds)
+    console.log('💰 Payment captured!');
+    const { customer, id: pid } = data.object;
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(pid);
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentIntent.payment_method);
+    const paymentInfo = activity.getPaymentInfo(paymentMethod);
 
     await repository.purchaseOrder.addPaymentInfo(paymentIntent.client_secret, paymentInfo);
     await repository.purchaseOrder.updateStatusByClientSecret(paymentIntent.client_secret, PurchaseOrderStatus.ORDERED);
 
-    const purchaseOrder = await repository.purchaseOrder.getByClientSecret(paymentIntent.client_secret);
-    EmailService.sendInvoicePDFs(purchaseOrder);
-    EmailService.sendPackingSlipPDFs(purchaseOrder);
+    let currentTransaction;
+    return repository.paymentTransaction.getByProviderTransactionId(pid)
+      .then(transaction => processTransaction(repository)({ transaction, response: data.object }))
+      .then(transaction => {
+        currentTransaction = transaction;
+        const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:', '');
+        return repository.purchaseOrder.getById(purchaseOrderId);
+      })
+      .then((purchaseOrder) => ordersBundle.executeOrderPaidFlow(purchaseOrder))
+      .then(async (purchaseOrder) => {
+        // do some extra process.
+        pubsub.publish('PAYMENT_TRANSACTION_CHANGED', { id: currentTransaction._id, ...currentTransaction.toObject() });
+        await checkout.clearUserCart(purchaseOrder.buyer, repository);
+        EmailService.sendInvoicePDFs(purchaseOrder);
+        EmailService.sendPackingSlipPDFs(purchaseOrder);
+        // decrease quantity of product.
+
+        return res.status(200).send('Success');
+      })
+      .catch(error => {
+        if (error instanceof TransactionAlreadyProcessedException) {
+          return res.status(200).send(`${error.message} already processed!`);
+        } else if (error instanceof TransactionNotFoundException) {
+          return res.status(404).send(`${error.message} not found!`);
+        } else {
+          return res.status(400).send(error.message);
+        }
+      })
+
   } else if (eventType === 'payment_intent.canceled' || eventType === 'payment_intent.payment_failed') {
     const pID = data.object.id;
     const { customer } = data.object;
     await stripe.paymentIntents.cancel(pID)
       .then(async () => {
         const user = await repository.paymentStripeCustomer.getByCustomerID(customer);
-        await checkout.clearUserCart(user.user, repository);
+        // await checkout.clearUserCart(user.user, repository); // no need to clear cart after failed payment. buyer should try again.
       }).catch((error) => console.log(error.message));
   }
 
