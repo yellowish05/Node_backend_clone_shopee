@@ -4,9 +4,9 @@ const os = require('os');
 const csv = require('csv-parser')
 const { Validator } = require('node-input-validator');
 const MIMEAssetTypes = require(path.resolve('src/lib/MIMEAssetTypes'));
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 
-const repository = require(path.resolve('src/repository'));
-
+const errorHandler = new ErrorHandler();
 
 const parseCSVContent = (readStream) => {
   const results = [];
@@ -20,7 +20,7 @@ const parseCSVContent = (readStream) => {
   })
 }
 
-module.exports = async (_, { file }) => {
+module.exports = async (_, { file }, { user, dataSources: { repository } }) => {
 
   const { createReadStream, mimetype, filename } = await file; console.log('[file]', mimetype, filename);
   const fileStream = createReadStream();

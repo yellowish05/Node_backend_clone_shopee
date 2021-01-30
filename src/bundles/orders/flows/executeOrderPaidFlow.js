@@ -1,9 +1,23 @@
+/**
+ * @name: executeOrderPaidFlow
+ * @description: post-process the successful purchase order. Triggered from webhooks(success).
+ * @summary:  
+ *  - update purchase order status: { isPaid: true, status: ORDERED }
+ *  - send buyer & seller notifications that the products are sold out.
+ *  - increase product.sold by orderitem.quantity
+ *  - update the status of order items -> ORDERED
+ * 
+ */
+
 /* eslint-disable no-param-reassign */
 const path = require('path');
 
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
-const { PurchaseOrderStatus, OrderItemStatus } = require(path.resolve('src/lib/Enums'));
+const { NotificationType, OrderItemStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
+const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 
 
 module.exports = async (purchaseOrder) => {
@@ -37,6 +51,52 @@ module.exports = async (purchaseOrder) => {
 
   //   return repository.saleOrder.create(saleOrder);
   // });
+
+  try {
+    const buyer = await repository.user.getById(purchaseOrder.buyer);
+    orderItems.map(async (item) => {
+      const { product, quantity } = item;
+      const productInfo = await repository.product.getById(product);
+      const seller = await repository.user.getById(productInfo.seller);
+      // update sold count of product.
+      await ProductService.productSoldout({ product, quantity }, repository);
+
+      // save notification to seller
+      await repository.notification.create({
+        type: NotificationType.SELLER_ORDER,
+        user: productInfo.seller,
+        data: {
+          content: purchaseOrder.title,
+          name: productInfo.title,
+          photo: productInfo.assets,
+          date: purchaseOrder.createdAt,
+          status: OrderItemStatus.CONFIRMED,
+          linkID: purchaseOrder.id,
+        },
+        tags: [`Order:${purchaseOrder.id}`],
+      });
+      // send push notification to seller
+      if (seller.device_id) { await PushNotificationService.sendPushNotification({ message: `Your product-${productInfo.title} was sold.`, device_ids: [seller.device_id] }); }
+    });
+    // save notification to buyer
+    await repository.notification.create({
+      type: NotificationType.BUYER_ORDER,
+      user: buyer.id,
+      data: {
+        content: purchaseOrder.title,
+        name: purchaseOrder.title,
+        photo: null,
+        date: purchaseOrder.createdAt,
+        status: OrderItemStatus.CONFIRMED,
+        linkID: purchaseOrder.id,
+      },
+      tags: ['Order:order.id'],
+    });
+    // send push notification to buyer
+    if (buyer.device_id) { await PushNotificationService.sendPushNotification({ message: 'You paid your money to buy the products of your cart', device_ids: [buyer.device_id] }); }
+  } catch(e) {
+    logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}][NOTIFICATION & EMAIL] ${e.message}`);
+  }
 
 
   return Promise.all([

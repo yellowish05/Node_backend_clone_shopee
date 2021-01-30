@@ -15,24 +15,20 @@ module.exports = async (_, { id, data }, { user, dataSources: { repository } }) 
   });
 
   validator.addPostRule(async (provider) => {
-    // validate asset ids
-    if (provider.inputs.assets) {
-      Promise.all(provider.inputs.assets.map(assetId => repository.asset.getById(assetId))
-      )
-        .then(assets => {
-          assets.forEach((asset, i) => {
-            if (!asset) {
-              provider.error('assets', 'custom', `Asset with id "${provider.inputs.assets[i]}" does not exist!`);
-            }
-          })
-        })  
+    // check if the identifier is duplicated.
+    if (data.identifier) {
+      repository.banner.getAll({ identifier: data.identifier })
+        .then(banners => {
+          const otherBanners = banners.filter(banner => banner.id !== provider.inputs.id);
+          if (otherBanners.length) provider.error('identifier', 'name', 'Banner with the given identifier already exists!');
+        })
     }
 
     // check if name is duplicated.
     repository.banner.getAll({ name: provider.inputs.name })
       .then(banners => {
         const otherBanners = banners.filter(banner => banner._id !== provider.inputs.id);
-        if (otherBanners) provider.error('name', 'custom', 'Banner with the given name already exists!');
+        if (otherBanners.length) provider.error('name', 'custom', 'Banner with the given name already exists!');
       })
   });
 
@@ -45,7 +41,7 @@ module.exports = async (_, { id, data }, { user, dataSources: { repository } }) 
       return repository.banner.getById(id);
     })
     .then(banner => {
-      const keys = ['name', 'page', 'sitePath', 'assets', 'urls', 'adType', 'size', 'type', 'layout', 'time'];
+      const keys = ['name', 'page', 'sitePath', 'assets', 'adType', 'size', 'type', 'layout', 'time'];
       keys.forEach(key => {
         if (data[key] !== undefined) {
           banner[key] = data[key];

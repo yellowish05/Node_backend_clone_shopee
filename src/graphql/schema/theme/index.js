@@ -98,7 +98,7 @@ const schema = gql`
     themes(
         filter: ThemeFilterInput = {}, 
         sort: ThemeSortInput = {}, 
-        page: PageInput = {}): ThemeCollection! @auth(requires: USER)
+        page: PageInput = {}): ThemeCollection!
   }
 
   extend type Mutation {

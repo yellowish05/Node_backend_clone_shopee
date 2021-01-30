@@ -112,7 +112,6 @@ function transformFilter({
   }
 
 
-
   return query.$and.length > 0 ? query : emptyQuery;
 }
 

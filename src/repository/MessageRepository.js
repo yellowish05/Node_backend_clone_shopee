@@ -1,6 +1,6 @@
 const uuid = require('uuid/v4');
 
-function transformSortInput({ feature, type }) {
+function transformSortInput({ feature = 'CREATED_AT', type = 'DESC' }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
   };
@@ -39,7 +39,7 @@ class MessageRepository {
   }
 
   async get({
-    blackList, thread, skip, limit, sort,
+    blackList, thread, skip, limit, sort = {},
   }) {
     const query = {
       thread,

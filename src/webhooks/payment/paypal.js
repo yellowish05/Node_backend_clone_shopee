@@ -5,7 +5,6 @@ const { payment } = require(path.resolve('config'));
 const paypal = require('paypal-rest-sdk');
 paypal.configure(payment.providers.paypal);
 
-const { PaymentTransactionStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const checkout = require(path.resolve('src/graphql/schema/commerce/purchaseOrder/checkoutMethods'));
 const processTransaction = require(path.resolve('src/bundles/payment/actions/processTransaction'));
 const ordersBundle = require(path.resolve('src/bundles/orders'));
@@ -33,20 +32,23 @@ const activity = {
         payer_id: data.payer.payer_info.payer_id,
         transactions: data.transactions.map(tx => ({amount: tx.amount}))
     };
+    let currentTransaction;
     return _self.capturePayment({ paymentId, execute_details })
       .then(() => {
+        console.log('💰 Payment captured!');
         return repository.paymentTransaction.getByProviderTransactionId(paymentId);
       })
       // if provider needs own transactionProcesser, use it.
       .then((transaction) => processTransaction(repository)({ transaction, response: null }))
       .then((transaction) => {
-        pubsub.publish('PAYMENT_TRANSACTION_CHANGED', { id: transaction._id, ...transaction.toObject() });
+        currentTransaction = transaction;
         const purchaseOrderId = transaction.tags[0].replace('PurchaseOrder:', '');
         return repository.purchaseOrder.getById(purchaseOrderId);
       })
       .then((purchaseOrder) => ordersBundle.executeOrderPaidFlow(purchaseOrder))
       .then(async (purchaseOrder) => {
         // do some extra process.
+        pubsub.publish('PAYMENT_TRANSACTION_CHANGED', { id: currentTransaction._id, ...currentTransaction.toObject() });
         await checkout.clearUserCart(purchaseOrder.buyer, repository);
         EmailService.sendInvoicePDFs(purchaseOrder);
         EmailService.sendPackingSlipPDFs(purchaseOrder);

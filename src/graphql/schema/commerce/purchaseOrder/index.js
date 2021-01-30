@@ -64,6 +64,11 @@ const schema = gql`
         statuses: [PurchaseOrderStatus!]
     }
 
+    input RedirectionInput {
+      success: String!
+      cancel: String!
+    }
+
     extend type Query {
         purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
         purchaseOrder(id: ID!): PurchaseOrder
@@ -71,8 +76,11 @@ const schema = gql`
     }
 
     extend type Mutation {
-        """Allows: authorized user"""
-        checkoutCart(currency: Currency!, provider: PaymentMethodProviders!): PurchaseOrder! @auth(requires: USER)
+        """
+          - Allows: authorized user
+          - param.redirection: requires only for PayPal
+        """
+        checkoutCart(currency: Currency!, provider: PaymentMethodProviders!, redirection: RedirectionInput): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
         checkoutOneProduct(

@@ -16,6 +16,7 @@ const { Translate } = require('@google-cloud/translate').v2;
 const md5 = require('md5');
 const csv = require('csv-parser');
 var formidable = require('formidable');
+// const LanguageDetect = require('languagedetect');
 
 const { transliterate: tr, slugify } = require('transliteration');
 
@@ -27,7 +28,11 @@ const repository = require(path.resolve('src/repository'));
 const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
+const streamService = require(path.resolve('src/lib/StreamService'));
+const PythonService = require(path.resolve('src/lib/PythonService'));
+const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
+// const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
 
 const parseCSVContent = (readStream) => {
   const results = [];
@@ -452,6 +457,34 @@ tempRouter.route('/include-name-to-product-cateogry-hashtags').post(async (req, 
     })
     .then(result => res.json(result));
 })
+
+tempRouter.route('/update-stream-status').post(async (req, res) => {
+  return repository.liveStream.getAll({ status: 'CANCELED' })
+    .then(streams => Promise.all(streams.map(stream => {
+      return repository.streamChannel.load(stream.channel)
+        .then(streamChannel => {
+          if (stream.status === streamChannel.status) return [stream, streamChannel];
+          const statuses = [stream.status, streamChannel.status].filter(status => status !== StreamChannelStatus.CANCELED);
+          return streamService.updateStreamStatus(stream, statuses.length > 0 ? statuses[0] : StreamChannelStatus.CANCELED);
+        })
+        .then(([stream]) => stream.status)
+        .catch((e) => e.message);
+    })))
+    .then(statuses => res.json(statuses));
+})
+
+tempRouter.route('/detect-lang').post(async (req, res) => {
+  return PythonService.detectLanguage(req.body.text)
+    .then(lang => res.json({ lang }))
+})
+
+// tempRouter.route('/detect-lang').post(async (req, res) => {
+//   const langDetector = new LanguageDetect();
+//   const result = langDetector.detect(req.body.text);
+//   res.json(result);
+// })
+
+
 
 
 module.exports = tempRouter;

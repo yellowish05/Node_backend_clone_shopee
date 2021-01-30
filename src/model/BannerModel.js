@@ -5,10 +5,26 @@ const { BannerAdType, BannerLayoutType, BannerType } = require('../lib/Enums');
 
 const collectionName = 'Banner';
 
+
+const BannerAsset = new Schema({
+  image: {
+    type: String,
+    required: true,
+  },
+  link: {
+    type: String,
+  },
+}, { _id: false });
+
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
 
+  identifier: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   name: {
     type: String,
     required: true,
@@ -22,16 +38,7 @@ const schema = new Schema({
     required: true,
   },
   assets: {
-    type: [{
-      type: String,
-      ref: 'Asset',
-    }],
-    default: [],
-  },
-  urls: {
-    type: [{
-      type: String,
-    }],
+    type: [BannerAsset],
     default: [],
   },
   adType: {

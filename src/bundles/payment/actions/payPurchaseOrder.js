@@ -59,7 +59,7 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   ]).then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({ order, provider }) => {
+module.exports = ({ getProvider, availableProviders }) => async ({ order, provider, redirection }) => {
   // if (!paymentMethod) {
   //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
   // }
@@ -119,10 +119,12 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
     if (provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY) {
       return getProvider(stripeProvider)
         .createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
-        .then((paymentIntent) => {
+        .then(async (paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
           } else {
+            transaction.providerTransactionId = paymentIntent.id;
+            await transaction.save();
             return {
               publishableKey: stripe.publishable,
               paymentClientSecret: paymentIntent.client_secret,
@@ -170,7 +172,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
         });
     } else if (provider == PaymentMethodProviders.PAYPAL) {
       return getProvider(paypalProvider)
-        .createOrder(transaction.currency, transaction.amount, transaction.buyer)
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer, redirection)
         .then(async (orderResponse) => {
           if (orderResponse.error) {
             return orderResponse;
@@ -179,7 +181,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
               (link) => link.rel === "approval_url"
             );
             transaction.providerTransactionId = orderResponse.id;
-            transaction.responsePayload = orderResponse; //JSON.stringify(orderResponse);
+            transaction.responsePayload = { ...orderResponse, ...redirection}; //JSON.stringify(orderResponse);
             await transaction.save();
             return {
               publishableKey: "",

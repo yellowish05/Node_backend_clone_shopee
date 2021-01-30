@@ -16,7 +16,11 @@ const logger = require(path.resolve('config/logger'));
 
 const activity = {
   generateErrorString: (error) => {
-    return error.response.details.map(detail => detail.issue).join('; ');
+    if (error.response.details) {
+      return error.response.details.map(detail => detail.issue).join('; ');
+    } else {
+      return error.response.message;
+    }
   },
 }
 
@@ -45,7 +49,7 @@ class Provider extends ProviderAbstract {
     return input;
   }
 
-  async createOrder(currency, amount, buyer) {
+  async createOrder(currency, amount, buyer, redirection) {
     // amount is in cents
     const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: amount, currency });
     if(!this.client)
@@ -56,8 +60,8 @@ class Provider extends ProviderAbstract {
             "payment_method": "paypal"
         },
         "redirect_urls": {
-            "return_url": `${protocol}://${domain}/pages/paypal/success`, //,'https://mojie-api.shoclef.com/pages/paypal/success'
-            "cancel_url": `${protocol}://${domain}/pages/paypal/cancel`, //'https://mojie-api.shoclef.com/pages/paypal/cancel'
+            "return_url": redirection.success, //`${protocol}://${domain}/pages/paypal/success`,
+            "cancel_url": redirection.cancel, //`${protocol}://${domain}/pages/paypal/cancel`,
         },
         "transactions": [{
             "amount": {

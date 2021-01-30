@@ -7,6 +7,7 @@ const banner = require("./resolvers/banner");
 const banners = require("./resolvers/banners");
 const addBanner = require("./resolvers/addBanner");
 const updateBanner = require('./resolvers/updateBanner');
+const uploadBulkBanners = require('./resolvers/uploadBulkBanners');
 
 const schema = gql`
 
@@ -37,8 +38,19 @@ const schema = gql`
       height: Int!
     }
 
+    type BannerAsset {
+      image: String!
+      link: String
+    }
+
+    input BannerAssetInput {
+      image: String!
+      link: String
+    }
+
     type Banner {
       id: ID!
+      identifier: String!
       """
         Unique name for each banner.
       """
@@ -49,13 +61,9 @@ const schema = gql`
       page: String
       sitePath: String!
       """
-        Array of banner media as type of "Asset". Matches with urls by array index.
+        Array of pair of image and link. image is required, but link is optional.
       """
-      assets: [Asset!]
-      """
-        Array of redirecting link urls. Matches with assets by array index.
-      """
-      urls: [String!]
+      assets: [BannerAsset]!
       adType: BannerAdType!
       type: BannerType!
       layout: BannerLayoutType!
@@ -70,11 +78,11 @@ const schema = gql`
     }
 
     input BannerInput{
+      identifier: String!
       name: String!
       page: String
       sitePath: String!
-      assets: [ID!]
-      urls: [String]
+      assets: [BannerAssetInput]!
       adType: BannerAdType!
       type: BannerType!
       layout: BannerLayoutType!
@@ -86,8 +94,7 @@ const schema = gql`
       name: String
       page: String
       sitePath: String
-      assets: [ID!]
-      urls: [String]
+      assets: [BannerAssetInput]
       adType: BannerAdType
       type: BannerType
       layout: BannerLayoutType
@@ -106,6 +113,7 @@ const schema = gql`
       type: BannerType
       adType: BannerAdType
       layout: BannerLayoutType
+      identifiers: [String!]
     }
 
     input BannerSortInput {
@@ -113,8 +121,21 @@ const schema = gql`
       type: SortTypeEnum! = ASC
     }
 
+    type FailedBanners{
+      row: [Int!]
+      errors: [String!]
+    }
+
+    type UploadedBanners {
+      total: Int!
+      success: Int!
+      failed: Int!
+      failedList: FailedBanners!
+    }
+
     extend type Query {
       banner(id: ID!): Banner!
+      bannerByIdentifier(identifier: String!): Banner!
       banners(
         filter: BannerFilterInput = {},
         sort: BannerSortInput = {}, 
@@ -124,6 +145,7 @@ const schema = gql`
     extend type Mutation {
       addBanner (data: BannerInput!): Banner! @auth(requires: USER)
       updateBanner(id: ID!, data: BannerUpdateInput!): Banner! @auth(requires: USER)
+      uploadBulkBanners(file: Upload!): UploadedBanners @auth(requires: USER)
     }
 `;
 
@@ -132,16 +154,14 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     banner,
+    bannerByIdentifier: async (_, { identifier }, { dataSources: { repository }}) => {
+      return repository.banner.getOne({ identifier });
+    },
     banners,
   },
   Mutation: {
     addBanner,
     updateBanner,
+    uploadBulkBanners,
   },
-  Banner: {
-    assets: async ({ assets: assetIds }, _, { dataSources: { repository } }) => {
-      if (!assetIds || !assetIds.length) return [];
-      return repository.asset.getByIds(assetIds);
-    }
-  }
 };

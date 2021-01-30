@@ -8,6 +8,7 @@ const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 const { CurrencyService } = require(path.resolve("src/lib/CurrencyService"));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve("src/lib/ProductService"));
+const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
 const { ForbiddenError } = require("apollo-server");
@@ -51,43 +52,26 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       repository.asset.load(provider.inputs.thumbnailId)
     ]).then(([category, brand, shippingBox, thumbnail]) => {
       if (!category) {
-        provider.error(
-          "category",
-          "custom",
-          `Category with id "${provider.inputs.category}" does not exist!`
-        );
+        provider.error("category", "custom", `Category with id "${provider.inputs.category}" does not exist!`);
       }
 
       if (!brand) {
-        provider.error(
-          "brand",
-          "custom",
-          `Brand with id "${provider.inputs.brand}" does not exist!`
-        );
+        provider.error("brand", "custom", `Brand with id "${provider.inputs.brand}" does not exist!`);
       } else {
         foundBrand = brand;
       }
 
       if (!shippingBox) {
-        provider.error(
-          "shippingBox",
-          "custom",
-          `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`
-        );
+        provider.error("shippingBox", "custom", `Shipping Box with id "${provider.inputs.shippingBox}" does not exist!`);
       }
 
       if (!thumbnail) {
-        provider.error(
-          "thumbnailId",
-          "custom",
-          `Asset with id "${provider.inputs.thumbnailId}" does not exist!`
-        );
+        provider.error("thumbnailId", "custom", `Asset with id "${provider.inputs.thumbnailId}" does not exist!`);
       }
     })
   );
 
-  return validator
-    .check()
+  return validator.check()
     .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
@@ -168,10 +152,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       return Promise.all([
         repository.product.create(productData),
         repository.productInventoryLog.add(inventoryLog),
+        repository.user.getById(user.id)
       ]);
     })
-    .then(([product]) => product)
-    .then(async (product) => {
+    .then(async ([product, productInventoryLog, user]) => {
       if (data.attrs && data.attrs.length && data.attrs.length > 0) {
         let productAttrs = [];
         product.attrs = [];
@@ -195,6 +179,24 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         }));
         await product.save();
       }
+
+      // notification
+      await repository.notification.create({
+        type: NotificationType.PRODUCT,
+        user: user.id,
+        data: {
+          content: "你最喜欢的产品已上新！",
+          name: product.title,
+          date: new Date(),
+          photo: product.thumbnail,
+          status: '',
+          linkID: product._id,
+        },
+        tags: ['Message:message.id'],
+      });
+      // send push notification
+      PushNotificationService.sendPushNotification({ message: "你最喜欢的产品已上新！", device_ids: [user.device_id] });
+
       return product;
     });
 };

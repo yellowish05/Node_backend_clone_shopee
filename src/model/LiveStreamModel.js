@@ -12,7 +12,7 @@ const streamProductDurationSchema = new Schema({
   },
   duration: {
     type: String,
-    required: true
+    // required: true,
   },
 }, { _id: false });
 
