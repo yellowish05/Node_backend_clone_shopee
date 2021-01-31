@@ -37,7 +37,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       return repository.streamChannelParticipant.load(args.id, user.id);
     })
     .then((participant) => {
-      if (!participant.isPublisher) {
+      if (!participant || !participant.isPublisher) {
         throw new ForbiddenError('Only streamer can start the stream', 403);
       }
 
