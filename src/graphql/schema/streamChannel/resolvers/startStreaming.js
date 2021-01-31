@@ -1,9 +1,9 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { AgoraService, ForbiddenError } = require(path.resolve('src/lib/AgoraService'));
+const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
 const { StreamChannelStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('config/pubsub'));

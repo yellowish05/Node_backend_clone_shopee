@@ -358,7 +358,7 @@ module.exports.resolvers = {
     }),
     rating: async (product, _, { dataSources: { repository } }) => ({
       average: repository.rating.getAverage(product.getTagName()),
-      total: repository.rating.getTotal(product.getTagName()),
+      total: repository.rating.getTotal({ tag: product.getTagName() }),
     }),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product

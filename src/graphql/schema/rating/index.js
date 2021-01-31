@@ -6,6 +6,8 @@ const { RatingTarget } = require(path.resolve('src/lib/Enums'));
 const rateProduct = require('./resolvers/rateProduct');
 const rateOrganization = require('./resolvers/rateOrganization');
 const rateProductByOrder = require('./resolvers/rateProductByOrder');
+const reviews = require('./resolvers/reviews');
+const uploadBulkReviews = require('./resolvers/uploadBulkReviews');
 
 const schema = gql`
     enum RatingTargetType {
@@ -15,6 +17,7 @@ const schema = gql`
     union RatingTarget = Product | Organization | User
 
     type Review {
+      id: ID!
       target: RatingTarget!
       tag: String!
       rating: Float!
@@ -31,6 +34,50 @@ const schema = gql`
       rating: Float!
     }
 
+    """
+    - For a product, either of type & target or tag can be specified. Recommended to filter using type and target.
+    """
+    input ReviewFilterInput {
+      type: RatingTargetType = PRODUCT
+      target: ID
+      tag: String
+      user: ID
+      order: ID
+      language: LanguageList
+    }
+
+    enum ReviewSortFeature {
+      CREATED_AT
+    }
+
+    input ReviewSortInput {
+      feature: ReviewSortFeature! = CREATED_AT
+      type: SortTypeEnum! = DESC
+    }
+
+    type ReviewCollection {
+        collection: [Review]!
+        pager: Pager
+    }
+
+    type FailedReviews{
+      row: [Int!]
+      errors: [String!]
+    }
+
+    type UploadedReviews {
+      total: Int!
+      success: Int!
+      failed: Int!
+      failedList: FailedReviews!
+    }
+
+
+    extend type Query {
+      review(id: ID!): Review
+      reviews(filter: ReviewFilterInput = {}, sort: ReviewSortInput = {}, page: PageInput = {}): ReviewCollection!
+    }
+
     extend type Mutation {
         """
           - Allows: authorized user.
@@ -43,16 +90,22 @@ const schema = gql`
         
         """Allows: authorized user"""
         rateProductByOrder(data: RatingOrderInput): Review @auth(requires: USER)
+        uploadBulkReviews(file: Upload!): UploadedReviews @auth(requires: USER)
     }
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  Query: {
+    review: async (_, { id }, { dataSources: { repository }}) => repository.rating.getById(id),
+    reviews,
+  },
   Mutation: {
     rateProduct,
     rateProductByOrder,
     rateOrganization,
+    uploadBulkReviews,
   },
   Review: {
     target: async ({ tag }, _, { dataSources: { repository }}) => {
