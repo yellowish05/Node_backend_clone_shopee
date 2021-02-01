@@ -10,6 +10,8 @@ module.exports = async (_, { filter = {}, sort = {}, page }, { dataSources: { re
     total: 0,
   };
 
+  filter.buyer = user.id;
+
   return Promise.all([
     repository.purchaseOrder.get(filter, sort, page),
     repository.purchaseOrder.getTotal(filter),

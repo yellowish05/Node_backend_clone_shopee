@@ -1,8 +1,10 @@
 const uuid = require('uuid/v4');
 
-function applyFilter(query, { statuses = [] }) {
-  if (!query.$and) query.$and = [{ buyer: {$exists: true} }]; // only needed to avoid 0-length array.
+function applyFilter(query, { buyer, statuses = [] }) {
+  if (!query.$and) query.$and = [];
   
+  if (buyer) query.$and.push({ buyer });
+
   if (statuses.length) query.$and.push({ status: {$in: statuses} });
 }
 
