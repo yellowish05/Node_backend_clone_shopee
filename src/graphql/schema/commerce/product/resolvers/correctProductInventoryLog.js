@@ -11,10 +11,11 @@ const path = require('path');
 const uuid = require('uuid/v4');
 const { ApolloError } = require('apollo-server');
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const logger = require(path.resolve('config/logger'));
 
 const activity = {
   processBatch: async ({ skip, limit }, repository) => {
-    console.log(`[correctProductInventoryLog][Batch] ${skip} - ${skip + limit} [Processing...]`)
+    logger.info(`[correctProductInventoryLog][Batch] ${skip} - ${skip + limit} [Processing...]`);
     const batchResult = {
       total: 0,
       success: 0,
@@ -40,8 +41,8 @@ const activity = {
           }
         })))
       })
-      .then(() => {
-        console.log(`[correctProductInventoryLog][Batch] ${skip} - ${skip + limit} [Done]`)
+      .then(() => {        
+        logger.info(`[correctProductInventoryLog][Batch] ${skip} - ${skip + limit} [Done]`);
         return batchResult
       })
   },
