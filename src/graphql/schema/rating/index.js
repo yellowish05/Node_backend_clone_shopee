@@ -8,6 +8,7 @@ const rateOrganization = require('./resolvers/rateOrganization');
 const rateProductByOrder = require('./resolvers/rateProductByOrder');
 const reviews = require('./resolvers/reviews');
 const uploadBulkReviews = require('./resolvers/uploadBulkReviews');
+const updateReview = require('./resolvers/updateReview');
 
 const schema = gql`
     enum RatingTargetType {
@@ -34,6 +35,11 @@ const schema = gql`
       rating: Float!
     }
 
+    input UpdateReviewInput {
+      message: String
+      rating: Float
+    }
+
     """
     - For a product, either of type & target or tag can be specified. Recommended to filter using type and target.
     """
@@ -56,8 +62,8 @@ const schema = gql`
     }
 
     type ReviewCollection {
-        collection: [Review]!
-        pager: Pager
+      collection: [Review]!
+      pager: Pager
     }
 
     type FailedReviews{
@@ -91,6 +97,7 @@ const schema = gql`
         """Allows: authorized user"""
         rateProductByOrder(data: RatingOrderInput): Review @auth(requires: USER)
         uploadBulkReviews(file: Upload!): UploadedReviews @auth(requires: USER)
+        updateReview(id: ID!, data: UpdateReviewInput): Review @auth(requires: USER)
     }
 `;
 
@@ -106,6 +113,7 @@ module.exports.resolvers = {
     rateProductByOrder,
     rateOrganization,
     uploadBulkReviews,
+    updateReview,
   },
   Review: {
     target: async ({ tag }, _, { dataSources: { repository }}) => {
