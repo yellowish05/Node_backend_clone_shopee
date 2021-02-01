@@ -1,16 +1,14 @@
 const path = require('path');
-const uuid = require("uuid/v4");
 const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 
-const { OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
 const ratingMethods = require('../ratingMethods');
 const errorHandler = new ErrorHandler();
 
 
-module.exports = async (obj, { id, data }, { dataSources: { repository }, user }) => {
+module.exports = async (_, { id, data }, { dataSources: { repository }, user }) => {
   const validator = new Validator({ id, ...data }, {
     id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
   });

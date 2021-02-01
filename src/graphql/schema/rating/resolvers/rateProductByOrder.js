@@ -10,7 +10,7 @@ const ratingMethods = require('../ratingMethods');
 const errorHandler = new ErrorHandler();
 
 
-module.exports = async (obj, { data }, { dataSources: { repository }, user }) => {
+module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(data, {
     product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
     order: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],

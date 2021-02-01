@@ -9,6 +9,7 @@ const rateProductByOrder = require('./resolvers/rateProductByOrder');
 const reviews = require('./resolvers/reviews');
 const uploadBulkReviews = require('./resolvers/uploadBulkReviews');
 const updateReview = require('./resolvers/updateReview');
+const deleteReview = require('./resolvers/deleteReview');
 
 const schema = gql`
     enum RatingTargetType {
@@ -98,6 +99,7 @@ const schema = gql`
         rateProductByOrder(data: RatingOrderInput): Review @auth(requires: USER)
         uploadBulkReviews(file: Upload!): UploadedReviews @auth(requires: USER)
         updateReview(id: ID!, data: UpdateReviewInput): Review @auth(requires: USER)
+        deleteReview(id: ID!): Boolean! @auth(requires: USER)
     }
 `;
 
@@ -114,6 +116,7 @@ module.exports.resolvers = {
     rateOrganization,
     uploadBulkReviews,
     updateReview,
+    deleteReview,
   },
   Review: {
     target: async ({ tag }, _, { dataSources: { repository }}) => {

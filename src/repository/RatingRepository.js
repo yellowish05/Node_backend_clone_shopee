@@ -90,6 +90,10 @@ class RatingRepository {
     applyFilter(query, filter);
     return this.model.countDocuments(query);
   }
+
+  async delete(id) {
+    return this.model.deleteOne({ _id: id });
+  }
 }
 
 module.exports = RatingRepository;
