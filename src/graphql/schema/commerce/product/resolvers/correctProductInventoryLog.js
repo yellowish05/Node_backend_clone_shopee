@@ -51,7 +51,8 @@ const activity = {
     return repository.productAttributes.getByProduct(product.id)
       .then(async attributes => {
         if (attributes && attributes.length) {
-          product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0);
+          product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
           await Promise.all(attributes.map(attribute => {
             return activity.checkNcreateInventoryLog({
               product: attribute.productId,
@@ -75,7 +76,12 @@ const activity = {
           });
         return product.save();
       })
-      .then(product => errors);
+      .then(product => errors)
+      // .catch(error => {
+      //   console.log('[Product] error', product.id);
+      //   errors.push(error.message);
+      //   return errors;
+      // });
   },
   checkNcreateInventoryLog: async ({ product, productAttribute, quantity, type = InventoryLogType.USER_ACTION }, repository) => {
     return repository.productInventoryLog.deleteAll({
@@ -119,7 +125,7 @@ module.exports = async (_, { skip, limit }, { dataSources: { repository }, user}
           result.processed = skip + batchResult.total;
           result.success += batchResult.success;
           result.failure += batchResult.failure;
-          result.errors.concat(batchResult.errors)
+          result.errors = result.errors.concat(batchResult.errors)
         });
       }
     })
