@@ -7,6 +7,7 @@ const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
+const purchaseOrders = require('./resolvers/purchaseOrders');
 const invoiceService = require('../../../../bundles/invoice');
 
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
@@ -61,7 +62,7 @@ const schema = gql`
     }
 
     input PurchaseOrderFilterInput {
-        statuses: [PurchaseOrderStatus!]
+      statuses: [PurchaseOrderStatus!]
     }
 
     input RedirectionInput {
@@ -69,8 +70,18 @@ const schema = gql`
       cancel: String!
     }
 
+    enum PurchaseOrderSortFeature {
+      CREATED_AT
+    }
+
+    input PurcahseOrderSortInput {
+      feature: ReviewSortFeature! = CREATED_AT
+      type: SortTypeEnum! = DESC
+    }
+
     extend type Query {
-        purchaseOrders(filter: PurchaseOrderFilterInput, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
+        allPurchaseOrders: [PurchaseOrder]!
+        purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
         purchaseOrder(id: ID!): PurchaseOrder
         getInvoicePDF(id: ID!): [String]
     }
@@ -113,20 +124,14 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    purchaseOrders: async (_, { page }, { dataSources: { repository }, user }) => (
+    allPurchaseOrders: async (_, __, { dataSources: { repository }, user }) => (
       repository.purchaseOrder.find({ user })
-        .then((collection) => ({
-          collection: collection || [],
-          pager: {
-            ...page,
-            total: 0,
-          },
-        }))
+        .then((collection) => (collection || []))
     ),
     purchaseOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.purchaseOrder.getById(id)
     ),
-
+    purchaseOrders,
     getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => repository.purchaseOrder.getInvoicePDF(id)
       .then((pdf) => {
         if (pdf && pdf.length > 0) {
@@ -146,7 +151,7 @@ module.exports.resolvers = {
           .catch((err) => {
             throw new Error(err.message);
           });
-      }),
+    }),
   },
   Mutation: {
     checkoutCart,
