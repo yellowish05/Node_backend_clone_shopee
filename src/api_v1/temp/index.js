@@ -8,6 +8,7 @@ const os = require('os');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const uuid = require("uuid/v4");
+const { request, GraphQLClient, gql } = require('graphql-request');
 
 const { listLanguageCodes, getLanguageName } = require('language-cultures');
 const CountryLanguage = require('country-language');
@@ -476,6 +477,44 @@ tempRouter.route('/update-stream-status').post(async (req, res) => {
 tempRouter.route('/detect-lang').post(async (req, res) => {
   return PythonService.detectLanguage(req.body.text)
     .then(lang => res.json({ lang }))
+})
+
+const loopCorrectInventoryLog = async ({ skip, limit, auth }) => {
+  const query = gql`
+  mutation correctProductInventoryLog($skip: Int!, $limit: Int!){
+    correctProductInventoryLog(skip: $skip, limit: $limit) {
+      totalProducts
+      processed
+      success
+      failure
+      errors{
+        id
+        errors
+      }
+    }
+  }`;
+
+  const endpoint = 'http://localhost:4000/graphql';
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: auth,
+    }
+  });
+
+  return graphQLClient.request(query, { skip, limit })
+    .then(({ correctProductInventoryLog: data }) => {
+      if (data && data.processed < data.totalProducts) {
+        return loopCorrectInventoryLog({ skip: skip + limit, limit, auth });
+      } else {
+        return data;
+      }
+    })
+}
+
+tempRouter.route('/correct-inventory-log').post(async (req, res) => {
+  return loopCorrectInventoryLog({ ...req.body, auth: req.headers.authorization})
+    .then(data => res.json(data))
+    .catch(error => res.json({ status: false, message: error.message }));
 })
 
 // tempRouter.route('/detect-lang').post(async (req, res) => {

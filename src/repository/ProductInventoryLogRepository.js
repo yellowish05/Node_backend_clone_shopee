@@ -21,6 +21,10 @@ class ProductRepository {
     return inventory.save();
   }
 
+  async getOne(query = {}) {
+    return this.model.findOne(query);
+  }
+
   async getByProductId(id) {
     return this.model.findOne({ product: id });
   }
@@ -72,6 +76,10 @@ class ProductRepository {
     } catch (err) {
       throw new Error(err);
     }
+  }
+
+  async deleteAll(query = {}) {
+    return this.model.deleteMany(query);
   }
 }
 
