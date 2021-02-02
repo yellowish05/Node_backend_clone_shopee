@@ -278,7 +278,7 @@ module.exports = {
         }];
 
         const attributes = await repository.productAttributes.getByIds(product.attrs);
-        
+
         if (attributes && attributes.length > 0) {
           inventoryLogs = inventoryLogs.concat(attributes.map(attribute => ({
             _id: uuid(),
@@ -293,9 +293,8 @@ module.exports = {
   },
 
   async checkProductQuantityAvailable({ product, quantity, productAttribute = null }, repository) {
-    // to-do: should checked from product & product attributes collection.
     const available = productAttribute ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity) :
-        await repository.productInventoryLog.checkAmount(product, quantity);
+        await repository.product.checkAmount(product, quantity);
     return available;
   },
 
@@ -306,20 +305,23 @@ module.exports = {
    *   - product.quatity & productAttributes.quantity: represents the current status.
    *   - inventory.shift: represents the change quantity due to add, update, buy, refund.
    */
-  async decreaseProductQuantity({ product: productId, quantity, productAttribute: productAttrId = null }, repository) {
-    
-    return Promise.all([
-      repository.product.getById(productId),
-      productAttrId ? repository.productAttributes.getById(productAttrId) : null,
-      repository.productInventoryLog.getByProductIdAndAttrId(productId, productAttrId),
-    ])
-      .then(async ([ product, productAttr, inventoryLog ]) => {
-        if (productAttr) {
-          productAttr.quantity -= quantity;
-          await productAttr.save();
-        } else {
-          await repository.productInventoryLog.decreaseQuantity(productId, quantity);
-        }
+  async decreaseProductQuantity({ product: productId, quantity, productAttribute: productAttrId = null, logType = InventoryLogType.BUYER_CART }, repository) {
+    return (productAttrId ? repository.productAttributes.getById(productAttrId) : repository.product.getById(productId))
+      .then(target => {
+        target.quantity -= quantity;
+
+        const inventoryLog = {
+          _id: uuid(),
+          product: productId,
+          productAttribute: productAttrId,
+          shift: -quantity,
+          type: logType,
+        };
+
+        return Promise.all([
+          target.save(),
+          repository.productInventoryLog.add(inventoryLog),
+        ]);
       })
   },
 

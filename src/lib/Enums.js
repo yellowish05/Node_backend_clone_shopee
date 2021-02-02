@@ -81,6 +81,7 @@ const InventoryLogType = EnumFactory({
   USER_ACTION: 'USER_ACTION',
   PURCHASE: 'PURCHASE',
   REFUND: 'REFUND',
+  BUYER_CART: 'BUYER_CART',
 });
 
 const VerificationEmailTemplate = EnumFactory({

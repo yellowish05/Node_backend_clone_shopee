@@ -61,9 +61,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         metricUnit: args.metricUnit || null,
         note: args.note,
       };
-      // if (args.metricUnit) {
-      //   cartItemData.metricUnit = args.metricUnit;
-      // }
 
       if (!deliveryRate) { throw new ForbiddenError('Delivery Rate does not exist'); }
 
@@ -74,7 +71,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           if (!response) { await repository.deliveryRate.create(deliveryRate.toObject()); }
         })
         .then(async () => {
-          await ProductService.decreaseProductQuantity(args, repository);
+          await Promise.all([
+            ProductService.decreaseProductQuantity(args, repository),
+            ProductService.setProductQuantityFromAttributes(args.product)
+          ]);
 
           return repository.userCartItem.add(cartItemData, user.id);
         });
