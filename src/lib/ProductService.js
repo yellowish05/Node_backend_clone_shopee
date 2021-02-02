@@ -1,10 +1,12 @@
 
 const path = require('path');
 const { slugify } = require('transliteration');
+const uuid = require('uuid/v4');
 
 const repository = require(path.resolve('src/repository'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 
 const matchWeightByLevel = [7, 5, 3]; // for level 1, 2, 3
 
@@ -261,6 +263,32 @@ module.exports = {
             product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0);
             return product.save();
           })
+      })
+  },
+
+  async processInventoryLogOnDeleteProduct(productId) {
+    return repository.product.getById(productId)
+      .then(async product => {
+        let inventoryLogs = [{
+          _id: uuid(),
+          product: productId,
+          productAttribute: null,
+          type: InventoryLogType.USER_ACTION,
+          shift: -product.quantity,
+        }];
+
+        const attributes = await repository.productAttributes.getByIds(product.attrs);
+        
+        if (attributes && attributes.length > 0) {
+          inventoryLogs = inventoryLogs.concat(attributes.map(attribute => ({
+            _id: uuid(),
+            product: productId,
+            productAttribute: attribute.id,
+            type: InventoryLogType.USER_ACTION,
+            shift: -attribute.quantity,
+          })));
+        }
+        return Promise.all(inventoryLogs.map(inventoryLog => repository.productInventoryLog.add(inventoryLog)));
       })
   },
 
