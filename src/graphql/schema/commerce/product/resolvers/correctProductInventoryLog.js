@@ -48,7 +48,7 @@ const activity = {
   },
   processProduct: async (product, repository) => {
     const errors = [];
-    return repository.productAttributes.getByProduct(product.id)
+    return repository.productAttributes.getByIds(product.attrs)
       .then(async attributes => {
         if (attributes && attributes.length) {
           product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0) || 0;

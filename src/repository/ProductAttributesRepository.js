@@ -7,7 +7,7 @@ class ProductAttributesRepository {
 
   async getByIds(ids) {
     if (ids != null) { return this.model.find({ _id: ids }); }
-    return {};
+    return [];
   }
 
   async getById(id) {
