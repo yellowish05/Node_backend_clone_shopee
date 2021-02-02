@@ -9,9 +9,13 @@
 
 const path = require('path');
 const uuid = require('uuid/v4');
+const { Validator } = require("node-input-validator");
 const { ApolloError } = require('apollo-server');
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
+
+const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
+const errorHandler = new ErrorHandler();
 
 const activity = {
   processBatch: async ({ skip, limit }, repository) => {
@@ -99,6 +103,13 @@ const activity = {
 }
 
 module.exports = async (_, { skip, limit }, { dataSources: { repository }, user}) => {
+  const validator = new Validator(
+    { skip, limit },
+    {
+      limit: "required|min:100"
+    }
+  );
+
   const result = {
     totalProducts: 0,
     processed: 0,
@@ -106,11 +117,16 @@ module.exports = async (_, { skip, limit }, { dataSources: { repository }, user}
     failure: 0,
     errors: [],
   };
+
   const batch = 100;
-  return Promise.all([
-    repository.product.getTotal({}),
-    skip === 0 ? repository.productInventoryLog.deleteAll() : null,
-  ])
+  return validator.check()
+    .then(matched => {
+      if (!matched) throw errorHandler.build(validator.errors);
+    })
+    .then(() => Promise.all([
+      repository.product.getTotal({}),
+      skip === 0 ? repository.productInventoryLog.deleteAll() : null,
+    ]))
     .then(async ([totalProducts]) => {
       result.totalProducts = totalProducts;
       result.processed = skip + limit;
