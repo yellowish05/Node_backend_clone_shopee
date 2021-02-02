@@ -14,7 +14,7 @@ const applyFilter = (query, { searchQuery, type, time }) => {
     // query against hashtags
     $orWithTags = searchQuery.split(' ')
       .map(piece => piece.trim())
-      .filter(piece => !!piece)
+      .filter(piece => piece)
       .map(piece => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
     $or = $or.concat($orWithTags);
     query.$and.push({ $or });
