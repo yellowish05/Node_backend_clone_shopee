@@ -258,6 +258,8 @@ module.exports = {
   async setProductQuantityFromAttributes(productId) {
     return repository.product.getById(productId)
       .then(product => {
+        if (!product.attrs || !product.attrs.length) return product;
+
         return repository.productAttributes.getByIds(product.attrs)
           .then(attributes => {
             product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0);
