@@ -8,6 +8,7 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { ForbiddenError } = require('apollo-server');
+const ProductService = require('../../../../../lib/ProductService');
 
 const errorHandler = new ErrorHandler();
 
@@ -75,6 +76,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         foundProduct.save(),
         repository.productInventoryLog.add(inventoryLog),
       ])
-        .then(async ([productAttr, updatedProduct, inventoryLog]) => productAttr);
+        .then(async ([productAttr, updatedProduct, inventoryLog]) => Promise.all([
+            productAttr,
+            ProductService.setProductQuantityFromAttributes(updatedProduct.id),
+          ]))
+        .then(([productAttr]) => productAttr);
     });
 };

@@ -253,6 +253,17 @@ module.exports = {
     return filter;
   },
 
+  async setProductQuantityFromAttributes(productId) {
+    return repository.product.getById(productId)
+      .then(product => {
+        return repository.productAttributes.getByIds(product.attrs)
+          .then(attributes => {
+            product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0);
+            return product.save();
+          })
+      })
+  },
+
   async checkProductQuantityAvailable({ product, quantity, productAttribute = null }, repository) {
     // to-do: should checked from product & product attributes collection.
     const available = productAttribute ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity) :

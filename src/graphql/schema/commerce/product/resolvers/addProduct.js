@@ -1,9 +1,9 @@
 const uuid = require("uuid/v4");
 const path = require("path");
 const { Validator } = require("node-input-validator");
-const { UserInputError, ApolloError } = require("apollo-server");
+const { UserInputError, ForbiddenError, ApolloError } = require("apollo-server");
 
-const { InventoryLogType } = require(path.resolve("src/lib/Enums"));
+const { InventoryLogType, NotificationType } = require(path.resolve("src/lib/Enums"));
 const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 const { CurrencyService } = require(path.resolve("src/lib/CurrencyService"));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
@@ -11,16 +11,8 @@ const ProductService = require(path.resolve("src/lib/ProductService"));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 
 const { ErrorHandler } = require(path.resolve("src/lib/ErrorHandler"));
-const { ForbiddenError } = require("apollo-server");
-
 const errorHandler = new ErrorHandler();
 
-const composeHashtags = (hashtags = [], brand) => {
-  if (brand && !hashtags.includes(brand.name)) {
-    hashtags.includes(brand.name);
-  }
-  return hashtags;
-}
 
 module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(
@@ -146,6 +138,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const inventoryLog = {
         _id: inventoryId,
         product: productId,
+        productAttribute: null,
         shift: quantity,
         type: InventoryLogType.USER_ACTION,
       };
