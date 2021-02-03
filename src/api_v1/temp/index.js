@@ -26,7 +26,7 @@ const { protocol, domain } = require(path.resolve('config/index'));
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
-const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
+const { convertLangCode3to2, convertLangCode2to3 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
@@ -69,7 +69,7 @@ tempRouter.route('/lang-google').get(async (req, res) => {
 tempRouter.route('/update-user-lang').get(async (req, res) => {
 	repository.user.loadAll()
 		.then(users => users.filter(user => user._id))
-		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode3to2(user.settings.language || 'ENG')))))
+		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode2to3(user.settings.language || 'EN')))))
 		.then(updates => res.json({ status: true, message: 'All user langs has been updated!' }))
 		.catch(error => res.json({ status: false, message: 'Failed to update user langs' }));
 });

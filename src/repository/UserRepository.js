@@ -74,7 +74,7 @@ class UserRepository {
       color: UserService.generateColorPair(),
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: LanguageList.EN,
+        language: LanguageList.ENG,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
@@ -104,7 +104,7 @@ class UserRepository {
       roles: options.roles || [],
       settings: {
         pushNotifications: PushNotification.toList(),
-        language: LanguageList.EN,
+        language: LanguageList.ENG,
         currency: Currency.USD,
         measureSystem: MeasureSystem.USC,
       },
@@ -181,7 +181,7 @@ class UserRepository {
         roles: options.roles || [],
         settings: {
           pushNotifications: PushNotification.toList(),
-          language: LanguageList.EN,
+          language: LanguageList.ENG,
           currency: Currency.USD,
           measureSystem: MeasureSystem.USC,
         },
@@ -196,7 +196,7 @@ class UserRepository {
         roles: options.roles || [],
         settings: {
           pushNotifications: PushNotification.toList(),
-          language: LanguageList.EN,
+          language: LanguageList.ENG,
           currency: Currency.USD,
           measureSystem: MeasureSystem.USC,
         },
