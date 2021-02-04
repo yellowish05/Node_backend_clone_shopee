@@ -152,6 +152,7 @@ const schema = new Schema({
       type: String,
     }],
     default: [],
+    index: true,
   },
 });
 
