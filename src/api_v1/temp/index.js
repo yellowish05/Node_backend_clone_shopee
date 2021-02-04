@@ -517,6 +517,44 @@ tempRouter.route('/correct-inventory-log').post(async (req, res) => {
     .catch(error => res.json({ status: false, message: error.message }));
 })
 
+const loopUpdateProductHashtags = async ({ skip, limit, auth }) => {
+  const query = gql`
+  mutation updateProductHashtags($skip: Int!, $limit: Int!){
+    updateProductHashtags(skip: $skip, limit: $limit) {
+      totalProducts
+      processed
+      success
+      failure
+      errors{
+        id
+        errors
+      }
+    }
+  }`;
+
+  const endpoint = 'http://localhost:4000/graphql';
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: auth,
+    }
+  });
+
+  return graphQLClient.request(query, { skip, limit })
+    .then(({ updateProductHashtags: data }) => {
+      if (data && data.processed < data.totalProducts) {
+        return loopUpdateProductHashtags({ skip: skip + limit, limit, auth });
+      } else {
+        return data;
+      }
+    })
+}
+
+tempRouter.route('/update-product-hashtags').post(async (req, res) => {
+  return loopUpdateProductHashtags({ ...req.body, auth: req.headers.authorization})
+    .then(data => res.json(data))
+    .catch(error => res.json({ status: false, message: error.message }));
+})
+
 // tempRouter.route('/detect-lang').post(async (req, res) => {
 //   const langDetector = new LanguageDetect();
 //   const result = langDetector.detect(req.body.text);

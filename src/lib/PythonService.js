@@ -5,7 +5,7 @@ const { LanguageList } = require(path.resolve('src/lib/Enums'));
 
 const instance = axios.create({
   baseURL: pythonServer,
-  timeout: 1000,
+  timeout: 10 * 60 * 1000,
 });
 
 module.exports = {
@@ -14,6 +14,16 @@ module.exports = {
       .then(({ status, data }) => {
         return LanguageList.CHI;
         // return data.lang
+      })
+  },
+  async extractKeyword(text) {
+    return instance.post('/api/keywords', { query_string: text })
+      .then(({ status, data }) => {
+        if (data.staus !== undefined && data.status === false) {
+          throw Error(data.message);
+        } else {
+          return data;
+        }
       })
   },
 }

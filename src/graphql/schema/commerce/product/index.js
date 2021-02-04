@@ -19,6 +19,8 @@ const deleteProductAttr = require('./resolvers/deleteProductAttr');
 const productsByTheme = require('./resolvers/productsByTheme');
 const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags');
 const correctProductInventoryLog = require('./resolvers/correctProductInventoryLog');
+const updateProductHashtags = require('./resolvers/updateProductHashtags');
+
 
 const schema = gql`
     enum ProductMetricUnit {
@@ -251,17 +253,17 @@ const schema = gql`
         hashtags: [String]
     }
 
-    type ProductInventoryLogError {
+    type ProductUpdateError {
       id: String!
       errors: [String]!
     }
     
-    type ProductInventoryLogCorrected {
+    type ProductBulkUpdated {
       totalProducts: Int!
       processed: Int!
       success: Int!
       failure: Int!
-      errors: [ProductInventoryLogError]!
+      errors: [ProductUpdateError]!
 
     }
 
@@ -287,7 +289,8 @@ const schema = gql`
         setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
         uploadBulkProductHashtags(file: Upload!): UploadedProducts!
-        correctProductInventoryLog(skip: Int!, limit: Int! = 500): ProductInventoryLogCorrected @auth(requires: USER)
+        correctProductInventoryLog(skip: Int!, limit: Int! = 500): ProductBulkUpdated @auth(requires: USER)
+        updateProductHashtags(skip: Int!, limit: Int = 500): ProductBulkUpdated @auth(requires: USER)
     }
 `;
 
@@ -313,6 +316,7 @@ module.exports.resolvers = {
     deleteProductAttr,
     uploadBulkProductHashtags,
     correctProductInventoryLog,
+    updateProductHashtags,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
