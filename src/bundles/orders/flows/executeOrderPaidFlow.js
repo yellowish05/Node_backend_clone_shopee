@@ -11,10 +11,10 @@
 
 /* eslint-disable no-param-reassign */
 const path = require('path');
-
+const uuid = require('uuid/v4');
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
-const { NotificationType, OrderItemStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const { InventoryLogType, NotificationType, OrderItemStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
@@ -25,6 +25,7 @@ module.exports = async (purchaseOrder) => {
   purchaseOrder.status = PurchaseOrderStatus.ORDERED;
 
   const orderItems = await repository.orderItem.getByIds(purchaseOrder.items);
+
 
   // Divide between sellers for make saleorders for each
   const itemsBySeller = orderItems.reduce((result, orderItem) => {
@@ -99,18 +100,28 @@ module.exports = async (purchaseOrder) => {
   }
 
 
-  return Promise.all([
+  return Promise.all(orderItems.map(orderItem => {
+    const baseInventoryLog = {
+      product: orderItem.product,
+      productAttribute: orderItem.productAttribute,
+    };
+    return Promise.all([
+      repository.productInventoryLog.add({ ...baseInventoryLog, _id: uuid(), type: InventoryLogType.PURCHASE, shift: -orderItem.quantity }),
+      repository.productInventoryLog.add({ ...baseInventoryLog, _id: uuid(), type: InventoryLogType.BUYER_CART, shift: orderItem.quantity })
+    ])
+  }))
+  .then(() => Promise.all([
     purchaseOrder.save(),
     repository.orderItem.changeStatus(purchaseOrder.items, OrderItemStatus.ORDERED),
     // ...saleOrderPromisses, // #checkoutMethods
     repository.saleOrder.getAll({ purchaseOrder: purchaseOrder.id }),
-  ])
-    .then(([purchaseOrder, , orders]) => {
-      const saleOrderIds = orders.map((order) => order.id);
-      logger.info(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] success! SaleOrders "${saleOrderIds.join(', ')}" paid`);
-      return purchaseOrder;
-    })
-    .catch((error) => {
-      logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] failed! error "${error.message}" ${error.stack}`);
-    });
+  ]))
+  .then(([purchaseOrder, , orders]) => {
+    const saleOrderIds = orders.map((order) => order.id);
+    logger.info(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] success! SaleOrders "${saleOrderIds.join(', ')}" paid`);
+    return purchaseOrder;
+  })
+  .catch((error) => {
+    logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}] failed! error "${error.message}" ${error.stack}`);
+  });
 };

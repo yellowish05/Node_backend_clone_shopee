@@ -139,7 +139,7 @@ const schema = gql`
       banners(
         filter: BannerFilterInput = {},
         sort: BannerSortInput = {}, 
-        page: PageInput = {}): BannerCollection! @auth(requires: USER)
+        page: PageInput = {}): BannerCollection!
     }
 
     extend type Mutation {

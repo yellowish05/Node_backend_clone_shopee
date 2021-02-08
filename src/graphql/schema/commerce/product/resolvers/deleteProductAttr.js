@@ -1,9 +1,9 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
 const { ForbiddenError } = require('apollo-server');
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { id, productId }, { dataSources: { repository }, user }) => {
@@ -51,6 +51,9 @@ module.exports = async (_, { id, productId }, { dataSources: { repository }, use
       });
       return product.save();
     })
-    .then((savedProduct) => true)
+    .then(async (savedProduct) => {
+      await ProductService.setProductQuantityFromAttributes(savedProduct.id);
+      return true;
+    })
     .catch(() => false);
 };

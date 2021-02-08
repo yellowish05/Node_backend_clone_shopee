@@ -5,9 +5,9 @@ const { ForbiddenError } = require('apollo-server');
 
 const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { id, data }, { dataSources: { repository }, user }) => {
@@ -49,30 +49,35 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         quantity, price, oldPrice, ...productAttrData
       } = data;
 
+      const deltaQty = quantity !== undefined ? quantity - productAttr.quantity : 0;
+
       productAttr.variation = productAttrData.variation ? productAttrData.variation : productAttr.variation;
       productAttr.currency = productAttrData.currency ? productAttrData.currency : productAttr.currency;
-      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice || price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
-      productAttr.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
+      productAttr.price = price ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: productAttr.currency }).getCentsAmount() : productAttr.price;
+      productAttr.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice, currency: productAttr.currency }).getCentsAmount() : productAttr.oldPrice;
       productAttr.quantity = quantity || productAttr.quantity;
       productAttr.asset = productAttrData.asset ? productAttrData.asset : productAttr.asset;
 
+      let inventoryPromise = null;
+      if (deltaQty !== 0) {
+        const newInventoryLog = {
+          _id: uuid(),
+          product: product.id,
+          productAttribute: productAttr.id,
+          shift: deltaQty,
+          type: InventoryLogType.USER_ACTION,
+        };
+        inventoryPromise = repository.productInventoryLog.add(newInventoryLog);
+      }
+
       return Promise.all([
         productAttr.save(),
-        repository.productInventoryLog.getByProductIdAndAttrId(product.id, productAttr.id),
+        inventoryPromise,
       ])
-        .then(async ([updatedproductAttr, inventory]) => {
-          if (!inventory) {
-            const inventoryLog = {
-              _id: uuid(),
-              product: product.id,
-              productAttribute: updatedproductAttr.id,
-              shift: updatedproductAttr.quantity,
-              type: InventoryLogType.USER_ACTION,
-            };
-            inventory = await repository.productInventoryLog.add(inventoryLog)
-          }
-          await repository.productInventoryLog.update(inventory.id, updatedproductAttr.quantity);
-          return updatedproductAttr;
-        });
+        .then(async ([updatedproductAttr, inventory]) => Promise.all([
+          updatedproductAttr,
+          ProductService.setProductQuantityFromAttributes(product.id),
+        ]))
+        .then(([productAttr]) => productAttr);
     });
 };

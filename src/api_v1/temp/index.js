@@ -8,6 +8,7 @@ const os = require('os');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const uuid = require("uuid/v4");
+const { request, GraphQLClient, gql } = require('graphql-request');
 
 const { listLanguageCodes, getLanguageName } = require('language-cultures');
 const CountryLanguage = require('country-language');
@@ -25,7 +26,7 @@ const { protocol, domain } = require(path.resolve('config/index'));
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
 const repository = require(path.resolve('src/repository'));
-const { convertLangCode3to2 } = require(path.resolve('src/lib/LangService'));
+const { convertLangCode3to2, convertLangCode2to3 } = require(path.resolve('src/lib/LangService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
@@ -68,7 +69,7 @@ tempRouter.route('/lang-google').get(async (req, res) => {
 tempRouter.route('/update-user-lang').get(async (req, res) => {
 	repository.user.loadAll()
 		.then(users => users.filter(user => user._id))
-		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode3to2(user.settings.language || 'ENG')))))
+		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode2to3(user.settings.language || 'EN')))))
 		.then(updates => res.json({ status: true, message: 'All user langs has been updated!' }))
 		.catch(error => res.json({ status: false, message: 'Failed to update user langs' }));
 });
@@ -476,6 +477,82 @@ tempRouter.route('/update-stream-status').post(async (req, res) => {
 tempRouter.route('/detect-lang').post(async (req, res) => {
   return PythonService.detectLanguage(req.body.text)
     .then(lang => res.json({ lang }))
+})
+
+const loopCorrectInventoryLog = async ({ skip, limit, auth }) => {
+  const query = gql`
+  mutation correctProductInventoryLog($skip: Int!, $limit: Int!){
+    correctProductInventoryLog(skip: $skip, limit: $limit) {
+      totalProducts
+      processed
+      success
+      failure
+      errors{
+        id
+        errors
+      }
+    }
+  }`;
+
+  const endpoint = 'http://localhost:4000/graphql';
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: auth,
+    }
+  });
+
+  return graphQLClient.request(query, { skip, limit })
+    .then(({ correctProductInventoryLog: data }) => {
+      if (data && data.processed < data.totalProducts) {
+        return loopCorrectInventoryLog({ skip: skip + limit, limit, auth });
+      } else {
+        return data;
+      }
+    })
+}
+
+tempRouter.route('/correct-inventory-log').post(async (req, res) => {
+  return loopCorrectInventoryLog({ ...req.body, auth: req.headers.authorization})
+    .then(data => res.json(data))
+    .catch(error => res.json({ status: false, message: error.message }));
+})
+
+const loopUpdateProductHashtags = async ({ skip, limit, auth }) => {
+  const query = gql`
+  mutation updateProductHashtags($skip: Int!, $limit: Int!){
+    updateProductHashtags(skip: $skip, limit: $limit) {
+      totalProducts
+      processed
+      success
+      failure
+      errors{
+        id
+        errors
+      }
+    }
+  }`;
+
+  const endpoint = 'http://localhost:4000/graphql';
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      authorization: auth,
+    }
+  });
+
+  return graphQLClient.request(query, { skip, limit })
+    .then(({ updateProductHashtags: data }) => {
+      if (data && data.processed < data.totalProducts) {
+        return loopUpdateProductHashtags({ skip: skip + limit, limit, auth });
+      } else {
+        return data;
+      }
+    })
+}
+
+tempRouter.route('/update-product-hashtags').post(async (req, res) => {
+  return loopUpdateProductHashtags({ ...req.body, auth: req.headers.authorization})
+    .then(data => res.json(data))
+    .catch(error => res.json({ status: false, message: error.message }));
 })
 
 // tempRouter.route('/detect-lang').post(async (req, res) => {

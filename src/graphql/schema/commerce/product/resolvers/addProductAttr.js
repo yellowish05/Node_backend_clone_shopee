@@ -8,6 +8,7 @@ const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { ForbiddenError } = require('apollo-server');
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 const errorHandler = new ErrorHandler();
 
@@ -50,7 +51,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       const inventoryId = uuid();
 
       const {
-        quantity, price, ...productData
+        quantity, price, oldPrice, ...productData
       } = data;
 
       if (productData.sku && productData.sku.indexOf(' ') >= 0) {
@@ -58,8 +59,8 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       }
       productData._id = productAttrId;
       productData.quantity = quantity;
-      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice || price, currency: data.currency }).getCentsAmount();
-      productData.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount() : null;
+      productData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: price, currency: data.currency }).getCentsAmount();
+      productData.oldPrice = oldPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: oldPrice, currency: data.currency }).getCentsAmount() : null;
 
       foundProduct.attrs.push(productAttrId);
       const inventoryLog = {
@@ -75,6 +76,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         foundProduct.save(),
         repository.productInventoryLog.add(inventoryLog),
       ])
-        .then(async ([productAttr, updatedProduct, inventoryLog]) => productAttr);
+        .then(async ([productAttr, updatedProduct, inventoryLog]) => Promise.all([
+            productAttr,
+            ProductService.setProductQuantityFromAttributes(updatedProduct.id),
+          ]))
+        .then(([productAttr]) => productAttr);
     });
 };

@@ -6,18 +6,11 @@ const { UserInputError, ApolloError } = require('apollo-server');
 const { OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
-
+const ratingMethods = require('../ratingMethods');
 const errorHandler = new ErrorHandler();
 
 
-const activity = {
-  reduceLangRange: (lang) => {
-    const availableLangs = ['ZH', 'JA', 'KO', 'RU'];
-    return availableLangs.includes(lang) ? lang : 'EN';
-  }
-}
-
-module.exports = async (obj, { data }, { dataSources: { repository }, user }) => {
+module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
   const validator = new Validator(data, {
     product: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
     order: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
@@ -42,6 +35,15 @@ module.exports = async (obj, { data }, { dataSources: { repository }, user }) =>
       else if (purchaseOrder.buyer !== user.id) {
         provider.error('buyer', 'custom', 'You can only rate the product you bought in the past!');
       }
+
+      if (product) {
+        return repository.rating.load(product.getTagName(), user.id);
+      }
+    })
+    .then(review => {
+      if (review) {
+        provider.error('review', 'custom', 'You already rated this product!');
+      }
     })
   )
 
@@ -53,7 +55,7 @@ module.exports = async (obj, { data }, { dataSources: { repository }, user }) =>
       return repository.product.getById(data.product);
     })
     .then(async (product) => {
-      const lang = activity.reduceLangRange(await PythonService.detectLanguage(data.message));
+      const lang = ratingMethods.reduceLangRange(await PythonService.detectLanguage(data.message));
 
       return repository.rating.create({
         _id: uuid(),

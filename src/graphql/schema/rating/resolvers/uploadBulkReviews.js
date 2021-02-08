@@ -22,44 +22,37 @@ const activity = {
         });
     })
   },
-  composeBannerData: (csvRow) => {
+  composeReviewData: (csvRow) => {
     // lowercase the key to get rid of confusion.
     Object.keys(csvRow).forEach(key => {
       csvRow[key.toLowerCase()] = csvRow[key];
     });
 
-    const banner = {
-      identifier: csvRow.identifier,
-      name: csvRow.banner_name,
-      page: csvRow.banner_page,
-      sitePath: csvRow.banner_site_path,
+    const { order_id, user_id, rating, message, lang, createdAt } = csvRow;
 
-      adType: csvRow.ad_type.replace('-', '_').trim().toUpperCase(),
-      size: {
-        width: csvRow.banner_size.split('x')[0],
-        height: csvRow.banner_size.split('x')[1],
-      },
-      type: (csvRow.banner_type || "PNG").trim().toUpperCase(),
-      layout: csvRow.banner_layout.trim().toUpperCase(),
+    const review = {
+      tag: activity.generateTag(csvRow),
+      order_id,
+      user: user_id,
+      rating: Number(rating).toFixed(1), 
+      message,
+      lang: lang.toUpperCase(),
+      createdAt: createdAt || new Date(),
     };
-    banner.time = function(strTime = "") {
-      const arr = strTime.split(":");
-      const h = Number(arr[0] || "0");
-      const m = Number(arr[1] || "0");
-      const s = Number(arr[2] || "0");
-      return h * 3600 + m * 60 + s;
-    }(csvRow.timing_duration);
     
-    banner.assets = function() {
-      const length = 10;
-      const assets = Array.from(new Array(length), (x,i) => i).map((x, i) => ({
-        image: csvRow[`asset_url${i === 0 ? "" : i}`] || null,
-        link: csvRow[`redirection_link${i === 0 ? "" : i}`] || null,
-      })).filter(item => item.image); 
-      return assets;
-    }();
-    return banner;
-  }
+    return review;
+  },
+  generateTag: ({ target = 'Product', target_id }) => {
+    target = target.charAt(0).toUpperCase() + target.slice(1).toLowerCase();
+    return `${target}:${target_id}`;
+  },
+  checkReviewExists: async (csvRow, repository) => {
+    return Promise.all([
+      csvRow._id ? repository.rating.getById(csvRow._id) : null,
+      csvRow.target_id ? repository.rating.load(activity.generateTag(csvRow), csvRow.user_id) : null,
+    ])
+      .then(([ itemById, itemByTag ]) => itemById || itemByTag);
+  },
 }
 
 
@@ -76,7 +69,7 @@ module.exports = async (_, { file }, { dataSources: { repository }}) => {
   validator.addPostRule(async (input) => {
     const detectedType = MIMEAssetTypes.detect(input.inputs.mimetype);
     if (!detectedType || detectedType.type !== assetTypes.CSV) {
-      validator.addError('mimetype', 'custom', '"Mutation.uploadBulkBanners" accepts CSV file only!');
+      validator.addError('mimetype', 'custom', '"Mutation.uploadBulkReviews" accepts CSV file only!');
     }
   });
 
@@ -95,26 +88,22 @@ module.exports = async (_, { file }, { dataSources: { repository }}) => {
         failedList: { row: [], errors: [] }
       };
 
-      return Promise.all(csvRows.map((csvRow, i) => Promise.all([
-        csvRow._id ? repository.banner.getById(csvRow._id) : null,
-        repository.banner.getOne({ identifier: csvRow.identifier }), 
-      ])
-        .then(([bannerById, bannerByIdtf]) => {
-          const banner = bannerById || bannerByIdtf;
-          const bannerData = activity.composeBannerData(csvRow);
-                    
-          if (banner) {
+      return Promise.all(csvRows.map((csvRow, i) => activity.checkReviewExists(csvRow, repository)
+        .then((review) => {
+          const reviewData = activity.composeReviewData(csvRow);
+
+          if (review) {
             // update it.
-            Object.keys(bannerData).forEach(key => {
-              banner[key] = bannerData[key];
+            Object.keys(reviewData).forEach(key => {
+              review[key] = reviewData[key];
             });
-            return banner.save();
+            return review.save();
           } else {
             // create new one
-            return repository.banner.create({ ...bannerData, _id: uuid() });
+            return repository.rating.create(reviewData);
           }
         })
-        .then(banner => {
+        .then(review => {
           result.success ++;
         })
         .catch(error => {

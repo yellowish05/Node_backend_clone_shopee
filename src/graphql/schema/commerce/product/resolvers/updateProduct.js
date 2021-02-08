@@ -7,8 +7,8 @@ const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { AssetService } = require(path.resolve('src/lib/AssetService'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { id, data }, { dataSources: { repository }, user }) => {
@@ -86,6 +86,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         quantity, price, discountPrice, thumbnailId, ...productData
       } = data;
 
+      const deltaQty = quantity - product.quantity;
+
       product.title = productData.title;
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
@@ -136,13 +138,26 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         });
       }
 
+      let inventoryPromise = null;
+      if (deltaQty !== 0 && product.attrs.length === 0) {
+        const newInventoryLog = {
+          _id: uuid(),
+          product: product.id,
+          productAttribute: null,
+          shift: deltaQty,
+          type: InventoryLogType.USER_ACTION,
+        };
+        inventoryPromise = repository.productInventoryLog.add(newInventoryLog);
+      }
+
       // product.weight = data.weight;
       return Promise.all([
         product.save(),
-        repository.productInventoryLog.getByProductId(product.id),
+        // repository.productInventoryLog.getByProductId(product.id),
+        inventoryPromise,
       ])
         .then(async ([updatedProduct, inventory]) => {
-          await repository.productInventoryLog.update(inventory.id, updatedProduct.quantity);
+          // await repository.productInventoryLog.update(inventory.id, updatedProduct.quantity);
           return updatedProduct;
         });
     });

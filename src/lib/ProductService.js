@@ -1,10 +1,12 @@
 
 const path = require('path');
 const { slugify } = require('transliteration');
+const uuid = require('uuid/v4');
 
 const repository = require(path.resolve('src/repository'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
 
 const matchWeightByLevel = [7, 5, 3]; // for level 1, 2, 3
 
@@ -253,10 +255,48 @@ module.exports = {
     return filter;
   },
 
+  async setProductQuantityFromAttributes(productId) {
+    return repository.product.getById(productId)
+      .then(product => {
+        if (!product.attrs || !product.attrs.length) return product;
+
+        return repository.productAttributes.getByIds(product.attrs)
+          .then(attributes => {
+            product.quantity = attributes.reduce((sum, item) => sum + item.quantity, 0);
+            return product.save();
+          })
+      })
+  },
+
+  async processInventoryLogOnDeleteProduct(productId) {
+    return repository.product.getById(productId)
+      .then(async product => {
+        let inventoryLogs = [{
+          _id: uuid(),
+          product: productId,
+          productAttribute: null,
+          type: InventoryLogType.USER_ACTION,
+          shift: -product.quantity,
+        }];
+
+        const attributes = await repository.productAttributes.getByIds(product.attrs);
+
+        if (attributes && attributes.length > 0) {
+          inventoryLogs = inventoryLogs.concat(attributes.map(attribute => ({
+            _id: uuid(),
+            product: productId,
+            productAttribute: attribute.id,
+            type: InventoryLogType.USER_ACTION,
+            shift: -attribute.quantity,
+          })));
+        }
+        return Promise.all(inventoryLogs.map(inventoryLog => repository.productInventoryLog.add(inventoryLog)));
+      })
+  },
+
   async checkProductQuantityAvailable({ product, quantity, productAttribute = null }, repository) {
-    // to-do: should checked from product & product attributes collection.
     const available = productAttribute ? await repository.productAttributes.checkAmountByAttr(productAttribute, quantity) :
-        await repository.productInventoryLog.checkAmount(product, quantity);
+        await repository.product.checkAmount(product, quantity);
     return available;
   },
 
@@ -267,20 +307,23 @@ module.exports = {
    *   - product.quatity & productAttributes.quantity: represents the current status.
    *   - inventory.shift: represents the change quantity due to add, update, buy, refund.
    */
-  async decreaseProductQuantity({ product: productId, quantity, productAttribute: productAttrId = null }, repository) {
-    
-    return Promise.all([
-      repository.product.getById(productId),
-      productAttrId ? repository.productAttributes.getById(productAttrId) : null,
-      repository.productInventoryLog.getByProductIdAndAttrId(productId, productAttrId),
-    ])
-      .then(async ([ product, productAttr, inventoryLog ]) => {
-        if (productAttr) {
-          productAttr.quantity -= quantity;
-          await productAttr.save();
-        } else {
-          await repository.productInventoryLog.decreaseQuantity(productId, quantity);
-        }
+  async decreaseProductQuantity({ product: productId, quantity, productAttribute: productAttrId = null, logType = InventoryLogType.BUYER_CART }, repository) {
+    return (productAttrId ? repository.productAttributes.getById(productAttrId) : repository.product.getById(productId))
+      .then(target => {
+        target.quantity -= quantity;
+
+        const inventoryLog = {
+          _id: uuid(),
+          product: productId,
+          productAttribute: productAttrId,
+          shift: -quantity,
+          type: logType,
+        };
+
+        return Promise.all([
+          target.save(),
+          repository.productInventoryLog.add(inventoryLog),
+        ]);
       })
   },
 

@@ -81,6 +81,7 @@ const InventoryLogType = EnumFactory({
   USER_ACTION: 'USER_ACTION',
   PURCHASE: 'PURCHASE',
   REFUND: 'REFUND',
+  BUYER_CART: 'BUYER_CART',
 });
 
 const VerificationEmailTemplate = EnumFactory({
@@ -244,8 +245,8 @@ const RatingTarget = EnumFactory({
 
 const languageEnum = {};
 languages.forEach((item) => {
-  const name = item.iso639_1.toUpperCase(); //item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
-  // const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+  // const name = item.iso639_1.toUpperCase();
+  const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
   languageEnum[name.split('-')[0]] = name.split('-')[0];
 });
 const LanguageList = EnumFactory(languageEnum);

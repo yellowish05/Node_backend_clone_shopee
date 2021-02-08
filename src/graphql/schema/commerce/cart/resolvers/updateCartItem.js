@@ -1,9 +1,11 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
+const uuid = require('uuid/v4');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
+const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
-
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -51,7 +53,23 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       return repository.deliveryRate.getById(deliveryRate ? deliveryRate.id : userCartItem.deliveryRate)
         .then(async (saveDeliveryRate) => {
           await productInfo.save();
+
+          if (args.quantity - userCartItem.quantity !== 0) {
+            const inventoryLog = {
+              _id: uuid(),
+              product: userCartItem.product,
+              productAttribute: userCartItem.productAttribute,
+              type: InventoryLogType.BUYER_CART,
+              shift: userCartItem.quantity - args.quantity,
+            };    
+            await Promise.all([
+              ProductService.setProductQuantityFromAttributes(userCartItem.product),
+              repository.productInventoryLog.add(inventoryLog),
+            ]);                    
+          }
+
           if (saveDeliveryRate) {
+            cartItemData.deliveryRateId = saveDeliveryRate.id;
             return repository.userCartItem.update(args.id, cartItemData);
           }
 

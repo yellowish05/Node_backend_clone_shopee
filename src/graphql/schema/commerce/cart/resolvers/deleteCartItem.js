@@ -1,9 +1,11 @@
 const path = require('path');
+const uuid = require('uuid/v4');
 const { Validator } = require('node-input-validator');
+const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
+const { InventoryLogType } = require(path.resolve('src/lib/Enums'));
+const ProductService = require(path.resolve('src/lib/ProductService'));
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
-
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
@@ -33,6 +35,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         await repository.product.getById(userCartItem.product);
       productInfo.quantity += userCartItem.quantity;
       await productInfo.save();
+
+      const inventoryLog = {
+        _id: uuid(),
+        product: userCartItem.product,
+        productAttribute: userCartItem.productAttribute,
+        type: InventoryLogType.BUYER_CART,
+        shift: userCartItem.quantity,
+      };
+      await Promise.all([
+        ProductService.setProductQuantityFromAttributes(userCartItem.product),
+        repository.productInventoryLog.add(inventoryLog),
+      ])
 
       return repository.userCartItem.delete(args.id);
     })

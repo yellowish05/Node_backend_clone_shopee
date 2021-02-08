@@ -15,7 +15,7 @@ const userSettingsSchema = new Schema({
   language: {
     type: String,
     enum: LanguageList.toList(),
-    default: "EN",
+    default: "ENG",
     required: true,
   },
   currency: {

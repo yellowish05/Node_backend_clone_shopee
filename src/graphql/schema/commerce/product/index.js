@@ -18,6 +18,9 @@ const updateProductAttr = require('./resolvers/updateProductAttr');
 const deleteProductAttr = require('./resolvers/deleteProductAttr');
 const productsByTheme = require('./resolvers/productsByTheme');
 const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags');
+const correctProductInventoryLog = require('./resolvers/correctProductInventoryLog');
+const updateProductHashtags = require('./resolvers/updateProductHashtags');
+
 
 const schema = gql`
     enum ProductMetricUnit {
@@ -250,6 +253,20 @@ const schema = gql`
         hashtags: [String]
     }
 
+    type ProductUpdateError {
+      id: String!
+      errors: [String]!
+    }
+    
+    type ProductBulkUpdated {
+      totalProducts: Int!
+      processed: Int!
+      success: Int!
+      failure: Int!
+      errors: [ProductUpdateError]!
+
+    }
+
     extend type Mutation {
         """
             Allows: authorized user
@@ -272,6 +289,8 @@ const schema = gql`
         setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
         uploadBulkProductHashtags(file: Upload!): UploadedProducts!
+        correctProductInventoryLog(skip: Int!, limit: Int! = 500): ProductBulkUpdated @auth(requires: USER)
+        updateProductHashtags(skip: Int!, limit: Int = 500): ProductBulkUpdated @auth(requires: USER)
     }
 `;
 
@@ -296,6 +315,8 @@ module.exports.resolvers = {
     updateProductAttr,
     deleteProductAttr,
     uploadBulkProductHashtags,
+    correctProductInventoryLog,
+    updateProductHashtags,
   },
   Product: {
     seller: async ({ seller }, _, { dataSources: { repository } }) => (
@@ -358,7 +379,7 @@ module.exports.resolvers = {
     }),
     rating: async (product, _, { dataSources: { repository } }) => ({
       average: repository.rating.getAverage(product.getTagName()),
-      total: repository.rating.getTotal(product.getTagName()),
+      total: repository.rating.getTotal({ tag: product.getTagName() }),
     }),
     customCarrier: async ({ customCarrier }, _, { dataSources: { repository } }) => repository.customCarrier.getById(customCarrier),
     // attributes of product
