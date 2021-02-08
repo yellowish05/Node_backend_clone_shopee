@@ -91,7 +91,7 @@
     "os": "^0.1.1",
     "path": "^0.12.7",
     "paypal-rest-sdk": "^1.8.1",
-    "puppeteer": "^5.4.1",
+    "puppeteer": "^7.0.1",
     "querystring": "^0.2.0",
     "razornode": "^1.1.1",
     "razorpay": "^2.0.6",
