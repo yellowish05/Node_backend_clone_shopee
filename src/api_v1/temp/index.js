@@ -21,7 +21,7 @@ var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
 
-const { protocol, domain } = require(path.resolve('config/index'));
+const { protocol, domain, payment: { providers: { unionpay } } } = require(path.resolve('config/index'));
 
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
@@ -32,6 +32,9 @@ const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const UnionPay = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/unionpay.js'));
+const { frontForm } = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/form.templ.js'));
+
 
 // const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
 
@@ -553,6 +556,36 @@ tempRouter.route('/update-product-hashtags').post(async (req, res) => {
   return loopUpdateProductHashtags({ ...req.body, auth: req.headers.authorization})
     .then(data => res.json(data))
     .catch(error => res.json({ status: false, message: error.message }));
+})
+
+tempRouter.route('/union-pay-test').get(async (req, res) => {
+  const unionPay = new UnionPay({
+    merId: unionpay.merchantId,
+    frontUrl : "http://127.0.0.1/unionpay/notify",
+    pfxPassword: unionpay.password,
+    pfxPath: path.resolve(unionpay.privateKeyPath),
+    cer: path.resolve(unionpay.publicKeyPath),
+    sandbox: true,
+    frontUrl: "https://2b12ff3eb36d.ngrok.io/front-url",
+    backUrl: "https://2b12ff3eb36d.ngrok.io/back-url",
+  });
+  await unionPay.initKey();
+  const formData = unionPay.getParams({
+      orderId: Date.now(),
+      txnAmt: 10,
+      orderDesc: "支付测试"
+  });
+
+  let inputs = ``;
+  Object.keys(formData).forEach(key => {
+    if (formData[key]) {
+      inputs += `<input type="hidden" name="${key}" value="${formData[key]}" />\n`;
+    }
+  })
+
+  const html = frontForm.replace('{{url}}', 'https://gateway.test.95516.com/gateway/api/frontTransReq.do').replace('{{inputs}}', inputs).replace('{{type}}', 'FRONT PAY');
+
+  res.send(html); //tn;
 })
 
 // tempRouter.route('/detect-lang').post(async (req, res) => {

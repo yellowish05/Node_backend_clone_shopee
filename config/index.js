@@ -159,7 +159,14 @@ module.exports = {
         pay_channel_secret: process.env.PAYMENT_LINE_PAY_CHANNEL_SECRET,
         confirmURL: process.env.PAYMENT_LINE_PAY_CONFIRM_URL,
         cancelUrl: process.env.PAYMENT_LINE_PAY_CANCEL_URL
-      }
+      },
+      unionpay: {
+        mode: process.env.PAYMENT_UNIONPAY_MODE,
+        privateKeyPath: process.env.PAYMENT_UNIONPAY_PRIVATE_KEYPATH,
+        publicKeyPath: process.env.PAYMENT_UNIONPAY_PUBLIC_KEYPATH,
+        password: process.env.PAYMENT_UNIONPAY_PRIVATE_PASSWORD,
+        merchantId: process.env.PAYMENT_UNIONPAY_MERCHANT_ID,
+      },
     },
   },
   shipengine: {

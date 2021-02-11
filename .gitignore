@@ -1,5 +1,6 @@
 tmp
 node_modules
+credentials
 .env
 fixtures-lock.json
 .Ds_Store

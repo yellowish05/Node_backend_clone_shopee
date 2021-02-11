@@ -179,6 +179,7 @@ const PaymentMethodProviders = EnumFactory({
   WECHATPAY: 'WeChatPay',
   LINEPAY: 'LinePay',
   PAYPAL: 'PayPal',
+  UNIONPAY: 'UnionPay',
 })
 
 const ProductMetricUnits = EnumFactory({
