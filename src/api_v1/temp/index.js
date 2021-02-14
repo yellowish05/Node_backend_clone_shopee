@@ -21,7 +21,7 @@ var formidable = require('formidable');
 
 const { transliterate: tr, slugify } = require('transliteration');
 
-const { protocol, domain, payment: { providers: { unionpay } } } = require(path.resolve('config/index'));
+const { protocol, domain } = require(path.resolve('config/index'));
 
 const projectId = 'streambliss-test-enviornment';
 const translate = new Translate({ projectId });
@@ -32,9 +32,6 @@ const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
-const UnionPay = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/unionpay.js'));
-const { frontForm } = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/form.templ.js'));
-const unionPayProvider = require(path.resolve('src/bundles/payment/providers/UnionPay'));
 
 
 // const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
@@ -558,71 +555,5 @@ tempRouter.route('/update-product-hashtags').post(async (req, res) => {
     .then(data => res.json(data))
     .catch(error => res.json({ status: false, message: error.message }));
 })
-
-tempRouter.route('/union-pay-test').get(async (req, res) => {
-  const unionPay = new UnionPay({
-    merId: unionpay.merchantId,
-    frontUrl : "http://127.0.0.1/unionpay/notify",
-    pfxPassword: unionpay.password,
-    pfxPath: path.resolve(unionpay.privateKeyPath),
-    cer: path.resolve(unionpay.publicKeyPath),
-    sandbox: true,
-    frontUrl: "https://2b12ff3eb36d.ngrok.io/front-url",
-    backUrl: "https://2b12ff3eb36d.ngrok.io/back-url",
-  });
-  await unionPay.initKey();
-  const formData = unionPay.getParams({
-      orderId: Date.now(),
-      txnAmt: 10,
-      orderDesc: "支付测试",
-      orderId1: "asdfasdf-asdfasd-we-sdf-sdf",
-  });
-
-  let inputs = ``;
-  Object.keys(formData).forEach(key => {
-    if (formData[key]) {
-      inputs += `<input type="hidden" name="${key}" value="${formData[key]}" />\n`;
-    }
-  })
-
-  const html = frontForm.replace('{{url}}', 'https://gateway.test.95516.com/gateway/api/frontTransReq.do').replace('{{inputs}}', inputs).replace('{{type}}', 'FRONT PAY');
-
-  res.send(html); //tn;
-})
-
-tempRouter.route('/union-pay-test1').get(async (req, res) => {
-  return unionPayProvider.composeFormHTML({
-    redirectTo: `${protocol}://${domain}/webhooks/payment/unionpay`,
-    amount: 100, 
-    description: "Description here",
-  })
-  .then(html => res.send(html))
-  .catch(error => res.send(error.message))
-})
-
-tempRouter.route('/union-pay-query').post(async (req, res) => {
-  const unionPay = new UnionPay({
-    merId: unionpay.merchantId,
-    // frontUrl : "http://127.0.0.1/unionpay/notify",
-    pfxPassword: unionpay.password,
-    pfxPath: path.resolve(unionpay.privateKeyPath),
-    cer: path.resolve(unionpay.publicKeyPath),
-    sandbox: true,
-    frontUrl: `${protocol}://${domain}/webhooks/payment/unionpay`,
-    backUrl: `${protocol}://${domain}/webhooks/payment/unionpay-back`,
-  });
-  await unionPay.initKey();
-  return unionPay.queryTrans(req.body)
-    .then(resl => res.json(resl))
-})
-
-// tempRouter.route('/detect-lang').post(async (req, res) => {
-//   const langDetector = new LanguageDetect();
-//   const result = langDetector.detect(req.body.text);
-//   res.json(result);
-// })
-
-
-
 
 module.exports = tempRouter;
