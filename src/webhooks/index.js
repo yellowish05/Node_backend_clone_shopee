@@ -10,7 +10,6 @@ const getStripeAction = require('./payment/stripe');
 const getRazorpayAction = require('./payment/razorpay');
 const getPayPalAction = require('./payment/paypal');
 const getLinepayAction = require('./payment/linepay');
-const getUnionpayAction = require('./payment/unionpay');
 const unionpayFrontAction = require('./payment/unionpay/front-url');
 const unionpayBackAction = require('./payment/unionpay/back-url');
 
