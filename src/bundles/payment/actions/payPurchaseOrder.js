@@ -189,6 +189,13 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
+    } else if (provider === PaymentMethodProviders.UNIONPAY) {
+      transaction.responsePayload = { ...redirection };
+      await transaction.save();
+      return {
+        publishableKey: "",
+        paymentClientSecret: getProvider(PaymentMethodProviders.UNIONPAY).generateLink(transaction),
+      }  
     } else if (provider == PaymentMethodProviders.LINEPAY) {
       return getProvider(linepayProvider)
         .createOrder(transaction)

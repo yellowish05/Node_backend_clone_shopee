@@ -3,6 +3,8 @@
 const path = require('path');
 const paypal = require('paypal-rest-sdk');
 const { UserInputError } = require('apollo-server');
+
+
 const ProviderAbstract = require('../ProviderAbstract');
 const { PaymentException } = require('../../Exceptions');
 const { response } = require('../../../../viewers');
@@ -11,8 +13,12 @@ const { error } = require('console');
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
-
 const logger = require(path.resolve('config/logger'));
+
+
+const UnionPay = require('./libs/unionpay');
+const { frontForm } = require('./libs/form.templ');
+
 
 const activity = {
   generateErrorString: (error) => {
@@ -25,14 +31,9 @@ const activity = {
 }
 
 class Provider extends ProviderAbstract {
-  constructor({ mode, client_id, client_secret }, repository) {
+  constructor(config, repository) {
     super();
-    this.client = paypal;
-    // this.client.configure({
-    //     mode,
-    //     client_id,
-    //     client_secret,
-    // });
+    this.config = config;
     this.repository = repository;
   }
 
@@ -49,37 +50,68 @@ class Provider extends ProviderAbstract {
     return input;
   }
 
-  async createOrder(currency, amount, buyer, redirection) {
-    // amount is in cents
-    const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: amount, currency });
-    if(!this.client)
-      console.log("PayPal Connection Error !");
-    const create_payment_json = {
-        "intent": "sale",
-        "payer": {
-            "payment_method": "paypal"
-        },
-        "redirect_urls": {
-            "return_url": redirection.success, //`${protocol}://${domain}/pages/paypal/success`,
-            "cancel_url": redirection.cancel, //`${protocol}://${domain}/pages/paypal/cancel`,
-        },
-        "transactions": [{
-            "amount": {
-                "currency": currency,
-                "total": amountOfMoney.getCurrencyAmount()
-            },
-        }]
-    };
-    return new Promise(resolve => {
-        this.client.payment.create(create_payment_json, (error, payment) => {
-            if (error) {
-              // console.log('[PayPal error]', activity.generateErrorString(error));
-              resolve({ error: activity.generateErrorString(error) });
-            } else {
-                resolve(payment);
-            }
-        });
+  generateLink({ id: transactionId }) {
+    return `${protocol}://${domain}/pages/union-pay/txn/${transactionId}`;
+  }
+
+  async composeFormHTML({ redirectTo, amount, description }) {
+    const unionPay = new UnionPay({
+      merId: this.config.merchantId,
+      pfxPassword: this.config.password,
+      pfxPath: path.resolve(this.config.privateKeyPath),
+      cer: path.resolve(this.config.publicKeyPath),
+      sandbox: this.config.mode === 'sandbox',
+      frontUrl: `${protocol}://${domain}/webhooks/payment/unionpay/front-url`,
+      backUrl: `${protocol}://${domain}/webhooks/payment/unionpayj/back-url`,
     });
+    await unionPay.initKey();
+    const formData = unionPay.getParams({
+        orderId: Date.now(),
+        txnAmt: amount,
+        orderDesc: description || "支付测试",
+    });
+  
+    let inputs = ``;
+    Object.keys(formData).forEach(key => {
+      if (formData[key]) {
+        inputs += `<input type="hidden" name="${key}" value="${formData[key]}" />\n`;
+      }
+    })
+  
+    const html = frontForm.replace('{{url}}', 'https://gateway.test.95516.com/gateway/api/frontTransReq.do').replace('{{inputs}}', inputs).replace('{{type}}', 'FRONT PAY');
+    return { html, data: formData };
+  }
+
+  async queryOrder() {
+    const unionPay = new UnionPay({
+      merId: this.config.merchantId,
+      pfxPassword: this.config.password,
+      pfxPath: path.resolve(this.config.privateKeyPath),
+      cer: path.resolve(this.config.publicKeyPath),
+      sandbox: this.config.mode === 'sandbox',
+      // frontUrl : "http://127.0.0.1/unionpay/notify",
+      frontUrl: redirectTo || `${protocol}://${domain}/webhooks/payment/unionpay`,
+      backUrl: `${protocol}://${domain}/webhooks/payment/unionpay-back`,
+    });
+    await unionPay.initKey();
+    const formData = unionPay.getParams({
+        orderId: Date.now(),
+        txnAmt: amount,
+        orderDesc: description || "支付测试",
+        // testParam: "testParam",
+    });
+
+    let inputs = ``;
+    Object.keys(formData).forEach(key => {
+      if (formData[key]) {
+        inputs += `<input type="hidden" name="${key}" value="${formData[key]}" />\n`;
+      }
+    })
+  
+    const html = frontForm.replace('{{url}}', 'https://gateway.test.95516.com/gateway/api/frontTransReq.do').replace('{{inputs}}', inputs).replace('{{type}}', 'FRONT PAY');
+  
+    // res.send(html); //tn;
+    return html;
   }
 }
 

@@ -41,6 +41,23 @@ class Unionpay {
         this.publicKey = fs.readFileSync(this.cer).toString();
     }
 
+    async queryTrans({ orderId, txnTime }) {
+      const commonParams = utils.commonParams(this);
+      const exParams = {
+        txnType: '00',
+        txnSubType: '00',
+        bizType: '000000',
+        accessType: '0',
+        channelType: '07',
+        orderId,
+        txnTime,
+      };
+      const params = utils.signObject({ ...commonParams, ...exParams }, this);
+      return utils.request(this.sandbox ? gateway.queryTrans.test : gateway.queryTrans.product, params)
+        .then(resl => qs.parse(resl));
+
+    }
+
     /**
      * 银联支付-app控件支付-消费类交易，获取参数
      * @param {Object} obj
@@ -54,6 +71,7 @@ class Unionpay {
         obj.bizType = "000201";
         obj.txnType = "01";           // 交易类型
         obj.txnSubType = "01";        // 交易子类
+        
         return new Promise(async (resolve, reject) => {
             let formData = await utils.buildParams(obj, this);
             const body = await utils.request(this.sandbox ? gateway.appTransReq.test : gateway.appTransReq.product, formData);

@@ -34,6 +34,7 @@ const PythonService = require(path.resolve('src/lib/PythonService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 const UnionPay = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/unionpay.js'));
 const { frontForm } = require(path.resolve('src/bundles/payment/providers/UnionPay/libs/form.templ.js'));
+const unionPayProvider = require(path.resolve('src/bundles/payment/providers/UnionPay'));
 
 
 // const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
@@ -573,7 +574,8 @@ tempRouter.route('/union-pay-test').get(async (req, res) => {
   const formData = unionPay.getParams({
       orderId: Date.now(),
       txnAmt: 10,
-      orderDesc: "支付测试"
+      orderDesc: "支付测试",
+      orderId1: "asdfasdf-asdfasd-we-sdf-sdf",
   });
 
   let inputs = ``;
@@ -586,6 +588,32 @@ tempRouter.route('/union-pay-test').get(async (req, res) => {
   const html = frontForm.replace('{{url}}', 'https://gateway.test.95516.com/gateway/api/frontTransReq.do').replace('{{inputs}}', inputs).replace('{{type}}', 'FRONT PAY');
 
   res.send(html); //tn;
+})
+
+tempRouter.route('/union-pay-test1').get(async (req, res) => {
+  return unionPayProvider.composeFormHTML({
+    redirectTo: `${protocol}://${domain}/webhooks/payment/unionpay`,
+    amount: 100, 
+    description: "Description here",
+  })
+  .then(html => res.send(html))
+  .catch(error => res.send(error.message))
+})
+
+tempRouter.route('/union-pay-query').post(async (req, res) => {
+  const unionPay = new UnionPay({
+    merId: unionpay.merchantId,
+    // frontUrl : "http://127.0.0.1/unionpay/notify",
+    pfxPassword: unionpay.password,
+    pfxPath: path.resolve(unionpay.privateKeyPath),
+    cer: path.resolve(unionpay.publicKeyPath),
+    sandbox: true,
+    frontUrl: `${protocol}://${domain}/webhooks/payment/unionpay`,
+    backUrl: `${protocol}://${domain}/webhooks/payment/unionpay-back`,
+  });
+  await unionPay.initKey();
+  return unionPay.queryTrans(req.body)
+    .then(resl => res.json(resl))
 })
 
 // tempRouter.route('/detect-lang').post(async (req, res) => {

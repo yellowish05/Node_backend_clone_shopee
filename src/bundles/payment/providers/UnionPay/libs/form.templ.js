@@ -15,7 +15,7 @@ const frontForm = `
       <script type="text/javascript">
           document.onreadystatechange = function(){
               if(document.readyState == "complete") {
-                  // document.payform.submit();
+                  document.payform.submit();
               }
           };
       </script>

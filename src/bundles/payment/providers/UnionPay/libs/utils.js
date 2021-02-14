@@ -79,21 +79,23 @@ utils.buildParams = function(obj, context) {
     var params = {
         version: '5.0.0',       // 版本号，固定
         encoding: 'UTF-8',
-        bizType: obj.bizType,               // 产品类型
-        txnTime: moment().format('YYYYMMDDhhmmss'),   // 订单时间
-        currencyCode: '156',                // 交易币种
-        txnAmt: String(obj.txnAmt),         // 交易金额，单位为分
         signMethod: "01",                   // 签名方式，01表示RSA，11表示SHA-256,12表示SM3
-        txnType: obj.txnType,               // 交易类型
-        txnSubType: obj.txnSubType,         // 交易子类
-        accessType: "0",                    // 接入类型，0表示普通商户，1表示平台类商户
-        channelType: '07',                  // 渠道类型
         merId: context.merId,               // 商户ID
-        frontUrl: context.frontUrl,         // 前台通知地址
         backUrl: context.backUrl,
         certId: context.certId,             // 证书ID
-        orderId: obj.orderId,               // 商户订单号
-        orderDesc : obj.orderDesc || ""     // 订单描述
+        
+        frontUrl: context.frontUrl,         // 前台通知地址
+        txnTime: moment().format('YYYYMMDDhhmmss'),   // 订单时间
+        currencyCode: '156',                // 交易币种
+        accessType: "0",                    // 接入类型，0表示普通商户，1表示平台类商户
+        channelType: '07',                  // 渠道类型
+        // txnAmt: String(obj.txnAmt),         // 交易金额，单位为分
+        // txnType: obj.txnType,               // 交易类型
+        // txnSubType: obj.txnSubType,         // 交易子类
+        // bizType: obj.bizType,               // 产品类型
+        // orderId: obj.orderId,               // 商户订单号
+        // orderDesc : obj.orderDesc || ""     // 订单描述
+        ...obj,
     };
     var preString = utils.querystring(params, true);
     preString = iconv.encode(preString, 'utf-8');
@@ -101,6 +103,24 @@ utils.buildParams = function(obj, context) {
     params.signature = utils.sign(preString, context.privateKey);
     return params;
 };
+
+utils.signObject = function(obj, context) {
+  var preString = utils.querystring(obj, true);
+  preString = iconv.encode(preString, 'utf-8');
+  obj.signature = utils.sign(preString, context.privateKey);
+  return obj;
+}
+
+utils.commonParams = function(context) {
+  return {
+    version: '5.0.0',
+    encoding: 'UTF-8',
+    merId: context.merId,
+    certId: context.certId,
+    signMethod: '01',
+    backUrl: context.backUrl,
+  };
+}
 
 /**
  * 网络请求

@@ -20,7 +20,7 @@ module.exports = (repository) => async ({ transaction, response }) => {
   transaction.status = PaymentTransactionStatus.SUCCESS;
   transaction.processedAt = new Date();
   if (response) 
-    transaction.responsePayload = typeof response === 'object' ? response : { response };
+    transaction.responsePayload = typeof response === 'object' ? { ...response, ...(transaction.responsePayload || {}) } : { response };
 
   return transaction.save();
 }
