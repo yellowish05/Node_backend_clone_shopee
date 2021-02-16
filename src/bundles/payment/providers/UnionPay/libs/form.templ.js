@@ -7,10 +7,9 @@ const frontForm = `
       <title>银联支付</title>
   </head>
   <body>
-      <div style="text-align:center">{{type}}跳转中...</div>
+      <div style="text-align:center">等一会儿...</div>
       <form id="payform" name="payform" action="{{url}}" method="post">
           {{inputs}}
-          <button>提交</button>
       </form>
       <script type="text/javascript">
           document.onreadystatechange = function(){
