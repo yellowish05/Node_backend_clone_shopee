@@ -67,7 +67,7 @@ const schema = gql`
 
     input RedirectionInput {
       success: String!
-      cancel: String!
+      cancel: String
     }
 
     enum PurchaseOrderSortFeature {
@@ -83,7 +83,7 @@ const schema = gql`
         allPurchaseOrders: [PurchaseOrder]!
         purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
         purchaseOrder(id: ID!): PurchaseOrder
-        getInvoicePDF(id: ID!): [String]
+        getInvoicePDF(id: ID!): String
     }
 
     extend type Mutation {
@@ -139,15 +139,7 @@ module.exports.resolvers = {
         }
 
         return InvoiceService.getOrderDetails(id)
-          .then(async (orderDetails) => {
-            const PDFs = [];
-            await Promise.all(orderDetails.map(async (orderDetail) => {
-              const url = InvoiceService.createInvoicePDF(orderDetail);
-              PDFs.push(url);
-            }));
-
-            return PDFs;
-          })
+          .then(async (orderDetails) => InvoiceService.createInvoicePDF(orderDetails))
           .catch((err) => {
             throw new Error(err.message);
           });

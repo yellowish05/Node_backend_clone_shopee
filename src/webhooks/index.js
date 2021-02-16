@@ -9,7 +9,9 @@ const deliveryShipEngineAction = require('./delivery/shipengine');
 const getStripeAction = require('./payment/stripe');
 const getRazorpayAction = require('./payment/razorpay');
 const getPayPalAction = require('./payment/paypal');
-const getLinepayAction = require('./payment/linepay')
+const getLinepayAction = require('./payment/linepay');
+const unionpayFrontAction = require('./payment/unionpay/front-url');
+const unionpayBackAction = require('./payment/unionpay/back-url');
 
 const app = express();
 
@@ -25,5 +27,7 @@ app.post('/payment/stripe', getStripeAction);
 app.post('/payment/razorpay', getRazorpayAction);
 app.post('/payment/paypal', getPayPalAction);
 app.post('/payment/linepay', getLinepayAction);
+app.post('/payment/unionpay/back-url', unionpayBackAction);
+app.post('/payment/unionpay/front-url', unionpayFrontAction);
 
 module.exports = app;

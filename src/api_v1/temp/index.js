@@ -33,6 +33,7 @@ const streamService = require(path.resolve('src/lib/StreamService'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
+
 // const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
 
 const parseCSVContent = (readStream) => {
@@ -554,14 +555,5 @@ tempRouter.route('/update-product-hashtags').post(async (req, res) => {
     .then(data => res.json(data))
     .catch(error => res.json({ status: false, message: error.message }));
 })
-
-// tempRouter.route('/detect-lang').post(async (req, res) => {
-//   const langDetector = new LanguageDetect();
-//   const result = langDetector.detect(req.body.text);
-//   res.json(result);
-// })
-
-
-
 
 module.exports = tempRouter;

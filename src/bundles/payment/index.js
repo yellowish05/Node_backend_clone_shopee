@@ -11,6 +11,7 @@ const providers = {
   RazorPay: require('./providers/RazorPay'),
   PayPal: require('./providers/PayPal'),
   LinePay: require('./providers/LinePay'),
+  UnionPay: require('./providers/UnionPay'),
 };
 
 if (payment.testMode) {
