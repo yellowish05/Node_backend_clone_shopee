@@ -247,9 +247,13 @@ const RatingTarget = EnumFactory({
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
-  const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
-  languageEnum[name.split('-')[0]] = name.split('-')[0];
+  // const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+  // languageEnum[name.split('-')[0]] = name.split('-')[0];
+
+  const limitedList = ["EN", 'ZH', 'KO', 'JA', 'MS','ID', 'AR', 'ES', 'FR', 'PT', 'RU'].sort();
+  limitedList.forEach(val => languageEnum[val] = val);
 });
+
 const LanguageList = EnumFactory(languageEnum);
 
 module.exports = {

@@ -4,7 +4,7 @@ const languages = CountryLanguage.getLanguages();
 const convertLangCode3to2 = (langCode) => {
     langCode = langCode.toLowerCase();
     const [match] = languages.filter(lang => lang.iso639_2en === langCode || lang.iso639_3 === langCode);
-    return match ? match.iso639_1.toUpperCase() : langCode.toUpperCase();
+    return match ? match.iso639_1.toUpperCase() : 'EN';
 }
 
 const convertLangCode2to3 = (langCode) => {
