@@ -67,7 +67,7 @@ const schema = gql`
 
     input RedirectionInput {
       success: String!
-      cancel: String!
+      cancel: String
     }
 
     enum PurchaseOrderSortFeature {
