@@ -46,6 +46,10 @@ class UserRepository {
     return this.model.find(query);
   }
 
+  async countAll(query = {}) {
+    return this.model.countDocuments(query);
+  }
+
   async create(data, options = {}) {
     const {
       email,
@@ -378,6 +382,17 @@ class UserRepository {
         newUser.organization = org.id;
         return newUser.save();
       });
+  }
+
+  async paginate({ query, page }) {
+    return this.model.find(
+      query,
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
+  );
   }
 }
 

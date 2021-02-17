@@ -37,17 +37,15 @@ const schema = gql`
       isOnline: Boolean
       gender: GenderType
       color: Color
-      following: [User]
-      followers: [User]
-      # followStats: FollowStats
+      followStats: FollowStats
     }
 
-    # type FollowStats {
-    #   following(skip: Int, limit: Int): [User]
-    #   nFollowing: Int!
-    #   followers(skip: Int, limit: Int): [User]
-    #   nFollowers: Int!
-    # }
+    type FollowStats {
+      following(skip: Int = 0, limit: Int = 10): [User]
+      nFollowing: Int!
+      followers(skip: Int = 0, limit: Int = 10): [User]
+      nFollowers: Int!
+    }
 
     type UserInfo {
       id: ID!
@@ -58,6 +56,7 @@ const schema = gql`
       location: LatLng
       photo: Asset
       color: Color
+      followStats: FollowStats
     }
 
     input RegistrationInput {
@@ -166,17 +165,27 @@ module.exports.resolvers = {
     isOnline(user, _, { dataSources: { repository }}) {
       return !!user.isOnline;
     },
-    following(user, _, { dataSources: { repository } }) {
-      const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', ''));
-      return repository.user.loadList(userIds);
-    },
-    followers(user, _, { dataSources: { repository } }) {
-      return repository.user.loadAll({ following: user.getTagName() });
-    },
+    followStats(user) { return user }
   },
   UserInfo: {
     photo(user, args, { dataSources: { repository } }) {
       return repository.asset.load(user.photo);
+    },
+    followStats(user) { return user }
+  },
+  FollowStats: {
+    following(user, { skip, limit }, { dataSources: { repository } }) {
+      const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', '')).slice(skip, limit);
+      return repository.user.paginate({ query: { _id: {$in: userIds} }, page: { skip: 0, limit } });
+    },
+    nFollowing(user, _, { dataSources: { repository } }) {
+      return (user.following || []).length;
+    },
+    followers(user, { skip, limit }, { dataSources: { repository } }) {
+      return repository.user.paginate({ query: { following: user.getTagName() }, page: { skip, limit }});
+    },
+    nFollowers(user, _, { dataSources: { repository}}) {
+      return repository.user.countAll({ following: user.getTagName() });
     },
   }
 };
