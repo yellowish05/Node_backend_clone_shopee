@@ -38,6 +38,7 @@ const schema = gql`
       gender: GenderType
       color: Color
       following: [User]
+      followers: [User]
     }
 
     type UserInfo {
@@ -157,9 +158,12 @@ module.exports.resolvers = {
     isOnline(user, _, { dataSources: { repository }}) {
       return !!user.isOnline;
     },
-    async following(user, _, { dataSources: { repository } }) {
+    following(user, _, { dataSources: { repository } }) {
       const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', ''));
       return repository.user.loadList(userIds);
+    },
+    followers(user, _, { dataSources: { repository } }) {
+      return repository.user.loadAll({ following: user.getTagName() });
     },
   },
   UserInfo: {

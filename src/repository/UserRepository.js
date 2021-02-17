@@ -42,8 +42,8 @@ class UserRepository {
     return this.model.find({ _id: { $in: ids } });
   }
 
-  async loadAll() {
-    return this.model.find();
+  async loadAll(query = {}) {
+    return this.model.find(query);
   }
 
   async create(data, options = {}) {
