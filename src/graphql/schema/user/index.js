@@ -39,7 +39,15 @@ const schema = gql`
       color: Color
       following: [User]
       followers: [User]
+      # followStats: FollowStats
     }
+
+    # type FollowStats {
+    #   following(skip: Int, limit: Int): [User]
+    #   nFollowing: Int!
+    #   followers(skip: Int, limit: Int): [User]
+    #   nFollowers: Int!
+    # }
 
     type UserInfo {
       id: ID!
