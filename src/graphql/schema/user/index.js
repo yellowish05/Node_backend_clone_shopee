@@ -11,6 +11,8 @@ const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 const requestResetPassword = require('./resolvers/requestResetPassword');
+const followUser = require('./resolvers/followUser');
+const unfollowUser = require('./resolvers/unfollowUser');
 
 const schema = gql`
     enum GenderType {
@@ -35,6 +37,7 @@ const schema = gql`
       isOnline: Boolean
       gender: GenderType
       color: Color
+      following: [User]
     }
 
     type UserInfo {
@@ -101,6 +104,9 @@ const schema = gql`
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
       requestResetPassword(email: String, phone: String): Boolean!
+
+      followUser(id: ID!): Boolean @auth(requires: USER)
+      unfollowUser(id: ID!): Boolean @auth(requires: USER)
     }
 `;
 
@@ -138,6 +144,8 @@ module.exports.resolvers = {
     uploadBulkUsers,
     changeDeviceId,
     requestResetPassword,
+    followUser,
+    unfollowUser,
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {
@@ -148,6 +156,10 @@ module.exports.resolvers = {
     },
     isOnline(user, _, { dataSources: { repository }}) {
       return !!user.isOnline;
+    },
+    async following(user, _, { dataSources: { repository } }) {
+      const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', ''));
+      return repository.user.loadList(userIds);
     },
   },
   UserInfo: {
