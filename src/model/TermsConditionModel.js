@@ -5,7 +5,7 @@ const { LanguageList } = require('../lib/Enums')
 
 const collectionName = 'TermsCondition';
 const schema = new Schema({
-  ...uuidField(collectionName),
+  // ...uuidField(collectionName),
   ...createdAtField,
 
   prefix: {
