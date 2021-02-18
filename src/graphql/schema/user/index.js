@@ -38,6 +38,7 @@ const schema = gql`
       gender: GenderType
       color: Color
       followStats: FollowStats
+      rating: RateStats!
     }
 
     type FollowStats {
@@ -165,7 +166,11 @@ module.exports.resolvers = {
     isOnline(user, _, { dataSources: { repository }}) {
       return !!user.isOnline;
     },
-    followStats(user) { return user }
+    followStats(user) { return user },
+    rating: async (user, _, { dataSources: { repository } }) => ({
+      average: repository.rating.getAverage(user.getTagName()),
+      total: repository.rating.getTotal({ tag: user.getTagName() }),
+    }),
   },
   UserInfo: {
     photo(user, args, { dataSources: { repository } }) {
