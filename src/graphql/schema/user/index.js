@@ -114,8 +114,16 @@ const schema = gql`
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
       requestResetPassword(email: String, phone: String): Boolean!
 
-      followUser(id: ID!): Boolean @auth(requires: USER)
-      unfollowUser(id: ID!): Boolean @auth(requires: USER)
+      """
+        - Alllows: authorized user
+        - returns profile data.
+      """
+      followUser(id: ID!): User @auth(requires: USER)
+      """
+        - Alllows: authorized user
+        - returns profile data.
+      """
+      unfollowUser(id: ID!): User @auth(requires: USER)
     }
 `;
 

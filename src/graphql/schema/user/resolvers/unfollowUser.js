@@ -28,7 +28,7 @@ module.exports = async (_, { id }, { dataSources: { repository }, user}) => {
       user.following.splice(user.following.indexOf(tag), 1);
       return user.save();
     })
-    .then(me => true)
+    .then(me => me)
     .catch((error) => {
       throw new ApolloError(`Failed to unfollow the user. Original error: ${error.message}`, 400);
     })
