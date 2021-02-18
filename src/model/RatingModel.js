@@ -13,6 +13,7 @@ const schema = new Schema({
   tag: {
     type: String,
     required: true,
+    index: true,
   },
   user: {
     type: String,

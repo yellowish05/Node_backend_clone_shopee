@@ -6,6 +6,7 @@ const { RatingTarget } = require(path.resolve('src/lib/Enums'));
 const rateProduct = require('./resolvers/rateProduct');
 const rateOrganization = require('./resolvers/rateOrganization');
 const rateProductByOrder = require('./resolvers/rateProductByOrder');
+const rateUser = require('./resolvers/rateUser');
 const reviews = require('./resolvers/reviews');
 const uploadBulkReviews = require('./resolvers/uploadBulkReviews');
 const updateReview = require('./resolvers/updateReview');
@@ -33,6 +34,12 @@ const schema = gql`
       message: String
       order: ID!
       product: ID!
+      rating: Float!
+    }
+
+    input RatingUserInput {
+      message: String
+      user: ID!
       rating: Float!
     }
 
@@ -100,6 +107,7 @@ const schema = gql`
         uploadBulkReviews(file: Upload!): UploadedReviews @auth(requires: USER)
         updateReview(id: ID!, data: UpdateReviewInput): Review @auth(requires: USER)
         deleteReview(id: ID!): Boolean! @auth(requires: USER)
+        rateUser(data: RatingUserInput): Review @auth(requires: USER)
     }
 `;
 
@@ -113,6 +121,7 @@ module.exports.resolvers = {
   Mutation: {
     rateProduct,
     rateProductByOrder,
+    rateUser,
     rateOrganization,
     uploadBulkReviews,
     updateReview,

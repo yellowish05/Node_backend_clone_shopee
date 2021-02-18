@@ -38,6 +38,10 @@ class UserRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+
   async loadList(ids) {
     return this.model.find({ _id: { $in: ids } });
   }
