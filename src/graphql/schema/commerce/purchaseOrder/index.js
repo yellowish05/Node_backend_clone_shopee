@@ -93,15 +93,19 @@ const schema = gql`
         """
         checkoutCart(currency: Currency!, provider: PaymentMethodProviders!, redirection: RedirectionInput): PurchaseOrder! @auth(requires: USER)
 
-        """Allows: authorized user"""
+        """
+          - Allows: authorized user
+          - redirection: required for PayPal or UnionPay
+        """
         checkoutOneProduct(
           deliveryRate: ID!, 
           product: ID!, 
           quantity: Int!, 
           currency: Currency!, 
           productAttribute: ID, 
-          provider: PaymentMethodProviders!
-          billingAddress: ID!
+          provider: PaymentMethodProviders!,
+          billingAddress: ID!,
+          redirection: RedirectionInput
         ): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
