@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 
 const addPost = require('./resolvers/addPost');
 const updatePost = require('./resolvers/updatePost');
+const deletePost = require('./resolvers/deletePost');
 const posts = require('./resolvers/posts');
 const postAdded = require('./resolvers/postAdded');
 const postUpdated = require('./resolvers/postUpdated');
@@ -65,6 +66,7 @@ const schema = gql`
   extend type Mutation {
     addPost(data: PostAddInput!): Post @auth(requires: USER)
     updatePost(id: ID!, data: PostUpdateInput!): Post @auth(requires: USER)
+    deletePost(id: ID!): Boolean @auth(requires: USER)
   }
 
   extend type Subscription {
@@ -84,6 +86,7 @@ module.exports.resolvers = {
   Mutation: {
     addPost,
     updatePost,
+    deletePost,
   },
   Subscription: {
     postAdded,

@@ -1,7 +1,7 @@
 const path = require('path');
 const uuid = require("uuid/v4");
 const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError, ForbiddenError } = require('apollo-server');
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
 const pubsub = require(path.resolve('config/pubsub'));
@@ -22,6 +22,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user}) =
       ])
         .then(([post, assets, streams]) => {
           if (!post) throw new UserInputError(`Post not found!`, { invalidArgs: [id] });
+          if (post.user !== user.id) throw new ForbiddenError("You don't have permission to update post!");
           if (data.assets && assets.length < data.assets.length) {
             throw new UserInputError(`Assets not found!`, { invalidArgs: data.assets.filter(id => !assets.map(asset => asset.id).includes(id)) });
           }
