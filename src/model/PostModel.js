@@ -41,6 +41,10 @@ const schema = new Schema({
     }],
     default: [],
   },
+  deleted: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 module.exports = new model(collectionName, schema);

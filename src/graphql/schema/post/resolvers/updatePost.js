@@ -7,43 +7,45 @@ const errorHandler = new ErrorHandler();
 const pubsub = require(path.resolve('config/pubsub'));
 const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
-module.exports = async (_, { data }, { dataSources: { repository }, user}) => {
-  const validator = new Validator(data, {
-    feed: "required",
+module.exports = async (_, { id, data }, { dataSources: { repository }, user}) => {
+  const validator = new Validator({ id }, {
+    id: "required",
   })
 
   return validator.check()
     .then(async matched => {
       if (!matched) throw errorHandler.build(validator.errors);
       return Promise.all([
+        repository.post.getById(id),
         data.assets ? repository.asset.getByIds(data.assets) : [],
         data.streams ? repository.liveStream.getByIds(data.streams) : []
       ])
-        .then(([assets, streams]) => {
-          if (assets.length < data.assets.length) {
+        .then(([post, assets, streams]) => {
+          if (!post) throw new UserInputError(`Post not found!`, { invalidArgs: [id] });
+          if (data.assets && assets.length < data.assets.length) {
             throw new UserInputError(`Assets not found!`, { invalidArgs: data.assets.filter(id => !assets.map(asset => asset.id).includes(id)) });
           }
-          if (streams.length < data.streams.length) {
+          if (data.streams && streams.length < data.streams.length) {
             throw new UserInputError(`Livestreams not found!`, { invalidArgs: data.streams.filter(id => !streams.map(stream => stream.id).includes(id)) });
-
           }
+          return post;
         })
     })
-    .then(() => {
-      const { title, feed, assets, streams, tags } = data;
-      const post = {
-        _id: uuid(),
-        tags: [...tags, user.getTagName()],
-        user: user.id,
-        title, feed, assets, streams, tags,
-      };
+    .then((post) => {
+      ['title', 'feed', 'asstes', 'streams'].forEach(key => {
+        post[key] = data[key] !== undefined ? data[key] : post[key];
+      })
+      if (data.tags && typeof data.tags === 'object' && data.tags.length > 0) {
+        post.tags = [...data.tags, `User:${post.user}`];
+      }
 
-      return repository.post.create(post);
+      return post.save();
     })
     .then((post) => {
-      pubsub.publish(SubscriptionType.POST_ADDED, {
+      pubsub.publish(SubscriptionType.POST_UPDATED, {
         ...post.toObject(),
       });
       return post;
     })
 }
+

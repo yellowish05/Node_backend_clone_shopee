@@ -2,7 +2,10 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const addPost = require('./resolvers/addPost');
+const updatePost = require('./resolvers/updatePost');
+const posts = require('./resolvers/posts');
 const postAdded = require('./resolvers/postAdded');
+const postUpdated = require('./resolvers/postUpdated');
 
 const schema = gql`
   type Post {
@@ -22,16 +25,51 @@ const schema = gql`
     streams: [ID] = []
   }
 
-  # extend type Query {
+  input PostUpdateInput {
+    title: String
+    feed: String
+    tags: [String]
+    assets: [ID]
+    streams: [ID]
+  }
 
-  # }
+  input PostFilterInput {
+    searchQuery: String
+    author: ID
+    hasLiveStream: Boolean
+  }
+
+  enum PostSortFeature {
+    CREATED_AT
+  }
+
+  input PostSortInput {
+    feature: PostSortFeature! = CREATED_AT
+    type: SortTypeEnum! = DESC
+  }
+
+  type PostCollection {
+    collection: [Post]!
+    pager: Pager
+  }
+
+  extend type Query {
+    post(id: ID!): Post
+    posts(
+      filter: PostFilterInput = {},
+      sort: PostSortInput = {},
+      page: PageInput = {}
+    ): PostCollection @auth(requires: USER)
+  }
 
   extend type Mutation {
     addPost(data: PostAddInput!): Post @auth(requires: USER)
+    updatePost(id: ID!, data: PostUpdateInput!): Post @auth(requires: USER)
   }
 
   extend type Subscription {
     postAdded: Post! @auth(requires: USER)
+    postUpdated: Post! @auth(requires: USER)
   }
 
 `
@@ -39,14 +77,17 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-  // Query: {
-
-  // },
+  Query: {
+    post: async (_, { id }, { dataSources: { repository } }) => repository.post.getById(id),
+    posts,
+  },
   Mutation: {
     addPost,
+    updatePost,
   },
   Subscription: {
     postAdded,
+    postUpdated
   },
   Post: {
     user: async ({ user }, __, { dataSources: { repository }}) => repository.user.getById(user),

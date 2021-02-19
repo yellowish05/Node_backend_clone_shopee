@@ -246,6 +246,7 @@ const RatingTarget = EnumFactory({
 
 const SubscriptionType = EnumFactory({
   POST_ADDED: "POST_ADDED",
+  POST_UPDATED: "POST_UPDATED",
   MESSAGE_ADDED: "MESSAGE_ADDED",
   LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
 })
