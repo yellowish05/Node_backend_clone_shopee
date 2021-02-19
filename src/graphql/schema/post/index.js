@@ -10,6 +10,7 @@ const postUpdated = require('./resolvers/postUpdated');
 
 const schema = gql`
   type Post {
+    id: ID!
     title: String
     feed: String!
     user: User!
