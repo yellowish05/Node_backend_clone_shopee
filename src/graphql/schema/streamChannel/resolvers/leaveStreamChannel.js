@@ -4,6 +4,7 @@ const { UserInputError, ApolloError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const pubsub = require(path.resolve('config/pubsub'));
+const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
 
@@ -31,7 +32,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       return repository.streamChannelParticipant.leaveStream(args.id, user.id)
         .then(() => {
           repository.liveStream.getOne({ channel: args.id }).then((liveStream) => {
-            pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+            pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
           });
           return true;
         }).catch((error) => {

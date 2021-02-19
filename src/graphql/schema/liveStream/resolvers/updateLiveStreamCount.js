@@ -3,6 +3,7 @@ const { Validator } = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const pubsub = require(path.resolve('config/pubsub'));
+const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
 
@@ -19,7 +20,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
     })
     .then(() => repository.liveStream.updateCount(data.id, data.playLength, data.tag, data.view))
     .then((liveStream) => {
-      pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+      pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
       return liveStream;
     });
 };

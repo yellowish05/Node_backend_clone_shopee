@@ -4,7 +4,8 @@ const { Validator } = require('node-input-validator');
 const { UserInputError, ApolloError } = require('apollo-server');
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
-
+const pubsub = require(path.resolve('config/pubsub'));
+const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 module.exports = async (_, { data }, { dataSources: { repository }, user}) => {
   const validator = new Validator(data, {
@@ -39,5 +40,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user}) => {
       };
 
       return repository.post.create(post);
+    })
+    .then((post) => {
+      pubsub.publish(SubscriptionType.POST_ADDED, {
+        ...post.toObject(),
+      });
+      return post;
     })
 }

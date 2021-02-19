@@ -244,6 +244,12 @@ const RatingTarget = EnumFactory({
   ORGANIZATION: 'ORGANIZATION',
 });
 
+const SubscriptionType = EnumFactory({
+  POST_ADDED: "POST_ADDED",
+  MESSAGE_ADDED: "MESSAGE_ADDED",
+  LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
+})
+
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
@@ -291,4 +297,5 @@ module.exports = {
   BannerType,
   GenderType,
   RatingTarget,
+  SubscriptionType,
 };

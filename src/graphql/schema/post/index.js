@@ -2,6 +2,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const addPost = require('./resolvers/addPost');
+const postAdded = require('./resolvers/postAdded');
 
 const schema = gql`
   type Post {
@@ -29,6 +30,10 @@ const schema = gql`
     addPost(data: PostAddInput!): Post @auth(requires: USER)
   }
 
+  extend type Subscription {
+    postAdded: Post! @auth(requires: USER)
+  }
+
 `
 
 module.exports.typeDefs = [schema];
@@ -40,9 +45,9 @@ module.exports.resolvers = {
   Mutation: {
     addPost,
   },
-  // Subscription: {
-
-  // },
+  Subscription: {
+    postAdded,
+  },
   Post: {
     user: async ({ user }, __, { dataSources: { repository }}) => repository.user.getById(user),
     assets: async ({ assets }, __, { dataSources: { repository }}) => repository.asset.getByIds(assets),
