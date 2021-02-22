@@ -190,7 +190,7 @@ const schema = gql`
       Pass ID of the Live Stream and ID of the Product
       """
       removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
-      updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream! @auth(requires: USER)
+      updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream!
       updateLiveStreamPreviewVideo(id: ID!, assetId: ID!): LiveStream
       updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
       addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
