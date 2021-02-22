@@ -95,6 +95,16 @@ tempRouter.route('/decode-token').post(async (req, res) => {
   return res.json(data);
 })
 
+tempRouter.route('/resize-asset').post(async (req, res) => {
+  const { id: assetId } = req.body;
+  AssetService.resizeImage({ assetId, width: 300 })
+    .then(asset => res.json(asset))
+    .catch(error => {
+      console.log('[Resize Img]', error);
+      res.json({ status: false, message: error.message })
+    })
+})
+
 tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {
   let total = 0;
   return Promise.all([

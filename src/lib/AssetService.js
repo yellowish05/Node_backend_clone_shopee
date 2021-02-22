@@ -51,21 +51,21 @@ module.exports.AssetService = {
             height,
           });
           fs.writeFileSync(_localPath, image);
-          
-          const assetToken = assetTokenFromPath(_asset.path);
-          const newToken = uuid();
-          
-          _asset.path = _asset.path.toString().replace(assetToken, newToken);
-          _asset.url = _asset.url.toString().replace(assetToken, newToken);
+          // const assetToken = assetTokenFromPath(_asset.path);
+          // const newToken = assetToken; //uuid();
+          // _asset.path = _asset.path.toString().replace(assetToken, newToken);
+          // _asset.url = _asset.url.toString().replace(assetToken, newToken);
           _asset.resolution = { width, height };
-          const strPath = _asset.path; 
-
+          // const strPath = _asset.path; 
           return Promise.all([
             s3
               .putObject({
                 Bucket: aws.user_bucket,
-                Key: strPath,
+                Key: _asset.path,
                 Body: fs.createReadStream(_localPath),
+                // CacheControl: "no-cache",
+                // Expires: new Date(Date.now() - 86400000), //new Date(),
+                // ACL: 'public-read',
               })
               .promise(),
             _asset.save(),
