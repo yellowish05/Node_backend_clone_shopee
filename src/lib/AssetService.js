@@ -27,6 +27,17 @@ const assetTokenFromPath = (path) => {
   return tempArr[tempArr.length - 1].split('.')[0];
 }
 
+const detectBudgetFromURL = (url) => {
+  if (url.includes(cdn.aliexpress)) return aws.aliexpress_scrapped;
+  else if (url.includes(cdn.vendorBuckets)) return aws.vendor_bucket;
+  else if (url.includes(cdn.userAssets)) return aws.user_bucket;
+  else if (url.includes(cdn.media)) return aws.media_bucket;
+  else if (url.includes(cdn.appAssets)) return aws.app_bucket;
+  else {
+    return aws.upload_bucket;
+  }
+}
+
 module.exports.AssetService = {
   async resizeImage({ assetId, width, height = null }) {
     let _asset, _localPath;
@@ -57,10 +68,11 @@ module.exports.AssetService = {
           // _asset.url = _asset.url.toString().replace(assetToken, newToken);
           _asset.resolution = { width, height };
           // const strPath = _asset.path; 
+          const bucket = detectBudgetFromURL(_asset.url); console.log('[Bucket]', bucket);
           return Promise.all([
             s3
               .putObject({
-                Bucket: aws.user_bucket,
+                Bucket: bucket, //aws.user_bucket,
                 Key: _asset.path,
                 Body: fs.createReadStream(_localPath),
                 // CacheControl: "no-cache",

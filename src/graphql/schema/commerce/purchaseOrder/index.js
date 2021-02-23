@@ -2,6 +2,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 
 const checkoutCart = require('./resolvers/checkoutCart');
@@ -33,9 +34,9 @@ const schema = gql`
         #items: [OrderItemInterface!]! # old way
         items: [OrderProductItem!]!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        price: AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        deliveryPrice: AmountOfMoney!
+        deliveryPrice(currency: Currency): AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         total: AmountOfMoney!
         tax: AmountOfMoney!
@@ -165,18 +166,20 @@ module.exports.resolvers = {
     deliveryOrders: async (order, _, { dataSources: { repository } }) => (
       repository.deliveryOrder.getByIds(order.deliveryOrders)
     ),
-    price: async (order) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: order.price,
-        currency: order.currency,
-      })
-    ),
-    deliveryPrice: async (order) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: order.deliveryPrice,
-        currency: order.currency,
-      })
-    ),
+    price: async ({ price, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    deliveryPrice: async ({ deliveryPrice, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
     tax: async (order) => (
       CurrencyFactory.getAmountOfMoney({
         centsAmount: order.tax,
