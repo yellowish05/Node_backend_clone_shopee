@@ -1,7 +1,7 @@
 const path = require('path');
 const { gql, withFilter } = require('apollo-server');
 
-const { MessageType } = require(path.resolve('src/lib/Enums'));
+const { MessageType, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -126,7 +126,7 @@ module.exports.resolvers = {
     messageAdded: {
       resolve: (payload) => payload,
       subscribe: withFilter(
-        () => pubsub.asyncIterator(['MESSAGE_ADDED']),
+        () => pubsub.asyncIterator([SubscriptionType.MESSAGE_ADDED]),
         ({ thread, author }, { threads, threadTags }, { user }) => {
           if (!thread.participants.includes(user.id) || user.blackList.includes(author)) {
             return false;

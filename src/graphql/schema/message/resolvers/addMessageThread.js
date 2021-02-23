@@ -2,7 +2,7 @@ const path = require('path');
 const { Validator } = require('node-input-validator');
 const { UserInputError, ForbiddenError } = require('apollo-server');
 
-const { MessageType, NotificationType } = require(path.resolve('src/lib/Enums'));
+const { MessageType, NotificationType, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const NotificationService = require(path.resolve('src/lib/NotificationService'));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
@@ -108,7 +108,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
           ])
         })
         .then(([ messageThread, liveStream, [userHasMessageThread] ]) => {
-          pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+          pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
           return messageThread;
         })
     })

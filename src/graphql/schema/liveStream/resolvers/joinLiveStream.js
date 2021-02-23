@@ -4,7 +4,7 @@ const { UserInputError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
-const { StreamRole } = require(path.resolve('src/lib/Enums'));
+const { StreamRole, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 const pubsub = require(path.resolve('config/pubsub'));
 const logger = require(path.resolve('config/logger'));
 
@@ -132,7 +132,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             });
         })
         .then(() => {
-          pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+          pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
           return liveStream;
         })
     ));

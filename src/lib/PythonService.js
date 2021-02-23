@@ -10,11 +10,12 @@ const instance = axios.create({
 
 module.exports = {
   async detectLanguage(text) {
-    return instance.post('/api/detect-lang', { text })
-      .then(({ status, data }) => {
-        return LanguageList.CHI;
-        // return data.lang
-      })
+    return LanguageList.ZH;
+    // return instance.post('/api/detect-lang', { text })
+    //   .then(({ status, data }) => {
+    //     return LanguageList.ZH;
+    //     // return data.lang
+    //   })
   },
   async extractKeyword(text) {
     return instance.post('/api/keywords', { query_string: text })

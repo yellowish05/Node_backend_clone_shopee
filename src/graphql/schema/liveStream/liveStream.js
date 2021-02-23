@@ -1,7 +1,7 @@
 const path = require('path');
 const { gql, withFilter } = require('apollo-server');
 
-const { OrientationMode } = require(path.resolve('src/lib/Enums'));
+const { OrientationMode, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const addLiveStream = require('./resolvers/addLiveStream');
 const likeLiveStream = require('./resolvers/likeLiveStream');
@@ -254,7 +254,7 @@ module.exports.resolvers = {
     liveStream: {
       resolve: (payload) => payload,
       subscribe: withFilter(
-        () => pubsub.asyncIterator(['LIVE_STREAM_CHANGE']),
+        () => pubsub.asyncIterator([SubscriptionType.LIVE_STREAM_CHANGE]),
         (payload, variables) => payload.id === variables.id,
       ),
     },

@@ -126,6 +126,7 @@ module.exports.InvoiceService = {
       Bucket: aws.app_bucket,
       Key: key,
       Body: html,
+      // ContentType: 'application/pdf',
     }).promise(),
     repository.purchaseOrder.addInovicePDF(orderDetails.orderID, `${cdn.appAssets}/${key}`),
     ])

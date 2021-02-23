@@ -244,12 +244,23 @@ const RatingTarget = EnumFactory({
   ORGANIZATION: 'ORGANIZATION',
 });
 
+const SubscriptionType = EnumFactory({
+  POST_ADDED: "POST_ADDED",
+  POST_UPDATED: "POST_UPDATED",
+  MESSAGE_ADDED: "MESSAGE_ADDED",
+  LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
+})
+
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
-  const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
-  languageEnum[name.split('-')[0]] = name.split('-')[0];
+  // const name = item.iso639_2en == '' ? item.iso639_3.toUpperCase() : item.iso639_2en.toUpperCase();
+  // languageEnum[name.split('-')[0]] = name.split('-')[0];
+
+  const limitedList = ["EN", 'ZH', 'KO', 'JA', 'MS','ID', 'AR', 'ES', 'FR', 'PT', 'RU'].sort();
+  limitedList.forEach(val => languageEnum[val] = val);
 });
+
 const LanguageList = EnumFactory(languageEnum);
 
 module.exports = {
@@ -287,4 +298,5 @@ module.exports = {
   BannerType,
   GenderType,
   RatingTarget,
+  SubscriptionType,
 };

@@ -59,7 +59,7 @@ class AuthDirective extends SchemaDirectiveVisitor {
         }
 
         if (!user.roles.includes(requiredRole)) {
-          throw new ForbiddenError('FORBIDDEN');
+          throw new ForbiddenError('Administrator permission required!');
         }
 
         return resolve.apply(this, args);

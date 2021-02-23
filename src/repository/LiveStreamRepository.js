@@ -196,13 +196,11 @@ class LiveStreamRepository {
       liveStream.fakeViews += fakeViews;
     }
 
-    liveStream.save();
-
-    return liveStream;
+    return liveStream.save();
   }
 
   async getByIds(ids) {
-    return this.model.find({ _id, ids });
+    return this.model.find({ _id: ids });
   }
 
   async getAll(query = {}) {

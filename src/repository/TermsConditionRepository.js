@@ -12,6 +12,10 @@ class StreamSourceRepository {
   async getByLanguage(lang) {
     return this.model.find({language: lang});
   }
+
+  async getAll(query = {}) {
+    return this.model.find(query);
+  }
 }
 
 module.exports = StreamSourceRepository;

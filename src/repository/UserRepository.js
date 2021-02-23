@@ -38,12 +38,20 @@ class UserRepository {
     return this.model.findOne({ _id: id });
   }
 
+  async getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+
   async loadList(ids) {
     return this.model.find({ _id: { $in: ids } });
   }
 
-  async loadAll() {
-    return this.model.find();
+  async loadAll(query = {}) {
+    return this.model.find(query);
+  }
+
+  async countAll(query = {}) {
+    return this.model.countDocuments(query);
   }
 
   async create(data, options = {}) {
@@ -378,6 +386,17 @@ class UserRepository {
         newUser.organization = org.id;
         return newUser.save();
       });
+  }
+
+  async paginate({ query, page }) {
+    return this.model.find(
+      query,
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
+  );
   }
 }
 

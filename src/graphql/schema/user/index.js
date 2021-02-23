@@ -11,6 +11,8 @@ const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 const requestResetPassword = require('./resolvers/requestResetPassword');
+const followUser = require('./resolvers/followUser');
+const unfollowUser = require('./resolvers/unfollowUser');
 
 const schema = gql`
     enum GenderType {
@@ -35,6 +37,15 @@ const schema = gql`
       isOnline: Boolean
       gender: GenderType
       color: Color
+      followStats: FollowStats
+      rating: RateStats!
+    }
+
+    type FollowStats {
+      following(skip: Int = 0, limit: Int = 10): [User]
+      nFollowing: Int!
+      followers(skip: Int = 0, limit: Int = 10): [User]
+      nFollowers: Int!
     }
 
     type UserInfo {
@@ -46,6 +57,7 @@ const schema = gql`
       location: LatLng
       photo: Asset
       color: Color
+      followStats: FollowStats
     }
 
     input RegistrationInput {
@@ -101,6 +113,17 @@ const schema = gql`
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
       requestResetPassword(email: String, phone: String): Boolean!
+
+      """
+        - Alllows: authorized user
+        - returns profile data.
+      """
+      followUser(id: ID!): User @auth(requires: USER)
+      """
+        - Alllows: authorized user
+        - returns profile data.
+      """
+      unfollowUser(id: ID!): User @auth(requires: USER)
     }
 `;
 
@@ -138,6 +161,8 @@ module.exports.resolvers = {
     uploadBulkUsers,
     changeDeviceId,
     requestResetPassword,
+    followUser,
+    unfollowUser,
   },
   User: {
     photo(user, args, { dataSources: { repository } }) {
@@ -149,10 +174,31 @@ module.exports.resolvers = {
     isOnline(user, _, { dataSources: { repository }}) {
       return !!user.isOnline;
     },
+    followStats(user) { return user },
+    rating: async (user, _, { dataSources: { repository } }) => ({
+      average: repository.rating.getAverage(user.getTagName()),
+      total: repository.rating.getTotal({ tag: user.getTagName() }),
+    }),
   },
   UserInfo: {
     photo(user, args, { dataSources: { repository } }) {
       return repository.asset.load(user.photo);
+    },
+    followStats(user) { return user }
+  },
+  FollowStats: {
+    following(user, { skip, limit }, { dataSources: { repository } }) {
+      const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', '')).slice(skip, limit);
+      return repository.user.paginate({ query: { _id: {$in: userIds} }, page: { skip: 0, limit } });
+    },
+    nFollowing(user, _, { dataSources: { repository } }) {
+      return (user.following || []).length;
+    },
+    followers(user, { skip, limit }, { dataSources: { repository } }) {
+      return repository.user.paginate({ query: { following: user.getTagName() }, page: { skip, limit }});
+    },
+    nFollowers(user, _, { dataSources: { repository}}) {
+      return repository.user.countAll({ following: user.getTagName() });
     },
   }
 };

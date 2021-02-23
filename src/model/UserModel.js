@@ -19,13 +19,6 @@ LoginProvider.toList().forEach((provider) => {
   };
 });
 
-const getColor = () => {
-
-}
-
-
-
-
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
@@ -115,7 +108,16 @@ const schema = new Schema({
     type: String,
     enum: GenderType.toList(),
     default: GenderType.toList()[0],
-  }
+  },
+  following: [{
+    type: String,
+    default: [],
+    index: true,
+  }]
 });
+
+schema.methods.getTagName = function getTagName() {
+  return `${collectionName}:${this._id}`;
+};
 
 module.exports = new model(collectionName, schema);

@@ -46,7 +46,8 @@ module.exports = (repository) => async (request) => {
   try {
     jwt.verify(token, accessToken.secret);
   } catch (error) {
-    throw new AuthenticationError('Invalid token');
+    // throw new AuthenticationError('Invalid token');
+    return {};
   }
 
   const user = await repository.user.load(accessToken.user);

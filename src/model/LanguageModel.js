@@ -8,7 +8,7 @@ const schema = new Schema({
   _id: {
     type: String,
     enum: LanguageList.toList(),
-    default: LanguageList.ENG,
+    default: LanguageList.EN,
   },
   ...createdAtField,
 

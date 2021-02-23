@@ -13,7 +13,11 @@ const schema = gql`
     }
 
     extend type Query {
-        termsandcoditions(language: LanguageList): [TermsItem]!
+        termsandcoditions(language: LanguageList!): [TermsItem]!
+    }
+
+    extend type Mutation {
+      convertToCLanguage3To2: Boolean @auth(requires: USER)
     }
 `;
 
@@ -23,6 +27,21 @@ module.exports.resolvers = {
   Query: {
     termsandcoditions(_, args, { dataSources: { repository } }) {
       return repository.termsCondition.getByLanguage(args.language);                                
+    },
+  },
+  Mutation: {
+    convertToCLanguage3To2: async (_, __, { dataSources: { repository }}) => {
+      const langs = { ENG: "EN", CHI: "ZH", IND: "ID", JPN: "JA" };
+      return repository.termsCondition.getAll()
+        .then(termsConditions => Promise.all(termsConditions.map(toc => {
+          toc.language = langs[toc.language];
+          return toc.save();
+        })))
+        .then(() => true)
+        .catch(error => {
+          console.log(error);
+          return false;
+        })
     },
   },
 };

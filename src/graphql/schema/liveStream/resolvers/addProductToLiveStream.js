@@ -4,6 +4,7 @@ const { UserInputError, ForbiddenError } = require('apollo-server');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const pubsub = require(path.resolve('config/pubsub'));
+const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
 
@@ -68,7 +69,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     .then((liveStream) => activity.checkLiveStreamOwner(liveStream, user))
     .then((liveStream) => activity.addProductsToLiveStream({ liveStream, productDurations: args.products }, repository))
     .then((liveStream) => {
-      pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+      pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
       return liveStream;
     })
     .catch(e => {

@@ -8,6 +8,7 @@ const NotificationService = require(path.resolve('src/lib/NotificationService'))
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('config/pubsub'));
+const { SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const errorHandler = new ErrorHandler();
 
@@ -49,7 +50,7 @@ module.exports = (_, { input }, { dataSources: { repository }, user }) => {
     ])
       .then(([message, userThread]) => {
         if (!userThread.muted && !userThread.hidden) {
-          pubsub.publish('MESSAGE_ADDED', {
+          pubsub.publish(SubscriptionType.MESSAGE_ADDED, {
             ...message.toObject(),
             id: message._id,
             thread: { ...thread.toObject(), id: thread._id },

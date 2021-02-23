@@ -70,9 +70,12 @@ tempRouter.route('/lang-google').get(async (req, res) => {
 tempRouter.route('/update-user-lang').get(async (req, res) => {
 	repository.user.loadAll()
 		.then(users => users.filter(user => user._id))
-		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode2to3(user.settings.language || 'EN')))))
+		.then(users => Promise.all(users.map(user => repository.user.updateLangSetting(user._id, convertLangCode3to2(user.settings.language || 'ENG')))))
 		.then(updates => res.json({ status: true, message: 'All user langs has been updated!' }))
-		.catch(error => res.json({ status: false, message: 'Failed to update user langs' }));
+		.catch(error => {
+      console.log('[Lang][Update] error', error)
+      return res.json({ status: false, message: 'Failed to update user langs' })
+    });
 });
 
 tempRouter.route('/gen-password').post(async (req, res) => {
@@ -90,6 +93,16 @@ tempRouter.route('/get-domain').get(async (req, res) => {
 tempRouter.route('/decode-token').post(async (req, res) => {
   const data = jwt.decode(req.body.token);
   return res.json(data);
+})
+
+tempRouter.route('/resize-asset').post(async (req, res) => {
+  const { id: assetId } = req.body;
+  AssetService.resizeImage({ assetId, width: 300 })
+    .then(asset => res.json(asset))
+    .catch(error => {
+      console.log('[Resize Img]', error);
+      res.json({ status: false, message: error.message })
+    })
 })
 
 tempRouter.route('/update-stream-thumbnail').get(async (req, res) => {

@@ -4,7 +4,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { AgoraService } = require(path.resolve('src/lib/AgoraService'));
-const { StreamChannelStatus, StreamRole } = require(path.resolve('src/lib/Enums'));
+const { StreamChannelStatus, StreamRole, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const pubsub = require(path.resolve('config/pubsub'));
 const streamService = require(path.resolve('src/lib/StreamService'));
@@ -56,7 +56,7 @@ module.exports = async (obj, args, { user, dataSources: { repository } }) => {
       return streamService.updateStreamStatusByChannel(args.id, StreamChannelStatus.STREAMING)
     })
     .then(([ liveStream, streamChannel ]) => {
-      pubsub.publish('LIVE_STREAM_CHANGE', { id: liveStream._id, ...liveStream.toObject() });
+      pubsub.publish(SubscriptionType.LIVE_STREAM_CHANGE, { id: liveStream._id, ...liveStream.toObject() });
       return streamChannel;
     });
 };
