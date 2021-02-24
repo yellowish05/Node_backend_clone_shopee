@@ -38,8 +38,8 @@ const schema = gql`
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
         deliveryPrice(currency: Currency): AmountOfMoney!
         """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        total: AmountOfMoney!
-        tax: AmountOfMoney!
+        total(currency: Currency): AmountOfMoney!
+        tax(currency: Currency): AmountOfMoney!
         """ In future buyer will be able to pay by few paymnets to one Order"""
         payments: [PaymentTransactionInterface!]
         """ Address for ship products """
@@ -180,18 +180,20 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
-    tax: async (order) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: order.tax,
-        currency: order.currency,
-      })
-    ),
-    total: async (order) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: order.total,
-        currency: order.currency,
-      })
-    ),
+    tax: async ({ tax, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: tax, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    total: async ({ total, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
     buyer: async (order, _, { dataSources: { repository } }) => (
       repository.user.getById(order.buyer)
     ),

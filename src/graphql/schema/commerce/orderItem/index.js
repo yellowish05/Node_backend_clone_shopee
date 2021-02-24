@@ -2,6 +2,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { OrderItemStatus } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
@@ -42,10 +43,10 @@ const schema = gql`
         productAttribute: ProductAttribute
         """ In Units """
         quantity: Int!
-        price: AmountOfMoney!
-        deliveryPrice: AmountOfMoney!
-        subtotal: AmountOfMoney!
-        total: AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
+        deliveryPrice(currency: Currency): AmountOfMoney!
+        subtotal(currency: Currency): AmountOfMoney!
+        total(currency: Currency): AmountOfMoney!
         seller: User!
         status: OrderItemStatus!
         deliveryOrder: DeliveryOrder
@@ -62,30 +63,34 @@ module.exports.resolvers = {
     seller: async (item, _, { dataSources: { repository } }) => (
       repository.user.getById(item.seller)
     ),
-    price: async (item) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.price,
-        currency: item.currency,
-      })
-    ),
-    deliveryPrice: async (item) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.deliveryPrice,
-        currency: item.currency,
-      })
-    ),
-    subtotal: async (item) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.total,
-        currency: item.currency,
-      })
-    ),
-    total: async (item) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.total + item.deliveryPrice,
-        currency: item.currency,
-      })
-    ),
+    price: async ({ price, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    deliveryPrice: async ({ deliveryPrice, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    subtotal: async ({ total, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
+    total: async ({ total, deliveryPrice, currency }) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total + deliveryPrice, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
     product: async (item, _, { dataSources: { repository } }) => (
       repository.product.getById(item.product)
     ),
