@@ -2,6 +2,7 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
+const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { DeliveryOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 const updateDeliveryOrder = require('./resolvers/updateDeliveryOrder');
@@ -27,7 +28,7 @@ const schema = gql`
       trackingNumber: String
       status: DeliveryOrderStatus!
       estimatedDeliveryDate: Date
-      deliveryPrice: AmountOfMoney!
+      deliveryPrice(currency: Currency): AmountOfMoney!
       deliveryAddress: DeliveryAddress!
       proofPhoto: [Asset]
       carrier: carrierType
@@ -67,12 +68,13 @@ module.exports.resolvers = {
     updateDeliveryOrder
   },
   DeliveryOrder: {
-    deliveryPrice: async (item) => (
-      CurrencyFactory.getAmountOfMoney({
-        centsAmount: item.deliveryPrice,
-        currency: item.currency,
-      })
-    ),
+    deliveryPrice: async ({ deliveryPrice, currency }, args) => {
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency: currency });
+      if (args.currency && args.currency !== currency) {
+        return CurrencyService.exchange(amountOfMoney, args.currency);
+      }
+      return amountOfMoney;
+    },
     proofPhoto: async ({ proofPhoto }, _, { dataSources: { repository } }) => (
       proofPhoto ? repository.asset.getById(proofPhoto) : null
     ),
