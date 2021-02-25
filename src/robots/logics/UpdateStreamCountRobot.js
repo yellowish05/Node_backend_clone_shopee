@@ -45,7 +45,7 @@ const activity = {
 
 module.exports = class UpdateStreamCountRobot extends BaseRobot {
   constructor() {
-    super(5 * 60 * 1201);
+    super(19 * 60 * 1201);
     cache.set(CATEGORY_CONFIG, { position: 0, limit: 50 });
     cache.set(EXPERIENCE_CONFIG, { position: 0, limit: 50 });
   }

@@ -45,7 +45,7 @@ const activity = {
 
 module.exports = class UpdateProductCountRobot extends BaseRobot {
   constructor() {
-    super(3 * 60 * 1009);
+    super(17 * 60 * 1009);
     cache.set(CATEGORY_CONFIG, { position: 0, limit: 100 });
     cache.set(BRAND_CONFIG, { position: 0, limit: 1000 });
   }
