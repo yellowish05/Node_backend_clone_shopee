@@ -1,7 +1,7 @@
 const uuid = require('uuid/v4');
 
 function getSearchQueryByName(query) {
-  return query ? { name: { $regex: `^${query}.*`, $options: 'i' } } : {};
+  return query ? { name: { $regex: `${query}`, $options: 'i' } } : {};
 }
 
 class BrandRepository {

@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 function getSearchQueryByName(query) {
-  return { name: { $regex: `^${query}.*`, $options: 'i' } };
+  return { name: { $regex: `${query}`, $options: 'i' } };
 }
 
 function filterWithHasProduct(query, hasProduct) {
