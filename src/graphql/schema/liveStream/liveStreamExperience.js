@@ -10,7 +10,7 @@ const schema = gql`
     }
 
     extend type Query {
-        liveStreamExperiences: [LiveStreamExperience]!
+        liveStreamExperiences(hasStream: Boolean = true): [LiveStreamExperience]!
         liveStreamExperience(id: ID!): LiveStreamExperience
     }
 `;
@@ -22,8 +22,14 @@ module.exports.resolvers = {
     liveStreamExperience(_, { id }, { dataSources: { repository } }) {
       return repository.liveStreamExperience.getById(id);
     },
-    liveStreamExperiences(_, args, { dataSources: { repository } }) {
-      return repository.liveStreamExperience.getAll();
+    liveStreamExperiences(_, { hasStream }, { dataSources: { repository } }) {
+      const query = {};
+      if (typeof hasStream === 'boolean' && hasStream === true) {
+        query.$or = [{"nStreams.streaming": {$gt: 0}}, {"nStreams.finished": {$gt: 0}}];
+      } else if (typeof hasStream === 'boolean' && hasStream === false) {
+        query.$and = [{"nStreams.streaming": {$eq: 0}}, {"nStreams.finished": {$eq: 0}}];
+      }
+      return repository.liveStreamExperience.getAll(query);
     },
   },
 };

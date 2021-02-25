@@ -2,6 +2,7 @@ const { gql } = require('apollo-server');
 const uuid = require('uuid/v4');
 
 const updateBrand = require('./resolvers/updateBrand');
+const allBrands = require('./resolvers/allBrands');
 
 const schema = gql`
     type Brand {
@@ -32,7 +33,8 @@ const schema = gql`
     }
 
     extend type Query {
-        searchBrand(query: String, page: PageInput = {}): BrandCollection!
+        searchBrand(query: String, page: PageInput = {}, hasProduct: Boolean = true): BrandCollection!
+        allBrands: [Brand]!
         brand(id: ID!): Brand
     }
 
@@ -46,7 +48,7 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    searchBrand: async (_, { query, page }, { dataSources: { repository } }) => {
+    searchBrand: async (_, { query, page, hasProduct }, { dataSources: { repository } }) => {
       const result = {
         collection: [],
         pager: {
@@ -60,8 +62,8 @@ module.exports.resolvers = {
       // }
 
       return Promise.all([
-        repository.brand.searchByName(query, page),
-        repository.brand.getCountBySearch(query),
+        repository.brand.searchByName(query, page, hasProduct),
+        repository.brand.getCountBySearch(query, hasProduct),
       ])
         .then(([collection, total]) => {
           result.collection = collection || [];
@@ -69,6 +71,7 @@ module.exports.resolvers = {
           return result;
         });
     },
+    allBrands,
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
   Brand: {
@@ -101,5 +104,5 @@ module.exports.resolvers = {
       })
     },
     updateBrand,
-  }
+  },
 };
