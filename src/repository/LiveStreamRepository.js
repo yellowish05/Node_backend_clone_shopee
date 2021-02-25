@@ -40,11 +40,11 @@ function elasticFilter(filter) {
 
 function transformFilter({
   searchQuery,
-  experiences,
-  categories,
-  cities,
-  statuses,
-  streamers,
+  experiences = [],
+  categories = [],
+  cities = [],
+  statuses = [],
+  streamers = [],
   blackList,
   // product,
   isFeatured = null,

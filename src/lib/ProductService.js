@@ -337,4 +337,45 @@ module.exports = {
         return product.save();
       })
   },
+  async updateProductCountInCategories(ids) {
+    if (typeof ids !== 'object' || ids.length === 0) return null;
+    return repository.productCategory.findByIds(ids)
+      .then(categories => {
+        const idsToUpdate = categories.reduce((acc, category) => acc.concat([...category.parents, category.id]), []).filter(id => id);
+        return Promise.all(idsToUpdate.map(categoryId => this.updateProductCountInCategory(categoryId)));
+      })
+  },
+  async updateProductCountInCategory(id) {
+    return Promise.all([
+      repository.productCategory.getById(id),
+      repository.productCategory.getUnderParent(id),
+    ])
+      .then(([category, children]) => {
+        if (category) {
+          const categories = [category.id, ...(children.map(subCate => subCate.id))];
+          return repository.product.getTotal({ categories })
+            .then(count => {
+              category.nProducts = count;
+              return category.save();
+            })
+        } else {
+          return null;
+        }
+      })
+  },
+  async updateProductCountInBrand(id) {
+    if (!id) return null;
+    return Promise.all([
+      repository.brand.getById(id),
+      repository.product.getTotal({ brands: [id] }),
+    ])
+      .then(([brand, count]) => {
+        if (brand) {
+          brand.nProducts = count;
+          return brand.save();
+        } else {
+          return null;
+        }
+      })
+  },
 }

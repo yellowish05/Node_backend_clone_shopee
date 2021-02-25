@@ -1,83 +1,36 @@
-const { cdn } = require('../../config');
+const { Schema, model } = require('mongoose');
+const uuidField = require('./commonFields/UUIDField');
+const createdAtField = require('./commonFields/CreatedAtField');
 
-module.exports = [
-  {
-    id: '81a42796-8481-46ef-9eac-ed49927fc21d', 
-    order: 1, name: '大事记', 
-    description: '享受活动中的实时流媒体体验。无论是音乐会，会议，特殊演出，表演，比赛，博览会，庆典还是节日。', 
-    image: `${cdn.appAssets}/experiences/events.jpg`, 
-    hashtags: ["大事记","车票","音乐会","阶段","保留","剧院","体育","风扇","比赛","节日","节","人群","世博会","惯例","特别","出现","性能"],
+const collectionName = 'LiveStreamExperience';
+
+const schema = new Schema({
+  ...uuidField(collectionName),
+  ...createdAtField,
+  name: {
+    type: String,
+    required: true,
+  }, 
+  description: {
+    type: String,
+  }, 
+  image: {
+    type: String,
   },
-  {
-    id: '100103a9-93a6-4114-bb9c-fe348ee4ca7c', 
-    order: 2, 
-    name: '影响者', 
-    description: '将您与您最喜欢的品牌大使，社交媒体影响者和名人联系起来！观看他们以迷人的方式展示产品。', 
-    image: `${cdn.appAssets}/experiences/influencers.jpg`, 
-    hashtags: ["影响者","风扇","贵宾","博主","著名","星","超级明星","导师","顾问","功率","专家","指南","味觉制造者","领头羊","大使","名人","时尚","社会的","媒体","趋势风格","魅力","节目"],
+  order: {
+    type: Number,
+    required: true,
   },
-  {
-    id: '1e086e85-c6b2-4738-942c-b8ad51735555', 
-    order: 3, 
-    name: '个人购物者', 
-    description: '在他或她购买您的订单时，跟随独立的个人购物者，并为您提供有关最新提示和样式的建议。', 
-    image: `${cdn.appAssets}/experiences/personal-shoppers.jpg`, 
-    hashtags: ["购物者","时尚","助理","专家","导师","顾问","功率","专家","指南","支持者","解释器","采购","订购","忠告","建议","重新修改","提示","招数","风格","个人","趋势独立"],
+  nStreams: {
+    streaming: {
+      type: Number,
+      default: 0,
+    },
+    finished: {
+      type: Number,
+      default: 0,
+    },
   },
-  {
-    id: 'ff27a82a-31b7-4bb8-904a-8ff8875d6c7d', 
-    order: 4, 
-    name: '品牌拥护者', 
-    description: '发现热爱某个品牌/产品的体验并且迫不及待想要与您分享的品牌拥护者。', 
-    image: `${cdn.appAssets}/experiences/brand-advocates.jpg`, 
-    hashtags: ["牌","主张","行销","会员","伙伴","商业","影响者","社会的","发起人","专家","运动","支持者","解释器","顾问","支持","指南","风格","忠告","分享","推荐","提示"],
-  },
-  {
-    id: '9330d1e1-48e1-4cf9-a12c-4fb716ccc8d4', 
-    order: 5, 
-    name: '奢侈品', 
-    description: '穿着时尚的服装，珠宝或其他奢侈品时，可在您喜欢的精品目的地现场观看。', 
-    image: `${cdn.appAssets}/experiences/luxary-goods.jpg`, 
-    hashtags: ["豪华","产品","著名","设计师","牌","通缉","花式的","时尚","靡","享受","休闲","富裕的","丰富","富裕","稀有性","灿烂","豪华","高","满足","特别","魅力","喜爱","精品店","首饰","服装","时尚","手表","鞋子"],
-  },
-  {
-    id: 'a025aa70-38e4-4ff6-b44b-64cfe1f9e189', 
-    order: 6, 
-    name: '精心制作和个性化', 
-    description: '寻找定制，手工，复古或独特的产品？由独立的卖家和工匠浏览直播，查找您制作的个性化产品。', 
-    image: `${cdn.appAssets}/experiences/crafted-and-personalized.jpg`, 
-    hashtags: ["精心制作","个性化","习俗","量身定制","选择","手工制作","复古的","独特","工匠","徽","符号","拟人化","独家","罕见","个人","罕见","特定","选择","手工制作"],
-  },
-  {
-    id: '704f3d9b-38be-43e7-badc-8b0c0500413d', 
-    order: 7, 
-    name: '本地分类', 
-    description: '查找本地分类的汽车，房地产和其他所有实时流。', 
-    image: `${cdn.appAssets}/experiences/local-classified.jpg`, 
-    hashtags: ["汽车","属性","出租","本地","位置","家","汽车","汽车","汽车行业","车辆","土地","土地所有权","很多","领土","不动产","情节","建造","居民","本机"],
-  },
-  {
-    id: 'd3544591-dab4-4457-86f1-82baadc6b7d2', 
-    order: 8, 
-    name: '提示与生活技巧', 
-    description: '寻找惊人的技巧和生活技巧，以做所有比以前更好的事情。', 
-    image: `${cdn.appAssets}/experiences/tips-and-life-hacks.jpg`, 
-    hashtags: ["提示","骇客","生活","生活方式","忠告","建议","招数","学习","暗示","信息","知识","知识","新闻","建议","智慧","线索","主意","观察","救命","指南","作弊"],
-  },
-  {
-    id: '68252d52-3195-43c4-8c83-39f3bbbdb1c5', 
-    order: 9, 
-    name: '季节性销售', 
-    description: '讨价还价的购物者的梦想成真。充分利用这个季末销售，观看您最喜欢的产品在本季度的现场销售。', 
-    image: `${cdn.appAssets}/experiences/seasonal-sales.jpg`, 
-    hashtags: ["季节的","销售","讨价还价","折扣","便宜的","成交","谈判","拍卖","场合","周期性的","卖光","价钱","热"],
-  },
-  {
-    id: '8a261ffd-8daa-4dbb-aca4-5978b638f107', 
-    order: 10, 
-    name: '批发商', 
-    description: '直接从工厂，制造商，供应商，进口商和批发商购买散装产品，以最低的价格获得价格。', 
-    image: `${cdn.appAssets}/experiences/wholesalers.jpg`, 
-    hashtags: ["批发","厂","制造商","供应商","进口商","提供者","大规模","广阔","块","质量","数量","大范围","产业"],
-  },
-];
+});
+
+module.exports = new model(collectionName, schema);

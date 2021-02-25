@@ -3,6 +3,11 @@ function getSearchQueryByName(query) {
   return { name: { $regex: `^${query}.*`, $options: 'i' } };
 }
 
+function filterWithHasProduct(query, hasProduct) {
+  if (typeof hasProduct === 'boolean' && hasProduct) query.nProducts = { $gt: 0 };
+  else if (typeof hasProduct === 'boolean' && !hasProduct) query.nProducts = { $eq: 0 };
+}
+
 function matchHashtag(category, tags) {
   if (!tags.length) return false;
 
@@ -44,8 +49,14 @@ class ProductCategoryRepository {
     return this.model.findOne({ slug });
   }
 
-  async getByParent(id) {
-    return this.model.find({ parent: id }).sort('order');
+  async getByParent(id, hasProduct) {
+    const query = { parent: id };
+    filterWithHasProduct(query, hasProduct);
+    return this.model.find(query).sort('order');
+  }
+
+  async getUnderParent(id) {
+    return this.model.find({ parents: id }).sort('order');
   }
 
   async getUnderParents(ids, tags = []) {
@@ -59,11 +70,21 @@ class ProductCategoryRepository {
     return this.model.find({ _id: ids });
   }
 
-  async searchByName(query, { skip, limit }) {
+  async searchByName(searchQuery, { skip, limit }, hasProduct) {
+    const query = getSearchQueryByName(searchQuery);
+    filterWithHasProduct(query, hasProduct);
     return this.model.find(
-      getSearchQueryByName(query),
+      query,
       null,
       { limit, skip, sort: { order: 1 } },
+    );
+  }
+
+  async load(query, { skip, limit }) {
+    return this.model.find(
+      query,
+      null,
+      { limit, skip, sort: { createdAt: 1 } },
     );
   }
 

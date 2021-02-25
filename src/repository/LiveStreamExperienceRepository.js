@@ -1,5 +1,15 @@
-const path = require('path');
+class LiveStreamExperienceRepository {
+  constructor(model) {
+    this.model = model;
+  }
 
-const StaticDataRepository = require(path.resolve('src/lib/StaticDataRepository'));
+  getAll(query = {}) {
+    return this.model.find(query).sort('order');
+  }
 
-module.exports = StaticDataRepository;
+  getById(id) {
+    return this.model.findOne({ _id: id });
+  }
+}
+
+module.exports = LiveStreamExperienceRepository;
