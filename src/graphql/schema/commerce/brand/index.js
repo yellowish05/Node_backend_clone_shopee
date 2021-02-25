@@ -12,6 +12,7 @@ const schema = gql`
         productCategories: [ProductCategory]!
         images: [Asset]!
         hashtags: [String]
+        countProducts: Int
     }
 
     input BrandInput{

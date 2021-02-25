@@ -38,6 +38,12 @@ module.exports = async (_, { id }, { dataSources: { repository }, user }) => {
       product.isDeleted = true;
       return product.save();
     })
-    .then((savedProduct) => savedProduct.isDeleted)
+    .then(async (savedProduct) => {
+      await Promise.all([
+        ProductService.updateProductCountInCategories([savedProduct.category]),
+        ProductService.updateProductCountInBrand(savedProduct.brand),
+      ]);
+      return savedProduct.isDeleted;
+    })
     .catch(() => false);
 };

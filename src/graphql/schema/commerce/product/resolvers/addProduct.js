@@ -190,6 +190,11 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       // send push notification
       PushNotificationService.sendPushNotification({ message: "你最喜欢的产品已上新！", device_ids: [user.device_id] });
 
+      await Promise.all([
+        ProductService.updateProductCountInCategories([data.category]),
+        ProductService.updateProductCountInBrand(data.brand),
+      ]);
+      
       return product;
     });
 };
