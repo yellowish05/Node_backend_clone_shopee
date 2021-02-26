@@ -47,7 +47,7 @@ module.exports = class UpdateProductCountRobot extends BaseRobot {
   constructor() {
     super(17 * 60 * 1009);
     cache.set(CATEGORY_CONFIG, { position: 0, limit: 100 });
-    cache.set(BRAND_CONFIG, { position: 0, limit: 1000 });
+    cache.set(BRAND_CONFIG, { position: 0, limit: 500 });
   }
 
   execute() {
