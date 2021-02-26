@@ -29,6 +29,10 @@ const schema = new Schema({
   },
   quantity: {
     type: Number,
+    validate: {
+      validator: Number.isInteger,
+      message: `Quantity {VALUE} is not an integer value!`,
+    },
   },
   currency: {
     type: String,
