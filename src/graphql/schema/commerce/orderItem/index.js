@@ -25,10 +25,10 @@ const schema = gql`
         status: OrderItemStatus!
         """ In Units """
         quantity: Int!
-        price: AmountOfMoney!
-        deliveryPrice: AmountOfMoney!
-        subtotal: AmountOfMoney!
-        total: AmountOfMoney!
+        price(currency: Currency): AmountOfMoney!
+        deliveryPrice(currency: Currency): AmountOfMoney!
+        subtotal(currency: Currency): AmountOfMoney!
+        total(currency: Currency): AmountOfMoney!
         seller: User!
         deliveryOrder: DeliveryOrder
         log: OrderItemLog!
@@ -84,7 +84,7 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
-    total: async ({ total, deliveryPrice, currency }) => {
+    total: async ({ total, deliveryPrice, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total + deliveryPrice, currency: currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
