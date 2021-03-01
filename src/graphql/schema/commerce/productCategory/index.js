@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 const updateProductCategoryAssets = require('./resolvers/updateProductCategoryAssets');
 const bulkUpdateProductCategory = require('./resolvers/bulkUpdateProductCategory');
+const correctProductCategoryHierarchy = require('./resolvers/correctProductCategoryHierarchy');
 
 const schema = gql`
     type ProductCategory {
@@ -9,7 +10,7 @@ const schema = gql`
         level: Int!
         parent: ProductCategory
         parents: [ProductCategory]!
-        hasChildren: Boolean!
+        hasChildren(hasProduct: Boolean = true): Boolean!
         image: Asset
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
@@ -39,11 +40,11 @@ const schema = gql`
     }
 
     extend type Query {
-        searchProductCategory(query: String!, page: PageInput = {}): ProductCategoryCollection!
-        productCategories(parent: ID): [ProductCategory]!
+        searchProductCategory(query: String!, page: PageInput = {}, hasProduct: Boolean = true): ProductCategoryCollection!
+        productCategories(parent: ID, hasProduct: Boolean = true): [ProductCategory]!
         productCategory(id: ID!): ProductCategory
         productCategoryBySlug(slug: String!): ProductCategory
-        fullProductCategories: [ProductCategory]!
+        fullProductCategories(hasProduct: Boolean = true): [ProductCategory]!
     }
 
     extend type Mutation {
@@ -55,6 +56,10 @@ const schema = gql`
         Allows: authorized user
       """
       bulkUpdateProductCategory(file: Upload!): UploadedProductCategories @auth(requires: USER) 
+      """
+        Allows: authorized admin
+      """
+      correctProductCategoryHierarchy: Boolean @auth(requires: ADMIN)
     }
 `;
 
@@ -80,19 +85,19 @@ function composeTypeResult(page) {
 
 module.exports.resolvers = {
   Query: {
-    searchProductCategory: async (_, { query, page }, { dataSources: { repository } }) => {
+    searchProductCategory: async (_, { query, page, hasProduct }, { dataSources: { repository } }) => {
       if (query.length < 2) {
         return composeTypeResult(page)([null, 0]);
       }
 
       return Promise.all([
-        repository.productCategory.searchByName(query, page),
-        repository.productCategory.getCountBySearch(query),
+        repository.productCategory.searchByName(query, page, hasProduct),
+        repository.productCategory.getCountBySearch(query, hasProduct),
       ])
         .then(composeTypeResult(page));
     },
-    productCategories: async (_, { parent = null }, { dataSources: { repository } }) => (
-      repository.productCategory.getByParent(parent)
+    productCategories: async (_, { parent = null, hasProduct }, { dataSources: { repository } }) => (
+      repository.productCategory.getByParent(parent, hasProduct)
     ),
     productCategory: async (_, { id }, { dataSources: { repository } }) => (
       repository.productCategory.getById(id)
@@ -100,13 +105,17 @@ module.exports.resolvers = {
     productCategoryBySlug: async (_, { slug }, { dataSources: { repository } }) => (
       repository.productCategory.getBySlug(slug)
     ),
-    fullProductCategories: async (_, __, { dataSources: { repository } }) => (
-      repository.productCategory.getAll()
-    ),
+    fullProductCategories: async (_, { hasProduct }, { dataSources: { repository } }) => {
+      const query = {};
+      if (typeof hasProduct === 'boolean' && hasProduct) query.nProducts = { $gt: 0 };
+      else if (typeof hasProduct === 'boolean' && !hasProduct) query.nProducts = { $eq: 0 };
+      return repository.productCategory.getAll(query);
+    },
   },
   Mutation: {
     updateProductCategoryAssets,
     bulkUpdateProductCategory,
+    correctProductCategoryHierarchy,
   },
   ProductCategory: {
     parent: async (productCategory, _, { dataSources: { repository } }) => {
@@ -135,6 +144,10 @@ module.exports.resolvers = {
     },
     productVariations: async ({ _id }, _, { dataSources: { repository }}) => {
       return repository.productVariation.getByCategory(_id);
+    },
+    hasChildren: async (productCategory, { hasProduct }, { dataSources: { repository } }) => {
+      return repository.productCategory.getByParent(productCategory.id, hasProduct)
+        .then(children => children.length > 0)
     },
   },
 };

@@ -40,11 +40,11 @@ function elasticFilter(filter) {
 
 function transformFilter({
   searchQuery,
-  experiences,
-  categories,
-  cities,
-  statuses,
-  streamers,
+  experiences = [],
+  categories = [],
+  cities = [],
+  statuses = [],
+  streamers = [],
   blackList,
   // product,
   isFeatured = null,
@@ -197,6 +197,10 @@ class LiveStreamRepository {
     }
 
     return liveStream.save();
+  }
+
+  async getBySlug(slug) {
+    return this.model.findOne({ slug });
   }
 
   async getByIds(ids) {

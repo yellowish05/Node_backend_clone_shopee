@@ -43,6 +43,10 @@ const schema = new Schema({
     default: [],
     index: true,
   },
+  nProducts: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = new model(collectionName, schema);

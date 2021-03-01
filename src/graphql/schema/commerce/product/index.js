@@ -412,6 +412,9 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
+    quantity: async ({ quantity }) => {
+      return typeof quantity === 'number' ? Math.floor(quantity) : 0;
+    },
   },
   ProductMetricItem: {
     unitPrice: async ({ unitPrice }, args, { dataSources: {repository} }) => {
@@ -421,5 +424,5 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     }
-  }
+  },
 };

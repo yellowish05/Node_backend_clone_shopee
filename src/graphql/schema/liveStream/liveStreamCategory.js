@@ -13,7 +13,7 @@ const schema = gql`
     }
 
     extend type Query {
-        liveStreamCategories: [LiveStreamCategory]!
+        liveStreamCategories(hasStream: Boolean = true): [LiveStreamCategory]!
         liveStreamCategory(id: ID!): LiveStreamCategory
         liveStreamCategoryBySlug(slug: String!): LiveStreamCategory
     }
@@ -27,8 +27,14 @@ module.exports.resolvers = {
     liveStreamCategory(_, { id }, { dataSources: { repository } }) {
       return repository.liveStreamCategory.getById(id);
     },
-    liveStreamCategories(_, args, { dataSources: { repository } }) {
-      return repository.liveStreamCategory.getAll();
+    liveStreamCategories(_, { hasStream }, { dataSources: { repository } }) {
+      const query = {};
+      if (typeof hasStream === 'boolean' && hasStream === true) {
+        query.$or = [{"nStreams.streaming": {$gt: 0}}, {"nStreams.finished": {$gt: 0}}];
+      } else if (typeof hasStream === 'boolean' && hasStream === false) {
+        query.$and = [{"nStreams.streaming": {$eq: 0}}, {"nStreams.finished": {$eq: 0}}];
+      }
+      return repository.liveStreamCategory.getAll(query);
     },
     liveStreamCategoryBySlug(_, { slug }, {dataSources: { repository } }) {
       return repository.liveStreamCategory.getBySlug(slug);

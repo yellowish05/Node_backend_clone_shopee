@@ -20,6 +20,7 @@ const updateStreamRecord = require('./resolvers/updateStreamRecord');
 const previousQueue = require('./resolvers/previousQueue');
 const nextQueue = require('./resolvers/nextQueue');
 const updateLiveStreamProducts = require('./resolvers/updateLiveStreamProducts');
+const updateLiveStreamSlug = require('./resolvers/updateLiveStreamSlug');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -196,6 +197,10 @@ const schema = gql`
       addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
       updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
       updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream! @auth(requires: USER)
+      """
+      Allows: authorized admin
+      """
+      updateLiveStreamSlug: Boolean! @auth(requires: ADMIN) 
     }
 
     extend type Subscription {
@@ -249,6 +254,7 @@ module.exports.resolvers = {
     addStreamRecord,
     updateStreamRecord,
     updateLiveStreamProducts,
+    updateLiveStreamSlug,
   },
   Subscription: {
     liveStream: {

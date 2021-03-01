@@ -29,6 +29,16 @@ const schema = new Schema({
   slug: {
     type: String,
   },
+  nStreams: {
+    streaming: {
+      type: Number,
+      default: 0,
+    },
+    finished: {
+      type: Number,
+      default: 0,
+    },
+  },
 });
 
 module.exports = new model(collectionName, schema);

@@ -53,6 +53,10 @@ const schema = new Schema({
   slug: {
     type: String,
   },
+  nProducts: {
+    type: Number,
+    default: 0,
+  },
   // productVariations: {
   //   type: [{
   //     type: String,

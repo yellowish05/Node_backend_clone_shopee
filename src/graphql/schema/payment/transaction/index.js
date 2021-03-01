@@ -21,7 +21,7 @@ const schema = gql`
     interface PaymentTransactionInterface {
       id: ID!
       createdAt: Date!
-      amount: AmountOfMoney!
+      amount(currency: Currency): AmountOfMoney!
       status: PaymentTransactionStatus!
       processedAt: Date
       tags: [String!]
