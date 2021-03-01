@@ -1,5 +1,6 @@
 
 const path = require('path');
+const { slugify } = require('transliteration');
 const repository = require(path.resolve('src/repository'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
@@ -7,6 +8,24 @@ const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 class StreamService {
   constructor(repository) {
     this.repository = repository;
+  }
+
+  async generateSlug({ id, slug: slugInput, title }) {
+    return Promise.all([
+      slugInput ? this.repository.liveStream.getBySlug(slugInput) : null,
+      this.repository.liveStream.getAll({ title }),
+    ])
+      .then(([streamBySlug, streamsByTitle]) => {
+        if (slugInput && (!streamBySlug || (streamBySlug && streamBySlug._id === id))) return slugInput;
+
+        const otherStreams = streamsByTitle.filter(streams => stream._id !== id);
+        let slug = slugify(title);
+        if (otherStreams.length) {
+          const rand = Math.floor(Math.random() * 1000);
+          slug += `-${rand.toString().padStart(3, '0')}`;
+        }
+        return slug;
+      })
   }
 
   async updateStreamStatus(liveStream, status) {

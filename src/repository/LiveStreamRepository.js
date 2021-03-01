@@ -199,6 +199,10 @@ class LiveStreamRepository {
     return liveStream.save();
   }
 
+  async getBySlug(slug) {
+    return this.model.findOne({ slug });
+  }
+
   async getByIds(ids) {
     return this.model.find({ _id: ids });
   }
