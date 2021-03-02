@@ -1,6 +1,9 @@
 
-module.exports = async (_, __, { dataSources: { repository }}) => {
-  return repository.brand.getAll({ nProducts: {$gt: 0} })
+module.exports = async (_, { hasProduct }, { dataSources: { repository }}) => {
+  const query = {};
+  if (typeof hasProduct === 'boolean' && hasProduct) query.nProducts = { $gt: 0 };
+  else if (typeof hasProduct === 'boolean' && !hasProduct) query.nProducts = { $eq: 0 };
+  return repository.brand.getAll(query)
     .then(brands => {
       brands.sort((a, b) => {
         const name1 = a.name.toLowerCase();
