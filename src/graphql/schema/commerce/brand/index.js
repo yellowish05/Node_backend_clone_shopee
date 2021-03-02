@@ -35,7 +35,7 @@ const schema = gql`
 
     extend type Query {
         searchBrand(query: String, page: PageInput = {}, hasProduct: Boolean = true): BrandCollection!
-        allBrands: [Brand]!
+        allBrands(hasProduct: Boolean = true): [Brand]!
         brand(id: ID!): Brand
     }
 
