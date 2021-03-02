@@ -84,6 +84,8 @@ const addProduct = async (product, index) => {
 
   if (!product.freeDeliveryTo) {
     delete product.freeDeliveryTo;
+  } else {
+    product.freeDeliveryTo = product.freeDeliveryTo.split(",");
   }
 
   product.weight = {
@@ -187,19 +189,37 @@ const addProduct = async (product, index) => {
       if (oneValue.length < 3) continue;
 
       attributeData.variation = [];
-      for (let j = 0; j < oneValue.length - 3; j++) {
+      for (let j = 0; j < oneValue.length - 4; j++) {
         attributeData.variation.push({
           name: attributeNames[j],
           value: oneValue[j],
         });
       }
-      attributeData.price = parseFloat(oneValue[oneValue.length - 3]);
+      attributeData.price = parseFloat(oneValue[oneValue.length - 4]);
       attributeData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData.price, currency: product.currency }).getCentsAmount();
-      attributeData.oldPrice = parseFloat(oneValue[oneValue.length - 2]);
+      attributeData.oldPrice = parseFloat(oneValue[oneValue.length - 3]);
       attributeData.oldPrice = product.oldPrice != 0 ? CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData.oldPrice, currency: product.currency }).getCentsAmount() : null;
-      attributeData.quantity = oneValue[oneValue.length - 1];
+      attributeData.quantity = oneValue[oneValue.length - 2];
       attributeData.currency = product.currency;
       attributeData.productId = product._id;
+      attributeData.sku = uuid();
+
+      const assetData = {
+        owner: product.seller,
+        path: oneValue[oneValue.length - 1],
+        photo: oneValue[oneValue.length - 1],
+        name: product.username,
+        bucket: assetsS3bucket,
+      };
+
+      attributeData.asset = await new Promise((resolve) => 
+        repository.asset.createAssetFromCSVForProducts(assetData)
+          .then((res) => {
+            resolve(product.seller = res._id || res);
+          }).catch(() => {
+            resolve(null);
+          })
+      );
 
       product.attrs.push(attributeData);
     }
@@ -453,7 +473,7 @@ module.exports = async (_, { fileName, bucket }) => {
       resolve(res._id);
     })
     .catch(() => {
-      failedParsing.push("Couldn't add/parse brand");
+      // failedParsing.push("Couldn't add/parse brand");
       resolve(null);
     })));
 

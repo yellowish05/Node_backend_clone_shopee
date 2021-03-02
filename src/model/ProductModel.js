@@ -130,6 +130,8 @@ const schema = new Schema({
   },
   sku: {
     type: String,
+    default: null,
+    unique: true,
   },
   isFeatured: {
     type: Boolean,
@@ -158,6 +160,9 @@ const schema = new Schema({
     default: [],
     index: true,
   },
+  href: {
+    type: String,
+  }
 });
 
 schema.indexes([
