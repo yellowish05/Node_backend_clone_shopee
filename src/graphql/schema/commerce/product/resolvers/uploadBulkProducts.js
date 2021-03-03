@@ -195,11 +195,11 @@ const addProduct = async (product, index) => {
           value: oneValue[j],
         });
       }
-      attributeData.price = parseFloat(oneValue[oneValue.length - 4]);
+      attributeData.price = parseFloat(oneValue[oneValue.length - 2]);
       attributeData.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData.price, currency: product.currency }).getCentsAmount();
       attributeData.oldPrice = parseFloat(oneValue[oneValue.length - 3]);
       attributeData.oldPrice = product.oldPrice != 0 ? CurrencyFactory.getAmountOfMoney({ currencyAmount: attributeData.oldPrice, currency: product.currency }).getCentsAmount() : null;
-      attributeData.quantity = oneValue[oneValue.length - 2];
+      attributeData.quantity = oneValue[oneValue.length - 4];
       attributeData.currency = product.currency;
       attributeData.productId = product._id;
       attributeData.sku = uuid();

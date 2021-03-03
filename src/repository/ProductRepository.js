@@ -179,11 +179,15 @@ class ProductRepository {
   }
 
   async findDuplicate(data) {
+    product = getById(product._id);
+    if (product)
+      return product;
+
     return this.model.findOne({
       title: data.title,
       description: data.description,
       price: data.price,
-      isDeleted: false
+      isDeleted: false,
     });
   }
 
