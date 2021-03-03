@@ -1,8 +1,31 @@
+const path = require('path');
+const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 
-module.exports = async (_, { hasProduct }, { dataSources: { repository }}) => {
+const activity = {
+  getAvailableLiveStreamWithProudcts: async (repository) => {
+    const query = { $and: [] };
+    query.$and.push({ status: {$in: [StreamChannelStatus.STREAMING, StreamChannelStatus.FINISHED]} });
+    query.$and.push({ "productDurations.0": {$exists: true} });
+    return repository.liveStream.getAll(query);
+  },
+  getBrandIds4Streams: async (liveStreams, repository) => {
+    const productIds = liveStreams.reduce((ids, liveStream) => ids = ids.concat(liveStream.productDurations.map(pd => pd.product)), []);
+    return repository.product.getByIds(productIds)
+      .then(products => products.map(product => product.brand));
+  },
+}
+
+module.exports = async (_, { hasProduct, hasLiveStream }, { dataSources: { repository }}) => {
   const query = {};
   if (typeof hasProduct === 'boolean' && hasProduct) query.nProducts = { $gt: 0 };
   else if (typeof hasProduct === 'boolean' && !hasProduct) query.nProducts = { $eq: 0 };
+
+  if (hasLiveStream) {
+    const brandIds = await activity.getAvailableLiveStreamWithProudcts(repository)
+      .then(liveStreams => activity.getBrandIds4Streams(liveStreams, repository));
+    query._id = { $in: brandIds };
+  }
+
   return repository.brand.getAll(query)
     .then(brands => {
       brands.sort((a, b) => {
@@ -18,5 +41,9 @@ module.exports = async (_, { hasProduct }, { dataSources: { repository }}) => {
         }        
       })
       return brands;
+    })
+    .catch(error => {
+      console.log('[Error]', error);
+      return null;
     })
 }
