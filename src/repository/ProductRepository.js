@@ -179,7 +179,7 @@ class ProductRepository {
   }
 
   async findDuplicate(data) {
-    product = getById(product._id);
+    const product = await this.getById(data._id);
     if (product)
       return product;
 
