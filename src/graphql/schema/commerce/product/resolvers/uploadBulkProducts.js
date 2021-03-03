@@ -37,7 +37,7 @@ const getDataFromCsv = async (params) => {
 };
 
 const addProduct = async (product, index) => {
-  product.category = product.categoryID;
+  product.category = product.shoclef_category_id;
   product.description = product.description;
   product.title = product.title;
 
@@ -267,6 +267,8 @@ const errorFormater = (err, row) => {
       parsedError = error.seller.message;
     } else if (error.description) {
       parsedError = error.description.message;
+    } else if (error.category) {
+      parsedError = error.category.message;
     } else if (error.message) {
       parsedError = error;
     } else {

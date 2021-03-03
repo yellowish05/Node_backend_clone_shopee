@@ -71,6 +71,7 @@ const schema = new Schema({
     type: String,
     ref: 'ProductCategory',
     index: true,
+    required: true,
   },
   brand: {
     type: String,
