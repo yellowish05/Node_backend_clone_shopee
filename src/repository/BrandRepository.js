@@ -8,6 +8,10 @@ class BrandRepository {
   constructor(model) {
     this.model = model;
   }
+  
+  async getAll(query = {}) {
+    return this.model.find(query).sort({ name: 1 });
+  }
 
   async getById(id) {
     return this.model.findOne({ _id: id });
