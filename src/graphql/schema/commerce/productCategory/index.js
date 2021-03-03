@@ -8,6 +8,7 @@ const schema = gql`
         id: ID!
         name: String!
         level: Int!
+        order: Int
         parent: ProductCategory
         parents: [ProductCategory]!
         hasChildren(hasProduct: Boolean = true): Boolean!
