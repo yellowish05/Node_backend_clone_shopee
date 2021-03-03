@@ -224,33 +224,6 @@ const addProduct = async (product, index) => {
       product.attrs.push(attributeData);
     }
 
-    // const colors = product.colors.split("|");
-    // const sizes = product.sizes.split("|");
-    // const prices = product.variationPrices.split('|');
-    // const oldPrices = product.variationOldPrices ? product.variationOldPrices.split('|') : prices;
-    // const quantity = product.variationQuantity.split('|')
-
-    // for (let i = 0; i < colors.length; i++) {
-    //     let pricesByColor = prices[i].split("-");
-    //     let oldPricesByColor = oldPrices[i].split("-");
-    //     let quantityByColor = quantity[i].split("-");
-    //     for (let j = 0; j < sizes.length; j++) {
-    //         if (pricesByColor[j] != "") {
-    //             const attributeData = {
-    //                 color: colors[i],
-    //                 size: sizes[j],
-    //                 price: parseInt(pricesByColor[j]),
-    //                 discountPrice: parseInt(oldPricesByColor[j]),
-    //                 currency: product.currency,
-    //                 quantity: parseInt(quantityByColor[j]),
-    //                 productId: product._id
-    //             };
-
-    //             product.attrs.push(attributeData);
-    //         }
-    //     }
-    // }
-
     product.attrs = await promise.map(product.attrs, (attr) => repository.productAttributes.findOrCreate(attr).then((res) => res.id).catch((err) => console.log(err)));
   } catch (error) {
     console.log('error occured while add variationPrice', error);
