@@ -251,6 +251,12 @@ const SubscriptionType = EnumFactory({
   LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
 })
 
+const IssueStatus = EnumFactory({
+  CREATED: "CREATED",
+  UNDER_REVIEW: "UNDER_REVIEW",
+  SOLVED: "SOLVED",
+})
+
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
@@ -299,4 +305,5 @@ module.exports = {
   GenderType,
   RatingTarget,
   SubscriptionType,
+  IssueStatus,
 };
