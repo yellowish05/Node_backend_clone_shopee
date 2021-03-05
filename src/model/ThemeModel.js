@@ -16,6 +16,10 @@ const schema = new Schema({
     required: true,
     unique: true,
   },
+  order: {
+    type: Number,
+    default: 1000,
+  },
   thumbnail: {
     type: String,
     ref: 'Asset',

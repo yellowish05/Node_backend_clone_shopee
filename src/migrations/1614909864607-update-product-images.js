@@ -96,9 +96,4 @@ async function down () {
 
 }
 
-up()
-  .then(() => {
-    logger.info('test')
-  })
-
 module.exports = { up, down };
