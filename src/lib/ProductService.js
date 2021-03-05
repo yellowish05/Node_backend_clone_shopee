@@ -23,13 +23,13 @@ module.exports = {
     let { brandCategories, brands, productCategories, hashtags } = theme;
 
     if (brandCategories.length || hashtags.length) {
-      brandCategories = await repository.brandCategory.getByIdsAndTags(brandCategories, hashtags);
+      brandCategories = await repository.brandCategory.getByIdsAndTags(brandCategories); //, hashtags
     }
 
     const brandCategoryIds = brandCategories.map(brandCategory => brandCategory._id);
 
     if (brandCategories.length || hashtags.length) {
-      brands = await repository.brand.getByCategoryAndTags(brandCategoryIds, hashtags);
+      brands = await repository.brand.getByCategoryAndTags(brandCategoryIds); //, hashtags
     }
 
     if (productCategories.length || brands.length || hashtags.length) {
@@ -38,7 +38,7 @@ module.exports = {
           productCategories.concat(brand.productCategories);
         });
       }
-      productCategories = await repository.productCategory.getUnderParents(productCategories, hashtags);
+      productCategories = await repository.productCategory.getUnderParents(productCategories);//, hashtags
     }
 
     return { brands, productCategories, hashtags };
