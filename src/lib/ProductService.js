@@ -41,7 +41,7 @@ module.exports = {
       productCategories = await repository.productCategory.getUnderParents(productCategories);//, hashtags
     }
 
-    return { brands, productCategories, hashtags };
+    return { brands, productCategories, hashtags: [] };
   },
 
   async generateSlug({ id, slug: slugInput, title }) {
