@@ -56,9 +56,14 @@ async function up () {
               category.image = assetByPath._id;
               return Promise.all([
                 assetByPath.save(),
-                category.save(),
               ]);
+            } else if (category && assetById && category.image === row.image) {
+              assetById.path = newPath;
+              assetById.url = row.image_url;
+              assetById.mimetype = mimeTypes[ext];
+              return assetById.save();
             } else {
+
               const assetData = {
                 _id: uuid(),
                 status: "UPLOADED",
@@ -90,5 +95,10 @@ async function down () {
   // Write migration here
 
 }
+
+up()
+  .then(() => {
+    logger.info('test')
+  })
 
 module.exports = { up, down };
