@@ -128,11 +128,19 @@ const schema = gql`
       type: SortTypeEnum! = ASC
     }
 
+    enum LikeLiveStreamViewType {
+      view like
+    }
+
+    enum LikeLiveStreamTagType {
+      real fake
+    }
+
     input LiveStreamUpdateInput {
       id: ID!
       playLength: Int!
-      view: String!
-      tag: String!
+      view: LikeLiveStreamViewType!
+      tag: LikeLiveStreamTagType!
     }
 
     type VideoQueueResponse {

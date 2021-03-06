@@ -35,6 +35,7 @@ const schema = gql`
       needed for type "LIMITED_TIME" only
     """
     end_time: Date
+    order: Int
   }
 
   """
@@ -53,6 +54,7 @@ const schema = gql`
     type: ThemeType = NORMAL
     start_time: Date
     end_time: Date
+    order: Int
   }
 
   input ThemeUpdateInput {
@@ -65,6 +67,7 @@ const schema = gql`
     type: ThemeType
     start_time: Date
     end_tiem: Date
+    order: Int
   }
 
   """
@@ -86,6 +89,7 @@ const schema = gql`
   enum ThemeSortFeature {
     NAME
     CREATED_AT
+    ORDER
   }
 
   type ThemeCollection {

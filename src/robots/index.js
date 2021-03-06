@@ -4,8 +4,8 @@ const UpdateStreamCountRobot = require('./logics/UpdateStreamCountRobot');
 
 const robots = [
   new CancelLiveStreamRobot(),
-  new UpdateProductCountRobot(),
-  new UpdateStreamCountRobot(),
+  // new UpdateProductCountRobot(),
+  // new UpdateStreamCountRobot(),
 ];
 function startRobots() {
   robots.forEach((robot) => {

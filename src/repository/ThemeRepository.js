@@ -33,6 +33,7 @@ function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
     NAME: 'name',
+    ORDER: 'order',
   };
 
   const availableTypes = {
