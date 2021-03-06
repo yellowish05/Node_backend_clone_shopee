@@ -31,7 +31,7 @@ async function parseCSVContent() {
  */
 async function up () {
   // Write migration here
-  const CDN_PATH = "https://cdn-stage.shoclef.com";
+  const CDN_PATH = "https://cdn-stage.shoclef.com/";
 
   return parseCSVContent()
     .then(rows => {
@@ -90,10 +90,5 @@ async function down () {
   // Write migration here
 
 }
-
-up()
-.then(() => {
-  console.log('[MIgration][Completed]')
-})
 
 module.exports = { up, down };
