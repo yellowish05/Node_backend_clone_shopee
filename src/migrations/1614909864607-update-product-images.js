@@ -37,47 +37,42 @@ async function up () {
     .then(rows => {
       return wImages = rows.filter(row => row.image_url);
     })
-    .then(wImages => {
-      return Promise.all(wImages.map(row => {
-        const newPath = row.image_url.replace(CDN_PATH, '');
-        const ext = row.image_url.substr(row.image_url.lastIndexOf('.') + 1);
-
-        return Promise.all([
-          ProductCategoryModel.findOne({ _id: row._id }),
-          AssetModel.findOne({ _id: row.image }),
-          AssetModel.findOne({ path: newPath }),          
-        ])
-          .then(([category, assetById, assetByPath]) => {
-
-            if (category && assetByPath && category.image === row.image) {
-              assetByPath.path = newPath;
-              assetByPath.url = row.image_url;
-              assetByPath.mimetype = mimeTypes[ext];
-              category.image = assetByPath._id;
-              return Promise.all([
-                assetByPath.save(),
-              ]);
-            } else if (category && assetById && category.image === row.image) {
-              assetById.path = newPath;
-              assetById.url = row.image_url;
-              assetById.mimetype = mimeTypes[ext];
-              return assetById.save();
-            } else {
-
-              const assetData = {
-                _id: uuid(),
-                status: "UPLOADED",
-                owner: "a0f952da-815b-43d8-ba9f-4c3348b758f7",
-                path: newPath,
-                url: row.image_url,
-                type: "IMAGE",
-                size: 1000,
-                mimetype: mimeTypes[ext] || 'image/jpg',
-              };
-              return AssetModel.create(assetData)
-            }
-          })
-      }));
+    .then(rows => {
+      const urls = rows.map(row => row.image_url).filter((value, index, self) => self.indexOf(value) === index);
+      return Promise.all(urls.map(async url => {
+        const path = url.replace(CDN_PATH, '');
+        const itemsWURL = rows.filter(row => row.image_url === url);
+        const categories = await ProductCategoryModel.find({ _id: { $in: itemsWURL.map(item => item._id) } });
+        const assetByPath = await AssetModel.findOne({ path });
+        if (assetByPath) {
+          return Promise.all(categories.map(category => {
+            category.image = assetByPath._id; return category.save();
+          }))
+        } else {
+          const assets = await AssetModel.find({ _id: {$in: itemsWURL.map(item => item.image)} });
+          if (assets.length) {
+            return Promise.all(categories.map(category => {
+              category.image = assets[0]._id; return category.save();
+            }))
+          } else {
+            // create a new asset
+            const assetData = {
+              _id: uuid(),
+              status: "UPLOADED",
+              owner: "a0f952da-815b-43d8-ba9f-4c3348b758f7",
+              path,
+              url,
+              type: "IMAGE",
+              size: 1000,
+              mimetype: mimeTypes[ext] || 'image/jpg',
+            };
+            const asset = await AssetModel.create(assetData);
+            return Promise.all(categories.map(category => {
+              category.image = asset._id; return category.save();
+            }))
+          }
+        } 
+      }))
     })
     .then((rows) => {
       logger.info(`[MIGRATE] updated ${rows.length} Asset documents to Mongo!`);
