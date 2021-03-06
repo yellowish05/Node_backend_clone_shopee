@@ -41,6 +41,7 @@ async function up () {
       const urls = rows.map(row => row.image_url).filter((value, index, self) => self.indexOf(value) === index);
       return Promise.all(urls.map(async url => {
         const path = url.replace(CDN_PATH, '');
+        const ext = url.substr(url.toString().lastIndexOf('.') + 1);
         const itemsWURL = rows.filter(row => row.image_url === url);
         const categories = await ProductCategoryModel.find({ _id: { $in: itemsWURL.map(item => item._id) } });
         const assetByPath = await AssetModel.findOne({ path });
