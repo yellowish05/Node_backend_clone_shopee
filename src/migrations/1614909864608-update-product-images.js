@@ -45,13 +45,13 @@ async function up () {
         const categories = await ProductCategoryModel.find({ _id: { $in: itemsWURL.map(item => item._id) } });
         const assetByPath = await AssetModel.findOne({ path });
         if (assetByPath) {
-          return Promise.all(categories.map(category => {
+          await Promise.all(categories.map(category => {
             category.image = assetByPath._id; return category.save();
           }))
         } else {
           const assets = await AssetModel.find({ _id: {$in: itemsWURL.map(item => item.image)} });
           if (assets.length) {
-            return Promise.all(categories.map(category => {
+            await Promise.all(categories.map(category => {
               category.image = assets[0]._id; return category.save();
             }))
           } else {
@@ -67,7 +67,7 @@ async function up () {
               mimetype: mimeTypes[ext] || 'image/jpg',
             };
             const asset = await AssetModel.create(assetData);
-            return Promise.all(categories.map(category => {
+            await Promise.all(categories.map(category => {
               category.image = asset._id; return category.save();
             }))
           }
@@ -90,5 +90,10 @@ async function down () {
   // Write migration here
 
 }
+
+up()
+.then(() => {
+  console.log('[MIgration][Completed]')
+})
 
 module.exports = { up, down };
