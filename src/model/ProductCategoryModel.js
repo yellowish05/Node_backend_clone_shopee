@@ -28,6 +28,11 @@ const schema = new Schema({
     ref: 'Asset',
     default: null,
   },
+  icon: {
+    type: String,
+    ref: "Asset",
+    default: null,
+  },
   level: {
     type: Number,
     default: 1,

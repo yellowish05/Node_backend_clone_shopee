@@ -13,6 +13,7 @@ const schema = gql`
         parents: [ProductCategory]!
         hasChildren(hasProduct: Boolean = true): Boolean!
         image: Asset
+        icon: Asset
         liveStreamCategory: LiveStreamCategory
         hashtags: [String]
         slug: String
@@ -136,6 +137,12 @@ module.exports.resolvers = {
         return null;
       }
       return repository.asset.getById(image);
+    },
+    icon: async ({ icon }, _, { dataSources: { repository } }) => {
+      if (!icon) {
+        return null;
+      }
+      return repository.asset.getById(icon);
     },
     liveStreamCategory: async (productCategory, _, { dataSources: { repository } }) => {
       if (!productCategory.liveStreamCategory) {
