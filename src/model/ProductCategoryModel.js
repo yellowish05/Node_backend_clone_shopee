@@ -18,6 +18,10 @@ const schema = new Schema({
   parents: [{
     type: String,
   }],
+  siblings: [{
+    type: String,
+    ref: "ProductCategory",
+  }],
   hasChildren: {
     type: Boolean,
     required: true,
