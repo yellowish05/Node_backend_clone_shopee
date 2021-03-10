@@ -202,6 +202,22 @@ module.exports = {
     .then(productIds => productIds.filter((v, i, a) => a.indexOf(v) === i))
   },
 
+  async familyCategories(categoryIds) {
+    const categories = await repository.productCategory.findByIds(categoryIds);
+    const parentIds = categories.reduce((acc, category) => acc = acc.concat([...category.siblings, category.id]), []);
+  
+    return repository.productCategory.load({ parent: {$in: parentIds } }, {})
+      .then(async children => {
+        const childIds = children.reduce((acc, child) => acc.concat([...child.siblings, child.id]), [])
+          .filter((id, i, self) => self.indexOf(id) === i);
+        if (childIds.length === 0) {
+          return parentIds;
+        } else {
+          return parentIds.concat(await this.familyCategories(childIds, repository));
+        }
+      })
+  },
+
   async composeProductFilter(filter, user = null) {
     if (user) {
       filter.blackList = user.blackList;
@@ -213,10 +229,11 @@ module.exports = {
         { _id: {$in: filter.categories }}, 
         { slug: { $in: filter.categories }}
       ] });
-      await repository.productCategory.getUnderParents(categories.map(item => item._id))
-        .then(categories => {
-          filter.categories = categories.map(item => item.id);
-        })
+      filter.categories = await this.familyCategories(categories.map(it => it.id))
+      // await repository.productCategory.getUnderParents(categories.map(item => item._id))
+      //   .then(categories => {
+      //     filter.categories = categories.map(item => item.id);
+      //   })
     }
 
     if (filter.price) {
