@@ -2,37 +2,16 @@ const path = require('path');
 const uuid = require("uuid/v4");
 const { ThemeType } = require(path.resolve('src/lib/Enums'));
 
-const applyFilter = (query, { searchQuery, type, time }) => {
+const applyFilter = (query, {  }) => {
   if (!query.$and) {
     query.$and = [{ name: {$ne: null} }];
   }
-    
-  if (searchQuery) {
-    let $or = [];
-    // query against name
-    $or.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
-    // query against hashtags
-    $orWithTags = searchQuery.split(' ')
-      .map(piece => piece.trim())
-      .filter(piece => piece)
-      .map(piece => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
-    $or = $or.concat($orWithTags);
-    query.$and.push({ $or });
-  }
-  
-  if (type) {
-    query.$and.push({ type });
-    if (type === ThemeType.LIMITED_TIME) {
-      time ? query.$and.push({ start_time: { $lte: time } }) : null;
-      time ? query.$and.push({ end_time: { $gte: time } }) : null;
-    }
-  }
+
 }
 
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: 'createdAt',
-    NAME: 'name',
   };
 
   const availableTypes = {
@@ -50,7 +29,7 @@ function transformSortInput({ feature, type }) {
 
   return { [availableFeatures[feature]]: availableTypes[type] };
 }
-class ThemeRepository {
+class IssueRepository {
   constructor(model) {
     this.model = model;
   }
@@ -70,17 +49,13 @@ class ThemeRepository {
     return this.model.find({ _id: { $in: ids } });
   }
 
-  async getByName(name) {
-    return this.model.findOne({ name });
-  }
-
-  async loadAll() {
-    return this.model.find();
+  async getAll(query = {}) {
+    return this.model.find(query);
   }
 
   async deleteById(itemId) {
     if (typeof itemId !== 'string') {
-      throw new Error(`Theme.delete expected id as String, but got "${typeof itemId}"`);
+      throw new Error(`Issue.delete expected id as String, but got "${typeof itemId}"`);
     }
 
     return this.model.deleteOne({ _id: itemId });
@@ -107,4 +82,4 @@ class ThemeRepository {
   }
 }
 
-module.exports = ThemeRepository;
+module.exports = IssueRepository;
