@@ -34,6 +34,10 @@ const schema = new Schema({
     enum: IssueStatus.toList(),
     default: IssueStatus.CREATED,
   },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = new model(collectionName, schema);
