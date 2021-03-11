@@ -129,6 +129,8 @@ function applyFilter(query, {
   if (attributes && attributes.length) {
     query.$and.push({ attrs: { $in: attributes } });
   }
+
+  query.$and.push({ status: {$nin: [ 'DRAFT' ]} })
 }
 
 function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
