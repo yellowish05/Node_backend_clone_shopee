@@ -2,11 +2,17 @@ const path = require('path');
 const uuid = require("uuid/v4");
 const { ThemeType } = require(path.resolve('src/lib/Enums'));
 
-const applyFilter = (query, {  }) => {
+const applyFilter = (query, { user, searchQuery, categories = [] }) => {
   if (!query.$and) {
-    query.$and = [{ name: {$ne: null} }];
+    query.$and = [{ isDeleted: false }];
   }
 
+  if (user) query.$and.push({ issuer: user })
+
+  if (searchQuery) {
+    query.$and.push({ message: {$regex: `${searchQuery}`, $options: 'i'} })
+  }
+  if (categories.length) query.$and.push({ category: {$in: categories} });
 }
 
 function transformSortInput({ feature, type }) {
