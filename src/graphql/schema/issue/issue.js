@@ -5,6 +5,7 @@ const { IssueStatus } = require(path.resolve('src/lib/Enums'));
 const addIssue = require('./resolvers/addIssue');
 const deleteIssue = require('./resolvers/deleteIssue')
 const updateIssue = require('./resolvers/updateIssue');
+const issues = require('./resolvers/issues');
 
 const schema = gql`
   enum IssueStatus {
@@ -19,6 +20,11 @@ const schema = gql`
     note: String
     status: IssueStatus!
   }
+  
+  type IssueCollection {
+    collection: [Issue]!
+    pager: Pager
+  }
 
   input AddIssueInput {
     email: String!
@@ -32,8 +38,23 @@ const schema = gql`
     category: String
   }
 
+  enum IssueSortFeature {
+    CREATED_AT
+  }
+
+  input IssueSortInput {
+    feature: IssueSortFeature! = CREATED_AT
+    type: SortTypeEnum! = ASC
+  }
+
+  input IssueFilterInput {
+    searchQuery: String
+    categories: [ID!]
+  }
+
   extend type Query {
-    issue(id: ID!): Issue
+    issue(id: ID!): Issue @auth(requires: USER)
+    issues(filter: IssueFilterInput = {}, sort: IssueSortInput = {}, page: PageInput = {}): IssueCollection! @auth(requires: USER)
   }
 
   extend type Mutation {
@@ -48,6 +69,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     issue: async (_, { id }, { dataSources: { repository }}) => repository.issue.getById(id),
+    issues,
   },
   Mutation: {
     addIssue,
