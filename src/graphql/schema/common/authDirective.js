@@ -21,26 +21,28 @@ module.exports.typeDefs = [schema];
 
 class AuthDirective extends SchemaDirectiveVisitor {
   visitObject(type) {
-    this.ensureFieldsWrapped(type);
     type._requiredAuthRole = this.args.requires;
+    this.ensureFieldsWrapped(type);
   }
 
   visitFieldDefinition(field, details) {
-    this.ensureFieldsWrapped(details.objectType);
     field._requiredAuthRole = this.args.requires;
+    this.ensureFieldsWrapped(details.objectType, field);
   }
 
 
   // eslint-disable-next-line class-methods-use-this
-  ensureFieldsWrapped(objectType) {
+  ensureFieldsWrapped(objectType, field = null) {
     // Mark the GraphQLObjectType object to avoid re-wrapping:
-    if (objectType._authFieldsWrapped) return;
-    objectType._authFieldsWrapped = true;
-
+    // if (objectType._authFieldsWrapped) return;
+    // objectType._authFieldsWrapped = true;
     const fields = objectType.getFields();
 
-    Object.keys(fields).forEach((fieldName) => {
+    Object.keys(fields).filter(fieldName => (field && field.name === fieldName) || (!field)).forEach((fieldName) => {
       const field = fields[fieldName];
+      const role = field._requiredAuthRole || objectType._requiredAuthRole;
+      field.description = `Allows: authorized ${role.toLowerCase()} \n\n ${field.description || ''}`;
+
       const { resolve = defaultFieldResolver } = field;
 
       field.resolve = async function (...args) {
