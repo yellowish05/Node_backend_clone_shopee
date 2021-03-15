@@ -180,8 +180,8 @@ const schema = gql`
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
-      updateUsers (data: [UpdateUserInput!]!): [User!] @auth(requires: ADMIN)
-      updateSeller (data: UpdateUserInput!): User! @auth(requires: ADMIN)
+      updateUsers (data: [UpdateUserInput!]!): [UserInfo!] @auth(requires: ADMIN)
+      updateSeller (data: UpdateUserInput!): UserInfo! @auth(requires: ADMIN)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: ADMIN)
