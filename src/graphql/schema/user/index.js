@@ -4,13 +4,18 @@ const path = require('path');
 const { GenderType } = require(path.resolve('src/lib/Enums'));
 
 const addUser = require('./resolvers/addUser');
+const addNewUser = require('./resolvers/addNewUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
 const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
+const updateUsers = require('./resolvers/updateUsers');
 const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
 const uploadBulkUsers = require('./resolvers/uploadBulkUsers');
 const requestResetPassword = require('./resolvers/requestResetPassword');
+const userList = require('./resolvers/userList');
+const deleteUser = require('./resolvers/deleteUser');
+const updateSeller = require('./resolvers/updateSeller');
 const followUser = require('./resolvers/followUser');
 const unfollowUser = require('./resolvers/unfollowUser');
 
@@ -33,7 +38,8 @@ const schema = gql`
       location: LatLng
       photo: Asset
       organization: Organization
-      roles: [String]! @auth(requires: ADMIN) 
+      roles: [String]! @auth(requires: ADMIN)
+      fee: Float
       isOnline: Boolean
       gender: GenderType
       color: Color
@@ -58,6 +64,40 @@ const schema = gql`
       photo: Asset
       color: Color
       followStats: FollowStats
+      organization: Organization
+      settings: UserSettings
+      purchase: Float
+      revenue: Float
+      fee: Float
+      roles: [String]! 
+    }
+
+    type UserCollection {
+      collection: [UserInfo]!
+      pager: Pager
+    }
+
+    enum UserSortFeature {
+      CREATED_AT
+      PRICE
+    }
+
+    input UserFilterInput {
+      searchQuery: String
+      language: [ID!]
+      currency: [ID!]
+      zipcode: [ID!]
+      country: [ID!]
+      name: String
+      useremail: String
+      userID: ID
+      phone: String
+      seller: Boolean
+    }
+
+    input UserSortInput {
+      feature: UserSortFeature! = CREATED_AT
+      type: SortTypeEnum! = ASC
     }
 
     input RegistrationInput {
@@ -82,6 +122,31 @@ const schema = gql`
       color: ColorInput
     }
 
+    input NewUserInput {
+      name: String
+      email: String!
+      password: String!
+      phone: String!
+      countryCode: String!
+      address: AddressInput
+      location: LatLngInput
+      currency: Currency
+      language: LanguageList
+      photo: ID
+    }
+
+    input UpdateUserInput {
+      id: ID!
+      name: String
+      countryCode: String
+      address: AddressInput
+      location: LatLngInput
+      currency: Currency
+      language: LanguageList
+      photo: ID
+      fee: Float
+    }
+
     input SocialLoginInput {
       provider: LoginProvider!
       token: String!
@@ -101,18 +166,27 @@ const schema = gql`
       getUserByName(name: String!): User
       """Allows: authorized user"""
       me: User! @auth(requires: USER) 
+      userList (
+        filter: UserFilterInput = {},
+        sort: UserSortInput = {},
+        page: PageInput = {}
+      ): UserCollection! @auth(requires: ADMIN)
     }
 
     extend type Mutation {
       addUser (data: RegistrationInput!): User!
+      addNewUser (data: NewUserInput!): User! @auth(requires: ADMIN)
       addUserByPhone (data: PhoneLoginInput!): User!
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
+      updateUsers (data: [UpdateUserInput!]!): [User!] @auth(requires: ADMIN)
+      updateSeller (data: UpdateUserInput!): User! @auth(requires: ADMIN)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
-      uploadBulkUsers(path: String!): [User!]! @auth(requires: USER)
+      uploadBulkUsers(path: String!): [User!]! @auth(requires: ADMIN)
       requestResetPassword(email: String, phone: String): Boolean!
+      deleteUser(id: ID!): DeleteResult! @auth(requires: ADMIN)
 
       """
         - Alllows: authorized user
@@ -151,6 +225,7 @@ module.exports.resolvers = {
     getUserByName: async (_, { name }, { dataSources: { repository } }) => {
       return repository.user.findByName(name);
     },
+    userList,
   },
   Mutation: {
     addUser,
@@ -161,6 +236,9 @@ module.exports.resolvers = {
     uploadBulkUsers,
     changeDeviceId,
     requestResetPassword,
+    updateUsers,
+    deleteUser,
+    updateSeller,
     followUser,
     unfollowUser,
   },
@@ -179,10 +257,28 @@ module.exports.resolvers = {
       average: repository.rating.getAverage(user.getTagName()),
       total: repository.rating.getTotal({ tag: user.getTagName() }),
     }),
+    fee(user) {
+      return user.fee * 100;
+    },
+  },
+  UserSettings: {
+    moneyDetails: async ({ settings }) => {
+      const amount = CurrencyFactory.getAmountOfMoney({ centsAmount: 0, currency: settings.currency });
+      return {
+        ISO: settings.currency,
+        symbol: amount.getSymbol,
+      };
+    },
+    language: async ({ settings }, _, { dataSources: { repository } }) => (
+      repository.language.getById(settings.language)
+    ),
   },
   UserInfo: {
-    photo(user, args, { dataSources: { repository } }) {
-      return repository.asset.load(user.photo);
+    photo: async (user, args, { dataSources: { repository } }) => repository.asset.load(user.photo),
+    purchase: async ({ user }) => 0,
+    revenue: async ({ user }) => 0,
+    organization(user, args, { dataSources: { repository } }) {
+      return repository.organization.getByUser(user.id);
     },
     followStats(user) { return user }
   },

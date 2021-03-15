@@ -6,6 +6,8 @@ const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { DeliveryOrderStatus } = require(path.resolve('src/lib/Enums'));
 
 const updateDeliveryOrder = require('./resolvers/updateDeliveryOrder');
+const updateDeliveryOrderForAdmin = require('./resolvers/updateDeliveryOrderForAdmin');
+
 const schema = gql`
     enum DeliveryOrderStatus {
         ${DeliveryOrderStatus.toGQL()}
@@ -35,11 +37,12 @@ const schema = gql`
     }
 
     input UpdateDeliveryOrderInput {
-      trackingNumber: String!
+      trackingNumber: String
       carrier: String!
-      estimatedDeliveryDate: Date!
+      estimatedDeliveryDate: Date
       proofPhoto: ID,
       saleOrderId: ID!
+      status: DeliveryOrderStatus
     }
 
     extend type Mutation {
@@ -47,6 +50,7 @@ const schema = gql`
           Allows: authorized user & user must be a seller
       """
       updateDeliveryOrder(ids: [ID!]!, data: UpdateDeliveryOrderInput!): [DeliveryOrder!] @auth(requires: USER)
+      updateDeliveryOrderForAdmin(id: ID!, data: UpdateDeliveryOrderInput!): DeliveryOrder! @auth(requires: ADMIN)
   }
 `;
 // 10-29
@@ -65,7 +69,8 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Mutation: {
-    updateDeliveryOrder
+    updateDeliveryOrder,
+    updateDeliveryOrderForAdmin,
   },
   DeliveryOrder: {
     deliveryPrice: async ({ deliveryPrice, currency }, args) => {
@@ -89,7 +94,7 @@ module.exports.resolvers = {
       return {
         id: carrierInfo.id,
         name: carrierInfo.name,
-      }
+      };
     }
   },
 };

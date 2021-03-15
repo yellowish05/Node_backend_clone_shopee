@@ -4,6 +4,7 @@ const { gql, withFilter } = require('apollo-server');
 const { OrientationMode, SubscriptionType } = require(path.resolve('src/lib/Enums'));
 
 const addLiveStream = require('./resolvers/addLiveStream');
+const addLiveStreamForAdmin = require('./resolvers/addLiveStreamForAdmin');
 const likeLiveStream = require('./resolvers/likeLiveStream');
 const archiveLiveStream = require('./resolvers/archiveLiveStream');
 const joinLiveStream = require('./resolvers/joinLiveStream');
@@ -16,11 +17,13 @@ const updateLiveStreamCount = require('./resolvers/updateLiveStreamCount');
 const updateLiveStreamPreviewVideo = require('./resolvers/updateLiveStreamPreviewVideo');
 const updateLiveStreamThumbnail = require('./resolvers/updateLiveStreamThumbnail');
 const addStreamRecord = require('./resolvers/addStreamRecord');
+const toggleStatusLiveStream = require('./resolvers/toggleStatusLiveStream');
 const updateStreamRecord = require('./resolvers/updateStreamRecord');
 const previousQueue = require('./resolvers/previousQueue');
 const nextQueue = require('./resolvers/nextQueue');
 const updateLiveStreamProducts = require('./resolvers/updateLiveStreamProducts');
 const updateLiveStreamSlug = require('./resolvers/updateLiveStreamSlug');
+const hideLiveStream = require('./resolvers/hideLiveStream');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -96,6 +99,17 @@ const schema = gql`
         hashtags: [String]
     }
 
+    input AdminLiveStreamInput {
+      title: String!
+      experience: ID!
+      categories: [ID]!
+      city: String
+      preview: ID
+      products: [ID] = [],
+      liveStreamRecord:[String],
+      user: ID!
+    }
+
     type LiveStreamCollection {
       collection: [LiveStream]!
       pager: Pager
@@ -168,12 +182,15 @@ const schema = gql`
       Use 'productDurations' instead.
       """
       addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
+      addLiveStreamForAdmin(data: AdminLiveStreamInput!): LiveStream! @auth(requires: ADMIN)
 
       """Allows: authorized user"""
       likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
 
       """Allows: authorized user"""
       archiveLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+      toggleStatusLiveStream(id: ID!, status: Boolean!): LiveStream!
+      hideLiveStream(id: ID!, hide: Boolean!): LiveStream! @auth(requires: ADMIN)
       
       """
       Allows: authorized user
@@ -250,6 +267,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     addLiveStream,
+    addLiveStreamForAdmin,
     likeLiveStream,
     archiveLiveStream,
     joinLiveStream,
@@ -260,6 +278,8 @@ module.exports.resolvers = {
     updateLiveStreamPreviewVideo,
     updateLiveStreamThumbnail,
     addStreamRecord,
+    toggleStatusLiveStream,
+    hideLiveStream,
     updateStreamRecord,
     updateLiveStreamProducts,
     updateLiveStreamSlug,

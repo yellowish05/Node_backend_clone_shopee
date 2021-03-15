@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const CountryLanguage = require('country-language');
+
 const languages = CountryLanguage.getLanguages();
 
 function EnumFactory(object) {
@@ -147,9 +148,9 @@ const DeliveryOrderStatus = EnumFactory({
   ACCEPTED: 'ACCEPTED',
   IN_TRANSIT: 'IN_TRANSIT',
   DELIVERED: 'DELIVERED',
-  CONFIRMED: "CONFIRMED",
-  SHIPPED: "SHIPPED",
-  CANCELED: "CANCELED",
+  CONFIRMED: 'CONFIRMED',
+  SHIPPED: 'SHIPPED',
+  CANCELED: 'CANCELED'
 });
 
 const OrderItemStatus = EnumFactory({
@@ -180,7 +181,7 @@ const PaymentMethodProviders = EnumFactory({
   LINEPAY: 'LinePay',
   PAYPAL: 'PayPal',
   UNIONPAY: 'UnionPay',
-})
+});
 
 const ProductMetricUnits = EnumFactory({
   PIECE: 'PIECE',
@@ -189,24 +190,24 @@ const ProductMetricUnits = EnumFactory({
   OUNCE: 'OUNCE',
   CASE: 'CASE',
   PALLET: 'PALLET',
-  TRUCKLOAD: 'TRUCKLOAD'
-})
+  TRUCKLOAD: 'TRUCKLOAD',
+});
 
 const VideoCropMode = EnumFactory({
   AUTO_PAD: 'AUTO_PAD',
   FILL_FRAME: 'FILL_FRAME'
-})
+});
 
 const OrientationMode = EnumFactory({
   LANDSCAPE: 'LANDSCAPE',
   PORTRAIT: 'PORTRAIT',
-})
+});
 
 const ThemeType = EnumFactory({
   NORMAL: 'NORMAL',
   LIMITED_TIME: 'LIMITED_TIME',
   DISCOUNT: 'DISCOUNT',
-})
+});
 
 const BannerAdType = EnumFactory({
   CATEGORY: "CATEGORY",
@@ -215,7 +216,7 @@ const BannerAdType = EnumFactory({
   SUGGESTION: "SUGGESTION",
   THEME: "THEME",
   THEME_PRODUCT: "THEME_PRODUCT",
-})
+});
 
 const BannerLayoutType = EnumFactory({
   CAROUSEL: "CAROUSEL",
@@ -223,20 +224,20 @@ const BannerLayoutType = EnumFactory({
   FLOATING: "FLOATING",
   ROTATING: "ROTATING",
   STATIC: "STATIC",
-})
+});
 
 const BannerType = EnumFactory({
   PNG: "PNG",
   JPG: "JPG",
   GIF: "GIF",
   MP4: "MP4",
-})
+});
 
 const GenderType = EnumFactory({
   MALE: "MALE",
   FEMALE: "FEMALE",
   OTHER: "OTHER",
-})
+});
 
 const RatingTarget = EnumFactory({
   PRODUCT: 'PRODUCT',
@@ -249,13 +250,13 @@ const SubscriptionType = EnumFactory({
   POST_UPDATED: "POST_UPDATED",
   MESSAGE_ADDED: "MESSAGE_ADDED",
   LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
-})
+});
 
 const IssueStatus = EnumFactory({
   CREATED: "CREATED",
   UNDER_REVIEW: "UNDER_REVIEW",
   SOLVED: "SOLVED",
-})
+});
 
 const languageEnum = {};
 languages.forEach((item) => {
@@ -268,6 +269,12 @@ languages.forEach((item) => {
 });
 
 const LanguageList = EnumFactory(languageEnum);
+
+const UserRoles = EnumFactory({
+  SUPERADMIN: 'SuperAdmin',
+  MANAGER: 'Manager',
+  EMPLOYEE: 'Employee',
+});
 
 module.exports = {
   StreamChannelType,
@@ -306,4 +313,5 @@ module.exports = {
   RatingTarget,
   SubscriptionType,
   IssueStatus,
+  UserRoles,
 };

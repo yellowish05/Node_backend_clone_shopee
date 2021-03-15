@@ -86,6 +86,13 @@ class ProductAttributesRepository {
       throw new Error(err);
     }
   }
+
+  async removeByProduct(id) {
+    return this.model.deleteMany({ productId: id });
+      // .then((res) => {
+      //   logger.info(`[MIGRATE] removed ${res.deletedCount} Attributes from Mongo!`);
+      // });
+  }
 }
 
 module.exports = ProductAttributesRepository;

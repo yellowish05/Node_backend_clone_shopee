@@ -325,6 +325,25 @@ class ProductRepository {
       throw new Error(err);
     }
   }
+
+  async removeProduct(id) {
+    return this.model.deleteOne({ _id: id });
+  }
+
+  async getProductsForRemove({ description, seller, sort }) {
+    const query = {};
+    query.$and = [
+      { description },
+      { seller },
+    ];
+    return this.model.find(
+      query,
+      null,
+      {
+        sort: transformSortInput(sort),
+      },
+    );
+  }
 }
 
 module.exports = ProductRepository;
