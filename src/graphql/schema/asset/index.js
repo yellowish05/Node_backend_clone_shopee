@@ -1,13 +1,17 @@
 const { gql } = require('apollo-server');
 const path = require('path');
+const { GraphQLUpload } = require('apollo-upload-server');
 
 const addAsset = require('./resolvers/addAsset');
 const addAssetUrl = require('./resolvers/addAssetUrl');
 const uploadAsset = require('./resolvers/uploadassets');
 const uploadCsv = require('./resolvers/uploadCsv');
+const uploadAssetForAdmin = require('./resolvers/uploadAssetForAdmin');
+const uploadCsvForAdmin = require('./resolvers/uploadCsvForAdmin');
 const asset = require('./resolvers/asset');
 const assets = require('./resolvers/assets');
 const assetCsvByStatus = require('./resolvers/assetCsvByStatus');
+const resizeImages = require('./resolvers/resizeImages');
 const uploadPreviewVideo = require('./resolvers/uploadPreviewVideo');
 const { aws, logs } = require(path.resolve('config'));
 const { SourceType, VideoCropMode } = require(path.resolve('src/lib/Enums'));
@@ -128,14 +132,15 @@ const schema = gql`
       uploadAsset(file:Upload!): Asset! @auth(requires: USER)
 
       uploadCsv(file:Upload!): Asset! @auth(requires: USER)
+      uploadAssetForAdmin(file:Upload!): Asset! @auth(requires: ADMIN)
+      uploadCsvForAdmin(file:Upload!): Asset! @auth(requires: ADMIN)
+      resizeImages(ids: [ID], width: Int!, height: Int): ImageResized @auth(requires: ADMIN)
 
       uploadPreviewVideo(assetId: ID!, file:File64Input!, cropMode: VideoCropMode!): Asset! @auth(requires: USER)
     }
 `;
 
 module.exports.typeDefs = [schema];
-
-const { GraphQLUpload } = require('apollo-upload-server');
 
 module.exports.resolvers = {
   Upload: GraphQLUpload,
@@ -146,12 +151,15 @@ module.exports.resolvers = {
   },
   Mutation: {
     addAsset,
-    giveSignedUrl: async () => {
-      return { key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket }
-    },
+    giveSignedUrl: async () => ({
+      key: aws.aws_api_key, secret: aws.aws_access_key, region: logs.awsRegion, bucket: aws.user_bucket,
+    }),
     uploadAsset,
     uploadCsv,
+    uploadAssetForAdmin,
+    uploadCsvForAdmin,
     addAssetUrl,
+    resizeImages,
     uploadPreviewVideo
   },
 };

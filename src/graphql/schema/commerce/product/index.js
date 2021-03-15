@@ -8,6 +8,9 @@ const { ProductMetricUnits } = require(path.resolve('src/lib/Enums'));
 const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
+const removeDuplicatedProduct = require('./resolvers/removeDuplicatedProduct');
+const updateProductForAdmin = require('./resolvers/updateProductForAdmin');
+const deleteProductForAdmin = require('./resolvers/deleteProductForAdmin');
 const setProductThumbnail = require('./resolvers/setProductThumbnail');
 const products = require('./resolvers/products');
 const uploadBulkProducts = require('./resolvers/uploadBulkProducts');
@@ -197,6 +200,12 @@ const schema = gql`
       type: SortTypeEnum! = ASC
     }
 
+    type removedProducts {
+      success: Boolean!
+      removed: [ID!]
+      reason: String
+    }
+
     extend type Query {
         products(
             filter: ProductFilterInput = {},
@@ -276,6 +285,7 @@ const schema = gql`
             Allows: authorized user & user must be a seller of this product
         """
         updateProduct(id: ID!, data: ProductInput!): Product! @auth(requires: USER)
+        updateProductForAdmin(id: ID!, data: ProductInput!): Product! @auth(requires: ADMIN)
         """
             Allows: authorized user & user must be a seller of this product
         """
@@ -286,6 +296,9 @@ const schema = gql`
         addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
         deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
+        deleteProductForAdmin(id: ID!): Boolean @auth(requires: ADMIN)
+        removeDuplicatedProduct(id: ID!): removedProducts @auth(requires: ADMIN)
+
         setProductThumbnail(id: ID!, assetId: ID!): Boolean!
         uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
         uploadBulkProductHashtags(file: Upload!): UploadedProducts!
@@ -309,6 +322,9 @@ module.exports.resolvers = {
     addProduct,
     updateProduct,
     deleteProduct,
+    removeDuplicatedProduct,
+    updateProductForAdmin,
+    deleteProductForAdmin,
     setProductThumbnail,
     uploadBulkProducts,
     addProductAttr,
@@ -412,9 +428,7 @@ module.exports.resolvers = {
       }
       return amountOfMoney;
     },
-    quantity: async ({ quantity }) => {
-      return typeof quantity === 'number' ? Math.floor(quantity) : 0;
-    },
+    quantity: async ({ quantity }) => (typeof quantity === 'number' ? Math.floor(quantity) : 0),
   },
   ProductMetricItem: {
     unitPrice: async ({ unitPrice }, args, { dataSources: {repository} }) => {

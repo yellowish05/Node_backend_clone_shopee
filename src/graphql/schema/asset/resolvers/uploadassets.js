@@ -1,7 +1,6 @@
 const uuid = require('uuid/v4');
 const path = require('path');
 const { Validator } = require('node-input-validator');
-const { ApolloError } = require('apollo-server');
 const AWS = require('aws-sdk');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));

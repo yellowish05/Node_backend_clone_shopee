@@ -23,6 +23,11 @@ var multiparty = require('connect-multiparty');
 
 const multipartymiddleware = multiparty();
 
+const async = require('async');
+
+const { translate } = require(path.resolve('src/lib/TranslateService'));
+const { LanguageList } = require(path.resolve('src/lib/Enums'));
+
 const fs = require('fs');
 
 const morgan = require('morgan');
@@ -42,6 +47,35 @@ app.use(express.urlencoded({ limit: '50000mb', extended: true }));
 
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
+});
+
+app.get('/translate', async (req, res) => {
+  const products = await repository.product.getAll();
+  const languageList = LanguageList.toList();
+
+  const title = {};
+  const description = {};
+  let index = 0;
+  await async.eachLimit(products, 2, async (product, cb) => {
+    index++;
+    const translatedProduct = await repository.productTranslation.getByProduct(product.id);
+
+    if (!translatedProduct) {
+      await Promise.all(languageList.map(async (language) => {
+        const tt = await translate(language.toLowerCase(), product.title);
+        const dd = await translate(language.toLowerCase(), product.description);
+
+        title[language.toLowerCase()] = tt || product.title;
+        description[language.toLowerCase()] = dd || product.description;
+      }));
+
+      await repository.productTranslation.addNewProduct({ product: product.id, title, description });
+    }
+    // eslint-disable-next-line no-unused-expressions
+    console.log('Traslated Products: ', index);
+    cb && cb(null);
+  });
+  res.json({ success: true });
 });
 
 app.use('/webhooks', webhookRouters);

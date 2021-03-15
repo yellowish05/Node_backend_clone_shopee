@@ -41,6 +41,18 @@ const schema = gql`
       failedList: FailedProductCategories!
     }
 
+    type ResizeImageError {
+      ids: [ID]
+      errors: [String]
+    }
+
+    type ImageResized {
+      total: Int
+      success: Int
+      failed: Int
+      failedList: ResizeImageError
+    }
+
     extend type Query {
         searchProductCategory(query: String!, page: PageInput = {}, hasProduct: Boolean = true): ProductCategoryCollection!
         productCategories(parent: ID, hasProduct: Boolean = true): [ProductCategory]!
