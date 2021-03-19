@@ -276,6 +276,13 @@ const UserRoles = EnumFactory({
   EMPLOYEE: 'Employee',
 });
 
+const IssueUrgency = EnumFactory({
+  LOW: "Low",
+  MEDIUM: "NORMAL",
+  HIGH: "HIGH",
+  CRITICAL: "CRITICAL",
+});
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -314,4 +321,5 @@ module.exports = {
   SubscriptionType,
   IssueStatus,
   UserRoles,
+  IssueUrgency,
 };

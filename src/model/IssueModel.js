@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
-const { IssueStatus } = require('../lib/Enums');
+const { IssueStatus, IssueUrgency } = require('../lib/Enums');
 
 const collectionName = 'Issue';
 
@@ -12,13 +12,25 @@ const schema = new Schema({
   ...createdAtField,
   issuer: {
     type: String,
+  },
+  name: {
+    type: String,
     required: true,
-    index: true,
+  },
+  phone: {
+    type: String,
+    required: true,
   },
   email: {
     type: String,
     required: true,
     index: true,
+  },
+  urgency: {
+    type: String,
+    enum: IssueUrgency.toList(),
+    required: true,
+    default: IssueUrgency.NORMAL,
   },
   message: {
     type: String,
@@ -28,6 +40,10 @@ const schema = new Schema({
     type: String,
     ref: "IssueCategory",
   },
+  attachments: [{
+    type: String,
+    ref: 'Asset'
+  }],
   note: String,
   status: {
     type: String,

@@ -20,9 +20,10 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user}) =
       .then(([issueById, category]) => {
         if (!issueById) {
           pv.error('id', 'custom', `Issue with id "${pv.inputs.id}" does not exist!`);
-        } else if (issueById.issuer !== user.id) {
-          pv.error('permission', 'custom', 'You have no update permission!');
-        }
+        } 
+        // else if (issueById.issuer !== user.id) {
+        //   pv.error('permission', 'custom', 'You have no update permission!');
+        // }
         if (pv.inputs.category && !category) {
           pv.error('category', 'custom', `Category with id "${pv.inputs.id}" does not exist!`)
         }
@@ -35,7 +36,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user}) =
       return repository.issue.getById(id);
     })
     .then((issue) => {
-      const keysToUpdate = ['email', 'message', 'category'];
+      const keysToUpdate = ['name', 'phone', 'email', 'urgency', 'message', 'category', 'attachments'];
       keysToUpdate.forEach(key => {
         if (data[key] !== undefined) issue[key] = data[key];
       })
