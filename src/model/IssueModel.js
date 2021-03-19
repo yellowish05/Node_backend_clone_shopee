@@ -23,13 +23,12 @@ const schema = new Schema({
   },
   email: {
     type: String,
-    required: true,
-    index: true,
   },
   urgency: {
     type: String,
     enum: IssueUrgency.toList(),
     required: true,
+    index: true,
     default: IssueUrgency.NORMAL,
   },
   message: {
