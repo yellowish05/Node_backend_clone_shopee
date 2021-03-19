@@ -1,6 +1,6 @@
 const path = require('path');
 const { gql } = require('apollo-server');
-const { IssueStatus } = require(path.resolve('src/lib/Enums'));
+const { IssueStatus, IssueUrgency } = require(path.resolve('src/lib/Enums'));
 
 const addIssue = require('./resolvers/addIssue');
 const deleteIssue = require('./resolvers/deleteIssue')
@@ -11,13 +11,21 @@ const schema = gql`
   enum IssueStatus {
     ${IssueStatus.toGQL()}
   }
+  enum IssueUrgency {
+    ${IssueUrgency.toGQL()}
+  }
 
   type Issue {
-    issuer: User!
-    email: String!
-    message: String!
+    id: ID!
+    # issuer: User
+    name: String!
+    phone: String!
+    email: String
+    urgency: IssueUrgency!
     category: IssueCategory!
-    note: String
+    message: String!
+    attachments: [Asset]!
+    note: String @auth(requires: ADMIN)
     status: IssueStatus!
   }
   
@@ -27,15 +35,23 @@ const schema = gql`
   }
 
   input AddIssueInput {
-    email: String!
-    message: String!
+    name: String!
+    phone: String!
+    email: String
+    urgency: IssueUrgency!
     category: String!
+    message: String!
+    attachments: [ID!]
   }
 
   input updateIssueInput {
+    name: String
+    phone: String
     email: String
-    message: String
+    urgency: IssueUrgency
     category: String
+    message: String
+    attachments: [ID!]
   }
 
   enum IssueSortFeature {
@@ -58,8 +74,8 @@ const schema = gql`
   }
 
   extend type Mutation {
-    addIssue(data: AddIssueInput!): Issue! @auth(requires: USER)
-    updateIssue(id: ID!, data: updateIssueInput!): Issue! @auth(requires: USER)
+    addIssue(data: AddIssueInput!): Issue!
+    updateIssue(id: ID!, data: updateIssueInput!): Issue!
     deleteIssue(id: ID!): Boolean @auth(requires: USER)
   }
 `;
@@ -80,8 +96,8 @@ module.exports.resolvers = {
     category: async ({ category }, _, { dataSources: { repository } }) => {
       return repository.issueCategory.getById(category);
     },
-    issuer: async ({ issuer }, _, { dataSources: { repository } }) => {
-      return repository.user.getById(issuer);
-    },
+    // issuer: async ({ issuer }, _, { dataSources: { repository } }) => {
+    //   return repository.user.getById(issuer);
+    // },
   }
 }
