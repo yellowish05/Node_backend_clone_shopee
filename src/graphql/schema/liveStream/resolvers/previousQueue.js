@@ -52,6 +52,7 @@ module.exports = async (_, args, { dataSources: { repository } }) => {
 
       if (!record) {
         liveStream = await repository.liveStream.getNextStream(args.liveStream); // sort type: DESC now.
+        if (!liveStream) return { liveStream: null, record: null };
         record = selectRecordSourceInLiveStream(liveStream, null, repository);
       }
       return { record, liveStream};
