@@ -52,6 +52,10 @@ const schema = gql`
       nFollowing: Int!
       followers(skip: Int = 0, limit: Int = 10): [User]
       nFollowers: Int!
+      """Shows whether I'm following current user or not. """
+      isFollowing: Boolean
+      """Shows whether I'm followed by current user or not. """
+      isFollowed: Boolean
     }
 
     type UserInfo {
@@ -296,5 +300,11 @@ module.exports.resolvers = {
     nFollowers(user, _, { dataSources: { repository}}) {
       return repository.user.countAll({ following: user.getTagName() });
     },
-  }
+    isFollowing(target, _, { dataSources: { repository }, user: me }) {
+      return me && target.id !== me.id && me.following.includes(target.getTagName());
+    },
+    isFollowed(target, _, { dataSources: { repository}, user: me }) {
+      return me && target.id !== me.id && target.following.includes(me.getTagName());
+    },
+  },
 };
