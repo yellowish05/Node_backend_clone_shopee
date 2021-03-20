@@ -1,3 +1,6 @@
+const { StreamChannelStatus } = require('../lib/Enums');
+const publicStatuses = [ StreamChannelStatus.STREAMING, StreamChannelStatus.FINISHED, StreamChannelStatus.PENDING ];
+
 function transformSortInput({ feature, type }) {
   const availableFeatures = {
     CREATED_AT: "createdAt",
@@ -261,9 +264,8 @@ class LiveStreamRepository {
       .then(async (currentStream) => {
         const prevStreams = await this.model.find(
           { 
-            createdAt: {
-              $lt: currentStream.createdAt
-            }
+            status: {$in: publicStatuses},
+            createdAt: { $lt: currentStream.createdAt }
           },
           null,
           {
@@ -271,7 +273,10 @@ class LiveStreamRepository {
             limit: 1
           }
         );
-        return prevStreams[0];
+        if (prevStreams.length) return prevStreams[0];
+        return this.model.findOne({status: {$in: publicStatuses}}, 
+          null, 
+          { sort: { createdAt: -1 } });
       });
   }
 
@@ -280,9 +285,8 @@ class LiveStreamRepository {
       .then(async (currentStream) => {
         const nextStreams = await this.model.find(
           { 
-            createdAt: {
-              $gt: currentStream.createdAt
-            }
+            status: {$in: publicStatuses},
+            createdAt: { $gt: currentStream.createdAt }
           },
           null,
           {
@@ -290,7 +294,8 @@ class LiveStreamRepository {
             limit: 1
           }
         );
-        return nextStreams[0];
+        if (nextStreams.length) return nextStreams[0];
+        return this.model.findOne({status: {$in: publicStatuses}}, null, { sort: { createdAt: 1 } });
       });
   }
 }
