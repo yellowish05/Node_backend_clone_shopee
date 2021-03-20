@@ -25,7 +25,7 @@ module.exports = async (_, { id }, { dataSources: { repository }, user}) => {
       if (!user.following.includes(tag)) user.following.push(tag);
       return user.save();
     })
-    .then(me => me)
+    .then(me => userToFollow)
     .catch((error) => {
       throw new ApolloError(`Failed to follow the user. Original error: ${error.message}`, 400);
     })
