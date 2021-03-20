@@ -13,9 +13,9 @@ module.exports = async (_, { id }, { dataSources: { repository }, user}) => {
   validator.addPostRule(provider => repository.user.getById(id)
     .then(userById => {
       if (!userById) provider.error('id', 'custom', `User with id "${id}" does not exist!`);
-      else if (!user.following.includes(userById.getTagName())) {
-        provider.error('id', 'custom', "You doesn't follow this user now!");
-      }
+      // else if (!user.following.includes(userById.getTagName())) {
+      //   provider.error('id', 'custom', "You don't follow this user now!");
+      // }
       userToUnfollow = userById;
     }));
   
@@ -25,10 +25,10 @@ module.exports = async (_, { id }, { dataSources: { repository }, user}) => {
     })
     .then(() => {
       const tag = userToUnfollow.getTagName();
-      user.following.splice(user.following.indexOf(tag), 1);
+      if (user.following.includes(tag)) user.following.splice(user.following.indexOf(tag), 1);
       return user.save();
     })
-    .then(me => me)
+    .then(me => userToUnfollow)
     .catch((error) => {
       throw new ApolloError(`Failed to unfollow the user. Original error: ${error.message}`, 400);
     })
