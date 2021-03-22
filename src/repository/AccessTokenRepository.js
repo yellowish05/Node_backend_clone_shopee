@@ -20,6 +20,7 @@ class AccessTokenRepository {
   }
 
   async create(user, data = {}) {
+    const defaultExpiration = '999 years';
     return this.findByUserId(user._id)
       .then((token) => {
         if (token) {
@@ -39,7 +40,7 @@ class AccessTokenRepository {
             .then(() => jsonwebtoken.sign({
               id: token._id,
               user_id: user._id,
-            }, token.secret, { expiresIn: data.expiresIn || '1w' }));
+            }, token.secret, { expiresIn: data.expiresIn || defaultExpiration }));
 
         } else {
           const newToken = new this.model({
@@ -57,7 +58,7 @@ class AccessTokenRepository {
             .then(() => jsonwebtoken.sign({
               id: newToken._id,
               user_id: user._id,
-            }, newToken.secret, { expiresIn: data.expiresIn || '1w' }));
+            }, newToken.secret, { expiresIn: data.expiresIn || defaultExpiration }));
         }
       });
   }
