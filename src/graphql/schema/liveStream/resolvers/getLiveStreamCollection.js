@@ -15,7 +15,7 @@ module.exports = async (_, { filter, page, sort }, { user, dataSources: { reposi
   if (filter.productFilter && Object.keys(filter.productFilter).length) {
     const productFilter = await ProductService.composeProductFilter(filter.productFilter, user);
     const products = await repository.product.get({ filter: productFilter, page: {}, sort: { feature: "CREATED_AT", type: "DESC" } });
-    filter.products = products.map(product => product._id); console.log('[products]', filter.products.length)
+    filter.products = products.map(product => product._id);
   }
 
   return Promise.all([
