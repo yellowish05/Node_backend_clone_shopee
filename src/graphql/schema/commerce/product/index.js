@@ -150,6 +150,7 @@ const schema = gql`
         isFeatured: Boolean
         hasLivestream: Boolean = false
         variations: [VariationInput]
+        ids: [ID!]
     }
 
     input ProductAttributeInput {
