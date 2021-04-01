@@ -198,6 +198,11 @@ module.exports = {
     apiKey: process.env.NEXMO_API_KEY,
     apiSecret: process.env.NEXMO_API_SECRET
   },
+  xRapidAPIConfig: {
+    apiKey: process.env.X_RAPIDAPI_KEY,
+    host: process.env.X_RAPIDAPI_HOST,
+    url: process.env.X_RAPIDAPI_TRANSLATE_URL,
+  },
   query: {
     getProduct: `query getProduct($ID: ID!){
       product (
