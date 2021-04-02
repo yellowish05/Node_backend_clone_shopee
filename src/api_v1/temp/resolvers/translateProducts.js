@@ -36,11 +36,12 @@ const activity = {
 }
 
 module.exports = async (products) => {
+  console.log('[Translation][Products][Count]', products.length);
   const batch = 2;
   const iterN = Math.ceil(products.length / batch);
   for (let i = 0; i < iterN; i ++) {
-    logger.info(`[Translate] [${i * batch}-${(i + 1) * batch}] Start`);
     await activity.processBatch(products.slice(i * batch, (i + 1) * batch), repository);
     logger.info(`[Translate] [${i * batch}-${(i + 1) * batch}] Done`);
   }
+  console.log(`[Translation] ${products.length} products finished!`);
 }
