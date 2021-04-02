@@ -24,6 +24,7 @@ const nextQueue = require('./resolvers/nextQueue');
 const updateLiveStreamProducts = require('./resolvers/updateLiveStreamProducts');
 const updateLiveStreamSlug = require('./resolvers/updateLiveStreamSlug');
 const hideLiveStream = require('./resolvers/hideLiveStream');
+const liveStreamLiked = require('./resolvers/liveStreamLiked');
 
 const pubsub = require(path.resolve('config/pubsub'));
 
@@ -162,6 +163,12 @@ const schema = gql`
       liveStream: LiveStream
     }
 
+    type LikeStreamNotification {
+      liveStream: LiveStream!
+      user: User!
+      isLiked: Boolean
+    }
+
     extend type Query {
         liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
         liveStream(id: ID): LiveStream
@@ -231,6 +238,7 @@ const schema = gql`
     extend type Subscription {
       """Allows: authorized user"""
       liveStream(id: ID!): LiveStream @auth(requires: USER)
+      liveStreamLiked(ids: [ID]): LikeStreamNotification @auth(requires: USER)
     }
 `;
 
@@ -292,6 +300,7 @@ module.exports.resolvers = {
         (payload, variables) => payload.id === variables.id,
       ),
     },
+    liveStreamLiked,
   },
   LiveStream: {
     experience(liveStream, args, { dataSources: { repository } }) {

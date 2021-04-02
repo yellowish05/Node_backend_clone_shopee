@@ -27,5 +27,15 @@ module.exports = {
         }
       })
   },
+  googletrans(text, dest) {
+    return instance.post('/api/googletrans', { text, dest })
+      .then(({ status, data }) => {
+        if (!data.status) {
+          throw Error(data.message);
+        } else {
+          return data.data;
+        }
+      })
+  },
 }
 

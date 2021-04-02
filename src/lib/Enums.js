@@ -250,6 +250,7 @@ const SubscriptionType = EnumFactory({
   POST_UPDATED: "POST_UPDATED",
   MESSAGE_ADDED: "MESSAGE_ADDED",
   LIVE_STREAM_CHANGE: "LIVE_STREAM_CHANGE",
+  LIVE_STREAM_LIKED: 'LIVE_STREAM_LIKED',
 });
 
 const IssueStatus = EnumFactory({

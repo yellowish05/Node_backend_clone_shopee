@@ -32,6 +32,7 @@ const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const translateProducts = require('./resolvers/translateProducts');
 
 
 // const DETECT_LANG_KEY = "aa2719f224cb4eff10710a7dce3c0dd8";
@@ -568,5 +569,42 @@ tempRouter.route('/update-product-hashtags').post(async (req, res) => {
     .then(data => res.json(data))
     .catch(error => res.json({ status: false, message: error.message }));
 })
+
+tempRouter.route('/trans/google').post(async (req, res) => {
+  const { text, dest } = req.body;
+  return PythonService.googletrans(text, dest)
+    .then((resp) => res.json(resp))
+});
+
+tempRouter.route('/translat-from-csv').post(async (req, res) => {
+  const form = new formidable.IncomingForm();
+  // path.join(os.tmpdir(), tmpFileName)
+  form.uploadDir = os.tmpdir();
+  form.keepExtensions = true;
+
+  form.parse(req, async function(err, fields, files) {
+    // res.writeHead(200, { 'content-type': 'text/plain' });
+    // res.write('received upload: \n\n');
+
+    console.log('form.bytesReceived');
+    //TESTING
+    console.log("file size: "+JSON.stringify(files.file.size));
+    console.log("file path: "+JSON.stringify(files.file.path));
+    console.log("file name: "+JSON.stringify(files.file.name));
+    console.log("file type: "+JSON.stringify(files.file.type));
+
+    fs.rename(files.file.path, path.join(os.tmpdir(), files.file.name), async function(err) {
+      if (err) throw err;
+      console.log('renamed complete');
+
+      const fileStream = fs.createReadStream(path.join(os.tmpdir(), files.file.name));
+      const csvContent = await parseCSVContent(fileStream);
+      
+      await translateProducts(csvContent);
+
+      return res.json(csvContent);
+    });
+  })
+});
 
 module.exports = tempRouter;
