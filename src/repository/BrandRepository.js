@@ -4,6 +4,15 @@ function getSearchQueryByName(query) {
   return query ? { name: { $regex: `${query}`, $options: 'i' } } : {};
 }
 
+function applyFilter(query, {
+  searchQuery, hasProduct, hasImage,
+}) {
+  if (!query.$and) query.$and = [{ name: { $exists: true } }];
+  if (searchQuery) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
+  if (hasProduct) query.$and.push({ nProducts: { $gt: 0 } });
+  if (hasImage) query.$and.push({ "images.0": { $exists: true } });
+}
+
 class BrandRepository {
   constructor(model) {
     this.model = model;
@@ -19,6 +28,30 @@ class BrandRepository {
 
   async getByIds(ids) {
     return this.model.findOne({ _id: ids });
+  }  
+  
+  async get({ filter, page }) {
+    let query = {};
+    applyFilter(query, filter);
+    // if page.limit is not set, get all without limit.
+    const pager = {};
+    if (page && page.limit) {
+      pager.limit = page.limit;
+      pager.skip = page.skip || 0;
+    }
+    return this.model.find(
+      query,
+      null,
+      {
+        ...pager
+      },
+    );
+  }
+
+  async getTotal(filter) {
+    let query = {};
+    applyFilter(query, filter);
+    return this.model.countDocuments(query);
   }
 
   async searchByName(query, { skip, limit }) {
