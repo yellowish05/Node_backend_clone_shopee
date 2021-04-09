@@ -3,6 +3,7 @@ const uuid = require('uuid/v4');
 
 const updateBrand = require('./resolvers/updateBrand');
 const allBrands = require('./resolvers/allBrands');
+const searchBrand = require('./resolvers/searchBrand');
 
 const schema = gql`
     type Brand {
@@ -33,8 +34,14 @@ const schema = gql`
         pager: Pager
     }
 
+    input BrandFilterInput {
+      searchQuery: String
+      hasProduct: Boolean = true
+      hasImage: Boolean
+    }
+
     extend type Query {
-        searchBrand(query: String, page: PageInput = {}, hasProduct: Boolean = true): BrandCollection!
+        searchBrand(filter: BrandFilterInput = {}, page: PageInput = {}, hasProduct: Boolean = true, query: String): BrandCollection!
         allBrands(hasProduct: Boolean = true, hasLiveStream: Boolean): [Brand]!
         brand(id: ID!): Brand
     }
@@ -49,29 +56,30 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
   Query: {
-    searchBrand: async (_, { query, page, hasProduct }, { dataSources: { repository } }) => {
-      const result = {
-        collection: [],
-        pager: {
-          ...page,
-          total: 0,
-        },
-      };
+    searchBrand,
+    // searchBrand: async (_, { query, page, hasProduct }, { dataSources: { repository } }) => {
+    //   const result = {
+    //     collection: [],
+    //     pager: {
+    //       ...page,
+    //       total: 0,
+    //     },
+    //   };
 
-      // if (query.length < 1) {
-      //   return result;
-      // }
+    //   // if (query.length < 1) {
+    //   //   return result;
+    //   // }
 
-      return Promise.all([
-        repository.brand.searchByName(query, page, hasProduct),
-        repository.brand.getCountBySearch(query, hasProduct),
-      ])
-        .then(([collection, total]) => {
-          result.collection = collection || [];
-          result.pager.total = total;
-          return result;
-        });
-    },
+    //   return Promise.all([
+    //     repository.brand.searchByName(query, page, hasProduct),
+    //     repository.brand.getCountBySearch(query, hasProduct),
+    //   ])
+    //     .then(([collection, total]) => {
+    //       result.collection = collection || [];
+    //       result.pager.total = total;
+    //       return result;
+    //     });
+    // },
     allBrands,
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
