@@ -54,8 +54,9 @@ const activity = {
       const length = 10;
       const assets = Array.from(new Array(length), (x,i) => i).map((x, i) => ({
         image: csvRow[`asset_url${i === 0 ? "" : i}`] || null,
+        image4Mobile: csvRow[`mobile_asset_url${i === 0 ? "" : i}`] || null,
         link: csvRow[`redirection_link${i === 0 ? "" : i}`] || null,
-      })).filter(item => item.image); 
+      })).filter(item => item.image);
       return assets;
     }();
     return banner;
