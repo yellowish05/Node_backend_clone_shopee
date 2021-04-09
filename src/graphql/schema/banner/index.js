@@ -40,11 +40,13 @@ const schema = gql`
 
     type BannerAsset {
       image: String!
+      image4Mobile: String
       link: String
     }
 
     input BannerAssetInput {
       image: String!
+      image4Mobile: String
       link: String
     }
 
@@ -143,9 +145,9 @@ const schema = gql`
     }
 
     extend type Mutation {
-      addBanner (data: BannerInput!): Banner! @auth(requires: USER)
-      updateBanner(id: ID!, data: BannerUpdateInput!): Banner! @auth(requires: USER)
-      uploadBulkBanners(file: Upload!): UploadedBanners @auth(requires: USER)
+      addBanner (data: BannerInput!): Banner! @auth(requires: ADMIN)
+      updateBanner(id: ID!, data: BannerUpdateInput!): Banner! @auth(requires: ADMIN)
+      uploadBulkBanners(file: Upload!): UploadedBanners @auth(requires: ADMIN)
     }
 `;
 

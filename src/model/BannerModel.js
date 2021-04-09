@@ -11,6 +11,9 @@ const BannerAsset = new Schema({
     type: String,
     required: true,
   },
+  image4Mobile: {
+    type: String,
+  },
   link: {
     type: String,
   },
