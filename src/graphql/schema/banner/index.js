@@ -40,11 +40,13 @@ const schema = gql`
 
     type BannerAsset {
       image: String!
+      image4Mobile: String
       link: String
     }
 
     input BannerAssetInput {
       image: String!
+      image4Mobile: String
       link: String
     }
 
