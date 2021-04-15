@@ -9,6 +9,7 @@ const checkoutCart = require('./resolvers/checkoutCart');
 const checkoutOneProduct = require('./resolvers/checkoutOneProduct');
 const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
 const purchaseOrders = require('./resolvers/purchaseOrders');
+const getBrainTreeToken = require('./resolvers/getBrainTreeToken');
 const invoiceService = require('../../../../bundles/invoice');
 
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
@@ -92,7 +93,14 @@ const schema = gql`
           - Allows: authorized user
           - param.redirection: requires only for PayPal
         """
-        checkoutCart(currency: Currency!, provider: PaymentMethodProviders!, redirection: RedirectionInput): PurchaseOrder! @auth(requires: USER)
+        checkoutCart(
+          currency: Currency!, 
+          provider: PaymentMethodProviders!,
+          """Required only for PayPal & UnionPay"""
+          redirection: RedirectionInput, 
+          """Required only for Braintree"""
+          paymentMethodNonce: String
+        ): PurchaseOrder! @auth(requires: USER)
 
         """
           - Allows: authorized user
@@ -107,6 +115,8 @@ const schema = gql`
           provider: PaymentMethodProviders!,
           billingAddress: ID!,
           redirection: RedirectionInput
+          """Required for Braintree only"""
+          paymentMethodNonce: String
         ): PurchaseOrder! @auth(requires: USER)
 
         """Allows: authorized user"""
@@ -120,6 +130,7 @@ const schema = gql`
         Pass ID of the Order you want to pay
         """
         payPurchaseOrder(id: ID!, paymentMethod: ID): PaymentTransactionInterface! @auth(requires: USER)
+        getBrainTreeToken: String! @auth(requires: USER)
     }
 
     
@@ -155,6 +166,7 @@ module.exports.resolvers = {
     checkoutOneProduct,
     payPurchaseOrder,
     LinePayConfirm,
+    getBrainTreeToken,
   },
   PurchaseOrder: {
     items: async (order, _, { dataSources: { repository } }) => (

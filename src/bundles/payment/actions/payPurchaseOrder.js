@@ -15,6 +15,7 @@ const stripeProvider = PaymentMethodProviders.STRIPE;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
 const paypalProvider = PaymentMethodProviders.PAYPAL;
 const linepayProvider = PaymentMethodProviders.LINEPAY;
+const braintreeProvider = PaymentMethodProviders.BRAINTREE;
 
 function paymentTransactionFactory(order) {
   return {
@@ -59,7 +60,7 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   ]).then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({ order, provider, redirection }) => {
+module.exports = ({ getProvider, availableProviders }) => async ({ order, provider, redirection, paymentMethodNonce }) => {
   // if (!paymentMethod) {
   //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
   // }
@@ -209,6 +210,22 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
+    } else if (provider == PaymentMethodProviders.BRAINTREE) {
+      console.log('[provider]', PaymentMethodProviders.BRAINTREE, braintreeProvider)
+      return getProvider(braintreeProvider)
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer, paymentMethodNonce)
+        .then(async (response) => {
+          if (response.error) return response;
+          else {
+            transaction.providerTransactionId = response.id;
+            transaction.responsePayload = response;
+            await transaction.save();
+            return {
+              publishableKey: "",
+              paymentClientSecret: "",
+            };
+          }
+        })
     } else {
       return { error: provider };
       // await getProvider(method.provider).payTransaction(transaction);
