@@ -167,6 +167,12 @@ module.exports = {
         password: process.env.PAYMENT_UNIONPAY_PRIVATE_PASSWORD,
         merchantId: process.env.PAYMENT_UNIONPAY_MERCHANT_ID,
       },
+      braintree: {
+        environment: process.env.BRAINTREE_ENVIRONMENT,
+        merchantId: process.env.BRAINTREE_MERCHANT_ID,
+        publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+        privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+      },
     },
   },
   shipengine: {
