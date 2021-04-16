@@ -113,7 +113,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           })
         );
       } else {
-        sources.push(await getlivestreamsource(user,"http://18.185.121.9:5000/" + channelId + "-record.mp4",repository)); 
+        sources.push(await getlivestreamsource(user,"https://recording.shoclef.com/" + channelId + "-record.mp4",repository)); 
       }
 
       finisheddate = new Date();
