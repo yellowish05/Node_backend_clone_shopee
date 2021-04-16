@@ -256,7 +256,7 @@ module.exports.resolvers = {
     liveStreamAddress(_, { id }, { dataSources: { repository } }) {
       return {
         wsurl:'ws://18.185.121.9:8188',
-        fileurl:'http://18.185.121.9:5000',
+        fileurl:'https://recording.shoclef.com',
         abs_url:'/opt/janus/share/janus/recordings'
       };
     },
