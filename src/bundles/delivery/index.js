@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 const providers = {
-  ShipEngine: require('./providers/ShipEngine'),
+  ShipEngineService: require('./providers/ShipEngineService'),
   EasyPost: require('./providers/EasyPost'),
 };
 

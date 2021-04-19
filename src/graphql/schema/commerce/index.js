@@ -17,7 +17,6 @@ const { typeDefs: deliveryCalcTypeDefs, resolvers: deliveryCalcResolvers } = req
 const { typeDefs: payoutOrderTypeDefs, resolvers: payoutOrderResolvers } = require('./payoutOrder');
 const { typeDefs: orderItemTypeDefs, resolvers: orderItemResolvers } = require('./orderItem');
 
-
 const typeDefs = [].concat(
   brandTypeDefs,
   brandCategoryTypeDefs,

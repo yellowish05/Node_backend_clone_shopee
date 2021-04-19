@@ -257,6 +257,16 @@ class LiveStreamRepository {
     return this.model.countDocuments(elasticFilter(filter));
   }
 
+  async updateStatus(id, status) {
+    const liveStream = await this.load(id);
+    if (!liveStream) {
+      throw Error(`Live Stream "${id}" does not exist!`);
+    }
+
+    liveStream.status = status;
+    return liveStream.save();
+  }
+
   async getPreviousStream(id) {
     return this.load(id)
       .then(async (currentStream) => {

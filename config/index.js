@@ -128,6 +128,20 @@ module.exports = {
     from: 'Xiufu <Onboard@xiufu.com>',
     fromOther: 'Xiufu <Info@xiufu.com>',
   },
+  shoclefCompany: {
+    seller: {
+      name: 'Shoclef Inc',
+      phone: '+15107178878',
+    },
+    address: {
+      street_1: '1245 N Ogden Dr',
+      street_2: '',
+      country: 'US',
+      zipCode: '90046',
+      city: 'West Hollywood',
+      state: 'CA',
+    },
+  },
   payment: {
     testMode: isTestPaymentMode,
     providers: {
@@ -208,6 +222,9 @@ module.exports = {
     apiKey: process.env.X_RAPIDAPI_KEY,
     host: process.env.X_RAPIDAPI_HOST,
     url: process.env.X_RAPIDAPI_TRANSLATE_URL,
+  },  
+  internal: {
+    translation: process.env.INTERNAL_PYTHON_TRANSLATION,
   },
   query: {
     getProduct: `query getProduct($ID: ID!){

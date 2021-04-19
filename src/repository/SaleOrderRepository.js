@@ -39,7 +39,12 @@ class SaleOrderRepository {
 
   async find({ user }) {
     return this.model.find({ seller: user.id });
+  }  
+  
+  async delete(id) {
+    return this.model.remove({ _id: id });
   }
+
 
   async create(data) {
     const document = new this.model({

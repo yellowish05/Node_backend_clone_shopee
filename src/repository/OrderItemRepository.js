@@ -28,6 +28,10 @@ class OrderItemRepository {
       { multi: true },
     );
   }
+  
+  async getByProduct(id) {
+    return this.model.find({ product: id });
+  }
 }
 
 module.exports = OrderItemRepository;
