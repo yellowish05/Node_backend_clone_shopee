@@ -92,7 +92,7 @@ module.exports = {
   email: {
     from: process.env.ELASTIC_EMAIL_FROM,
     bodyType: 'HTML',
-    supportEmail: 'support@shoclefcorporation.com',
+    supportEmail: 'support@gxjiteng.com',
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
       apiUri: 'https://api.elasticemail.com/',
@@ -125,8 +125,8 @@ module.exports = {
       }
     },
     // from: 'Crystal.ding1@gmail.com',
-    from: 'Xiufu <Onboard@xiufu.com>',
-    fromOther: 'Xiufu <Info@xiufu.com>',
+    from: '吉腾 <Onboard@gxjiteng.com>',
+    fromOther: '吉腾 <Info@gxjiteng.com>',
   },
   shoclefCompany: {
     seller: {

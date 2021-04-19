@@ -13,7 +13,7 @@ module.exports = (args) => `
                             <tr>
                                 <td class="editable-img" align="center">
                                     <a href="#">
-                                        <img editable="true" class="centerize" mc:edit="image101" src="${cdn.appAssets}/images/logo2.png" style="display:block; line-height:0; font-size:0; border:0;" border="0" alt="image" />
+                                        <img editable="true" class="centerize" mc:edit="image101" src="${cdn.appAssets}/images/xiufu_logo.png" style="display:block; line-height:0; height: 40px; font-size:0; border:0;" border="0" alt="image" />
                                     </a>
                                 </td>
                             </tr>

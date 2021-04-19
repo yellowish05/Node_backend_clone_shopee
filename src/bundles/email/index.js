@@ -1,7 +1,7 @@
 const path = require('path');
 const { request, gql } = require('graphql-request');
 
-const { baseURL, query: { getSaleOrderForEmail, getPurchaseOrderForEmail } } = require(path.resolve('config'));
+const { baseURL, email, query: { getSaleOrderForEmail, getPurchaseOrderForEmail } } = require(path.resolve('config'));
 const { VerificationEmailTemplate } = require(path.resolve('src/lib/Enums'));
 const { InvoiceService } = require(path.resolve('src/lib/InvoiceService'));
 const AbstractEmailService = require('./AbstractEmailService');
@@ -117,6 +117,16 @@ class EmailService extends AbstractEmailService {
             throw new Error(err.message);
         }),
     ))
+  }
+
+  async notifyNewIssue(issue) {
+    const category = await repository.issueCategory.getById(issue.category);
+    const emails = category && category.notifyEmails.length ? category.notifyEmails : [email.supportEmail];
+    const template = this.getTemplate(VerificationEmailTemplate.NEW_ISSUE);
+    return Promise.all(emails.map((email) => {
+      const params = this.getParams({ template, issue, category, user: { email } });
+      this.send(params)
+    }));
   }
 }
 module.exports.EmailService = new EmailService();

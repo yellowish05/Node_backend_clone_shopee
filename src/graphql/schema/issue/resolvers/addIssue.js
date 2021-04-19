@@ -1,6 +1,7 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
 
+const { EmailService } = require(path.resolve('src/bundles/email'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
 
@@ -42,6 +43,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user}) => {
         attachments: data.attachments,
       }
       return repository.issue.create(issue);
+    })
+    .then(async (issue) => {
+      await EmailService.notifyNewIssue(issue);
+      return issue;
     })
     .catch(error => {
       throw errorHandler.build([error]);
