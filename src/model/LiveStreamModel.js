@@ -45,7 +45,7 @@ const schema = new Schema({
   },
   city: {
     type: String,
-    ref: 'City',
+    // ref: 'City',
   },
   preview: {
     type: [String],
