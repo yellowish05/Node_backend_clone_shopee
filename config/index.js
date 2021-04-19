@@ -222,6 +222,9 @@ module.exports = {
     apiKey: process.env.X_RAPIDAPI_KEY,
     host: process.env.X_RAPIDAPI_HOST,
     url: process.env.X_RAPIDAPI_TRANSLATE_URL,
+  },  
+  internal: {
+    translation: process.env.INTERNAL_PYTHON_TRANSLATION,
   },
   query: {
     getProduct: `query getProduct($ID: ID!){
