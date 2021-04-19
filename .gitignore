@@ -8,3 +8,5 @@ yarn-lock.json
 Readme-self.md
 package-lock.json
 Note.md
+.idea
+build
