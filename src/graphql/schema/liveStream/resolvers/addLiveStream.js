@@ -113,7 +113,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           })
         );
       } else {
-        sources.push(await getlivestreamsource(user,"http://18.185.121.9:5000/" + channelId + "-record.mp4",repository)); 
+        sources.push(await getlivestreamsource(user,"https://recording.shoclef.com/" + channelId + "-record.mp4",repository)); 
       }
 
       finisheddate = new Date();
@@ -180,7 +180,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: args.data.liveStreamRecord.length > 0 ? StreamChannelStatus.FINISHED : StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
-        city:args.data.city,
+        city: args.data.city,
         preview: args.data.preview,
         previewVideo: args.data.previewVideo || null,
         channel: streamChannel,

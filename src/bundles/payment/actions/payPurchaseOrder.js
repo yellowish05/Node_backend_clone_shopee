@@ -15,6 +15,7 @@ const stripeProvider = PaymentMethodProviders.STRIPE;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
 const paypalProvider = PaymentMethodProviders.PAYPAL;
 const linepayProvider = PaymentMethodProviders.LINEPAY;
+const braintreeProvider = PaymentMethodProviders.BRAINTREE;
 
 function paymentTransactionFactory(order) {
   return {
@@ -59,50 +60,9 @@ async function generateWireCardPaymentForOrder(order, wirecardProvider) {
   ]).then(([trans]) => trans);
 }
 
-module.exports = ({ getProvider, availableProviders }) => async ({ order, provider, redirection }) => {
-  // if (!paymentMethod) {
-  //   return generateWireCardPaymentForOrder(order, getProvider('WireCard'));
-  // }
+module.exports = ({ getProvider, availableProviders }) => async ({ order, provider, redirection, paymentMethodNonce }) => {
   let transaction;
   let method;
-
-  // if(paymentMethod !== "applePay" && paymentMethod !== "googlePay") {
-  //   method = await repository.paymentMethod.getById(paymentMethod);
-
-  //   if (!method) {
-  //     throw new PaymentMethodIsUnactiveException(`Payment method id "${paymentMethod}" doesn't exist`);
-  //   }
-
-  //   if (!method.isActive) {
-  //     throw new PaymentMethodIsUnactiveException(`Payment method "${method.name}" can't use`);
-  //   }
-
-  //   if (!availableProviders().includes(method.provider)) {
-  //     throw new PaymentMethodUsesWrongProviderException(`The provider "${method.provider}" is not supported in payment method "${method.id}"`);
-  //   }
-
-  //   // Create and Save Transaction for Purchase Order
-  //   transaction = await repository.paymentTransaction.create(
-  //     {
-  //       ...paymentTransactionFactory(order),
-  //       paymentMethod: method,
-  //     },
-  //   );
-  // } else if (paymentMethod === "applePay"){
-  //   transaction = await repository.paymentTransaction.create(
-  //     {
-  //       ...paymentTransactionFactory(order),
-  //       paymentMethod: "applePay",
-  //     },
-  //   );
-  // } else if (paymentMethod === "googlePay"){
-  //   transaction = await repository.paymentTransaction.create(
-  //     {
-  //       ...paymentTransactionFactory(order),
-  //       paymentMethod: "googlePay",
-  //     },
-  //   );
-  // }
 
   // Create and Save Transaction for Purchase Order
   transaction = await repository.paymentTransaction.create({
@@ -116,7 +76,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
 
   // Pay the transaction here
   try {
-    if (provider == PaymentMethodProviders.STRIPE || provider == PaymentMethodProviders.APPLEPAY || provider == PaymentMethodProviders.GOOGLEPAY) {
+    if (provider === PaymentMethodProviders.STRIPE || provider === PaymentMethodProviders.APPLEPAY || provider === PaymentMethodProviders.GOOGLEPAY) {
       return getProvider(stripeProvider)
         .createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
         .then(async (paymentIntent) => {
@@ -131,7 +91,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider == PaymentMethodProviders.ALIPAY) {
+    } else if (provider === PaymentMethodProviders.ALIPAY) {
       return getProvider(stripeProvider)
         .createAlipayPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
@@ -144,7 +104,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider == PaymentMethodProviders.WECHATPAY) {
+    } else if (provider === PaymentMethodProviders.WECHATPAY) {
       return getProvider(stripeProvider)
         .createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
@@ -157,7 +117,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider == PaymentMethodProviders.RAZORPAY) {
+    } else if (provider === PaymentMethodProviders.RAZORPAY) {
       return getProvider(razorpayProvider)
         .createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((orderResponse) => {
@@ -170,24 +130,21 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider == PaymentMethodProviders.PAYPAL) {
+    } else if (provider === PaymentMethodProviders.PAYPAL) {
       return getProvider(paypalProvider)
         .createOrder(transaction.currency, transaction.amount, transaction.buyer, redirection)
         .then(async (orderResponse) => {
-          if (orderResponse.error) {
-            return orderResponse;
-          } else {
-            const [approveLink] = orderResponse.links.filter(
-              (link) => link.rel === "approval_url"
-            );
-            transaction.providerTransactionId = orderResponse.id;
-            transaction.responsePayload = { ...orderResponse, ...redirection}; //JSON.stringify(orderResponse);
-            await transaction.save();
-            return {
-              publishableKey: "",
-              paymentClientSecret: approveLink.href,
-            };
-          }
+          if (orderResponse.error) return orderResponse;
+          const [approveLink] = orderResponse.links.filter(
+            (link) => link.rel === "approval_url"
+          );
+          transaction.providerTransactionId = orderResponse.id;
+          transaction.responsePayload = { ...orderResponse, ...redirection}; //JSON.stringify(orderResponse);
+          await transaction.save();
+          return {
+            publishableKey: "",
+            paymentClientSecret: approveLink.href,
+          };
         });
     } else if (provider === PaymentMethodProviders.UNIONPAY) {
       transaction.responsePayload = { ...redirection };
@@ -196,7 +153,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
         publishableKey: "",
         paymentClientSecret: getProvider(PaymentMethodProviders.UNIONPAY).generateLink(transaction),
       }  
-    } else if (provider == PaymentMethodProviders.LINEPAY) {
+    } else if (provider === PaymentMethodProviders.LINEPAY) {
       return getProvider(linepayProvider)
         .createOrder(transaction)
         .then((orderResponse) => {
@@ -209,17 +166,21 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else {
-      return { error: provider };
-      // await getProvider(method.provider).payTransaction(transaction);
+    } else if (provider === PaymentMethodProviders.BRAINTREE) {
+      return getProvider(braintreeProvider)
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer, paymentMethodNonce)
+        .then(async (response) => {
+          if (response.error) return response;
+          transaction.providerTransactionId = response.id;
+          transaction.responsePayload = response;
+          await transaction.save();
+          return {
+            publishableKey: "",
+            paymentClientSecret: "",
+          };
+        })
     }
-    // await transaction.save();
-
-    // if (transaction.isSuccessful()) {
-    //   await ordersBundle.executeOrderPaidFlow(order);
-    // } else {
-    //   await ordersBundle.executeOrderFailFlow(order);
-    // }
+    return { error: provider };
   } catch (error) {
     await ordersBundle.executeOrderFailFlow(order);
     logger.error(`${error.name}: ${error.message}`);

@@ -50,6 +50,10 @@ class PurchaseOrderRepository {
     return this.model.find({ buyer: user.id });
   }
 
+  async delete(id) {
+    return this.model.remove({ _id: id });
+  }
+
   async getByBuyer(id) {
     return this.model.find({ buyer: id });
   }
@@ -139,6 +143,10 @@ class PurchaseOrderRepository {
     const query = {};
     applyFilter(query, filter);
     return this.model.countDocuments(query);
+  }
+
+  async getByOrderItem(id) {
+    return this.model.findOne({ items: id });
   }
 }
 

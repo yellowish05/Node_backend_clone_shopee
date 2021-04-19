@@ -8,7 +8,7 @@ const { NotificationType, OrderItemStatus, PaymentMethodProviders } = require(pa
 
 module.exports = async function checkoutCart(
   _,
-  { currency, provider, redirection },
+  { currency, provider, redirection, paymentMethodNonce },
   { dataSources: { repository }, user },
 ) {
   let cartItems = await checkout.loadCartAndValidate(user.id, repository);
@@ -23,7 +23,7 @@ module.exports = async function checkoutCart(
   // await checkout.clearUserCart(user.id, repository);
 
   // generate payments with Payment Provider data and update order
-  return payPurchaseOrder({ order, provider, redirection, user })
+  return payPurchaseOrder({ order, provider, redirection, paymentMethodNonce, user })
     .then(async (result) => {
       if (result.error) { order.error = result.error; }
 

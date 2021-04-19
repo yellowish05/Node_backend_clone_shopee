@@ -165,9 +165,7 @@ module.exports.resolvers = {
     productVariations: async ({ _id }, _, { dataSources: { repository }}) => {
       return repository.productVariation.getByCategory(_id);
     },
-    hasChildren: async (productCategory, { hasProduct }, { dataSources: { repository } }) => {
-      return repository.productCategory.getByParent(productCategory.id, hasProduct)
-        .then(children => children.length > 0)
-    },
+    hasChildren: async (productCategory, { hasProduct }, { dataSources: { repository } }) => repository.productCategory.getByParent(productCategory.id, hasProduct)
+      .then((children) => children.length > 0),
   },
 };

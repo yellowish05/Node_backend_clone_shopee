@@ -181,6 +181,7 @@ const PaymentMethodProviders = EnumFactory({
   LINEPAY: 'LinePay',
   PAYPAL: 'PayPal',
   UNIONPAY: 'UnionPay',
+  BRAINTREE: 'Braintree',
 });
 
 const ProductMetricUnits = EnumFactory({

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 const path = require('path');
 
 const { email } = require(path.resolve('config'));
@@ -7,14 +8,15 @@ const layout = require(path.resolve('src/view/simple.layout.email'));
 const footer = require(path.resolve('src/view/footer.email'));
 
 function makeInvoicePdfList(orderItems, pdf) {
-    let listString = '';
-    orderItems
-    ? orderItems.map(item => {
-        const url = item.productAttribute ? item.productAttribute.asset.url : item.product.assets[0].url;
-        const price = item.productAttribute ? item.productAttribute.price : item.product.price;
-        const id = item.productAttribute ? item.productAttribute.id : item.product.id;
-        const sku = item.productAttribute ? item.productAttribute.sku : item.product.sku;
-        listString = listString + `<!-- row-1 -->
+  let listString = '';
+  orderItems
+    ? orderItems.map((item) => {
+      const url = item.productAttribute ? (item.productAttribute.asset ? item.productAttribute.asset.url : '') : (item.product.assets.length ? item.product.assets[0].url : '');
+      // const url = item.productAttribute ? (item.productAttribute.asset ? item.productAttribute.asset.url : item.product.assets[0].url) : item.product.assets[0].url;
+      const price = item.productAttribute ? item.productAttribute.price : item.product.price;
+      const id = item.productAttribute ? item.productAttribute.id : item.product.id;
+      const sku = item.productAttribute ? item.productAttribute.sku : item.product.sku;
+      listString += `<!-- row-1 -->
         <tr>
             <td bgcolor="#ffffff" style="padding: 0 20px;border: 1px solid #ebebeb;border-radius: 5px;">
                 <table border="0" cellpadding="0" cellspacing="0">
@@ -115,16 +117,16 @@ function makeInvoicePdfList(orderItems, pdf) {
         <!-- horizontal gap -->
         <tr><td height="25"></td></tr>`;
     })
-    : listString = ''
-    return listString;
+    : listString = '';
+  return listString;
 }
 module.exports = {
   subject: 'Thank you for your purchase!',
   build({ code, ...args }) {
-    const data = args.data;
+    const { data } = args;
     return layout(
-        header({title: '', description: ''}) + 
-        `<!-- body -->
+      `${header({ title: '', description: '' })}
+      <!-- body -->
         <tr>
             <td>
                 <table class="table1" width="600" align="center" border="0" cellspacing="0" cellpadding="0">
@@ -158,13 +160,13 @@ module.exports = {
     
                                 <!-- horizontal gap -->
                                 <tr><td height="40"></td></tr>
-                                ` + makeInvoicePdfList(data.orderItems, data.invoicePdf) + `
-                            </table><!-- END body-container -->
+                                ${makeInvoicePdfList(data.orderItems, data.invoicePdf)}                            </table><!-- END body-container -->
                         </td>
                     </tr>
                 </table>
             </td>
         </tr><!-- END body -->
-    ` + footer(), args);
+        ${footer()}`, args,
+        );
   },
 };

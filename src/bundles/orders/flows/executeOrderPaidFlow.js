@@ -1,20 +1,23 @@
 /**
  * @name: executeOrderPaidFlow
  * @description: post-process the successful purchase order. Triggered from webhooks(success).
- * @summary:  
+ * @summary:
  *  - update purchase order status: { isPaid: true, status: ORDERED }
  *  - send buyer & seller notifications that the products are sold out.
  *  - increase product.sold by orderitem.quantity
  *  - update the status of order items -> ORDERED
- * 
+ *
  */
 
 /* eslint-disable no-param-reassign */
 const path = require('path');
 const uuid = require('uuid/v4');
+
 const logger = require(path.resolve('config/logger'));
 const repository = require(path.resolve('src/repository'));
-const { InventoryLogType, NotificationType, OrderItemStatus, PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
+const {
+  InventoryLogType, NotificationType, OrderItemStatus, PurchaseOrderStatus,
+} = require(path.resolve('src/lib/Enums'));
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const PushNotificationService = require(path.resolve('src/lib/PushNotificationService'));
@@ -95,20 +98,24 @@ module.exports = async (purchaseOrder) => {
     });
     // send push notification to buyer
     if (buyer.device_id) { await PushNotificationService.sendPushNotification({ message: 'You paid your money to buy the products of your cart', device_ids: [buyer.device_id] }); }
-  } catch(e) {
+  } catch (e) {
     logger.error(`[PURCHASE_ORDER_PAID_FLOW][${purchaseOrder.id}][NOTIFICATION & EMAIL] ${e.message}`);
   }
 
 
-  return Promise.all(orderItems.map(orderItem => {
+  return Promise.all(orderItems.map((orderItem) => {
     const baseInventoryLog = {
       product: orderItem.product,
       productAttribute: orderItem.productAttribute,
     };
     return Promise.all([
-      repository.productInventoryLog.add({ ...baseInventoryLog, _id: uuid(), type: InventoryLogType.PURCHASE, shift: -orderItem.quantity }),
-      repository.productInventoryLog.add({ ...baseInventoryLog, _id: uuid(), type: InventoryLogType.BUYER_CART, shift: orderItem.quantity })
-    ])
+      repository.productInventoryLog.add({
+        ...baseInventoryLog, _id: uuid(), type: InventoryLogType.PURCHASE, shift: -orderItem.quantity,
+      }),
+      repository.productInventoryLog.add({
+        ...baseInventoryLog, _id: uuid(), type: InventoryLogType.BUYER_CART, shift: orderItem.quantity,
+      }),
+    ]);
   }))
   .then(() => Promise.all([
     purchaseOrder.save(),

@@ -5,24 +5,24 @@ const CountryLanguage = require('country-language');
 const languages = CountryLanguage.getLanguages();
 
 const schema = gql`
-    enum LanguageList {
-        ${LanguageList.toGQL()}
-    }
+  enum LanguageList {
+    ${LanguageList.toGQL()}
+  }
 
-    type LanguageDetails {
-        id: LanguageList!
-        name: String!
-    }
+  type LanguageDetails {
+    id: LanguageList!
+    name: String!
+  }
 
-    extend type Query {
-        languages: [LanguageDetails]!
-    }
+  extend type Query {
+    languages: [LanguageDetails]!
+  }
 
-    extend type Mutation {
-      deleteAllLanguages: Boolean! @auth(requires: USER)
-      insert2LetterFormat: Boolean! @auth(requires: USER)
-      insert3LetterFormat: Boolean! @auth(requires: USER)
-    }
+  extend type Mutation {
+    deleteAllLanguages: Boolean! @auth(requires: USER)
+    insert2LetterFormat: Boolean! @auth(requires: USER)
+    insert3LetterFormat: Boolean! @auth(requires: USER)
+  }
 `;
 
 module.exports.typeDefs = [schema];
@@ -34,11 +34,9 @@ module.exports.resolvers = {
     },
   },
   Mutation: {
-    deleteAllLanguages: async (_, { data }, { dataSources: { repository } }) => {
-      return repository.language.deleteAll()
-        .then(() => { return true })
-        .catch(error => false);
-    },
+    deleteAllLanguages: async (_, { data }, { dataSources: { repository } }) => repository.language.deleteAll()
+      .then(() => true)
+      .catch((error) => false),
     insert2LetterFormat: async (_, { data }, { dataSources: { repository } }) => {
       const filtered = languages.filter(lang => lang.iso639_1);
       return Promise.all(filtered.map(lang => repository.language.create({

@@ -29,8 +29,8 @@ const activity = {
     const _self = activity;
     const paymentId = data.id;
     const execute_details = {
-        payer_id: data.payer.payer_info.payer_id,
-        transactions: data.transactions.map(tx => ({amount: tx.amount}))
+      payer_id: data.payer.payer_info.payer_id,
+      transactions: data.transactions.map(tx => ({amount: tx.amount}))
     };
     let currentTransaction;
     return _self.capturePayment({ paymentId, execute_details })
@@ -56,7 +56,7 @@ const activity = {
 
         return { code: 200, message: 'Success' };
       })
-      .catch(error => {
+      .catch((error) => {
         if (error instanceof TransactionAlreadyProcessedException) {
           return { code: 200, message: `${error.message} already processed!` };
         } else if (error instanceof TransactionNotFoundException) {
@@ -69,8 +69,8 @@ const activity = {
 };
 
 module.exports = async (req, res) => {
-  let data = req.body.resource;
-  let eventType = req.body.event_type;
+  const data = req.body.resource;
+  const eventType = req.body.event_type;
 
   switch (eventType) {
     case 'PAYMENTS.PAYMENT.CREATED':

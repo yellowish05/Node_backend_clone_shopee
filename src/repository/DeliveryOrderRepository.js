@@ -36,6 +36,12 @@ class DeliveryOrderRepository {
     });
     return document.save();
   }
+
+  async updateTrackingNumber(id) {
+    const order = await this.getById(id);
+    order.trackingNumber = uuid();
+    return order.save();
+  }
 }
 
 module.exports = DeliveryOrderRepository;

@@ -64,7 +64,7 @@ const schema = gql`
         streamer: User!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
-        city: City
+        city: String
         preview: [Asset]
         previewVideo: Asset
         channel: StreamChannel!
@@ -256,7 +256,7 @@ module.exports.resolvers = {
     liveStreamAddress(_, { id }, { dataSources: { repository } }) {
       return {
         wsurl:'ws://18.185.121.9:8188',
-        fileurl:'http://18.185.121.9:5000',
+        fileurl:'https://recording.shoclef.com',
         abs_url:'/opt/janus/share/janus/recordings'
       };
     },
@@ -311,9 +311,9 @@ module.exports.resolvers = {
         (category) => repository.liveStreamCategory.getById(category),
       );
     },
-    city(liveStream, args, { dataSources: { repository } }) {
-      return repository.city.load(liveStream.city);
-    },
+    // city(liveStream, args, { dataSources: { repository } }) {
+    //   return repository.city.load(liveStream.city);
+    // },
     preview(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.getByIds(typeof liveStream.preview === 'string' ? [liveStream.preview] : liveStream.preview);
     },
