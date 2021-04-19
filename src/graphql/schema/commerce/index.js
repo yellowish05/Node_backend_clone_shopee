@@ -16,7 +16,7 @@ const { typeDefs: shippingOrderTypeDefs, resolvers: shippingOrderResolvers } = r
 const { typeDefs: deliveryCalcTypeDefs, resolvers: deliveryCalcResolvers } = require('./deliveryCalculation');
 const { typeDefs: payoutOrderTypeDefs, resolvers: payoutOrderResolvers } = require('./payoutOrder');
 const { typeDefs: orderItemTypeDefs, resolvers: orderItemResolvers } = require('./orderItem');
-
+const { typeDefs: shippingAddressDefs, resolvers: shippingAddressResolvers } = require('./shippingAddress');
 
 const typeDefs = [].concat(
   brandTypeDefs,
@@ -35,6 +35,7 @@ const typeDefs = [].concat(
   orderItemTypeDefs,
   carrierTypeDefs,
   customCarrierTypeDefs,
+  shippingAddressDefs,
 );
 
 const resolvers = merge(
@@ -54,6 +55,7 @@ const resolvers = merge(
   orderItemResolvers,
   carrierResolvers,
   customCarrierResolvers,
+  shippingAddressResolvers,
 );
 
 module.exports = {
