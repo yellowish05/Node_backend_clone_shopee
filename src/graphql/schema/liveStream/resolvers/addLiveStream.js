@@ -180,7 +180,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         status: args.data.liveStreamRecord.length > 0 ? StreamChannelStatus.FINISHED : StreamChannelStatus.PENDING,
         experience: args.data.experience,
         categories: args.data.categories,
-        city:args.data.city,
+        city: args.data.city,
         preview: args.data.preview,
         previewVideo: args.data.previewVideo || null,
         channel: streamChannel,

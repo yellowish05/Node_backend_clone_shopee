@@ -64,7 +64,7 @@ const schema = gql`
         streamer: User!
         experience: LiveStreamExperience!
         categories: [LiveStreamCategory]!
-        city: City
+        city: String
         preview: [Asset]
         previewVideo: Asset
         channel: StreamChannel!
@@ -311,9 +311,9 @@ module.exports.resolvers = {
         (category) => repository.liveStreamCategory.getById(category),
       );
     },
-    city(liveStream, args, { dataSources: { repository } }) {
-      return repository.city.load(liveStream.city);
-    },
+    // city(liveStream, args, { dataSources: { repository } }) {
+    //   return repository.city.load(liveStream.city);
+    // },
     preview(liveStream, args, { dataSources: { repository } }) {
       return repository.asset.getByIds(typeof liveStream.preview === 'string' ? [liveStream.preview] : liveStream.preview);
     },
