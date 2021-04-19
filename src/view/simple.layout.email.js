@@ -7,147 +7,73 @@ module.exports = (body, args) => `
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Email</title>
     <style>
-        body {
-            font-family: sans-serif;
-            background: #E5E5E5;
-            padding: 20px;
-        }
+      /*////// RESET STYLES //////*/
+      body{height:100% !important; margin:0; padding:0; width:100% !important;}
+      table{border-collapse:separate;}
+      img, a img{border:0; outline:none; text-decoration:none;}
+      h1, h2, h3, h4, h5, h6{margin:0; padding:0;}
+      p{margin: 1em 0;}
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+      /*////// CLIENT-SPECIFIC STYLES //////*/
+      .ReadMsgBody{width:100%;} .ExternalClass{width:100%;}
+      .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div{line-height:100%;}
+      table, td{mso-table-lspace:0pt; mso-table-rspace:0pt;}
+      #outlook a{padding:0;}
+      img{-ms-interpolation-mode: bicubic;}
+      body, table, td, p, a, li, blockquote{-ms-text-size-adjust:100%; -webkit-text-size-adjust:100%;}
+        
+      /*////// GENERAL STYLES //////*/
+      img{ max-width: 100%; height: auto; }
 
-        table tr td {
-            padding: 20px 30px;
-        }
+      /*////// TABLET STYLES //////*/
+      @media only screen and (max-width: 620px) {
+      .shrink_font{
+        font-size: 62px;
+      }
+      /*////// GENERAL STYLES //////*/
+        #foxeslab-email .table1 { width: 90% !important;}
+        #foxeslab-email .table1-2 { width: 98% !important; margin-left: 1%; margin-right: 1%;}
+        #foxeslab-email .table1-3 { width: 98% !important; margin-left: 1%; margin-right: 1%;}
+        #foxeslab-email .table1-4 { width: 98% !important; margin-left: 1%; margin-right: 1%;}
+        #foxeslab-email .table1-5 { width: 90% !important; margin-left: 5%; margin-right: 5%;}
 
-        .pre-header {
-            text-align: center;
-        }
+        #foxeslab-email .tablet_no_float { clear: both; width: 100% !important; margin: 0 auto !important; text-align: center !important; }
+        #foxeslab-email .tablet_wise_float { clear: both; float: none !important; width: auto !important; margin: 0 auto !important; text-align: center !important; }
 
-        .pre-header td {
-            padding-top: 5px;
-        }
+        #foxeslab-email .tablet_hide { display: none !important; }
 
-        .pre-header td img {
-            max-width: 75px;
-        }
+        #foxeslab-email .image1 { width: 98% !important; }
+        #foxeslab-email .image1-290 { width: 100% !important; max-width: 290px !important; }
 
-        .header {
-            background: #01CFE2;
-            text-align: center;
-            color: #fff;
-        }
+        .center_content{ text-align: center !important; }
+        .center_image{ margin: 0 auto !important; }
+        .center_button{ width: 50% !important;margin-left: 25% !important;max-width: 250px !important; }
+        .centerize{margin: 0 auto !important;}
+      }
 
-        .header h1 {
-            font-style: normal;
-            font-weight: 300;
-            font-size: 58px;
-            margin: 0;
-        }
 
-        .header p {
-            font-style: normal;
-            font-weight: normal;
-            font-size: 16px;
+      /*////// MOBILE STYLES //////*/
+      @media only screen and (max-width: 480px){
+        .shrink_font{
+          font-size: 48px;
         }
+        .safe_color{
+          color: #6a1b9a !important;
+        }
+        /*////// CLIENT-SPECIFIC STYLES //////*/
+        body{width:100% !important; min-width:100% !important;} /* Force iOS Mail to render the email at full width. */
+        table[class="flexibleContainer"]{ width: 100% !important; }/* to prevent Yahoo Mail from rendering media query styles on desktop */
 
-        .body {
-            background: #fff;
-        }
+        /*////// GENERAL STYLES //////*/
+        img[class="flexibleImage"]{height:auto !important; width:100% !important;}
 
-        .body p {
-            font-size: 16px;
-            color: rgba(0, 0, 0, 0.6);
-        }
+        #foxeslab-email .table1 { width: 98% !important; }
+        #foxeslab-email .no_float { clear: both; width: 100% !important; margin: 0 auto !important; text-align: center !important; }
+        #foxeslab-email .wise_float {	clear: both;	float: none !important;	width: auto !important;	margin: 0 auto !important;	text-align: center !important;	}
 
-        .body .title-color {
-            color: rgba(0, 0, 0, 0.87);
-        }
-
-        .body .link {
-            color: #01CFE2;
-        }
-
-        .body .link-default {
-            text-decoration: none;
-        }
-
-        .sign-up h5 {
-            font-style: normal;
-            font-weight: 500;
-            font-size: 26px;
-            margin: 0;
-        }
-
-        .sign-up h5 + p {
-            font-style: normal;
-            font-weight: 300;
-            font-size: 26px;
-            margin: 0 0 30px 0;
-            text-transform: uppercase;
-            color: rgba(0, 0, 0, 0.6);
-        }
-
-        .reset-password .action {
-            border-top: 1px solid rgba(1, 207, 226, 0.32);
-            font-size: 12px;
-            padding-top: 30px;
-            margin-top: 30px;
-        }
-
-        .reset-password .reset-action {
-            margin: 30px 0;
-        }
-
-        .reset-password .reset-action b {
-            font-size: 24px;
-        }
-
-        .reset-password .reset-action a {
-            background: #01CFE2;
-            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.28);
-            border-radius: 5px;
-            color: #fff;
-            cursor: pointer;
-            padding: 10px 30px;
-            margin: 30px 0;
-            text-decoration: none;
-        }
-
-        .footer {
-            background: #01CFE2;
-            text-align: center;
-            color: #fff;
-        }
-
-        .footer p {
-            font-size: 14px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .footer .rights {
-            font-size: 12px;
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.73);
-            text-transform: none;
-        }
-
-        .footer .rights a {
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.73);
-        }
-
-        .footer .socials a {
-            display: inline-block;
-            margin: 0 4px;
-        }
-
-        .footer .socials a img { 
-            max-width: 30px;
-        }
+        #foxeslab-email .mobile_hide { display: none !important; }
+        .auto_height{height: auto !important;}
+      }
     </style>
 </head>
 <body>
