@@ -124,7 +124,7 @@ class EmailService extends AbstractEmailService {
     const emails = category && category.notifyEmails.length ? category.notifyEmails : [email.supportEmail];
     const template = this.getTemplate(VerificationEmailTemplate.NEW_ISSUE);
     return Promise.all(emails.map((email) => {
-      const params = this.getParams({ template, issue, category, user: { email } });
+      const params = this.getParams({ template, issue, category, user: { email }, data: true });
       this.send(params)
     }));
   }

@@ -4,77 +4,78 @@ const bulkUpdateProductCategory = require('./resolvers/bulkUpdateProductCategory
 const correctProductCategoryHierarchy = require('./resolvers/correctProductCategoryHierarchy');
 
 const schema = gql`
-    type ProductCategory {
-        id: ID!
-        name: String!
-        level: Int!
-        order: Int
-        parent: ProductCategory
-        parents: [ProductCategory]!
-        hasChildren(hasProduct: Boolean = true): Boolean!
-        image: Asset
-        icon: Asset
-        liveStreamCategory: LiveStreamCategory
-        hashtags: [String]
-        slug: String
-        productVariations: [ProductVariation]
-    }
+  type ProductCategory {
+    id: ID!
+    name: String!
+    level: Int!
+    order: Int
+    parent: ProductCategory
+    parents: [ProductCategory]!
+    hasChildren(hasProduct: Boolean = true): Boolean!
+    image: Asset
+    image4Mobile: Asset
+    icon: Asset
+    liveStreamCategory: LiveStreamCategory
+    hashtags: [String]
+    slug: String
+    productVariations: [ProductVariation]
+  }
 
-    type ProductCategoryCollection {
-        collection: [ProductCategory]!
-        pager: Pager
-    }
+  type ProductCategoryCollection {
+    collection: [ProductCategory]!
+    pager: Pager
+  }
 
+  """
+    set the map from csv keys to db keys for the fields to be updated.
+  """
+
+  type FailedProductCategories{
+    row: [Int!]
+    errors: [String!]
+  }
+
+  type UploadedProductCategories{
+    total: Int!
+    updated: Int!
+    failed: Int!
+    failedList: FailedProductCategories!
+  }
+
+  type ResizeImageError {
+    ids: [ID]
+    errors: [String]
+  }
+
+  type ImageResized {
+    total: Int
+    success: Int
+    failed: Int
+    failedList: ResizeImageError
+  }
+
+  extend type Query {
+    searchProductCategory(query: String!, page: PageInput = {}, hasProduct: Boolean = true): ProductCategoryCollection!
+    productCategories(parent: ID, hasProduct: Boolean = true): [ProductCategory]!
+    productCategory(id: ID!): ProductCategory
+    productCategoryBySlug(slug: String!): ProductCategory
+    fullProductCategories(hasProduct: Boolean = true): [ProductCategory]!
+  }
+
+  extend type Mutation {
     """
-      set the map from csv keys to db keys for the fields to be updated.
-    """
-
-    type FailedProductCategories{
-      row: [Int!]
-      errors: [String!]
-    }
-
-    type UploadedProductCategories{
-      total: Int!
-      updated: Int!
-      failed: Int!
-      failedList: FailedProductCategories!
-    }
-
-    type ResizeImageError {
-      ids: [ID]
-      errors: [String]
-    }
-
-    type ImageResized {
-      total: Int
-      success: Int
-      failed: Int
-      failedList: ResizeImageError
-    }
-
-    extend type Query {
-        searchProductCategory(query: String!, page: PageInput = {}, hasProduct: Boolean = true): ProductCategoryCollection!
-        productCategories(parent: ID, hasProduct: Boolean = true): [ProductCategory]!
-        productCategory(id: ID!): ProductCategory
-        productCategoryBySlug(slug: String!): ProductCategory
-        fullProductCategories(hasProduct: Boolean = true): [ProductCategory]!
-    }
-
-    extend type Mutation {
-      """
-          Allows: authorized user
-      """
-      updateProductCategoryAssets(fileName:String!): [Asset] @auth(requires: USER)
-      """
         Allows: authorized user
-      """
-      bulkUpdateProductCategory(file: Upload!): UploadedProductCategories @auth(requires: USER) 
-      """
-        Allows: authorized admin
-      """
-      correctProductCategoryHierarchy: Boolean @auth(requires: ADMIN)
-    }
+    """
+    updateProductCategoryAssets(fileName:String!): [Asset] @auth(requires: USER)
+    """
+      Allows: authorized user
+    """
+    bulkUpdateProductCategory(file: Upload!): UploadedProductCategories @auth(requires: USER) 
+    """
+      Allows: authorized admin
+    """
+    correctProductCategoryHierarchy: Boolean @auth(requires: ADMIN)
+  }
 `;
 
 module.exports.typeDefs = [schema];
@@ -150,6 +151,7 @@ module.exports.resolvers = {
       }
       return repository.asset.getById(image);
     },
+    image4Mobile: async ({ image4Mobile }, _, { dataSources: { repository } }) => repository.asset.getById(image),
     icon: async ({ icon }, _, { dataSources: { repository } }) => {
       if (!icon) {
         return null;

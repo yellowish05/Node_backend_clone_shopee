@@ -32,6 +32,11 @@ const schema = new Schema({
     ref: 'Asset',
     default: null,
   },
+  image4Mobile: {
+    type: String,
+    ref: 'Asset',
+    default: null,
+  },
   icon: {
     type: String,
     ref: "Asset",
