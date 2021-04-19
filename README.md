@@ -7,6 +7,7 @@
 
 ## Environment
 1. add to `~/.profile` node env `export NODENV=development`
+2. copy 'credentials.example' folder as 'credentials' and update credentials.
 
 ## Configure Docker
 

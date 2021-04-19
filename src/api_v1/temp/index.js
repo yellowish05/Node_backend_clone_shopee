@@ -31,7 +31,6 @@ const { AssetService } = require(path.resolve('src/lib/AssetService'));
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const streamService = require(path.resolve('src/lib/StreamService'));
 const PythonService = require(path.resolve('src/lib/PythonService'));
-const TranslateService = require(path.resolve('src/lib/TranslateService'));
 const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
 const translateProducts = require('./resolvers/translateProducts');
 
@@ -573,7 +572,7 @@ tempRouter.route('/update-product-hashtags').post(async (req, res) => {
 
 tempRouter.route('/trans/google').post(async (req, res) => {
   const { text, dest } = req.body;
-  return TranslateService.translate_ggl(dest, text)
+  return PythonService.googletrans(text, dest)
     .then((resp) => res.json(resp))
 });
 
