@@ -1,3 +1,4 @@
+/* eslint-disable default-case */
 const path = require('path');
 const uuid = require('uuid/v4');
 const AWS = require('aws-sdk');
@@ -174,33 +175,33 @@ class AssetRepository {
       type: "IMAGE",
       size: 1000,
       mimetype: 'image/jpeg',
-    }
+    };
 
-    if (await this.getByPath(data.path)) {
-      return await this.getByPath(data.path);
-    } else {
-      const asset = new this.model(assetData);
-      return asset.save();
-    }
+    const asset = new this.model(assetData);
+    return await asset.save().then((asset) => asset).catch((err) => this.getByPath(path));
+  }
+
+  async updateOwner(id, user) {
+    const asset = await this.getById(id);
+    asset.owner = user;
+    return asset.save();
   }
 
   async createFromCSVForProducts(data) {
-    const { url, path } = await buckets(data).then(x => x).catch(err => err);
+    const { url, path } = await buckets(data).then((x) => x).catch((err) => err);
 
     const assetData = {
       _id: uuid(),
       status: "UPLOADED",
       owner: data.owner,
       path: path,
-      url: url,
+      url,
       type: "IMAGE",
       size: 1000,
       mimetype: 'image/jpeg',
-    }
+    };
     const asset = new this.model(assetData);
-    return await asset.save().then(asset => {
-      return asset
-    }).catch(err => this.getByPath(path));
+    return await asset.save().then((asset) => asset).catch((err) => this.getByPath(path));
   }
 
   async createFromCSVForCategories(data) {

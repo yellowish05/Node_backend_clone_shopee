@@ -15,7 +15,7 @@ const activity = {
   },
 }
 
-module.exports = async (_, { hasProduct, hasLiveStream }, { dataSources: { repository }}) => {
+module.exports = async (_, { hasProduct, hasLiveStream }, { dataSources: { repository } }) => {
   const query = {};
   if (typeof hasProduct === 'boolean' && hasProduct) query.nProducts = { $gt: 0 };
   else if (typeof hasProduct === 'boolean' && !hasProduct) query.nProducts = { $eq: 0 };
@@ -27,7 +27,7 @@ module.exports = async (_, { hasProduct, hasLiveStream }, { dataSources: { repos
   }
 
   return repository.brand.getAll(query)
-    .then(brands => {
+    .then((brands) => {
       brands.sort((a, b) => {
         const name1 = a.name.toLowerCase();
         const name2 = b.name.toLowerCase();
@@ -36,14 +36,9 @@ module.exports = async (_, { hasProduct, hasLiveStream }, { dataSources: { repos
 
         if (startWithAlphaBet1 !== startWithAlphaBet2) {
           return !startWithAlphaBet1 ? 1 : -1;
-        } else {
-          return name1 > name2 ? 1 : -1;
-        }        
-      })
+        }
+        return name1 > name2 ? 1 : -1;   
+      });
       return brands;
-    })
-    .catch(error => {
-      console.log('[Error]', error);
-      return null;
-    })
-}
+    });
+};

@@ -11,129 +11,144 @@ const payPurchaseOrder = require('./resolvers/payPurchaseOrder');
 const purchaseOrders = require('./resolvers/purchaseOrders');
 const getBrainTreeToken = require('./resolvers/getBrainTreeToken');
 const invoiceService = require('../../../../bundles/invoice');
+const orderList = require('./resolvers/orderList');
+const purchaseOrderListByProduct = require('./resolvers/purchaseOrderListByProduct');
 
 const { PaymentMethodProviders } = require(path.resolve('src/lib/Enums'));
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 const LinePayConfirm = require(path.resolve('src/bundles/payment/providers/LinePay/LinePayConfirm'));
 
 const schema = gql`
-    enum PurchaseOrderStatus {
-        ${PurchaseOrderStatus.toGQL()}
-    }
+  enum PurchaseOrderStatus {
+    ${PurchaseOrderStatus.toGQL()}
+  }
 
-    enum PaymentMethodProviders {
-      ${PaymentMethodProviders.toGQL()}
-    }
+  enum PaymentMethodProviders {
+    ${PaymentMethodProviders.toGQL()}
+  }
 
-    """ Orders for Buyer """
-    type PurchaseOrder {
-        id: ID!
-        isPaid: Boolean!
-        """ Collected status """
-        status: PurchaseOrderStatus!
-        """ List of products or services or anything else what we going to selling """
-        #items: [OrderItemInterface!]! # old way
-        items: [OrderProductItem!]!
-        """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        price(currency: Currency): AmountOfMoney!
-        """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        deliveryPrice(currency: Currency): AmountOfMoney!
-        """ In Cents, Amount of money Shoclef will charge from Buyer"""
-        total(currency: Currency): AmountOfMoney!
-        tax(currency: Currency): AmountOfMoney!
-        """ In future buyer will be able to pay by few paymnets to one Order"""
-        payments: [PaymentTransactionInterface!]
-        """ Address for ship products """
-        deliveryOrders: [DeliveryOrder]!
-        cancelationReason: String
-        error: String
-        publishableKey: String
-        paymentClientSecret: String
-        buyer: User!
-        createdAt: Date!
-        paymentInfo: String
-    }
+  """ Orders for Buyer """
+  type PurchaseOrder {
+    id: ID!
+    isPaid: Boolean!
+    """ Collected status """
+    status: PurchaseOrderStatus!
+    """ List of products or services or anything else what we going to selling """
+    #items: [OrderItemInterface!]! # old way
+    items: [OrderProductItem!]!
+    """ In Cents, Amount of money Shoclef will charge from Buyer"""
+    price(currency: Currency): AmountOfMoney!
+    """ In Cents, Amount of money Shoclef will charge from Buyer"""
+    deliveryPrice(currency: Currency): AmountOfMoney!
+    """ In Cents, Amount of money Shoclef will charge from Buyer"""
+    total(currency: Currency): AmountOfMoney!
+    tax(currency: Currency): AmountOfMoney!
+    """ In future buyer will be able to pay by few paymnets to one Order"""
+    payments: [PaymentTransactionInterface!]
+    """ Address for ship products """
+    deliveryOrders: [DeliveryOrder]!
+    cancelationReason: String
+    error: String
+    publishableKey: String
+    paymentClientSecret: String
+    buyer: User!
+    createdAt: Date!
+    paymentInfo: String
+  }
 
-    type PurchaseOrderCollection {
-        collection: [PurchaseOrder]!
-        pager: Pager
-    }
+  type PurchaseOrderCollection {
+    collection: [PurchaseOrder]!
+    pager: Pager
+  }
 
-    type ConfirmMessage {
-      message: String!
-    }
+  type ConfirmMessage {
+    message: String!
+  }
 
-    input PurchaseOrderFilterInput {
-      statuses: [PurchaseOrderStatus!]
-    }
+  enum OrderSortFeature {
+    CREATED_AT
+  }
 
-    input RedirectionInput {
-      success: String!
-      cancel: String
-    }
+  input OrderSortInput {
+    feature: OrderSortFeature! = CREATED_AT,
+    type: SortTypeEnum! = ASC
+  }
 
-    enum PurchaseOrderSortFeature {
-      CREATED_AT
-    }
+  input PurchaseOrderFilterInput {
+    statuses: [PurchaseOrderStatus!]
+  }
 
-    input PurcahseOrderSortInput {
-      feature: ReviewSortFeature! = CREATED_AT
-      type: SortTypeEnum! = DESC
-    }
+  input RedirectionInput {
+    success: String!
+    cancel: String
+  }
 
-    extend type Query {
-        allPurchaseOrders: [PurchaseOrder]!
-        purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
-        purchaseOrder(id: ID!): PurchaseOrder
-        getInvoicePDF(id: ID!): String
-    }
+  enum PurchaseOrderSortFeature {
+    CREATED_AT
+  }
 
-    extend type Mutation {
-        """
-          - Allows: authorized user
-          - param.redirection: requires only for PayPal
-        """
-        checkoutCart(
-          currency: Currency!, 
-          provider: PaymentMethodProviders!,
-          """Required only for PayPal & UnionPay"""
-          redirection: RedirectionInput, 
-          """Required only for Braintree"""
-          paymentMethodNonce: String
-        ): PurchaseOrder! @auth(requires: USER)
+  input PurcahseOrderSortInput {
+    feature: ReviewSortFeature! = CREATED_AT
+    type: SortTypeEnum! = DESC
+  }
 
-        """
-          - Allows: authorized user
-          - redirection: required for PayPal or UnionPay
-        """
-        checkoutOneProduct(
-          deliveryRate: ID!, 
-          product: ID!, 
-          quantity: Int!, 
-          currency: Currency!, 
-          productAttribute: ID, 
-          provider: PaymentMethodProviders!,
-          billingAddress: ID!,
-          redirection: RedirectionInput
-          """Required for Braintree only"""
-          paymentMethodNonce: String
-        ): PurchaseOrder! @auth(requires: USER)
+  extend type Query {
+    allPurchaseOrders: [PurchaseOrder]!
+    purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
+    purchaseOrder(id: ID!): PurchaseOrder
+    orderList(
+      filter: PurchaseOrderFilterInput = {}, 
+      page: PageInput = {},
+      sort: OrderSortInput = {}
+    ): PurchaseOrderCollection!
+    purchaseOrderListByProduct(productID: ID!): [PurchaseOrder]!
+    getInvoicePDF(id: ID!): String
+  }
 
-        """Allows: authorized user"""
-        cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
+  extend type Mutation {
+    """
+      - Allows: authorized user
+      - param.redirection: requires only for PayPal
+    """
+    checkoutCart(
+      currency: Currency!, 
+      provider: PaymentMethodProviders!,
+      """Required only for PayPal & UnionPay"""
+      redirection: RedirectionInput, 
+      """Required only for Braintree"""
+      paymentMethodNonce: String
+    ): PurchaseOrder! @auth(requires: USER)
 
-        """Allows: authorized user"""
-        LinePayConfirm(transactionID: String!, amount: Float!, currency: Currency!): ConfirmMessage! @auth(requires: USER)
+    """
+      - Allows: authorized user
+      - redirection: required for PayPal or UnionPay
+    """
+    checkoutOneProduct(
+      deliveryRate: ID!, 
+      product: ID!, 
+      quantity: Int!, 
+      currency: Currency!, 
+      productAttribute: ID, 
+      provider: PaymentMethodProviders!,
+      billingAddress: ID!,
+      redirection: RedirectionInput
+      """Required for Braintree only"""
+      paymentMethodNonce: String
+    ): PurchaseOrder! @auth(requires: USER)
 
-        """
-        Allows: authorized user
-        Pass ID of the Order you want to pay
-        """
-        payPurchaseOrder(id: ID!, paymentMethod: ID): PaymentTransactionInterface! @auth(requires: USER)
-        getBrainTreeToken: String! @auth(requires: USER)
-    }
+    """Allows: authorized user"""
+    cancelPurchaseOrder(id: ID!, reason: String!): PurchaseOrder! @auth(requires: USER)
 
-    
+    """Allows: authorized user"""
+    LinePayConfirm(transactionID: String!, amount: Float!, currency: Currency!): ConfirmMessage! @auth(requires: USER)
+
+    """
+    Allows: authorized user
+    Pass ID of the Order you want to pay
+    """
+    payPurchaseOrder(id: ID!, paymentMethod: ID): PaymentTransactionInterface! @auth(requires: USER)
+    getBrainTreeToken: String! @auth(requires: USER)
+  }
 `;
 
 module.exports.typeDefs = [schema];
@@ -148,6 +163,8 @@ module.exports.resolvers = {
       repository.purchaseOrder.getById(id)
     ),
     purchaseOrders,
+    orderList,
+    purchaseOrderListByProduct,
     getInvoicePDF: async (_, { id }, { dataSources: { repository } }) => repository.purchaseOrder.getInvoicePDF(id)
       .then((pdf) => {
         if (pdf && pdf.length > 0) {

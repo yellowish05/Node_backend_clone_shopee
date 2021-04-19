@@ -5,17 +5,7 @@ const { Promise } = require('bluebird');
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const axios = require('axios');
-
-// const currencyServiceUrl = 'https://api.exchangeratesapi.io/latest';
-// const currencyServiceUrl = 'https://api.exchangerate.host/latest';
 const jsonFile = 'http://www.floatrates.com/daily/usd.json';
-// const { Currency } = require('../../../../../lib/Enums');
-
-// const parameters = {
-//   base: Currency.USD,
-//   symbols: Currency,
-//   // symbols: Currency.toList().toString(),
-// };
 
 async function exchangeOnSupportedCurrencies(price) {
   const currencies = CurrencyFactory.getCurrencies();

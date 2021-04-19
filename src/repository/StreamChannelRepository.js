@@ -104,6 +104,14 @@ class StreamChannelRepository {
       new: true,
     });
   }
+  
+  async updateStatus(id, status) {
+    const channel = await this.load(id);
+    if (!channel) { throw Error(`Live Stream "${id}" does not exist!`); }
+
+    channel.status = status;
+    return channel.save();
+  }
 }
 
 module.exports = StreamChannelRepository;

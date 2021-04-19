@@ -128,6 +128,20 @@ module.exports = {
     from: 'Xiufu <Onboard@xiufu.com>',
     fromOther: 'Xiufu <Info@xiufu.com>',
   },
+  shoclefCompany: {
+    seller: {
+      name: 'Shoclef Inc',
+      phone: '+15107178878',
+    },
+    address: {
+      street_1: '1245 N Ogden Dr',
+      street_2: '',
+      country: 'US',
+      zipCode: '90046',
+      city: 'West Hollywood',
+      state: 'CA',
+    },
+  },
   payment: {
     testMode: isTestPaymentMode,
     providers: {

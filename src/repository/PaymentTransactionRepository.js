@@ -12,7 +12,7 @@ class PaymentTransactionRepository {
   }
 
   async getByProviderTransactionId(id) {
-    return this.model.findOne({providerTransactionId: id});
+    return this.model.findOne({ providerTransactionId: id });
   }
 
   async create(data) {

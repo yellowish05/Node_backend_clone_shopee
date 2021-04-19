@@ -24,29 +24,6 @@ module.exports = async (_, {
     
   filter = await ProductService.composeProductFilter(filter, user);
 
-  // if (sort.feature == 'PRICE') {
-  //   const temppage = {
-  //     limit: 0,
-  //     skip: 0,
-  //   };
-
-  //   return Promise.all([
-  //     repository.product.get({ filter, page: temppage, sort }),
-  //     repository.product.getTotal(filter),
-  //   ]).then(([allProducts, total]) => axios.get(jsonFile)
-  //     .then(({ data }) => {
-  //       const rates = {};
-  //       Object.keys(data).some((key) => {
-  //         rates[key.toUpperCase()] = data[key].rate;
-  //       });
-  //       rates.USD = 1;
-  //       if (sort.type == 'ASC') { allProducts.sort((a, b) => a.price / rates[a.currency] - b.price / rates[b.currency]); } else { allProducts.sort((a, b) => b.price / rates[b.currency] - a.price / rates[a.currency]); }
-  //       let collection;
-  //       if (page.limit > 0) { collection = allProducts.slice(page.skip, page.skip + page.limit); } else { collection = allProducts.slice(page.skip); }
-  //       return { collection, pager: { ...pager, total } };
-  //     }));
-  // }
-
   return Promise.all([
     repository.product.get({ filter, page, sort }),
     repository.product.getTotal(filter),
@@ -55,7 +32,7 @@ module.exports = async (_, {
       collection,
       pager: { ...pager, total },
     }))
-    .catch(error => {
+    .catch((error) => {
       throw errorHandler.build([error]);
     });
 };
