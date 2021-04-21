@@ -86,7 +86,7 @@ function applyFilter(query, {
     });
   }
 
-  if (brands) {
+  if (brands && brands.length) {
     query.$and.push({
       brand: { $in: brands },
     });

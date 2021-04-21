@@ -139,7 +139,8 @@ const schema = gql`
         # todo need implement filtering by quantity
         # quantity: IntRangeInput = {min: 1}
         categories: [ID!]
-        brands: [ID!]
+        brands: [ID!] = []
+        brandNames: [String!] = []
         """This price in currency (like 23.45)"""
         price: AmountOfMoneyRangeInput
         """
