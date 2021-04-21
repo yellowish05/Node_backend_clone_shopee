@@ -12,6 +12,7 @@ const providers = {
   PayPal: require('./providers/PayPal'),
   LinePay: require('./providers/LinePay'),
   UnionPay: require('./providers/UnionPay'),
+  Braintree: require('./providers/Braintree'),
 };
 
 if (payment.testMode) {
