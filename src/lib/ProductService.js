@@ -269,6 +269,12 @@ module.exports = {
       filter.attributes = attributes;
     }
 
+    if (filter.brandNames && filter.brandNames.length) {
+      const query = { $or: filter.brandNames.map((name) => ({ name: { $regex: `^${name}`, $options: 'i' } })) };
+      const brands = await repository.brand.getAll(query);
+      filter.brands = filter.brands.concat(brands.map(((it) => it.id)));
+    }
+
     return filter;
   },
 
