@@ -27,11 +27,7 @@ const TRANSACTION_SUCCESS_STATUSES = [
 class Provider extends ProviderAbstract {
   constructor(config, repository) {
     super();
-this.client = new BraintreeGateway({
-      // ...config,
-      // environment: Environment[config.environment[0].toUpperCase() + config.environment.slice(1)],
-      accessToken: "access_token$sandbox$h4wckv4gt8y4mncj$b813790ab657e6d742b5b29566d25490"
-    });
+    this.client = new BraintreeGateway(config);
     this.repository = repository;
   }
 
