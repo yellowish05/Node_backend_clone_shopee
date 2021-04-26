@@ -27,10 +27,12 @@ const TRANSACTION_SUCCESS_STATUSES = [
 class Provider extends ProviderAbstract {
   constructor(config, repository) {
     super();
-    this.client = new BraintreeGateway({
-      ...config,
-      environment: Environment[config.environment[0].toUpperCase() + config.environment.slice(1)],
-    });
+    if (config.environment) {
+      this.client = new BraintreeGateway({
+        ...config,
+        environment: Environment[config.environment[0].toUpperCase() + config.environment.slice(1)],
+      });
+    }
     this.repository = repository;
   }
 
@@ -60,8 +62,8 @@ class Provider extends ProviderAbstract {
       paymentMethodNonce,
       options: { submitForSettlement: true },
     })
-      .then(({ 
-        success, transaction, errors, message 
+      .then(({
+        success, transaction, errors, message
       }) => {
         if (success && TRANSACTION_SUCCESS_STATUSES.indexOf(transaction.status) !== -1) return transaction;
         return { error: message };
