@@ -47,6 +47,10 @@ const schema = new Schema({
     type: Number,
     default: 0,
   },
+  order: {
+    type: Number,
+    default: 100,
+  },
 });
 
 module.exports = new model(collectionName, schema);

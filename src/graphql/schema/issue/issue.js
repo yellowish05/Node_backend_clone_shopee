@@ -99,6 +99,6 @@ module.exports.resolvers = {
     // issuer: async ({ issuer }, _, { dataSources: { repository } }) => {
     //   return repository.user.getById(issuer);
     // },
-    attachments: async ({ attachments }, _, { dataSources: { repository } }) => repository.getByIds(attachments),
+    attachments: async ({ attachments }, _, { dataSources: { repository } }) => repository.asset.getByIds(attachments),
   },
 }

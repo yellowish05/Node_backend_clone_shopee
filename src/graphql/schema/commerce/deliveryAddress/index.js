@@ -15,11 +15,13 @@ const schema = gql`
         city: String
         region: Region
         country: Country!
+        phone:String
         zipCode: String
         isDeliveryAvailable: Boolean!
         addressId: String
         description: String
         shippingAddress: String
+        isDefault: Boolean
     }
 
     input DeliveryAddressInput {
@@ -29,6 +31,7 @@ const schema = gql`
         region: ID!
         country: ID!
         zipCode: String
+        phone:String
         description: String
     }
     

@@ -13,6 +13,7 @@ const zh_terms = require('./sources/terms/zh_terms.json');
  * Make any changes you need to make to the database here
  */
 async function up () {
+  return true;
   // Write migration here
   let newTerms = []
   en_terms.terms_conditions.map((term) =>{
@@ -21,7 +22,7 @@ async function up () {
       englishTitle: term.english_title,
       title: term.title,
       html: term.html,
-      language: 'ENG'
+      language: 'EN'
     })
   })
 
@@ -31,7 +32,7 @@ async function up () {
       englishTitle: term.english_title,
       title: term.title,
       html: term.html,
-      language: 'IND'
+      language: 'ID'
     })
   })
   
@@ -41,7 +42,7 @@ async function up () {
       englishTitle: term.english_title,
       title: term.title,
       html: term.html,
-      language: 'JPN'
+      language: 'JA'
     })
   })
 
@@ -51,7 +52,7 @@ async function up () {
       englishTitle: term.english_title,
       title: term.title,
       html: term.html,
-      language: 'CHI'
+      language: 'ZH'
     })
   })
 

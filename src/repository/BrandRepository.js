@@ -43,7 +43,8 @@ class BrandRepository {
       query,
       null,
       {
-        ...pager
+        ...pager,
+        sort: { order: 1 },
       },
     );
   }

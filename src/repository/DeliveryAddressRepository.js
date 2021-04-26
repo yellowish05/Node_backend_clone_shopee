@@ -24,19 +24,28 @@ class DeliveryAddressRepository {
       'address.country': data.country,
       'address.zipCode': data.zipCode,
       'address.addressId': data.addressId,
-      'address.description': data.description
+      'address.description': data.description,
     });
 
     if (existingAddress) {
       existingAddress.isDeleted = false;
       return existingAddress.save();
     }
-
+    let isDefault = true;
+    const defaultCheck = await this.model.findOne({
+      owner: data.owner,
+      isDefault: true,
+    });
+    if (defaultCheck!==null) {
+      isDefault = false;
+    }
+    console.log('isDefault',isDefault,defaultCheck)
     const deliveryAddress = new this.model(
       {
         _id: uuid(),
         owner: data.owner,
         label: data.label,
+        isDefault,
         address: {
           isDeliveryAvailable: true,
           addressId: data.addressId,

@@ -3,7 +3,7 @@ const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 const AddressSchema = require('./AddressModel');
 
-const collectionName = 'DelivaryAddress';
+const collectionName = 'DeliveryAddress';
 
 const schema = new Schema({
   ...uuidField(collectionName),
@@ -28,6 +28,10 @@ const schema = new Schema({
     type: Boolean,
     default: false,
     index: true,
+  },
+  isDefault: {
+    type: Boolean,
+    default: false,
   },
 });
 
