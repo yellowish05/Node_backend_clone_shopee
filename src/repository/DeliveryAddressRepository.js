@@ -24,7 +24,7 @@ class DeliveryAddressRepository {
       'address.country': data.country,
       'address.zipCode': data.zipCode,
       'address.addressId': data.addressId,
-      'address.description': data.description,
+      'address.description': data.description
     });
 
     if (existingAddress) {
@@ -35,6 +35,7 @@ class DeliveryAddressRepository {
     const defaultCheck = await this.model.findOne({
       owner: data.owner,
       isDefault: true,
+      isDeleted: false
     });
     if (defaultCheck!==null) {
       isDefault = false;
@@ -45,6 +46,7 @@ class DeliveryAddressRepository {
         _id: uuid(),
         owner: data.owner,
         label: data.label,
+        phone: data.phone,
         isDefault,
         address: {
           isDeliveryAvailable: true,
