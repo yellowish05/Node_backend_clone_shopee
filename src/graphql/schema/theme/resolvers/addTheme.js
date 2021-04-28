@@ -23,9 +23,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       provider.inputs.brandCategories ? repository.brandCategory.findByIds(provider.inputs.brandCategories) : [],
       provider.inputs.brands ? repository.brand.getByIds(provider.inputs.brands) : [],
       provider.inputs.liveStreams ? repository.liveStream.getByIds(provider.inputs.liveStreams) : [],
-      provider.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.liveStreamCategories): [],
+      provider.inputs.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.inputs.liveStreamCategories): [],
+      provider.inputs.featureProduct ? repository.product.getById(provider.inputs.featureProduct) : null,
     ])
-    .then(([ themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories ]) => {
+    .then(([ themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories, featureProduct ]) => {
       if (themeByName) provider.error('name', 'custom', `Theme with name "${provider.inputs.name}" already exists!`);
 
       if (!thumbnail) provider.error('thumbnail', 'custom', `Asset with id "${provider.inputs.thumbnail}" does not exist!`);
@@ -68,6 +69,10 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       // for type "LIMITED_TIME", start_time and end_time are required.
       if (provider.inputs.type === ThemeType.LIMITED_TIME && (!provider.inputs.start_time || !provider.inputs.end_time)) {
         provider.error('time', 'custom', `Start time and end time are required for the type "LIMITED_TIME"!`);
+      }
+
+      if (provider.inputs.featureProduct && !featureProduct) {
+        provider.error('featureProduct', 'custom', `Product with id "${provider.inputs.featureProduct}" does not exist!`);
       }
     })
   });
