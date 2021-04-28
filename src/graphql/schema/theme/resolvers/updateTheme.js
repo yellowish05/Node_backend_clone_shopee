@@ -24,9 +24,10 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       provider.inputs.brandCategories ? repository.brandCategory.findByIds(provider.inputs.brandCategories) : [],
       provider.inputs.brands ? repository.brand.getByIds(provider.inputs.brands) : [],
       provider.inputs.liveStreams ? repository.liveStream.getByIds(provider.inputs.liveStreams) : [],
-      provider.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.liveStreamCategories): [],
+      provider.inputs.liveStreamCategories ? repository.liveStreamCategory.getByIds(provider.inputs.liveStreamCategories): [],
+      provider.inputs.featureProduct ? repository.product.getById(provider.inputs.featureProduct) : null,
     ])
-    .then(([ themeById, themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories ]) => {
+    .then(([ themeById, themeByName, thumbnail, productCategories, brandCategories, brands, liveStreams, liveStreamCategories, featureProduct ]) => {
       if (!themeById) provider.error('id', 'custom', `Theme with id "${provider.inputs.id}" does not exist!`);
 
       if (provider.inputs.name && themeByName && themeByName._id !== id) provider.error('name', 'custom', `"${provider.inputs.name}" already exists with other theme!`);
@@ -68,6 +69,9 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         nonExistIds.length > 0 ? provider.error('liveStreamCategories', 'custom', `Livestream categories with ids "${nonExistIds.join(", ")}" do not exist!`) : null;
       }
 
+      if (provider.inputs.featureProduct && !featureProduct) {
+        provider.error('featureProduct', 'custom', `Product with id "${provider.inputs.featureProduct}" does not exist!`);
+      }
     })
   })
 
@@ -78,7 +82,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       return repository.theme.getById(id);
     })
     .then(theme => {
-      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands', 'liveStreams', 'liveStreamCategories', 'type', 'start_time', 'end_time'];
+      const keys = ['name', 'thumbnail', 'hashtags', 'productCategories', 'brandCategories', 'brands', 'liveStreams', 'liveStreamCategories', 'type', 'start_time', 'end_time', 'featureProduct'];
       keys.forEach(key => {
         theme[key] = data[key] || theme[key];
       });

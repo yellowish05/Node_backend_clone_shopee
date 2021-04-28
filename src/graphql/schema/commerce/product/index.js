@@ -26,287 +26,287 @@ const updateProductHashtags = require('./resolvers/updateProductHashtags');
 
 
 const schema = gql`
-    enum ProductMetricUnit {
-      ${ProductMetricUnits.toGQL()}
-    }
+  enum ProductMetricUnit {
+    ${ProductMetricUnits.toGQL()}
+  }
 
-    type ProductAttribute {
-      id: ID!
-      productId: ID!
-      """
-          Price in cents. Use the Currency for show it in correct format
-      """
-      price(currency: Currency): AmountOfMoney!
-      oldPrice(currency: Currency): AmountOfMoney
-      quantity: Int!
-      variation: [Variation]
-      asset: Asset
-      sku: String
-    }
+  type ProductAttribute {
+    id: ID!
+    productId: ID!
+    """
+        Price in cents. Use the Currency for show it in correct format
+    """
+    price(currency: Currency): AmountOfMoney!
+    oldPrice(currency: Currency): AmountOfMoney
+    quantity: Int!
+    variation: [Variation]
+    asset: Asset
+    sku: String
+  }
 
-    type Variation {
-      name: String!
-      value: String!
-    }
+  type Variation {
+    name: String!
+    value: String!
+  }
 
-    type RateStats {
-      average: Float!
-      total: Int!
-    }
+  type RateStats {
+    average: Float!
+    total: Int!
+  }
 
-    type Product {
-        id: ID!
-        """
-            The User who is product owner
-        """
-        seller: User!
-        title: String!
-        description: String!
-        """
-            Price in cents. Use the Currency for show it in correct format
-        """
-        price(currency: Currency): AmountOfMoney!
-        """
-            Price in cents. Use the Currency for show it in correct format
-        """
-        oldPrice(currency: Currency): AmountOfMoney
-        quantity: Int!
-        assets: [Asset!]!
-        thumbnail: Asset
-        attrs: [ProductAttribute]
-        category: ProductCategory!
-        # weight: Weight!
-        shippingBox: ShippingBox!
-        brand: Brand!
-        relatedLiveStreams(limit: Int = 1): [LiveStream]!
-        freeDeliveryTo: [MarketType!]
-        rating: RateStats!
-        customCarrier: CustomCarrier
-        customCarrierValue(currency: Currency):AmountOfMoney
-        metrics: [ProductMetricItem]
-        wholesaleEnabled: Boolean
-        sku: String
-        isFeatured: Boolean
-        slug: String
-        metaDescription: String
-        metaTags: [String]
-        seoTitle: String
-        sold: Int
-        hashtags: [String]
-    }
+  type Product {
+    id: ID!
+    """
+        The User who is product owner
+    """
+    seller: User!
+    title: String!
+    description: String!
+    """
+        Price in cents. Use the Currency for show it in correct format
+    """
+    price(currency: Currency): AmountOfMoney!
+    """
+        Price in cents. Use the Currency for show it in correct format
+    """
+    oldPrice(currency: Currency): AmountOfMoney
+    quantity: Int!
+    assets: [Asset!]!
+    thumbnail: Asset
+    attrs: [ProductAttribute]
+    category: ProductCategory!
+    # weight: Weight!
+    shippingBox: ShippingBox!
+    brand: Brand!
+    relatedLiveStreams(limit: Int = 1): [LiveStream]!
+    freeDeliveryTo: [MarketType!]
+    rating: RateStats!
+    customCarrier: CustomCarrier
+    customCarrierValue(currency: Currency):AmountOfMoney
+    metrics: [ProductMetricItem]
+    wholesaleEnabled: Boolean
+    sku: String
+    isFeatured: Boolean
+    slug: String
+    metaDescription: String
+    metaTags: [String]
+    seoTitle: String
+    sold: Int
+    hashtags: [String]
+  }
 
-    type failedProducts{
-      row: [Int!]
-      errors: [String!]
-    }
+  type failedProducts{
+    row: [Int!]
+    errors: [String!]
+  }
 
-    type UploadedProducts{
-      success: [Product]
-      failedProducts: failedProducts!
-      totalProducts: Int!
-      uploaded: Int!
-      failed: Int!
-    }
+  type UploadedProducts{
+    success: [Product]
+    failedProducts: failedProducts!
+    totalProducts: Int!
+    uploaded: Int!
+    failed: Int!
+  }
 
-    type ProductMetricItem {
-      metricUnit: ProductMetricUnit!
-      minCount: Int
-      unitPrice(currency: Currency): AmountOfMoney!
-      quantity: Int!
-    }
+  type ProductMetricItem {
+    metricUnit: ProductMetricUnit!
+    minCount: Int
+    unitPrice(currency: Currency): AmountOfMoney!
+    quantity: Int!
+  }
 
-    type Weight {
-      value: Float!
-      unit: WeightUnitSystem!
-    }
+  type Weight {
+    value: Float!
+    unit: WeightUnitSystem!
+  }
 
-    input WeightInput {
-      value: Float!
-      unit: WeightUnitSystem!
-    }
+  input WeightInput {
+    value: Float!
+    unit: WeightUnitSystem!
+  }
 
-    type ProductCollection {
-        collection: [Product]!
-        pager: Pager
-    }
+  type ProductCollection {
+    collection: [Product]!
+    pager: Pager
+  }
 
-    input ProductFilterInput {
-        """
-            Searching by Title and Description of the Product.
-            Will return products if the query full matched inside title or description
-        """
-        searchQuery: String
-        # todo need implement filtering by quantity
-        # quantity: IntRangeInput = {min: 1}
-        categories: [ID!]
-        brands: [ID!] = []
-        brandNames: [String!] = []
-        """This price in currency (like 23.45)"""
-        price: AmountOfMoneyRangeInput
-        """
-            You can use it for fetch products by specific Seller
-        """
-        sellers: [ID!]
-        isWholeSale: Boolean
-        isFeatured: Boolean
-        hasLivestream: Boolean = false
-        variations: [VariationInput]
-        ids: [ID!]
-    }
+  input ProductFilterInput {
+    """
+        Searching by Title and Description of the Product.
+        Will return products if the query full matched inside title or description
+    """
+    searchQuery: String
+    # todo need implement filtering by quantity
+    # quantity: IntRangeInput = {min: 1}
+    categories: [ID!]
+    brands: [ID!] = []
+    brandNames: [String!] = []
+    """This price in currency (like 23.45)"""
+    price: AmountOfMoneyRangeInput
+    """
+        You can use it for fetch products by specific Seller
+    """
+    sellers: [ID!]
+    isWholeSale: Boolean
+    isFeatured: Boolean
+    hasLivestream: Boolean = false
+    variations: [VariationInput]
+    ids: [ID!]
+  }
 
-    input ProductAttributeInput {
-      productId: ID!
-      quantity: Int!
-      price: Float!
-      oldPrice: Float
-      currency: Currency!
-      asset: ID!
-      variation: [VariationInput!]!
-      sku: String
-    }
+  input ProductAttributeInput {
+    productId: ID!
+    quantity: Int!
+    price: Float!
+    oldPrice: Float
+    currency: Currency!
+    asset: ID!
+    variation: [VariationInput!]!
+    sku: String
+  }
 
-    """WO = WithOut"""
-    input ProductAttrWOProductInput {
-      quantity: Int!
-      price: Float!
-      oldPrice: Float
-      currency: Currency!
-      variation: [VariationInput!]!
-      asset: ID!
-      sku: String
-    }
+  """WO = WithOut"""
+  input ProductAttrWOProductInput {
+    quantity: Int!
+    price: Float!
+    oldPrice: Float
+    currency: Currency!
+    variation: [VariationInput!]!
+    asset: ID!
+    sku: String
+  }
 
-    input VariationInput {
-      name: String!
-      value: String!
-    }
+  input VariationInput {
+    name: String!
+    value: String!
+  }
 
-    input UpdateProductAttributeInput {
-      productId: ID!
-      quantity: Int
-      price: Float
-      oldPrice: Float
-      currency: Currency
-      variation: [VariationInput!]
-      asset: ID
-    }
+  input UpdateProductAttributeInput {
+    productId: ID!
+    quantity: Int
+    price: Float
+    oldPrice: Float
+    currency: Currency
+    variation: [VariationInput!]
+    asset: ID
+  }
 
-    enum ProductSortFeature {
-      CREATED_AT
-      PRICE
-      SOLD
-    }
+  enum ProductSortFeature {
+    CREATED_AT
+    PRICE
+    SOLD
+  }
 
-    input ProductSortInput {
-      feature: ProductSortFeature! = CREATED_AT
-      type: SortTypeEnum! = ASC
-    }
+  input ProductSortInput {
+    feature: ProductSortFeature! = CREATED_AT
+    type: SortTypeEnum! = ASC
+  }
 
-    type removedProducts {
-      success: Boolean!
-      removed: [ID!]
-      reason: String
-    }
+  type removedProducts {
+    success: Boolean!
+    removed: [ID!]
+    reason: String
+  }
 
-    extend type Query {
-        products(
-            filter: ProductFilterInput = {},
-            sort: ProductSortInput = {},
-            page: PageInput = {}
-        ): ProductCollection!
-        product(id: ID!): Product
-        previewBulkProducts(fileName:String!): String! @auth(requires: USER)
-        productAttributes(productId: ID!): [ProductAttribute!]!
-        productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
-        productBySlug(slug: String!): Product
-    }
+  extend type Query {
+    products(
+        filter: ProductFilterInput = {},
+        sort: ProductSortInput = {},
+        page: PageInput = {}
+    ): ProductCollection!
+    product(id: ID!): Product
+    previewBulkProducts(fileName:String!): String! @auth(requires: USER)
+    productAttributes(productId: ID!): [ProductAttribute!]!
+    productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
+    productBySlug(slug: String!): Product
+  }
 
-    input ProductMetricItemInput {
-      metricUnit: ProductMetricUnit!
-      minCount: Int
-      unitPrice: AmountOfMoneyInput!
-      quantity: Int!
-    }
+  input ProductMetricItemInput {
+    metricUnit: ProductMetricUnit!
+    minCount: Int
+    unitPrice: AmountOfMoneyInput!
+    quantity: Int!
+  }
 
-    input ProductInput {
-        title: String!
-        description: String!
-        """
-            Price in dollars. Use the Currency for convert user input in cents
-        """
-        price: Float!
-        """
-            Price in dollars. Use the Currency for convert user input in cents
-        """
-        oldPrice: Float
-        quantity: Int!
-        """
-            The Active User Currency
-        """
-        currency: Currency!
-        assets: [ID!]!
-        category: ID!
-        # weight: WeightInput!
-        shippingBox: ID!
-        brand: ID!
-        freeDeliveryTo: [MarketType!]
-        customCarrier: String
-        customCarrierValue: Float
-        metrics: [ProductMetricItemInput]
-        wholesaleEnabled: Boolean
-        attrs: [ProductAttrWOProductInput!]
-        thumbnailId:  ID!
-        isFeatured: Boolean
-        slug: String
-        metaDescription: String!
-        metaTags: [String]!
-        seoTitle: String!
-        hashtags: [String]
-    }
+  input ProductInput {
+    title: String!
+    description: String!
+    """
+        Price in dollars. Use the Currency for convert user input in cents
+    """
+    price: Float!
+    """
+        Price in dollars. Use the Currency for convert user input in cents
+    """
+    oldPrice: Float
+    quantity: Int!
+    """
+        The Active User Currency
+    """
+    currency: Currency!
+    assets: [ID!]!
+    category: ID!
+    # weight: WeightInput!
+    shippingBox: ID!
+    brand: ID!
+    freeDeliveryTo: [MarketType!]
+    customCarrier: String
+    customCarrierValue: Float
+    metrics: [ProductMetricItemInput]
+    wholesaleEnabled: Boolean
+    attrs: [ProductAttrWOProductInput!]
+    thumbnailId:  ID!
+    isFeatured: Boolean
+    slug: String
+    metaDescription: String!
+    metaTags: [String]!
+    seoTitle: String!
+    hashtags: [String]
+  }
 
-    type ProductUpdateError {
-      id: String!
-      errors: [String]!
-    }
-    
-    type ProductBulkUpdated {
-      totalProducts: Int!
-      processed: Int!
-      success: Int!
-      failure: Int!
-      errors: [ProductUpdateError]!
+  type ProductUpdateError {
+    id: String!
+    errors: [String]!
+  }
+  
+  type ProductBulkUpdated {
+    totalProducts: Int!
+    processed: Int!
+    success: Int!
+    failure: Int!
+    errors: [ProductUpdateError]!
 
-    }
+  }
 
-    extend type Mutation {
-        """
-            Allows: authorized user
-        """
-        addProduct(data: ProductInput!): Product! @auth(requires: USER)
-        """
-            Allows: authorized user & user must be a seller of this product
-        """
-        updateProduct(id: ID!, data: ProductInput!): Product! @auth(requires: USER)
-        updateProductForAdmin(id: ID!, data: ProductInput!): Product! @auth(requires: ADMIN)
-        """
-            Allows: authorized user & user must be a seller of this product
-        """
-        deleteProduct(id: ID!): Boolean @auth(requires: USER)
-        """
-            Allows: authorized user
-        """
-        addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
-        updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
-        deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
-        deleteProductForAdmin(id: ID!): Boolean @auth(requires: ADMIN)
-        removeDuplicatedProduct(id: ID!): removedProducts @auth(requires: ADMIN)
+  extend type Mutation {
+    """
+        Allows: authorized user
+    """
+    addProduct(data: ProductInput!): Product! @auth(requires: USER)
+    """
+        Allows: authorized user & user must be a seller of this product
+    """
+    updateProduct(id: ID!, data: ProductInput!): Product! @auth(requires: USER)
+    updateProductForAdmin(id: ID!, data: ProductInput!): Product! @auth(requires: ADMIN)
+    """
+        Allows: authorized user & user must be a seller of this product
+    """
+    deleteProduct(id: ID!): Boolean @auth(requires: USER)
+    """
+        Allows: authorized user
+    """
+    addProductAttr(data: ProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+    updateProductAttr(id: ID!, data: UpdateProductAttributeInput!): ProductAttribute! @auth(requires: USER)
+    deleteProductAttr(id: ID!, productId: ID!): Boolean @auth(requires: USER)
+    deleteProductForAdmin(id: ID!): Boolean @auth(requires: ADMIN)
+    removeDuplicatedProduct(id: ID!): removedProducts @auth(requires: ADMIN)
 
-        setProductThumbnail(id: ID!, assetId: ID!): Boolean!
-        uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
-        uploadBulkProductHashtags(file: Upload!): UploadedProducts!
-        correctProductInventoryLog(skip: Int!, limit: Int! = 500): ProductBulkUpdated @auth(requires: USER)
-        updateProductHashtags(skip: Int!, limit: Int = 500): ProductBulkUpdated @auth(requires: USER)
-    }
+    setProductThumbnail(id: ID!, assetId: ID!): Boolean!
+    uploadBulkProducts(fileName:String!, bucket:String): UploadedProducts!
+    uploadBulkProductHashtags(file: Upload!): UploadedProducts!
+    correctProductInventoryLog(skip: Int!, limit: Int! = 500): ProductBulkUpdated @auth(requires: USER)
+    updateProductHashtags(skip: Int!, limit: Int = 500): ProductBulkUpdated @auth(requires: USER)
+  }
 `;
 
 module.exports.typeDefs = [schema];
