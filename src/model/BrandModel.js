@@ -51,6 +51,18 @@ const schema = new Schema({
     type: Number,
     default: 100,
   },
+  banners: [{
+    type: String,
+    ref: 'Banner',
+  }],
+  featureProducts: [{
+    type: String,
+    ref: 'Product',
+  }],
+  featureCategories: [{
+    type: String,
+    ref: 'ProductCategory',
+  }],
 });
 
 module.exports = new model(collectionName, schema);
