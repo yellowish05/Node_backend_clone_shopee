@@ -12,6 +12,7 @@ const logger = require(path.resolve("config/logger"));
 const { payment: { providers: { stripe } } } = require(path.resolve("config"));
 
 const stripeProvider = PaymentMethodProviders.STRIPE;
+const alipayProvider = PaymentMethodProviders.ALIPAY;
 const razorpayProvider = PaymentMethodProviders.RAZORPAY;
 const paypalProvider = PaymentMethodProviders.PAYPAL;
 const linepayProvider = PaymentMethodProviders.LINEPAY;
@@ -91,20 +92,22 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider === PaymentMethodProviders.ALIPAY) {
-      return getProvider(stripeProvider)
-        .createAlipayPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
+    }
+    else if (provider === PaymentMethodProviders.ALIPAY) {
+      console.log('Alipay getting.............')
+      return getProvider(alipayProvider)
+        .createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
           } else {
             return {
-              publishableKey: stripe.publishable,
-              paymentClientSecret: paymentIntent.client_secret,
+              paymentClientSecret: paymentIntent,
             };
           }
         });
-    } else if (provider === PaymentMethodProviders.WECHATPAY) {
+    }
+    else if (provider === PaymentMethodProviders.WECHATPAY) {
       return getProvider(stripeProvider)
         .createWeChatPaySource(transaction.currency, transaction.amount, transaction.buyer)
         .then((paymentIntent) => {
@@ -117,7 +120,8 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider === PaymentMethodProviders.RAZORPAY) {
+    }
+    else if (provider === PaymentMethodProviders.RAZORPAY) {
       return getProvider(razorpayProvider)
         .createOrder(transaction.currency, transaction.amount, transaction.buyer)
         .then((orderResponse) => {
@@ -130,7 +134,8 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider === PaymentMethodProviders.PAYPAL) {
+    }
+    else if (provider === PaymentMethodProviders.PAYPAL) {
       return getProvider(paypalProvider)
         .createOrder(transaction.currency, transaction.amount, transaction.buyer, redirection)
         .then(async (orderResponse) => {
@@ -152,8 +157,9 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
       return {
         publishableKey: "",
         paymentClientSecret: getProvider(PaymentMethodProviders.UNIONPAY).generateLink(transaction),
-      }  
-    } else if (provider === PaymentMethodProviders.LINEPAY) {
+      }
+    }
+    else if (provider === PaymentMethodProviders.LINEPAY) {
       return getProvider(linepayProvider)
         .createOrder(transaction)
         .then((orderResponse) => {
@@ -166,7 +172,8 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
             };
           }
         });
-    } else if (provider === PaymentMethodProviders.BRAINTREE) {
+    }
+    else if (provider === PaymentMethodProviders.BRAINTREE) {
       return getProvider(braintreeProvider)
         .createOrder(transaction.currency, transaction.amount, transaction.buyer, paymentMethodNonce)
         .then(async (response) => {

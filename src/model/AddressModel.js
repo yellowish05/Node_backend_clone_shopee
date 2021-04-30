@@ -16,6 +16,7 @@ const addressSchema = new Schema({
     ref: 'Country',
   },
   zipCode: String,
+  phone: String,
   isDeliveryAvailable: {
     type: Boolean,
     default: false,

@@ -33,6 +33,10 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
+  phone: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = new model(collectionName, schema);

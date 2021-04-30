@@ -10,6 +10,7 @@ const providers = {
   Stripe: require('./providers/Stripe'),
   RazorPay: require('./providers/RazorPay'),
   PayPal: require('./providers/PayPal'),
+  AliPay: require('./providers/Alipay'),
   LinePay: require('./providers/LinePay'),
   UnionPay: require('./providers/UnionPay'),
   Braintree: require('./providers/Braintree'),

@@ -188,9 +188,9 @@ class Provider extends ProviderAbstract {
     //               usedAt: new Date(),
     //               card: newCard.id
     //             };
-                
+
     //             return paymentMethodData;
-    //           } else 
+    //           } else
 
     //             return paymentMethodData;
     //           } else
@@ -210,7 +210,7 @@ class Provider extends ProviderAbstract {
     //     throw new UserInputError('Can\'t add new Payment mothod, try later');
     //   });
     // }));
-    
+
 
     // if(newPaymentMethodId)
     //   return repository.paymentMethod.getById(newPaymentMethodId);
@@ -341,7 +341,7 @@ class Provider extends ProviderAbstract {
   }
 
   async createAlipayPaymentIntent(currency, amount, buyer) {
-    if(!this.client)
+    /*if(!this.client)
       console.log("Stripe Connectin Error !");
     let newCustomer;
 
@@ -368,16 +368,16 @@ class Provider extends ProviderAbstract {
       }
     } else {
       newCustomer = customer;
-    }
+    }*/
 
-    return this.client.paymentIntents.create({
+    /*return this.client.paymentIntents.create({
       payment_method_types: ['alipay'],
       amount,
       currency: currency.toLowerCase(),
       customer: newCustomer.customerId,
     }).catch((error) => ({
       error: error.raw.message,
-    }));
+    }));*/
   }
 
   async deletePaymentMethod(id, { dataSources: { repository }, user }) {
