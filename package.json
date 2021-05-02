@@ -32,6 +32,7 @@
     "agora-access-token": "^1.0.2-alpha.2",
     "agora-rtc-sdk": "^3.1.1",
     "alipay-nodejs": "0.0.13",
+    "alipay-sdk": "^3.1.6",
     "apollo-boost": "^0.4.4",
     "apollo-server": "^2.9.4",
     "apollo-server-express": "^2.9.4",
