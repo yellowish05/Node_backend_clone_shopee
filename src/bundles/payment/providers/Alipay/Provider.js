@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 const path = require('path');
 const { UserInputError } = require('apollo-server');
-const Alipay = require('alipay-nodejs');
+// const Alipay = require('alipay-nodejs');
 
 const AlipaySdk = require('alipay-sdk').default;
 const AlipayFormData = require('alipay-sdk/lib/form').default;
