@@ -151,7 +151,7 @@ module.exports.resolvers = {
       }
       return repository.asset.getById(image);
     },
-    image4Mobile: async ({ image4Mobile }, _, { dataSources: { repository } }) => repository.asset.getById(image),
+    image4Mobile: async ({ image4Mobile }, _, { dataSources: { repository } }) => repository.asset.getById(image4Mobile),
     icon: async ({ icon }, _, { dataSources: { repository } }) => {
       if (!icon) {
         return null;
