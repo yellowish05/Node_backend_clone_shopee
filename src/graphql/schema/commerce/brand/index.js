@@ -82,7 +82,7 @@ module.exports.resolvers = {
       }
       return repository.asset.getByIds(brand.images);
     },
-    banners: async ({ banners = [] }, _, { dataSources: { repository } }) => repository.banners.getByIds(banners),
+    banners: async ({ banners = [] }, _, { dataSources: { repository } }) => repository.banner.getByIds(banners),
     featureProducts: async ({ id, featureProducts }, _, { dataSources: { repository } }) => repository.product.getByIds(featureProducts).then((products) => {
       if (products.length > 0) { return products; }
       return repository.product.get({
