@@ -68,6 +68,7 @@ const activity = {
 
 module.exports = async (req, res) => {
   console.log('alipay ', req.body);
+  res.status(200).send(req.body);
   /* const data = req.body.resource;
   const eventType = req.body.event_type;
 
