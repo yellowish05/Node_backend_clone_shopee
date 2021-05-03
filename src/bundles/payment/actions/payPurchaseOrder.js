@@ -94,9 +94,17 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
         });
     }
     else if (provider === PaymentMethodProviders.ALIPAY) {
-      console.log('Alipay getting.............')
+      // console.log('Alipay getting.............', transaction);
+      // console.log('redirection.............', redirection);
+      // console.log('order.............', order);
+      // console.log('provider.............', provider);
+      // console.log('paymentMethodNonce.............', paymentMethodNonce);
       return getProvider(alipayProvider)
-        .createOrder(transaction.currency, transaction.amount, transaction.buyer)
+        .createOrder({
+          transaction,
+          order,
+          redirection,
+        })
         .then((paymentIntent) => {
           if (paymentIntent.error) {
             return paymentIntent;
