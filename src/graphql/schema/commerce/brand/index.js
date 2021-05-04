@@ -17,6 +17,7 @@ const schema = gql`
     banners: [Banner!]
     featureProducts: [Product!]
     featureCategories: [ProductCategory!]
+    slug: String!
   }
 
   input BrandInput{
@@ -47,6 +48,7 @@ const schema = gql`
     searchBrand(filter: BrandFilterInput = {}, page: PageInput = {}, hasProduct: Boolean = true, query: String): BrandCollection!
     allBrands(hasProduct: Boolean = true, hasLiveStream: Boolean): [Brand]!
     brand(id: ID!): Brand
+    brandBySlug(slug: String!): Brand
   }
 
   extend type Mutation {
@@ -62,6 +64,7 @@ module.exports.resolvers = {
     searchBrand,
     allBrands,
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
+    brandBySlug: async (_, { slug }, { dataSources: { repository } }) => repository.brand.getBySlug(slug),
   },
   Brand: {
     brandCategories: async (brand, _, { dataSources: { repository }}) => {
