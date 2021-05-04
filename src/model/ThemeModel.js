@@ -79,6 +79,10 @@ const schema = new Schema({
     type: Date,
     default: Date.now,
   },
+  featureProduct: {
+    type: String,
+    ref: "Product",
+  },
 });
 
 module.exports = new model(collectionName, schema);

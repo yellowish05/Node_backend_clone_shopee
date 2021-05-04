@@ -36,6 +36,7 @@ const schema = gql`
     """
     end_time: Date
     order: Int
+    featureProduct: Product
   }
 
   """
@@ -55,6 +56,7 @@ const schema = gql`
     start_time: Date
     end_time: Date
     order: Int
+    featureProduct: ID
   }
 
   input ThemeUpdateInput {
@@ -68,6 +70,7 @@ const schema = gql`
     start_time: Date
     end_tiem: Date
     order: Int
+    featureProduct: ID
   }
 
   """
@@ -146,5 +149,6 @@ module.exports.resolvers = {
       return liveStreamCategories ? repository.liveStreamCategory.getByIds(liveStreamCategories) : []; 
     },
     type: async (theme) => (theme.type || "NORMAL"),
+    featureProduct: async ({ featureProduct }, _, { dataSources: { repository } }) => repository.product.getById(featureProduct),
   }
 };

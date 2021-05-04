@@ -14,6 +14,9 @@ const schema = gql`
         images: [Asset]!
         hashtags: [String]
         countProducts: Int
+        banners: [Banner!]
+        featureProducts: [Product!]
+        featureCategories: [ProductCategory!]
     }
 
     input BrandInput{
@@ -57,29 +60,6 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Query: {
     searchBrand,
-    // searchBrand: async (_, { query, page, hasProduct }, { dataSources: { repository } }) => {
-    //   const result = {
-    //     collection: [],
-    //     pager: {
-    //       ...page,
-    //       total: 0,
-    //     },
-    //   };
-
-    //   // if (query.length < 1) {
-    //   //   return result;
-    //   // }
-
-    //   return Promise.all([
-    //     repository.brand.searchByName(query, page, hasProduct),
-    //     repository.brand.getCountBySearch(query, hasProduct),
-    //   ])
-    //     .then(([collection, total]) => {
-    //       result.collection = collection || [];
-    //       result.pager.total = total;
-    //       return result;
-    //     });
-    // },
     allBrands,
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
   },
@@ -102,6 +82,31 @@ module.exports.resolvers = {
       }
       return repository.asset.getByIds(brand.images);
     },
+    banners: async ({ banners = [] }, _, { dataSources: { repository } }) => repository.banner.getByIds(banners),
+    featureProducts: async ({ id, featureProducts }, _, { dataSources: { repository } }) => repository.product.getByIds(featureProducts).then((products) => {
+      if (products.length > 0) { return products; }
+      return repository.product.get({
+        filter: { brands: [id] },
+        sort: { feature: 'SOLD', type: 'DESC' },
+        page: { skip: 0, limit: 6 },
+      });
+    }),
+    featureCategories: async ({ id, featureCategories }, _, { dataSources: { repository } }) => repository.productCategory.findByIds(featureCategories).then((categories) => {
+      if (categories.length > 0) { return categories; }
+      return repository.product.get({
+        filter: { brands: [id] },
+        sort: { feature: 'SOLD', type: 'DESC' },
+        page: { skip: 0, limit: 100 },
+      })
+        .then((products) => {
+          const categoryIds = [];
+          products.forEach((product) => {
+            if (!categoryIds.includes(product.category)) categoryIds.push(product.category);
+          });
+          return repository.productCategory.findByIds(categoryIds);
+        })
+        .then((cates) => cates.slice(0, 6));
+    }),
   },
   Mutation: {
     addBrand: async (_, args, { dataSources: { repository } }) => {
