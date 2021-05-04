@@ -104,11 +104,11 @@ class Provider extends ProviderAbstract {
     formData.setMethod('get');
     const bizContent = {
       /** 商户订单号,商户自定义，需保证在商户端不重复，如：20200612000001 * */
-      OutTradeNo: `${order.id}`,
+      OutTradeNo: `${transaction.id}`,
       /** 销售产品码，固定值 FAST_INSTANT_TRADE_PAY * */
       ProductCode: 'FAST_INSTANT_TRADE_PAY',
       /** 订单标题 * */
-      Subject: `订单编号:${order.id}`,
+      Subject: `订单编号:${transaction.id}`,
       /** 订单金额，精确到小数点后两位 * */
       TotalAmount: `${amountOfMoney.getCurrencyAmount()}`,
       /** 订单描述 * */
