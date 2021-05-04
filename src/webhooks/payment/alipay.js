@@ -67,24 +67,49 @@ const activity = {
 };
 
 module.exports = async (req, res) => {
-  console.log('alipay ', req.body);
-  res.status(200).send(req.body);
-  /* const data = req.body.resource;
-  const eventType = req.body.event_type;
+  // res.status(200).send(req.body);
+  const { params } = req;
+  console.log('alipay ', req.body, params);
+  const transactionId = params.out_trade_no;
+  let currentTransaction;
 
-  switch (eventType) {
-    case 'PAYMENTS.PAYMENT.CREATED':
-      return activity.paymentCreated(data, repository)
-        .then(({ message, code }) => {
-          logger.info(`[WEBHOOK][PAYPAL][PAYMENTS.PAYMENT.CREATED] ${code}:${message}`);
-          return res.status(code).send(message)
+  return repository.paymentTransaction.getById(transactionId)
+    // if provider needs own transactionProcesser, use it.
+    .then((transaction) => {
+      currentTransaction = transaction;
+      return processTransaction(repository)({ transaction, response: params });
+    })
+    .then((transaction) => {
+      const purchaseOrderId = transaction.tags[0].replace(
+        'PurchaseOrder:',
+        '',
+      );
+      return repository.purchaseOrder.getById(purchaseOrderId);
+    })
+    .then((purchaseOrder) => ordersBundle.executeOrderPaidFlow(purchaseOrder))
+    .then(async (purchaseOrder) => {
+      // do some extra process.
+      pubsub.publish('PAYMENT_TRANSACTION_CHANGED', {
+        id: currentTransaction._id,
+        ...currentTransaction.toObject(),
+      });
+      await checkout.clearUserCart(purchaseOrder.buyer, repository);
+      EmailService.sendInvoicePDFs(purchaseOrder);
+      EmailService.sendPackingSlipPDFs(purchaseOrder);
+      // decrease quantity of product.
+
+      return res.send({ code: 200, message: 'Success', transaction: currentTransaction });
+    })
+    .catch((error) => {
+      if (error instanceof TransactionAlreadyProcessedException) {
+        return res.send({
+          code: 200,
+          message: `${error.message} already processed!`,
+          transaction: currentTransaction,
         });
-      break;
-    case "PAYMENT.SALE.COMPLETED":
-      logger.info('[WEBHOOK][PAYPAL][PAYMENT.SALE.COMPLETED] 200:Got it!');
-      res.status(200).send('Got it!');
-      break;
-    default:
-      res.sendStatus(200);
-  } */
+      } if (error instanceof TransactionNotFoundException) {
+        return res.send({ code: 404, message: `${error.message} not found!` });
+      }
+      return res.send({ code: 400, message: error.message });
+    });
 };
