@@ -6,53 +6,55 @@ const allBrands = require('./resolvers/allBrands');
 const searchBrand = require('./resolvers/searchBrand');
 
 const schema = gql`
-    type Brand {
-        id: ID!
-        name: String!
-        brandCategories: [BrandCategory]
-        productCategories: [ProductCategory]!
-        images: [Asset]!
-        hashtags: [String]
-        countProducts: Int
-        banners: [Banner!]
-        featureProducts: [Product!]
-        featureCategories: [ProductCategory!]
-    }
+  type Brand {
+    id: ID!
+    name: String!
+    brandCategories: [BrandCategory]
+    productCategories: [ProductCategory]!
+    images: [Asset]!
+    hashtags: [String]
+    countProducts: Int
+    banners: [Banner!]
+    featureProducts: [Product!]
+    featureCategories: [ProductCategory!]
+    slug: String!
+  }
 
-    input BrandInput{
-      name: String!
-      images: [String]!
-      hashtags: [String]
-    }
+  input BrandInput{
+    name: String!
+    images: [String]!
+    hashtags: [String]
+  }
 
-    input BrandUpdateInput{
-      name: String
-      images: [String]
-      productCategories: [String]
-      brandCategories: [String]
-    }
+  input BrandUpdateInput{
+    name: String
+    images: [String]
+    productCategories: [String]
+    brandCategories: [String]
+  }
 
-    type BrandCollection {
-        collection: [Brand]!
-        pager: Pager
-    }
+  type BrandCollection {
+    collection: [Brand]!
+    pager: Pager
+  }
 
-    input BrandFilterInput {
-      searchQuery: String
-      hasProduct: Boolean = true
-      hasImage: Boolean
-    }
+  input BrandFilterInput {
+    searchQuery: String
+    hasProduct: Boolean = true
+    hasImage: Boolean
+  }
 
-    extend type Query {
-        searchBrand(filter: BrandFilterInput = {}, page: PageInput = {}, hasProduct: Boolean = true, query: String): BrandCollection!
-        allBrands(hasProduct: Boolean = true, hasLiveStream: Boolean): [Brand]!
-        brand(id: ID!): Brand
-    }
+  extend type Query {
+    searchBrand(filter: BrandFilterInput = {}, page: PageInput = {}, hasProduct: Boolean = true, query: String): BrandCollection!
+    allBrands(hasProduct: Boolean = true, hasLiveStream: Boolean): [Brand]!
+    brand(id: ID!): Brand
+    brandBySlug(slug: String!): Brand
+  }
 
-    extend type Mutation {
-      addBrand(data:BrandInput!): Brand! @auth(requires: USER)
-      updateBrand(id: ID!, data: BrandUpdateInput!): Brand! @auth(requires: USER)
-    }
+  extend type Mutation {
+    addBrand(data:BrandInput!): Brand! @auth(requires: USER)
+    updateBrand(id: ID!, data: BrandUpdateInput!): Brand! @auth(requires: USER)
+  }
 `;
 
 module.exports.typeDefs = [schema];
@@ -62,6 +64,7 @@ module.exports.resolvers = {
     searchBrand,
     allBrands,
     brand: async (_, { id }, { dataSources: { repository } }) => repository.brand.getById(id),
+    brandBySlug: async (_, { slug }, { dataSources: { repository } }) => repository.brand.getBySlug(slug),
   },
   Brand: {
     brandCategories: async (brand, _, { dataSources: { repository }}) => {

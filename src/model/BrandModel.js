@@ -47,6 +47,10 @@ const schema = new Schema({
     type: Number,
     default: 0,
   },
+  slug: {
+    type: String,
+    unique: true,
+  },
   order: {
     type: Number,
     default: 100,

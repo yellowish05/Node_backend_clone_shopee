@@ -28,7 +28,11 @@ class BrandRepository {
 
   async getByIds(ids) {
     return this.model.findOne({ _id: ids });
-  }  
+  }
+
+  async getBySlug(slug) {
+    return this.model.findOne({ slug });
+  }
   
   async get({ filter, page }) {
     let query = {};
