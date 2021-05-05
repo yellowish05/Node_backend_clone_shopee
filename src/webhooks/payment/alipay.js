@@ -68,7 +68,7 @@ const activity = {
 
 module.exports = async (req, res) => {
   // res.status(200).send(req.body);
-  const { params } = req;
+  const params = req.query;
   console.log('alipay ', req.body, params);
   const transactionId = params.out_trade_no;
   let currentTransaction;
