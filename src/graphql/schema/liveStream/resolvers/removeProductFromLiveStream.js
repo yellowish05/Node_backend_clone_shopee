@@ -33,9 +33,9 @@ const activity = {
           throw new Error(`Product can not be removed from the Live Stream, because of Product "${productId}" does not exist!`);
         }
 
-        if (product.seller !== liveStream.streamer) {
-          throw new ForbiddenError('You cannot add products to this Live Stream');
-        }
+        // if (product.seller !== liveStream.streamer) {
+        //   throw new ForbiddenError('You cannot add products to this Live Stream');
+        // }
 
         // const index = liveStream.products.indexOf(productId);
 

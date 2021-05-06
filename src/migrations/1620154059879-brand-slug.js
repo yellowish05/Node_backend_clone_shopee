@@ -9,12 +9,14 @@ const processBatch = async ({ skip, limit }) => {
   return BrandModel.find({}, null, { sort: { name: 1 }, skip, limit })
     .then((brands) => Promise.all(brands.map(async (brand) => {
       brand.slug = slugify(brand.name);
-      const others = await BrandModel.find({ name: { $regex: `^${brand.name}$`, $options: 'i' } });
+      const others = await BrandModel.find({ name: { $regex: `^${brand.name}$`, $options: 'i' } })
+        .then((items) => items)
+        .catch((error) => []);
       if (others.length > 1) {
         brand.slug += '-' + Math.floor(Math.random() * 100).toString();
       }
       return brand.save();
-    })))
+    })));
 }
 
 /**
