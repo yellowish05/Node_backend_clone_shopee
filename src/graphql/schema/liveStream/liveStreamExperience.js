@@ -1,18 +1,18 @@
 const { gql } = require('apollo-server');
 
 const schema = gql`
-    type LiveStreamExperience {
-        id: ID!
-        name(locale: Locale): String!
-        description(locale: Locale): String!
-        image: String
-        hashtags: [String]
-    }
+  type LiveStreamExperience {
+    id: ID!
+    name(locale: Locale): String!
+    description(locale: Locale): String!
+    image: String
+    hashtags: [String]
+  }
 
-    extend type Query {
-        liveStreamExperiences(hasStream: Boolean = true): [LiveStreamExperience]!
-        liveStreamExperience(id: ID!): LiveStreamExperience
-    }
+  extend type Query {
+    liveStreamExperiences(hasStream: Boolean = true): [LiveStreamExperience]!
+    liveStreamExperience(id: ID!): LiveStreamExperience
+  }
 `;
 
 module.exports.typeDefs = [schema];

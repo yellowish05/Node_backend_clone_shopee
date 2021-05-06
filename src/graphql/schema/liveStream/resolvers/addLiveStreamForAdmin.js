@@ -59,18 +59,17 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         throw new UserInputError(`Asset ${args.data.preview} does not exist`, { invalidArgs: 'preview' });
       }
     })
-    .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId)))
-      .then((products) => {
-        products.forEach((product) => {
-          if (!product) {
-            throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
-          }
+    .then(() => Promise.all(args.data.products.map((productId) => repository.product.getById(productId))).then((products) => {
+      products.forEach((product) => {
+        if (!product) {
+          throw new Error(`Product can not be addded to the Live Stream, because of Product "${product.id}" does not exist!`);
+        }
 
-          if (product.seller !== user.id) {
-            throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
-          }
-        });
-      }))
+        // if (product.seller !== user.id) {
+        //   throw new ForbiddenError(`You cannot add product "${product.id}" to this Live Stream`);
+        // }
+      });
+    }))
     .then(async () => {
       const channelId = uuid();
       const liveStreamId = uuid();

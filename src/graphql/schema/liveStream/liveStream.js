@@ -29,217 +29,217 @@ const liveStreamLiked = require('./resolvers/liveStreamLiked');
 const pubsub = require(path.resolve('config/pubsub'));
 
 const schema = gql`
-    enum OrientationMode {
-      ${OrientationMode.toGQL()}
-    }
+  enum OrientationMode {
+    ${OrientationMode.toGQL()}
+  }
 
-    type LiveStreamStats {
-      duration: Int
-      likes: Int
-      viewers: Int
-    }
+  type LiveStreamStats {
+    duration: Int
+    likes: Int
+    viewers: Int
+  }
 
-    type LiveStreamAddress {
-      wsurl: String!
-      fileurl:String!
-      abs_url:String!
-    }
+  type LiveStreamAddress {
+    wsurl: String!
+    fileurl:String!
+    abs_url:String!
+  }
 
-    type StreamProductDuration {
-      product: Product
-      duration: String
-    }
+  type StreamProductDuration {
+    product: Product
+    duration: String
+  }
 
-    input StreamProductDurationInput {
-      product: String!
-      """
-        Associated time with the video. for example: "00:35-00:55"
-      """
-      duration: String!
-    }
+  input StreamProductDurationInput {
+    product: String!
+    """
+      Associated time with the video. for example: "00:35-00:55"
+    """
+    duration: String!
+  }
 
-    type LiveStream {
-        id: ID!
-        title: String!
-        streamer: User!
-        experience: LiveStreamExperience!
-        categories: [LiveStreamCategory]!
-        city: String
-        preview: [Asset]
-        previewVideo: Asset
-        channel: StreamChannel!
-        isLiked: Boolean
-        statistics: LiveStreamStats!
-        publicMessageThread: MessageThread
-        privateMessageThreads: [MessageThread]!
-        # products: [Product]! @deprecated(reason: "Use 'productDurations' instead")
-        views: Int!
-        likes: Int!
-        startTime: Date
-        productDurations: [StreamProductDuration]
-        orientation: OrientationMode!
-        thumbnail: Asset
-        isFeatured: Boolean
-        hashtags: [String]
-        slug: String
-    }
+  type LiveStream {
+    id: ID!
+    title: String!
+    streamer: User!
+    experience: LiveStreamExperience!
+    categories: [LiveStreamCategory]!
+    city: String
+    preview: [Asset]
+    previewVideo: Asset
+    channel: StreamChannel!
+    isLiked: Boolean
+    statistics: LiveStreamStats!
+    publicMessageThread: MessageThread
+    privateMessageThreads: [MessageThread]!
+    # products: [Product]! @deprecated(reason: "Use 'productDurations' instead")
+    views: Int!
+    likes: Int!
+    startTime: Date
+    productDurations: [StreamProductDuration]
+    orientation: OrientationMode!
+    thumbnail: Asset
+    isFeatured: Boolean
+    hashtags: [String]
+    slug: String
+  }
 
-    input LiveStreamInput {
-        title: String!
-        experience: ID!
-        categories: [ID]!
-        city: String
-        preview: [ID]
-        previewVideo: ID
-        # products: [ID] = [] 
-        liveStreamRecord: [String]
-        startTime: Date
-        productDurations: [StreamProductDurationInput] = []
-        orientation: OrientationMode!
-        thumbnail: ID!
-        hashtags: [String]
-    }
+  input LiveStreamInput {
+    title: String!
+    experience: ID!
+    categories: [ID]! = []
+    city: String
+    preview: [ID] = []
+    previewVideo: ID
+    # products: [ID] = [] 
+    liveStreamRecord: [String] = []
+    startTime: Date
+    productDurations: [StreamProductDurationInput] = []
+    orientation: OrientationMode!
+    thumbnail: ID!
+    hashtags: [String] = []
+  }
 
-    input AdminLiveStreamInput {
-      title: String!
-      experience: ID!
-      categories: [ID]!
-      city: String
-      preview: ID
-      products: [ID] = [],
-      liveStreamRecord:[String],
-      user: ID!
-    }
+  input AdminLiveStreamInput {
+    title: String!
+    experience: ID!
+    categories: [ID]!
+    city: String
+    preview: ID
+    products: [ID] = [],
+    liveStreamRecord:[String],
+    user: ID!
+  }
 
-    type LiveStreamCollection {
-      collection: [LiveStream]!
-      pager: Pager
-    }
+  type LiveStreamCollection {
+    collection: [LiveStream]!
+    pager: Pager
+  }
 
-    input LiveStreamFilterInput {
-      """
-      Searching by Title of the Live Stream.
-      Will return live streams if the query full matched inside title
-      """
-      searchQuery: String
-      experiences: [ID] = []
-      categories: [ID] = []
-      cities: [ID] = []
-      statuses: [StreamChannelStatus] = []
-      """
-      You can use it for fetch live streams by specific Streamer
-      """
-      streamers: [ID!] = []
-      isFeatured: Boolean = null
-      productFilter: ProductFilterInput
-    }
+  input LiveStreamFilterInput {
+    """
+    Searching by Title of the Live Stream.
+    Will return live streams if the query full matched inside title
+    """
+    searchQuery: String
+    experiences: [ID] = []
+    categories: [ID] = []
+    cities: [ID] = []
+    statuses: [StreamChannelStatus] = []
+    """
+    You can use it for fetch live streams by specific Streamer
+    """
+    streamers: [ID!] = []
+    isFeatured: Boolean = null
+    productFilter: ProductFilterInput
+  }
 
-    enum LiveStreamSortFeature {
-      CREATED_AT
-    }
+  enum LiveStreamSortFeature {
+    CREATED_AT
+  }
 
-    input LiveStreamSortInput {
-      feature: LiveStreamSortFeature! = CREATED_AT
-      type: SortTypeEnum! = ASC
-    }
+  input LiveStreamSortInput {
+    feature: LiveStreamSortFeature! = CREATED_AT
+    type: SortTypeEnum! = ASC
+  }
 
-    enum LikeLiveStreamViewType {
-      view like
-    }
+  enum LikeLiveStreamViewType {
+    view like
+  }
 
-    enum LikeLiveStreamTagType {
-      real fake
-    }
+  enum LikeLiveStreamTagType {
+    real fake
+  }
 
-    input LiveStreamUpdateInput {
-      id: ID!
-      playLength: Int!
-      view: LikeLiveStreamViewType!
-      tag: LikeLiveStreamTagType!
-    }
+  input LiveStreamUpdateInput {
+    id: ID!
+    playLength: Int!
+    view: LikeLiveStreamViewType!
+    tag: LikeLiveStreamTagType!
+  }
 
-    type VideoQueueResponse {
-      record: StreamRecordSource
-      liveStream: LiveStream
-    }
+  type VideoQueueResponse {
+    record: StreamRecordSource
+    liveStream: LiveStream
+  }
 
-    type LikeStreamNotification {
-      liveStream: LiveStream!
-      user: User!
-      isLiked: Boolean
-    }
+  type LikeStreamNotification {
+    liveStream: LiveStream!
+    user: User!
+    isLiked: Boolean
+  }
 
-    extend type Query {
-        liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
-        liveStream(id: ID): LiveStream
-        liveStreamBySlug(slug: String!): LiveStream
-        liveStreamAddress(id:ID!): LiveStreamAddress
-        previousLiveStream(id: ID!): LiveStream
-        nextLiveStream(id: ID!): LiveStream
-        previousLiveStreamID(id: ID!): ID
-        nextLiveStreamID(id: ID!): ID
-        previousQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
-        nextQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
-    }
-  
-    extend type Mutation {
-      """
-      Allows: authorized user
-      input field 'products' is deprecated on Nov 18, 2020 to set the duration for assosicated products.
-      Use 'productDurations' instead.
-      """
-      addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
-      addLiveStreamForAdmin(data: AdminLiveStreamInput!): LiveStream! @auth(requires: ADMIN)
+  extend type Query {
+    liveStreams(filter: LiveStreamFilterInput = {}, page: PageInput = {}, sort: LiveStreamSortInput = {}): LiveStreamCollection!
+    liveStream(id: ID): LiveStream
+    liveStreamBySlug(slug: String!): LiveStream
+    liveStreamAddress(id:ID!): LiveStreamAddress
+    previousLiveStream(id: ID!): LiveStream
+    nextLiveStream(id: ID!): LiveStream
+    previousLiveStreamID(id: ID!): ID
+    nextLiveStreamID(id: ID!): ID
+    previousQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
+    nextQueue(liveStream: ID!, currentRecord: ID!): VideoQueueResponse
+  }
 
-      """Allows: authorized user"""
-      likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+  extend type Mutation {
+    """
+    Allows: authorized user
+    input field 'products' is deprecated on Nov 18, 2020 to set the duration for assosicated products.
+    Use 'productDurations' instead.
+    """
+    addLiveStream(data: LiveStreamInput!): LiveStream! @auth(requires: USER)
+    addLiveStreamForAdmin(data: AdminLiveStreamInput!): LiveStream! @auth(requires: ADMIN)
 
-      """Allows: authorized user"""
-      archiveLiveStream(id: ID!): LiveStream! @auth(requires: USER)
-      toggleStatusLiveStream(id: ID!, status: Boolean!): LiveStream!
-      hideLiveStream(id: ID!, hide: Boolean!): LiveStream! @auth(requires: ADMIN)
-      
-      """
-      Allows: authorized user
-      When user join LiveStream next things executed:
-      1. StreamChannel Token generation for this User and LiveStream
-      2. Created MessageThread for User and Streamer
-      Pass ID of the Live Stream
-      """
-      joinLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+    """Allows: authorized user"""
+    likeLiveStream(id: ID!): LiveStream! @auth(requires: USER)
 
-      """
-      Allows: authorized user
-      Pass ID of the Live Stream
-      """
-      leaveLiveStream(id: ID!): Boolean! @auth(requires: USER)
-      """
-      Allows: authorized user
-      Pass ID of the Live Stream and list of Product IDs. Make sure to set Error Policy to 'all'
-      """
-      addProductToLiveStream(liveStream: ID!, products: [StreamProductDurationInput]!): LiveStream! @auth(requires: USER)
-      """
-      Allows: authorized user
-      Pass ID of the Live Stream and ID of the Product
-      """
-      removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
-      updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream!
-      updateLiveStreamPreviewVideo(id: ID!, assetId: ID!): LiveStream
-      updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
-      addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
-      updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
-      updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream! @auth(requires: USER)
-      """
-      Allows: authorized admin
-      """
-      updateLiveStreamSlug: Boolean! @auth(requires: ADMIN) 
-    }
+    """Allows: authorized user"""
+    archiveLiveStream(id: ID!): LiveStream! @auth(requires: USER)
+    toggleStatusLiveStream(id: ID!, status: Boolean!): LiveStream!
+    hideLiveStream(id: ID!, hide: Boolean!): LiveStream! @auth(requires: ADMIN)
+    
+    """
+    Allows: authorized user
+    When user join LiveStream next things executed:
+    1. StreamChannel Token generation for this User and LiveStream
+    2. Created MessageThread for User and Streamer
+    Pass ID of the Live Stream
+    """
+    joinLiveStream(id: ID!): LiveStream! @auth(requires: USER)
 
-    extend type Subscription {
-      """Allows: authorized user"""
-      liveStream(id: ID!): LiveStream @auth(requires: USER)
-      liveStreamLiked(ids: [ID]): LikeStreamNotification @auth(requires: USER)
-    }
+    """
+    Allows: authorized user
+    Pass ID of the Live Stream
+    """
+    leaveLiveStream(id: ID!): Boolean! @auth(requires: USER)
+    """
+    Allows: authorized user
+    Pass ID of the Live Stream and list of Product IDs. Make sure to set Error Policy to 'all'
+    """
+    addProductToLiveStream(liveStream: ID!, products: [StreamProductDurationInput]!): LiveStream! @auth(requires: USER)
+    """
+    Allows: authorized user
+    Pass ID of the Live Stream and ID of the Product
+    """
+    removeProductFromLiveStream(liveStream: ID!, productId: ID!): LiveStream! @auth(requires: USER)
+    updateLiveStreamCount(data: LiveStreamUpdateInput): LiveStream!
+    updateLiveStreamPreviewVideo(id: ID!, assetId: ID!): LiveStream
+    updateLiveStreamThumbnail(id: ID!, thumbnailId: ID!): LiveStream
+    addStreamRecord(liveStream: ID!, streamRecord: String!): LiveStream
+    updateStreamRecord(liveStream: ID!, streamRecord: [String]!): LiveStream!
+    updateLiveStreamProducts(liveStream: ID!, productDurations: [StreamProductDurationInput]): LiveStream! @auth(requires: USER)
+    """
+    Allows: authorized admin
+    """
+    updateLiveStreamSlug: Boolean! @auth(requires: ADMIN) 
+  }
+
+  extend type Subscription {
+    """Allows: authorized user"""
+    liveStream(id: ID!): LiveStream @auth(requires: USER)
+    liveStreamLiked(ids: [ID]): LikeStreamNotification @auth(requires: USER)
+  }
 `;
 
 module.exports.typeDefs = [schema];

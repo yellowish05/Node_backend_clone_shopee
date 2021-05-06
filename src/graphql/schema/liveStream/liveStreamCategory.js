@@ -4,20 +4,19 @@ const { gql } = require('apollo-server');
 const { cdn } = require(path.resolve('config'));
 
 const schema = gql`
-    type LiveStreamCategory {
-        id: ID!
-        name(locale: Locale): String!
-        image: String
-        hashtags: [String]
-        slug: String
-    }
+  type LiveStreamCategory {
+    id: ID!
+    name(locale: Locale): String!
+    image: String
+    hashtags: [String]
+    slug: String
+  }
 
-    extend type Query {
-        liveStreamCategories(hasStream: Boolean = true): [LiveStreamCategory]!
-        liveStreamCategory(id: ID!): LiveStreamCategory
-        liveStreamCategoryBySlug(slug: String!): LiveStreamCategory
-    }
-
+  extend type Query {
+    liveStreamCategories(hasStream: Boolean = true): [LiveStreamCategory]!
+    liveStreamCategory(id: ID!): LiveStreamCategory
+    liveStreamCategoryBySlug(slug: String!): LiveStreamCategory
+  }
 `;
 
 module.exports.typeDefs = [schema];
