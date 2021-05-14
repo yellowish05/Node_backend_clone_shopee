@@ -6,11 +6,13 @@ const logger = require(path.resolve('config/logger'));
 const createSchema = require('./schema');
 
 const secureContextMiddlewareFactory = require(path.resolve('src/lib/ApolloSecureContextMiddleware'));
+const checkMongoTimedout = require(path.resolve('src/lib/MonitorDBTimeout'))
 
 module.exports = ({ repository }) => new ApolloServer({
   schema: createSchema(),
   formatError: (error) => {
     const sendError = error;
+    checkMongoTimedout(error);
 
     if (error.extensions && error.extensions.code === 'INTERNAL_SERVER_ERROR') {
       logger.error(JSON.stringify(error));
