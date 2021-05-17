@@ -10,7 +10,8 @@ class DeliveryOrderRepository {
   }
 
   async getByIds(ids) {
-    return this.model.find({ _id: ids });
+    // console.log('order ids',ids);
+    return this.model.find({ _id: { $in: ids } });
   }
 
   async getAll() {

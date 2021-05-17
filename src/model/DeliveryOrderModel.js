@@ -58,7 +58,11 @@ const schema = new Schema({
   proofPhoto: {
     type: String,
     ref: 'Asset',
-  }
+  },
+  carrierList: {
+    type: Array,
+    default: [],
+  },
 });
 
 schema.methods.getTagName = function getTagName() {
