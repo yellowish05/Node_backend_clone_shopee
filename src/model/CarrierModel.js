@@ -12,7 +12,25 @@ const schema = new Schema({
     type: String,
     required: true,
   },
-  carrierId: String,    // EasyPost carrier account id
+  slug: {
+    type: String,
+    required: false,
+  },
+  phone: {
+    type: String,
+    required: false,
+  },
+  homepage: {
+    type: String,
+    default: '', // courier website link
+    required: false,
+  },
+  apiProvider: {
+    type: String,
+    default: 'EasyPost',
+    required: true,
+  },
+  carrierId: String, // EasyPost carrier account id // tracktry.com couriers_code
   workInCountries: [{
     type: String,
     ref: 'Country',

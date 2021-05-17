@@ -20,7 +20,7 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
     saleOrderId: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
   });
 
-  let deliveryOrders;
+  let deliveryOrders=[];
   let carrierId;
   let saleOrder;
 
@@ -30,36 +30,39 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
     repository.saleOrder.getById(provider.inputs.saleOrderId),
     repository.organization.getByOwner(user.id),
   ])
-  .then(async ([foundDeliveryOrders, foundCarrier, foundsaleOrder, organization]) => {
-    if (!foundDeliveryOrders.length) {
-      provider.error('id', 'custom', `DeliveryOrders with ids "${provider.inputs.ids}" doen not exist!`);
-    }
-    const customCarrier = await repository.customCarrier.getById(organization.customCarrier);
-    if (foundCarrier) 
-      carrierId = foundCarrier.id;
-    else if (organization && provider.inputs.carrier != customCarrier.name) {
-      const carrierinfo = await repository.customCarrier.addByName({name: provider.inputs.carrier});
-      carrierId = carrierinfo.id;
-    } else {
-      carrierId = customCarrier.id;
-    }
-    foundDeliveryOrders.map(foundDeliveryOrder => {
-      if (foundDeliveryOrder.seller != user.id) {
-        provider.error('permission', 'custom', 'You cannot change this order information.')
+    .then(async ([foundDeliveryOrders, foundCarrier, foundsaleOrder, organization]) => {
+      if (!foundDeliveryOrders.length) {
+        provider.error('id', 'custom', `DeliveryOrders with ids "${provider.inputs.ids}" doen not exist!`);
       }
-    })            
-    deliveryOrders = foundDeliveryOrders;
-    saleOrder = foundsaleOrder;
-  }));
-
+      const customCarrier = await repository.customCarrier.getById(organization.customCarrier);
+      if (foundCarrier) carrierId = foundCarrier.id;
+      else if (organization && provider.inputs.carrier != customCarrier) {
+        const carrierinfo = await repository.customCarrier.addByName({ name: provider.inputs.carrier });
+        carrierId = carrierinfo.id;
+      } else {
+        carrierId = customCarrier.id;
+      }
+      foundDeliveryOrders.map((foundDeliveryOrder) => {
+        if (foundDeliveryOrder.seller != user.id) {
+          provider.error('permission', 'custom', 'You cannot change this order information.');
+        }
+      });
+      deliveryOrders = foundDeliveryOrders;
+      saleOrder = foundsaleOrder;
+    }));
+  //console.log('deliveryOrders1=>>>>>>>>>>>>>>>>>>>>>', ids);
   return validator.check()
     .then(async (matched) => {
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
+      console.log('deliveryOrders1=>>>>>>>>>>>>>>>>>>>>>', deliveryOrders);
+      return deliveryOrders;
     })
     .then(async () => {
-      deliveryOrders.map(deliveryOrder => {
+      deliveryOrders = await repository.deliveryOrder.getByIds(ids)
+      console.log('deliveryOrders2=>>>>>>>>>>>>>>>>>>>>>', deliveryOrders);
+      deliveryOrders.map((deliveryOrder) => {
         deliveryOrder.trackingNumber = data.trackingNumber;
         deliveryOrder.carrier = carrierId;
         deliveryOrder.status = DeliveryOrderStatus.SHIPPED;
@@ -67,8 +70,8 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
         deliveryOrder.proofPhoto = data.proofPhoto;
 
         Promise.all([
-          deliveryOrder.save()
-        ])
+          deliveryOrder.save(),
+        ]);
       });
       // change sale, purchase order status
       saleOrder.status = DeliveryOrderStatus.SHIPPED;
@@ -87,26 +90,26 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
       // push notification
       const orderItems = await repository.orderItem.getByIds(saleOrder.items);
       const buyer = await repository.user.getById(saleOrder.buyer);
-      let message = "";
-      
-      message = await Promise.all(orderItems.map(async item => {
+      let message = '';
+
+      message = await Promise.all(orderItems.map(async (item) => {
         let str = "'";
         const productInfo = await repository.product.getById(item.product);
         str += productInfo.title;
         if (item.productAttribute) {
-          const attr = await repository.productAttributes.getById(item.productAttribute)
-          str += "(";
-          console.log("variation =>", attr.variation);
-          attr.variation.map(attrItem => {
-              str += attrItem.name + ": " + attrItem.value + ",";
-          })
-          str += ")";
+          const attr = await repository.productAttributes.getById(item.productAttribute);
+          str += '(';
+          console.log('variation =>', attr.variation);
+          attr.variation.map((attrItem) => {
+            str += `${attrItem.name}: ${attrItem.value},`;
+          });
+          str += ')';
         }
-        str += "', "; 
-        return str;               
+        str += "', ";
+        return str;
       }));
-      message += " were shipped.";
-      console.log("message =>", message);
+      message += ' were shipped.';
+      console.log('message =>', message);
 
       await repository.notification.create({
         type: NotificationType.BUYER_ORDER,
@@ -121,9 +124,13 @@ module.exports = async (_, { ids, data }, { dataSources: { repository }, user })
         },
         tags: ['Order:order.id'],
       });
-      if (buyer.device_id) { 
-        await PushNotificationService.sendPushNotification({ message, device_ids: [buyer.device_id] }); 
+      if (buyer.device_id) {
+        await PushNotificationService.sendPushNotification({
+          message,
+          device_ids: [buyer.device_id],
+        });
       }
+      console.log('deliveryOrders=>>>>>>>>>>>>>>>>>>>>>', deliveryOrders);
       return deliveryOrders;
     });
-}
+};

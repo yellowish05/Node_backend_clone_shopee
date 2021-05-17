@@ -22,11 +22,18 @@ class CarrierRepository {
   }
 
   async addByName(data) {
+    // eslint-disable-next-line new-cap
     const card = new this.model({
       _id: uuid(),
       ...data,
     });
     return card.save();
+  }
+
+  async addItem(data) {
+    // eslint-disable-next-line no-param-reassign
+    // data._id = uuid();
+    return this.model.update({ name: data.name }, { $set: data }, { upsert: true });
   }
 }
 
