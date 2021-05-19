@@ -135,8 +135,8 @@ const schema = new Schema({
     unique: true,
   },
   isFeatured: {
-    type: Boolean,
-    default: false,
+    type: Number,
+    default: 0,
   },
   slug: {
     type: String
