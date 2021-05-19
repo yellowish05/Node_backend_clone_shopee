@@ -14,7 +14,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 morganBody(app, { stream: logger.stream, noColors: true, prettify: false });
 
 app.use('/translation', translationRouters);
-
 app.use('/temp', tempRouters); // this is for test and transform only
+
+app.route('/sync').post((req, res) => require('./resolvers/syncTables')(req, res));
 
 module.exports = app;
