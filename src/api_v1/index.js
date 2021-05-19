@@ -18,5 +18,6 @@ app.use('/temp', tempRouters); // this is for test and transform only
 
 app.route('/sync').post((req, res) => require('./resolvers/syncTables')(req, res));
 app.route('/delete/:table').delete((req, res) => require('./resolvers/deleteAllTable')(req, res));
+app.route('/update-product-slug').post((req, res) => require('./resolvers/updateProductSlug')(req, res));
 
 module.exports = app;
