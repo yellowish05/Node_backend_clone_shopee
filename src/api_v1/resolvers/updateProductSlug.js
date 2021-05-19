@@ -9,7 +9,7 @@ const activity = {
   processBatch: (skip, limit) => {
     return repository.product.get({
       filter: {},
-      sort: { title: 1 },
+      sort: { feature: 'TITLE', type: 'ASC' },
       page: { skip, limit },
     }).then((products) => Promise.all(products.map((product) => {
       return repository.product.model.find({ title: product.title, _id: { $ne: product._id } })
