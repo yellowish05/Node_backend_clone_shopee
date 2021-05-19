@@ -17,7 +17,9 @@ app.use('/translation', translationRouters);
 app.use('/temp', tempRouters); // this is for test and transform only
 
 app.route('/sync').post((req, res) => require('./resolvers/syncTables')(req, res));
+app.route('/sync-with-slug').post((req, res) => require('./resolvers/syncTablesWithSlug')(req, res));
 app.route('/delete/:table').delete((req, res) => require('./resolvers/deleteAllTable')(req, res));
 app.route('/update-product-slug').post((req, res) => require('./resolvers/updateProductSlug')(req, res));
+app.route('/update-stream-slug').post((req, res) => require('./resolvers/updateStreamSlug')(req, res));
 
 module.exports = app;

@@ -9,6 +9,7 @@ const axios = require('axios');
 const { Validator } = require('node-input-validator');
 const { slugify } = require('transliteration');
 
+
 const repository = require(path.resolve('src/repository'));
 const logger = require(path.resolve('config/logger'));
 const discordWebhook = 'https://discord.com/api/webhooks/844400958342561844/xOHDLK7WDoj8Togb4zc--gdtdFlQ7fwGg9fE3n0edH_gELf8wWeXevSU6gUx63dVaxzX';
@@ -67,7 +68,7 @@ const activity = {
           return model.findOne({ _id: row._id }).then(async (exists) => {
             if (exists) return exists;
             const document = new model(row);
-            document.slug = slugify(document.title) 
+            document.slug = document._id; //slugify(document.title) 
             inserted ++;
             return document.save();            
           }).catch((e) => console.log('[Insert Error]', e));
