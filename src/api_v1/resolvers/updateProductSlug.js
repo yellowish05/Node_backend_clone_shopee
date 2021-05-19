@@ -3,6 +3,7 @@ const path = require('path');
 const { slugify } = require('transliteration');
 
 const repository = require(path.resolve('src/repository'));
+const logger = require(path.resolve('config/logger'));
 
 const activity = {
   processBatch: (skip, limit) => {
@@ -33,6 +34,7 @@ module.exports = async (req, res) => {
         .catch((e) => {
           console.log(`[Batch][${i * batch}-${(i + 1) * batch}]`, e);
         });
+      logger.info(`[Batch][${i * batch}-${(i + 1) * batch}] done.`);
     }
 
     return res.json({ status: true, total });
