@@ -9,7 +9,7 @@ const axios = require('axios');
 const { Validator } = require('node-input-validator');
 
 const repository = require(path.resolve('src/repository'));
-const logger = require(path.resolve('src/logger'));
+const logger = require(path.resolve('config/logger'));
 const discordWebhook = 'https://discord.com/api/webhooks/844400958342561844/xOHDLK7WDoj8Togb4zc--gdtdFlQ7fwGg9fE3n0edH_gELf8wWeXevSU6gUx63dVaxzX';
 const srcUrl = "http://158.247.218.88:4000";
 
