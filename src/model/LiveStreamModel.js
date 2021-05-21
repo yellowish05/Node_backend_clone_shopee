@@ -122,9 +122,8 @@ const schema = new Schema({
   },
   slug: {
     type: String,
-    // required: true,
-    // unique: true,
-    // index: true,
+    required: true,
+    unique: true,
   },
 });
 
