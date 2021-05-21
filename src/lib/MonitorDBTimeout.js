@@ -42,6 +42,9 @@ const activity = {
 module.exports = async (error) => {
   if (error.extensions.code === 'INTERNAL_SERVER_ERROR') {
     const errors = error.extensions.exception.errors;
+    // This is not the our concerned case.
+    if (!errors || typeof errors !== 'object') return true;
+    
     const targetErrors = errors.filter((err) => {
       const matched = err.message.match(regExp);
       return !!matched;

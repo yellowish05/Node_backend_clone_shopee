@@ -19,7 +19,7 @@ const schema = gql`
   type Theme {
     id: ID!
     name: String!
-    thumbnail: Asset!
+    thumbnail: Asset
     hashtags: [String]
     productCategories: [ProductCategory]
     brandCategories: [BrandCategory]
