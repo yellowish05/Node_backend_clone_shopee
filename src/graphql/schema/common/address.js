@@ -45,7 +45,7 @@ module.exports.typeDefs = [schema];
 module.exports.resolvers = {
   Address: {
     country({ country }, args, { dataSources: { repository } }) {
-      return repository.country.getById(typeof country === 'object' ? country.id : country);
+      return repository.country.getById(typeof country === 'object' ? country.id : (country || 'US'));
     },
     region({ region }, args, { dataSources: { repository } }) {
       if (region) {
