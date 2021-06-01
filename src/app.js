@@ -106,6 +106,51 @@ app.post('/invoice', async (req, res) => {
 
   res.status(200).send(PDFs);
 });
+app.get("/location", async (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, x-timebase"
+  );
+  const { ip } = req;
+  if (ip === "::ffff:127.0.0.1") {
+    return res.send({ state: -1, message: "It is not working on localhost" });
+    // ip = '103.125.234.111';
+  }
+  const filter = {
+    method: "GET",
+    url: `https://api.geoapify.com/v1/ipinfo?&ip=${ip}&apiKey=1b48259b810e48ddb151889f9ea58db0`,
+    headers: {
+      Accept: "application/json",
+    },
+    body: "",
+  };
+  const locationInfo = apiRequest(filter);
+  if (locationInfo === null) {
+    return res.send({
+      state: -2,
+      message: "Location api is not working, Please check api key",
+    });
+  }
+  const countryCode = locationInfo.country.iso_code;
+  const languageName = locationInfo.country.languages[0].name;
+  const languageIOSCode = locationInfo.country.languages[0].iso_code;
+  const phoneCode = locationInfo.country.phone_code;
+  const { currency } = locationInfo.country;
+  // const language = await repository.language.getByName(languageName);
+  // console.log('req.ipInfo', req.ipInfo);
+  return res.send({
+    state: 0,
+    location: {
+      countryCode,
+      phoneCode,
+      currency,
+      languageName,
+      languageIOSCode,
+      ip,
+    },
+  });
+});
 
 app.post('/cancel', async (req, res) => {
   const paymentIntent = await stripSDK.paymentIntents.cancel(req.body.pid);
