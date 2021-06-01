@@ -106,6 +106,32 @@ app.post('/invoice', async (req, res) => {
 
   res.status(200).send(PDFs);
 });
+function apiRequest(options) {
+  const request = require("request");
+  let res = "";
+  request(options, (error, response) => {
+    if (error) {
+      console.log("request error", error);
+      return [];
+    }
+    try {
+      res = response.body;
+    } catch (e) {
+      console.log("api error", response);
+    }
+  });
+  const deasync = require("deasync");
+  while (res === "") {
+    deasync.runLoopOnce();
+  }
+  try {
+    res = JSON.parse(res);
+  } catch (e) {
+    res = null;
+  }
+  // console.log('response.status',res)
+  return res;
+}
 app.get("/location", async (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
