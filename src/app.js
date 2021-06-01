@@ -44,7 +44,10 @@ const app = express();
 app.use(express.json({ limit: '50000mb' }));
 app.use(express.urlencoded({ limit: '50000mb', extended: true }));
 // app.use(morgan('combined', { stream: logger.stream }));
+const expressip = require("express-ip");
 
+app.set("trust proxy", true);
+app.use(expressip().getIpInfoMiddleware);
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
 });
