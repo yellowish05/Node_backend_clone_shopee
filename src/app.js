@@ -158,24 +158,31 @@ app.get("/location", async (req, res) => {
       message: "Location api is not working, Please check api key",
     });
   }
-  const countryCode = locationInfo.country.iso_code;
-  const languageName = locationInfo.country.languages[0].name;
-  const languageIOSCode = locationInfo.country.languages[0].iso_code;
-  const phoneCode = locationInfo.country.phone_code;
-  const { currency } = locationInfo.country;
-  // const language = await repository.language.getByName(languageName);
-  // console.log('req.ipInfo', req.ipInfo);
-  return res.send({
-    state: 0,
-    location: {
-      countryCode,
-      phoneCode,
-      currency,
-      languageName,
-      languageIOSCode,
-      ip,
-    },
-  });
+  try {
+    const countryCode = locationInfo.country.iso_code;
+    const languageName = locationInfo.country.languages[0].name;
+    const languageIOSCode = locationInfo.country.languages[0].iso_code;
+    const phoneCode = locationInfo.country.phone_code;
+    const { currency } = locationInfo.country;
+    // const language = await repository.language.getByName(languageName);
+    // console.log('req.ipInfo', req.ipInfo);
+    return res.send({
+      state: 0,
+      location: {
+        countryCode,
+        phoneCode,
+        currency,
+        languageName,
+        languageIOSCode,
+        ip,
+      },
+    });
+  } catch (e) {
+    return res.send({
+      state: 0,
+      location: locationInfo,
+    });
+  }
 });
 
 app.post('/cancel', async (req, res) => {
