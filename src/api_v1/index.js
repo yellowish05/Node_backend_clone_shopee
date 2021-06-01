@@ -22,5 +22,6 @@ app.route('/sync-with-default').post((req, res) => require('./resolvers/syncWith
 app.route('/delete/:table').delete((req, res) => require('./resolvers/deleteAllTable')(req, res));
 app.route('/update-product-slug').post((req, res) => require('./resolvers/updateProductSlug')(req, res));
 app.route('/update-stream-slug').post((req, res) => require('./resolvers/updateStreamSlug')(req, res));
+app.route('/product-category-slug').patch((req, res) => require('./resolvers/updateProductCategorySlug')(req, res));
 
 module.exports = app;
