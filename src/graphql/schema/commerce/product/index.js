@@ -408,6 +408,7 @@ module.exports.resolvers = {
       }));
       return attributes;
     },
+    sold: ({ sold }) => Number(sold) > 0 ? Number(sold) : 0,
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (
