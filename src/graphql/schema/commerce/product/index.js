@@ -413,6 +413,7 @@ module.exports.resolvers = {
       return repository.productTranslation.getByProduct(id)
         .then((translation) => (translation && translation.title[language.toLowerCase()] ? translation.title[language.toLowerCase()] : title));
     },
+    
     description: async ({ id, description }, { language }, { dataSources: { repository } }) => {
       if (!language) return description;
       return repository.productTranslation.getByProduct(id)
