@@ -60,7 +60,7 @@ const schema = gql`
 
   type LiveStream {
     id: ID!
-    title: String!
+    title(language: LanguageList): String!
     streamer: User!
     experience: LiveStreamExperience!
     categories: [LiveStreamCategory]!
@@ -303,6 +303,11 @@ module.exports.resolvers = {
     liveStreamLiked,
   },
   LiveStream: {
+    title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
+      if (!language) return title;
+      return repository.liveStreamTranslation.getByLivestream(id)
+        .then((translation) => (translation && translation.title[language.toLowerCase()] ? translation.title[language.toLowerCase()] : title));
+    },
     experience(liveStream, args, { dataSources: { repository } }) {
       return repository.liveStreamExperience.getById(liveStream.experience);
     },
