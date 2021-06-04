@@ -4,10 +4,12 @@ const { merge } = require('lodash');
 const { typeDefs: commonTypeDefs, resolvers: commonResolvers } = require('./common');
 const { typeDefs: testErrorsTypeDefs, resolvers: testErrorsResolvers } = require('./common/testErrors');
 const { typeDefs: authTypeDefs, auth } = require('./common/authDirective');
+const { typeDefs: ifDiffersTypeDefs, ifDiffers } = require('./common/ifDiffersDirective');
 const { typeDefs: i18nTypeDefs, resolvers: i18nResolvers } = require('./common/i18n');
 const { typeDefs: addressTypeDefs, resolvers: addressResolvers } = require('./common/address');
 const { typeDefs: latLngTypeDefs, resolvers: latLngResolvers } = require('./common/latLng');
 const { typeDefs: dateTypeDefs, resolvers: dateResolvers } = require('./common/date');
+const { typeDefs: anyTypeDefs, resolvers: anyResolvers } = require('./common/any');
 const { typeDefs: pagerTypeDefs } = require('./common/pager');
 const { typeDefs: sortTypeDefs } = require('./common/sort');
 
@@ -47,6 +49,7 @@ const typeDefs = [].concat(
   commonTypeDefs,
   testErrorsTypeDefs,
   authTypeDefs,
+  ifDiffersTypeDefs,
   i18nTypeDefs,
   userTypeDefs,
   userBlockTypeDefs,
@@ -59,6 +62,7 @@ const typeDefs = [].concat(
   addressTypeDefs,
   latLngTypeDefs,
   dateTypeDefs,
+  anyTypeDefs,
   pagerTypeDefs,
   sortTypeDefs,
   organizationTypeDefs,
@@ -125,6 +129,7 @@ const schema = makeExecutableSchema({
   resolvers,
   schemaDirectives: {
     auth,
+    ifDiffers,
   },
 });
 
