@@ -408,6 +408,16 @@ module.exports.resolvers = {
       }));
       return attributes;
     },
+    title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
+      if (!language) return title;
+      return repository.productTranslation.getByProduct(id)
+        .then((translation) => (translation && translation.title[language.toLowerCase()] ? translation.title[language.toLowerCase()] : title));
+    },
+    description: async ({ id, description }, { language }, { dataSources: { repository } }) => {
+      if (!language) return description;
+      return repository.productTranslation.getByProduct(id)
+        .then((translation) => (translation && translation.description[language.toLowerCase()] ? translation.description[language.toLowerCase()] : description));
+    },
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (
