@@ -60,7 +60,7 @@ const schema = gql`
         The User who is product owner
     """
     seller: User!
-    title(language: LanguageList): String!
+    title(language: LanguageList): String
     description(language: LanguageList): String @ifDiffers(key: "status", value: "DRAFT")
     """
         Price in cents. Use the Currency for show it in correct format
