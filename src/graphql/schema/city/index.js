@@ -48,7 +48,7 @@ module.exports.resolvers = {
       
       let query = {};
       if (regionIds.length > 0) {
-        query = { region: regionIds };
+        query = { region: {$in:regionIds} };
       }
       return repository.city.get(query);
     },
