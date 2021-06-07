@@ -42,6 +42,7 @@ module.exports.resolvers = {
         const regions = await repository.region.getAll({ country: args.filter.country });
         regionIds = regions.map(region => region._id);
       }
+      console.log("cities filter",args.filter)
       if (args.filter.region) {
         regionIds.push(args.filter.region);
       }
@@ -50,6 +51,7 @@ module.exports.resolvers = {
       if (regionIds.length > 0) {
         query = { region: {$in:regionIds} };
       }
+      console.log("regionIds",regionIds,query)
       return repository.city.get(query);
     },
   },
