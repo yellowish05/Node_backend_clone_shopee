@@ -8,7 +8,7 @@ const { NotificationType, OrderItemStatus, PaymentMethodProviders } = require(pa
 
 module.exports = async function checkoutCart(
   _,
-  { currency, provider, redirection, paymentMethodNonce },
+  { currency, provider,customCarrierPrice, redirection, paymentMethodNonce },
   { dataSources: { repository }, user },
 ) {
   let cartItems = await checkout.loadCartAndValidate(user.id, repository);
@@ -17,7 +17,7 @@ module.exports = async function checkoutCart(
 
   // creating order and clean cart
   const order = await checkout.createOrder({
-    cartItems, currency, buyerId: user.id,
+    cartItems, currency, buyerId: user.id,customCarrierPrice
   }, repository);
 
   // await checkout.clearUserCart(user.id, repository);
