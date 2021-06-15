@@ -19,19 +19,6 @@ const schema = gql`
       total(currency: Currency!): AmountOfMoney!
       
     }
-    type DeliveryRate {
-      id: ID!
-      carrier: Carrier
-      service: String
-      deliveryDays: Int
-      deliveryDateGuaranteed: Boolean
-      rate_id: String
-      shipmentId: String
-      deliveryAddress: DeliveryAddress!,      
-      estimatedDeliveryDate: Date
-      # carrierDeliveryDays: String
-      amount(currency: Currency): AmountOfMoney!
-    }
 
     type CartProductItem implements CartItemInterface {
       id: ID!
@@ -44,7 +31,6 @@ const schema = gql`
       product: Product!
       deliveryIncluded: Boolean!
       deliveryAddress: DeliveryAddress
-      deliveryRate:DeliveryRate 
       note: String
       selected: Boolean
     }
@@ -286,9 +272,6 @@ module.exports.resolvers = {
     deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
       return repository.deliveryRate.getById(rateId)
         .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
-    },
-    deliveryRate: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
-      return repository.deliveryRate.getById(rateId)
     },
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
