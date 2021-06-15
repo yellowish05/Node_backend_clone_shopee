@@ -108,7 +108,7 @@ module.exports = {
   },
 
   async createOrder({
-    cartItems, currency, buyerId,
+    cartItems, currency, buyerId,customCarrierPrice
   }, repository) {
     const factory = new OrderFactory(cartItems, currency, repository);
 
@@ -122,7 +122,7 @@ module.exports = {
         items.map((item, index) => repository.deliveryOrder.create({ ...item, item: orderItems[index].id })),
       ));
 
-    const order = factory.createOrder();
+    const order = factory.createOrder(customCarrierPrice);
     order.buyer = buyerId;
     order.deliveryOrders = deliveryOrders;
     order.items = orderItems.map((item) => item.id);

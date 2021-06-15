@@ -10,3 +10,4 @@ package-lock.json
 Note.md
 .idea
 build/
+.vscode-upload.json

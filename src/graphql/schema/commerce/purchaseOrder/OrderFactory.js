@@ -106,15 +106,16 @@ class OrderFactory {
       });
   }
 
-  createOrder() {
+  createOrder(customCarrierPrice) {
     const order = {
       currency: this.currency,
       status: PurchaseOrderStatus.CREATED,
       quantity: this.purchaseItems.reduce((sum, item) => sum + item.quantity, 0),
       price: this.purchaseItems.reduce((sum, item) => sum + item.total, 0),
       deliveryPrice: this.purchaseItems.reduce((sum, item) => sum + item.deliveryPrice, 0),
-      total: this.purchaseItems.reduce((sum, item) => sum + item.total + item.deliveryPrice, 0),
+      total: this.purchaseItems.reduce((sum, item) => sum + item.total + item.deliveryPrice, 0) + customCarrierPrice,
       tax: 0,
+      customCarrierPrice
     };
 
     return order;

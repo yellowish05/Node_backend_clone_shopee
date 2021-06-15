@@ -31,6 +31,11 @@ const schema = new Schema({
   quantity: {
     type: Number,
     required: true,
+  },  
+  customCarrierPrice: {
+    type: Number,
+    default:0,
+    required: false,
   },
   currency: {
     type: String,
