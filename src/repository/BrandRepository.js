@@ -7,12 +7,12 @@ function getSearchQueryByName(query) {
 function applyFilter(query, {
   searchQuery, hasProduct, hasImage, categoryId
 }) {
-  console.log("searchQuery",searchQuery)
+  console.log("searchQuery1",searchQuery,hasProduct,hasImage)
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
-  if (searchQuery!==undefined) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
-  if (hasProduct!==undefined) query.$and.push({ nProducts: { $gt: 0 } });
-  if (hasImage!==undefined) query.$and.push({ "images.0": { $exists: true } });
-  if (categoryId!==undefined) query.$and.push({ "brandCategories": categoryId});
+  if (searchQuery!=undefined && searchQuery!="") query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
+  if (hasProduct!=undefined) query.$and.push({ nProducts: { $gt: 0 } });
+  if (hasImage!=undefined) query.$and.push({ "images.0": { $exists: true } });
+  if (categoryId!=undefined) query.$and.push({ "brandCategories": categoryId});
 }
 
 class BrandRepository {
