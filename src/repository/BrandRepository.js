@@ -7,6 +7,7 @@ function getSearchQueryByName(query) {
 function applyFilter(query, {
   searchQuery, hasProduct, hasImage, categoryId
 }) {
+  console.log("searchQuery",searchQuery)
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
   if (searchQuery) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
   if (hasProduct) query.$and.push({ nProducts: { $gt: 0 } });
