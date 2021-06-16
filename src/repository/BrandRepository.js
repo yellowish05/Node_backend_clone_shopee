@@ -44,7 +44,7 @@ class BrandRepository {
       pager.limit = page.limit;
       pager.skip = page.skip || 0;
     }
-    console.log({query})
+    console.log("query",JSON.stringify(query))
     return this.model.find(
       query,
       null,
