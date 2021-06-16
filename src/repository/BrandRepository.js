@@ -9,10 +9,10 @@ function applyFilter(query, {
 }) {
   console.log("searchQuery",searchQuery)
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
-  if (searchQuery) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
-  if (hasProduct) query.$and.push({ nProducts: { $gt: 0 } });
-  if (hasImage) query.$and.push({ "images.0": { $exists: true } });
-  if (categoryId) query.$and.push({ "brandCategories": categoryId});
+  if (searchQuery!==undefined) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
+  if (hasProduct!==undefined) query.$and.push({ nProducts: { $gt: 0 } });
+  if (hasImage!==undefined) query.$and.push({ "images.0": { $exists: true } });
+  if (categoryId!==undefined) query.$and.push({ "brandCategories": categoryId});
 }
 
 class BrandRepository {
