@@ -5,12 +5,13 @@ function getSearchQueryByName(query) {
 }
 
 function applyFilter(query, {
-  searchQuery, hasProduct, hasImage,
+  searchQuery, hasProduct, hasImage, categoryId
 }) {
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
   if (searchQuery) query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
   if (hasProduct) query.$and.push({ nProducts: { $gt: 0 } });
   if (hasImage) query.$and.push({ "images.0": { $exists: true } });
+  if (categoryId) query.$and.push({ "brandCategories":  {$elemMatch:categoryId}});
 }
 
 class BrandRepository {

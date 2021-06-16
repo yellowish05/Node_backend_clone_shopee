@@ -41,7 +41,8 @@ const schema = gql`
   input BrandFilterInput {
     searchQuery: String
     hasProduct: Boolean = true
-    hasImage: Boolean
+    hasImage: Boolean,
+    categoryId:String
   }
 
   extend type Query {
