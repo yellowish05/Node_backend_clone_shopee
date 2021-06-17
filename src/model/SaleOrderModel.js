@@ -23,7 +23,6 @@ const schema = new Schema({
   deliveryOrders: [{
     type: String,
     ref: 'DeliveryOrder',
-    required: true,
   }],
   items: [{
     type: String,
