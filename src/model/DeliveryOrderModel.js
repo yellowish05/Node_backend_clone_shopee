@@ -30,6 +30,9 @@ const schema = new Schema({
     ref: 'DeliveryAddress',
     required: true,
   },
+  deliveryAddressInfo: {
+    type: Object,
+  },
   trackingNumber: {
     type: String,
     index: true,
