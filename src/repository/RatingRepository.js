@@ -67,6 +67,8 @@ class RatingRepository {
     if (!insertItem._id) insertItem = { ...data, _id: uuid() };
     const review = new this.model(insertItem);
     await review.save();
+    console.log("review",review)
+    review.id=review._id
     return review;
   }
 
