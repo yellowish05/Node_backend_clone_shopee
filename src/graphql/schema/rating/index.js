@@ -18,7 +18,10 @@ const schema = gql`
     }
 
     union RatingTarget = Product | Organization | User
-
+    type Media{
+        id: String
+        url: String
+    }
     type Review {
       id: ID!
       target: RatingTarget!
