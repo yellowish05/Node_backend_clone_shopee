@@ -25,6 +25,7 @@ const schema = gql`
       tag: String!
       rating: Float!
       message: String
+      media:[Media]
       user: User!
       order: OrderProductItem
       language: LanguageDetails
