@@ -34,7 +34,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       });
       return review;
     })
-    .then(() => true)
     .catch((error) => {
       throw new ApolloError(`Failed to rate Product. Original error: ${error.message}`, 400);
     });
