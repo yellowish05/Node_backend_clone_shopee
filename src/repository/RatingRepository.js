@@ -68,6 +68,7 @@ class RatingRepository {
     const review = new this.model(insertItem);
     await review.save();
     console.log("review",review)
+    
     console.log("insertItem",insertItem)
     review.id=review._id
     return review;
