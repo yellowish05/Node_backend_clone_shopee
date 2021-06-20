@@ -53,7 +53,6 @@ class RatingRepository {
   }
 
   async create(data) {
-    console.log('review', data);
     let insertItem = data;
     let checkReview = await this.model.findOne({
       tag: insertItem.tag,
@@ -67,8 +66,6 @@ class RatingRepository {
     if (!insertItem._id) insertItem = { ...data, _id: uuid() };
     const review = new this.model(insertItem);
     await review.save();
-    console.log("review",review)
-    
     console.log("insertItem",insertItem)
     review.id=review._id
     return review;
