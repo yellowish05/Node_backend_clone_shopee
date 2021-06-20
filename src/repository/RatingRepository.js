@@ -70,6 +70,13 @@ class RatingRepository {
     review.id=review._id
     return review;
   }
+  
+  async getByProduct(id, userId) {
+    return this.model.findOne({
+      tag: `Product:${id}`,
+      user: userId,
+    });
+  }
 
   async getAverage(tag) {
     return this.model.aggregate([
