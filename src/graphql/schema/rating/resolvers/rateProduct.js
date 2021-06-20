@@ -19,7 +19,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
     })
     .then(() => repository.product.getById(args.product))
-    .then((product) => {
+    .then(async (product) => {
       if (!product) {
         throw new UserInputError('Product does not exists', { invalidArgs: 'product' });
       }
