@@ -97,7 +97,7 @@ const schema = gql`
           - Allows: authorized user.
           - @deprecated: Use "rateProductByOrder" instead.
         """
-        rateProduct(product: ID!, rating: Int!, message: String): Boolean! @auth(requires: USER) @deprecated(reason: "use 'rateProductByOrder' instead")
+        rateProduct(product: ID!, rating: Float!, message: String, media: [String]): Review! @auth(requires: USER) @deprecated(reason: "use 'rateProductByOrder' instead")
         
         """Allows: authorized user"""
         rateOrganization(organization: ID!, rating: Int!, message: String): Boolean! @auth(requires: USER)

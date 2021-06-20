@@ -13,7 +13,7 @@ const schema = new Schema({
   tag: {
     type: String,
     required: true,
-    index: true,
+    // index: true,
   },
   user: {
     type: String,
@@ -33,11 +33,25 @@ const schema = new Schema({
   order: {
     type: String,
     ref: 'OrderItem',
+    required: false,
+  },
+  product: {
+    type: String,
+    required: false,
+  },
+  media: {
+    type: Array,
+    required: false,
   },
   lang: {
     type: String,
     enum: LanguageList.toList(),
     required: true,
+    default: 'ZH',
+  },
+  isPublic: {
+    type: Boolean,
+    default: true,
   },
 });
 
