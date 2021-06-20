@@ -96,6 +96,7 @@ const schema = gql`
     allPurchaseOrders: [PurchaseOrder]!
     purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
     purchaseOrder(id: ID!): PurchaseOrder
+    productReview(id:ID!):Review
     orderList(
       filter: PurchaseOrderFilterInput = {}, 
       page: PageInput = {},
@@ -162,6 +163,9 @@ module.exports.resolvers = {
     ),
     purchaseOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.purchaseOrder.getById(id)
+    ),
+    productReview: async (_, { id }, { dataSources: { repository }, user }) => (
+      repository.rating.getByProduct(id, user)
     ),
     purchaseOrders,
     orderList,
