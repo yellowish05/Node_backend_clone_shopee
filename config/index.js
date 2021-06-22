@@ -124,8 +124,8 @@ module.exports = {
         pass: process.env.AWS_SES_SMTP_PASS
       }
     },
-    // from: 'Crystal.ding1@gmail.com',
-    from: '吉腾 <Onboard@gxjiteng.com>',
+    from: 'Crystal.ding1@gmail.com',
+    // from: '吉腾 <Onboard@gxjiteng.com>',
     fromOther: '吉腾 <Info@gxjiteng.com>',
   },
   shoclefCompany: {
