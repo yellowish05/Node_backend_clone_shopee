@@ -189,7 +189,7 @@ const schema = gql`
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: ADMIN)
-      requestResetPassword(email: String, phone: String): Boolean!
+      requestResetPassword(email: String, phone: String, countryCode: String): Boolean!
       deleteUser(id: ID!): DeleteResult! @auth(requires: ADMIN)
 
       """
