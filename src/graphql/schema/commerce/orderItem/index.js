@@ -39,7 +39,7 @@ const schema = gql`
     type OrderProductItem implements OrderItemInterface {
         id: ID!
         title: String!
-        product: Product!
+        product: Product
         productAttribute: ProductAttribute
         """ In Units """
         quantity: Int!
