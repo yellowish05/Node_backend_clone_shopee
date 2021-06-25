@@ -4,6 +4,7 @@ const schema = gql`
     type Region {
       id: ID!
       name: String
+      geonameId: String
     }
 
     input RegionFilter {
@@ -32,7 +33,8 @@ module.exports.resolvers = {
           data.geonames.forEach(item=>{
             res.push({
               id:item.countryCode+'-'+item.adminCode1,
-              name: item.name
+              name: item.name,
+              geonameId: item.geonameId
             })
           })
         }
