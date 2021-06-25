@@ -118,9 +118,16 @@ module.exports = {
       ));
 
     const deliveryOrders = await factory.createDeliveryOrders()
-      .then((items) => Promise.all(
-        items.map((item, index) => repository.deliveryOrder.create({ ...item, item: orderItems[index].id })),
-      ));
+    .then((items) => Promise.all(
+      items.map(async (item, index) => {
+        if (item.deliveryAddress) {
+          item.deliveryAddressInfo = await repository.deliveryAddress.getById(
+            item.deliveryAddress
+          );
+        }
+        return repository.deliveryOrder.create({ ...item, item: orderItems[index].id });
+      }),
+    ));
 
     const order = factory.createOrder(customCarrierPrice);
     order.buyer = buyerId;

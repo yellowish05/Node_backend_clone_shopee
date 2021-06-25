@@ -6,8 +6,10 @@ class DeliveryAddressRepository {
     this.model = model;
   }
 
-  async getById(id) {
-    return this.model.findOne({ _id: id, isDeleted: false });
+  async getById(id, includeDeleted = false) {
+    const query = { _id: id };
+    if (!includeDeleted) { query.isDeleted = false; }
+    return this.model.findOne(query);
   }
 
   async findByIds(ids) {
