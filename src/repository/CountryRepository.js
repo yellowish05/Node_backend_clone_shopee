@@ -17,7 +17,7 @@ class CountryRepository {
   }
 
   async saveCountry(data){
-    let dataModel=await this.getByID(data.countryCode)
+    let dataModel=await this.model.findOne({ _id: data.countryCode })
     if(dataModel){
       dataModel.geonameId=data.geonameId
       dataModel.save()
