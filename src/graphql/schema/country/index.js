@@ -10,7 +10,7 @@ const schema = gql`
     }
 
     extend type Query {
-        countriesGeonames(service:String): [Country]!
+        countriesGeonames: [Country]!
         countries: [Country]!
     }
 `;
