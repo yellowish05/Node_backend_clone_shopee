@@ -29,6 +29,9 @@ const schema = new Schema({
     default: false,
     index: true,
   },
+  deliveryAddressInfo: {
+    type: Object,
+  },
   isDefault: {
     type: Boolean,
     default: false,
