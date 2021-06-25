@@ -125,7 +125,7 @@ module.exports = {
             item.deliveryAddress
           );
         }
-        repository.deliveryOrder.create({ ...item, item: orderItems[index].id });
+        return repository.deliveryOrder.create({ ...item, item: orderItems[index].id });
       }),
     ));
 
