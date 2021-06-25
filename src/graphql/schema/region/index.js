@@ -31,7 +31,7 @@ module.exports.resolvers = {
         if(data.geonames){
           data.geonames.forEach(item=>{
             res.push({
-              _id:item.countryCode+'-'+item.adminCode1,
+              id:item.countryCode+'-'+item.adminCode1,
               name: item.name
             })
           })
