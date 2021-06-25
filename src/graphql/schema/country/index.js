@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server');
+let axios= require('axios');
 
 const schema = gql`
     type Country {
@@ -9,7 +10,8 @@ const schema = gql`
     }
 
     extend type Query {
-        countries(service:String): [Country]!
+        countriesGeonames: [Country]!
+        countries: [Country]!
     }
 `;
 
@@ -35,6 +37,19 @@ module.exports.resolvers = {
       else{
         return repository.country.getAll();
       }
+    },
+    countriesGeonames(_, args, { dataSources: { repository } }) {
+      return axios.get('http://api.geonames.org/countryInfoJSON?username=linqun').then(({data})=>{
+          if(data.geonames){
+            data.geonames.forEach(item=>{
+              repository.saveCountry(item)
+            })
+          }
+          return repository.country.getAll();
+        }).catch(e=>{
+          console.log('geonames error', e)
+          return repository.country.getAll();
+        })
     },
   },
 };
