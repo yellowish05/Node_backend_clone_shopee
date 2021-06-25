@@ -42,7 +42,7 @@ module.exports.resolvers = {
       return axios.get('http://api.geonames.org/countryInfoJSON?username=linqun').then(({data})=>{
           if(data.geonames){
             data.geonames.forEach(item=>{
-              repository.saveCountry(item)
+              repository.country.saveCountry(item)
             })
           }
           return repository.country.getAll();
