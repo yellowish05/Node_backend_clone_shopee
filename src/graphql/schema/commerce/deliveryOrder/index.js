@@ -83,8 +83,8 @@ module.exports.resolvers = {
     proofPhoto: async ({ proofPhoto }, _, { dataSources: { repository } }) => (
       proofPhoto ? repository.asset.getById(proofPhoto) : null
     ),
-    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
-      repository.deliveryAddress.getById(order.deliveryAddress)
+    deliveryAddress: async ({ deliveryAddress, deliveryAddressInfo }, _, { dataSources: { repository } }) => (
+      deliveryAddressInfo || repository.deliveryAddress.getById(deliveryAddress, true)
     ),
     carrier: async ({ carrier }, _, { dataSources: { repository } }) => {
       let carrierInfo = await repository.customCarrier.getById(carrier);
