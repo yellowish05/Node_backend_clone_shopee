@@ -77,7 +77,7 @@ const schema = gql`
     category: ProductCategory!
     # weight: Weight!
     shippingBox: ShippingBox!
-    brand: Brand!
+    brand: Brand
     relatedLiveStreams(limit: Int = 1): [LiveStream]!
     freeDeliveryTo: [MarketType!]
     rating: RateStats!
