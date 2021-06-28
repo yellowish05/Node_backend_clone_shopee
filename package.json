@@ -70,6 +70,7 @@
     "graphql-request": "^3.2.0",
     "graphql-tag": "^2.10.1",
     "graphql-tools": "^4.0.5",
+    "graphql-type-json": "^0.3.2",
     "http-aws-es": "^6.0.0",
     "https": "^1.0.0",
     "iconv-lite": "^0.6.2",
