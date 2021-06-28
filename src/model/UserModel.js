@@ -113,7 +113,14 @@ const schema = new Schema({
     type: String,
     default: [],
     index: true,
-  }]
+  }],
+  isAnonymous: {
+    type: Boolean,
+    default: false,
+  },
+  anonymousId: {
+    type: String,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {

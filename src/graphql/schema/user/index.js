@@ -45,6 +45,8 @@ const schema = gql`
       color: Color
       followStats: FollowStats
       rating: RateStats!
+      isAnonymous: Boolean!
+      anonymousId: String
     }
 
     type FollowStats {
@@ -107,6 +109,7 @@ const schema = gql`
     input RegistrationInput {
       email: String!
       password: String!
+      anonymousId: String
     }
 
     input ColorInput {
@@ -154,12 +157,14 @@ const schema = gql`
     input SocialLoginInput {
       provider: LoginProvider!
       token: String!
+      anonymousId: String
     }
 
     input PhoneLoginInput {
       phone: String!,
       countryCode: String!
       password: String!
+      anonymousId: String
     }
 
 

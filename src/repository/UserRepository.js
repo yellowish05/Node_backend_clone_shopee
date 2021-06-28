@@ -1,10 +1,10 @@
 const path = require('path');
 // const stream = require('getstream');
+const md5 = require('md5');
 
 const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
 const UserService = require(path.resolve('src/lib/UserService'));
 
-const md5 = require('md5');
 
 function elasticFilter(filter) {
   const emptyQuery = {};
@@ -327,6 +327,10 @@ class UserRepository {
 
   async findByProvider(provider, value) {
     return await this.model.findOne({ [`providers.${provider}`]: value });
+  }
+
+  async findByAnonymousId(anonymousId) {
+    return this.model.findOne({ anonymousId });
   }
 
   async changePassword(userId, password) {
