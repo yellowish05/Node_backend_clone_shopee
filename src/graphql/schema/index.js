@@ -44,6 +44,7 @@ const { typeDefs: themeTypeDefs, resolvers: themeResolvers } = require('./theme'
 const { typeDefs: bannerTypeDefs, resolvers: bannerResolvers } = require('./banner');
 const { typeDefs: postTypeDefs, resolvers: postResolvers } = require('./post');
 const { typeDefs: issueTypeDefs, resolvers: issueResolvers } = require('./issue');
+const { typeDefs: vocabularyTypeDefs, resolvers: vocabularyResolvers } = require('./vocabulary');
 
 const typeDefs = [].concat(
   commonTypeDefs,
@@ -85,6 +86,7 @@ const typeDefs = [].concat(
   bannerTypeDefs,
   postTypeDefs,
   issueTypeDefs,
+  vocabularyTypeDefs,
 );
 
 const resolvers = merge(
@@ -121,6 +123,7 @@ const resolvers = merge(
   bannerResolvers,
   postResolvers,
   issueResolvers,
+  vocabularyResolvers,
   pushNotificationResolvers,
 );
 
