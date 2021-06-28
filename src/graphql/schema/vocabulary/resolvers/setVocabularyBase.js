@@ -27,7 +27,7 @@ module.exports = async (_, { lang, file }, { dataSources: { repository }, user }
     lang: 'required',
   });
 
-  await repository.vocabulary.deleteAll();
+  // await repository.vocabulary.deleteAll();
   return v.check()
     .then((matched) => {
       if (!matched) throw errorHandler.build(v.errors);
