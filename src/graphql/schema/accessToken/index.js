@@ -7,6 +7,7 @@ const generateAccessToken = require('./resolvers/generateAccessToken');
 const generateAccessTokenByPhone = require('./resolvers/generateAccessTokenByPhone');
 const generateAccessTokenByOAuth2 = require('./resolvers/generateAccessTokenByOAuth2');
 const generateAccessTokenByOAuth2Web = require('./resolvers/generateAccessTokenByOAuth2Web');
+const anonymousLogin = require('./resolvers/anonymousLogin');
 
 const schema = gql`
   enum LoginProvider {
@@ -32,11 +33,18 @@ const schema = gql`
     token: String!
   }
 
+  input AnonymousLoginInput {
+    anonymousId: ID!
+    ip: String
+    userAgent: String
+  }
+
   extend type Mutation {
     generateAccessToken(data: LoginInput!): String!
     generateAccessTokenByPhone(data: LoginInputByPhone!): String!
     generateAccessTokenByOAuth2(data: OAuth2LoginInput!): String!
     generateAccessTokenByOAuth2Web(data: OAuth2LoginInput!): String!
+    anonymousLogin(data: AnonymousLoginInput!): String!
   }
 `;
 
@@ -48,5 +56,6 @@ module.exports.resolvers = {
     generateAccessTokenByPhone,
     generateAccessTokenByOAuth2,
     generateAccessTokenByOAuth2Web,
+    anonymousLogin,
   },
 };

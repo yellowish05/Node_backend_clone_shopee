@@ -2,11 +2,33 @@ const uuid = require('uuid/v4');
 const path = require('path');
 const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
+const md5 = require('md5');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
-const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-
 const errorHandler = new ErrorHandler();
+
+const activity = {
+  createUser: async (args, repository) => {
+    const { phone, countryCode, password, anonymousId } = args;
+    const anonymousUser = anonymousId ? await repository.user.findByAnonymousId(anonymousId) : null;
+    if (anonymousUser) {
+      anonymousUser.isAnonymous = false;
+      anonymousUser.anonymousId = null;
+      anonymousUser.phone = phone;
+      anonymousUser.countryCode = countryCode;
+      anonymousUser.password = md5(password);
+      anonymousUser.address = { countryCode };
+      return anonymousUser.save();
+    }
+    return repository.user.createByPhone({
+      _id: uuid(),
+      phone,
+      countryCode,
+      password,
+    }, { roles: ['USER'] });
+  },
+}
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
   const validator = new Validator(args.data, {
@@ -38,12 +60,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         }
       }
     })
-    .then(() => repository.user.createByPhone({
-      _id: uuid(),
-      phone: args.data.phone,
-      email: `${new Date().getTime()}${Number(Math.random() * 1000)}@tempmail.tmp`,
-      countryCode: args.data.countryCode.toUpperCase(),
-      password: args.data.password,
-    }, { roles: ['USER'] }))
+    .then(() => activity.createUser(args.data, repository))
     .then((user) => user);
 };
