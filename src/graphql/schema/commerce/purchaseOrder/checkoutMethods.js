@@ -40,7 +40,7 @@ const createSaleOrders = async ({
     order.items = saleOrderItem.orderItems.map((item) => item.id);
     order.seller = saleOrderItem.seller;
     order.purchaseOrder = purchaseOrder.id;
-    order.total = order.items.reduce((total, item) => total += item.price + deliveryPrice, 0);
+    order.total = saleOrderItem.orderItems.reduce((total, item) => total += item.price + item.deliveryPrice, 0);
 
     await repository.saleOrder.create(order);
   });
