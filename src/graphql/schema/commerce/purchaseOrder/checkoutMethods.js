@@ -108,7 +108,7 @@ module.exports = {
   },
 
   async createOrder({
-    cartItems, currency, buyerId,customCarrierPrice
+    cartItems, currency, buyerId, customCarrierPrice = 0,
   }, repository) {
     const factory = new OrderFactory(cartItems, currency, repository);
 

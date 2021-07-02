@@ -114,7 +114,7 @@ const schema = gql`
     checkoutCart(
       currency: Currency!, 
       provider: PaymentMethodProviders!,
-      customCarrierPrice:Float,
+      customCarrierPrice: Float,
       """Required only for PayPal & UnionPay"""
       redirection: RedirectionInput, 
       """Required only for Braintree"""
