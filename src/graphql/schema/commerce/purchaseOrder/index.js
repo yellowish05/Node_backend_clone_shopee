@@ -46,7 +46,7 @@ const schema = gql`
     """ In future buyer will be able to pay by few paymnets to one Order"""
     payments: [PaymentTransactionInterface!]
     """ Address for ship products """
-    deliveryOrders: [DeliveryOrder]!
+    deliveryOrders: [DeliveryOrder]
     cancelationReason: String
     error: String
     publishableKey: String
