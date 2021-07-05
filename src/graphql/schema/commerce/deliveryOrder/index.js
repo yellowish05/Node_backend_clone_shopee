@@ -26,7 +26,7 @@ const schema = gql`
     }
 
     type DeliveryOrder {
-      id: ID!
+      id: ID
       trackingNumber: String
       status: DeliveryOrderStatus!
       estimatedDeliveryDate: Date
