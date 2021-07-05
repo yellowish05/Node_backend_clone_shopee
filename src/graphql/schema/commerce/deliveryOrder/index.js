@@ -28,9 +28,9 @@ const schema = gql`
     type DeliveryOrder {
       id: ID
       trackingNumber: String
-      status: DeliveryOrderStatus!
+      status: DeliveryOrderStatus
       estimatedDeliveryDate: Date
-      deliveryPrice(currency: Currency): AmountOfMoney!
+      deliveryPrice(currency: Currency): AmountOfMoney
       deliveryAddress: DeliveryAddress!
       proofPhoto: [Asset]
       carrier: carrierType
