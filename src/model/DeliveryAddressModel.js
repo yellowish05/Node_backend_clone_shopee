@@ -40,6 +40,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  email: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = new model(collectionName, schema);

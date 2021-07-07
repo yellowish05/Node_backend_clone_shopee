@@ -49,6 +49,7 @@ class DeliveryAddressRepository {
         owner: data.owner,
         label: data.label,
         phone: data.phone,
+        email: data.email,
         isDefault,
         address: {
           isDeliveryAvailable: true,
