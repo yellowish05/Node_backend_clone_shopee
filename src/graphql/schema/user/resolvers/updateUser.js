@@ -130,13 +130,18 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           // throw new ApolloError(`Please provide an address or location.`, 400);
         }
       } catch (error) {
-        throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
+        //throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
+        console.log("Failed to store the address. Original error:",error)
       }
 
-      const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
-      const tempCountry = await repository.country.getById(countryCode);
-      await repository.user.updateCurrency(user.id, tempCountry.currency);
-      const updateData = { };
+      try{
+        const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
+        const tempCountry = await repository.country.getById(countryCode);
+        await repository.user.updateCurrency(user.id, tempCountry.currency);
+        const updateData = { };
+      }catch (error) {
+        console.log("country error:",error)
+      }
       console.log("updateUser",args)
       args.data.name ? updateData.name = args.data.name : null;
       args.data.email ? updateData.email = args.data.email : null;
