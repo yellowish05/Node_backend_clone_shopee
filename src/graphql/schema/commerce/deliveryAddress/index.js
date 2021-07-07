@@ -21,6 +21,7 @@ const schema = gql`
         addressId: String
         description: String
         shippingAddress: String
+        email:String
         isDefault: Boolean
     }
 
