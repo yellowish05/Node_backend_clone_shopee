@@ -8,6 +8,7 @@ const addNewUser = require('./resolvers/addNewUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
 const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
+const updateUserEmailPhone = require('./resolvers/updateUserEmailPhone');
 const updateUsers = require('./resolvers/updateUsers');
 const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
@@ -189,6 +190,7 @@ const schema = gql`
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
+      updateUserEmailPhone (data: UserInput!): User! @auth(requires: USER)
       updateUsers (data: [UpdateUserInput!]!): [UserInfo!] @auth(requires: ADMIN)
       updateSeller (data: UpdateUserInput!): UserInfo! @auth(requires: ADMIN)
       changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
@@ -241,6 +243,7 @@ module.exports.resolvers = {
     addUserBySocial,
     addUserByPhone,
     updateUser,
+    updateUserEmailPhone,
     changePassword,
     uploadBulkUsers,
     changeDeviceId,
