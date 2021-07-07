@@ -52,7 +52,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       if (args.data.phone && !phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
         if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
-          || !phoneUtil.isPossibleNumber(validNumber)) {
+          /* || !phoneUtil.isPossibleNumber(validNumber) */) {
           throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
         }
       }
