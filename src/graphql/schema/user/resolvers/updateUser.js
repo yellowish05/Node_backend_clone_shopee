@@ -49,13 +49,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
 
 
-      /* if (args.data.phone && !phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
+      if (args.data.phone && !phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
         if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
           || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
           || !phoneUtil.isPossibleNumber(validNumber)) {
           throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
         }
-      } */
+      }
 
       if (args.data.photo) {
         const asset = await repository.asset.load(args.data.photo);
@@ -130,18 +130,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           // throw new ApolloError(`Please provide an address or location.`, 400);
         }
       } catch (error) {
-        //throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
-        console.log("Failed to store the address. Original error:",error)
+        throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
       }
 
-      try{
-        const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
-        const tempCountry = await repository.country.getById(countryCode);
-        await repository.user.updateCurrency(user.id, tempCountry.currency);
-        const updateData = { };
-      }catch (error) {
-        console.log("country error:",error)
-      }
+      const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
+      const tempCountry = await repository.country.getById(countryCode);
+      await repository.user.updateCurrency(user.id, tempCountry.currency);
+      const updateData = { };
       console.log("updateUser",args)
       args.data.name ? updateData.name = args.data.name : null;
       args.data.email ? updateData.email = args.data.email : null;
