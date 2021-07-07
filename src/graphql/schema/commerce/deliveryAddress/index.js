@@ -32,6 +32,7 @@ const schema = gql`
         country: ID!
         zipCode: String
         phone:String
+        email:String
         description: String
     }
     
