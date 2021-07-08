@@ -17,6 +17,11 @@ module.exports = async (_, { filter = {}, sort = {}, page }, { dataSources: { re
     repository.purchaseOrder.getTotal(filter),
   ])
     .then(([collection, total]) => {
+      collection.map(item=>{
+        return item.deliveryOrders.map(deliveryOrder=>{
+          deliveryOrder=repository.deliveryOrder.getById(deliveryOrder)
+        })
+      })
       return {
         collection,
         pager: { ...pager, total },
