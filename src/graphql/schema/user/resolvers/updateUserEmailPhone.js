@@ -32,10 +32,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
        * Use case when user is registered with Facebook provider with phone number and not an email
        */
       try {
-        userObj = await repository.user.getById(user._id)
+        userObj = await repository.user.getById(user._id);
         if (!userObj.email) {
           if (args.data.email) {
-            let checkEmail = await repository.user.findByEmail(args.data.email)
+            const checkEmail = await repository.user.findByEmail(args.data.email);
             if (checkEmail) {
               throw new Error('Email already taken');
             }
@@ -48,9 +48,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw new UserInputError(ex.message, { invalidArgs: 'email' });
       }
       const updateData = { };
-      console.log("updateUser",args)
+      console.log('updateUser', args);
       args.data.email ? updateData.email = args.data.email : null;
       args.data.phone ? updateData.phone = args.data.phone : null;
+      args.data.address ? updateData.address = args.data.address : null;
       return repository.user.update(user.id, updateData).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
       });
