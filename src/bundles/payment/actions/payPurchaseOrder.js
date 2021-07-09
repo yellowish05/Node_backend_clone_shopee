@@ -82,6 +82,7 @@ module.exports = ({ getProvider, availableProviders }) => async ({ order, provid
         .createPaymentIntent(transaction.currency, transaction.amount, transaction.buyer)
         .then(async (paymentIntent) => {
           if (paymentIntent.error) {
+              console.log({paymentIntent})
             return paymentIntent;
           } else {
             transaction.providerTransactionId = paymentIntent.id;
