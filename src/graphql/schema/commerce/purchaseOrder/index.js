@@ -197,10 +197,9 @@ module.exports.resolvers = {
     payments: async (order, _, { dataSources: { repository } }) => (
       repository.paymentTransaction.getByIds(order.payments)
     ),
-    deliveryOrders: async (order, _, { dataSources: { repository } }) => {
-      console.log('test====>', order.id, order.deliveryOrders);
-      return repository.deliveryOrder.getByIds(order.deliveryOrders);
-    },
+    deliveryOrders: async (order, _, { dataSources: { repository } }) => (
+      repository.deliveryOrder.getByIds(order.deliveryOrders)
+    ),
     price: async ({ price, currency }, args) => {
       const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
       if (args.currency && args.currency !== currency) {
