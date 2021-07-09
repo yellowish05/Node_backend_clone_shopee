@@ -10,11 +10,14 @@ class DeliveryOrderRepository {
   }
 
   async getByIds(ids) {
+    console.log({ids})
     const deliveryOrders = await this.model.find({ _id: { $in: ids } });
+    console.log('deliveryOrders=====>', deliveryOrders);
     const tempOrders = [];
     deliveryOrders.forEach((item) => {
       tempOrders.push({ ...item, id: item._id });
     });
+    console.log('tempOrders=====>', tempOrders);
     return tempOrders;
   }
 
