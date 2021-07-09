@@ -3,10 +3,10 @@
 const path = require('path');
 const stripe = require('stripe');
 const { UserInputError } = require('apollo-server');
+const { error } = require('console');
 const ProviderAbstract = require('../ProviderAbstract');
 const { PaymentException } = require('../../Exceptions');
 const { response } = require('../../../../viewers');
-const { error } = require('console');
 
 const { PaymentTransactionStatus } = require(path.resolve('src/lib/Enums'));
 
@@ -107,25 +107,25 @@ class Provider extends ProviderAbstract {
     return paymentMethod;
   }
 
-  async addNewCard(details, { dataSources: { repository }, user })  {
+  async addNewCard(details, { dataSources: { repository }, user }) {
     if (!user.email) {
       throw new UserInputError('User does not have email address! Emal is required', { invalidArgs: ['user'] });
     }
 
-    let customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
+    const customer = await repository.paymentStripeCustomer.getByProvider(this.getName(), user.id);
     const cardToken = await this.client.tokens.create({
       card: {
         number: details.number,
         exp_month: details.exp_month,
         exp_year: details.exp_year,
         cvc: details.cvc,
-        name: details.name
+        name: details.name,
       },
-    })
-    const newCard = await this.client.customers.createSource(customer.customerId,{source: cardToken.id})
-    const expiredAt = new Date(`01.${newCard.exp_month}.20${newCard.exp_year}`)
+    });
+    const newCard = await this.client.customers.createSource(customer.customerId, { source: cardToken.id });
+    const expiredAt = new Date(`01.${newCard.exp_month}.20${newCard.exp_year}`);
     expiredAt.setMonth(1); // Usualy card works during expire month
-    return await repository.cardDetails.create({...details, providerID: newCard.id})
+    return await repository.cardDetails.create({ ...details, providerID: newCard.id })
       .then((response) => repository.paymentMethod.create({
         user: user.id,
         provider: this.getName(),
@@ -134,17 +134,17 @@ class Provider extends ProviderAbstract {
         expiredAt,
         data: newCard,
         usedAt: new Date(),
-        card: response.id
+        card: response.id,
       }))
       .then(async (newPaymentMethod) => {
-        customer.paymentMethods.push(newPaymentMethod.id)
-        await customer.save()
-        return newPaymentMethod
+        customer.paymentMethods.push(newPaymentMethod.id);
+        await customer.save();
+        return newPaymentMethod;
       })
       .catch((err) => {
-        logger.error(`${error.message}`)
-        throw new UserInputError('Can\'t add new Payment mothod, try later')
-      })
+        logger.error(`${error.message}`);
+        throw new UserInputError('Can\'t add new Payment mothod, try later');
+      });
 
     // console.log("********* New Card **********")
     // console.log(newCard)
@@ -211,7 +211,6 @@ class Provider extends ProviderAbstract {
     //   });
     // }));
 
-
     // if(newPaymentMethodId)
     //   return repository.paymentMethod.getById(newPaymentMethodId);
     // else
@@ -222,8 +221,7 @@ class Provider extends ProviderAbstract {
     return repository.paymentStripeCustomer.getByProvider(this.getName(), user.id)
       .then(async (customer) => {
         const card = await this.repository.cardDetails.getById(details.id);
-        if(!card)
-          throw new UserInputError("Wrong Card ID.");
+        if (!card) throw new UserInputError('Wrong Card ID.');
 
         const newCard = await this.client.customers.updateSource(
           customer.customerId,
@@ -297,16 +295,15 @@ class Provider extends ProviderAbstract {
   }
 
   async createPaymentIntent(currency, amount, buyer) {
-    if(!this.client)
-      console.log("Stripe Connectin Error !");
+    if (!this.client) console.log('Stripe Connectin Error !');
     let newCustomer;
 
     const customer = await this.repository.paymentStripeCustomer.getByProvider(this.getName(), buyer);
 
-    if(!customer) {
+    if (!customer) {
       const user = await this.repository.user.getById(buyer);
       newCustomer = await this.client.customers.create({
-        email: user.email
+        email: user.email,
       }).then((response) => this.repository.paymentStripeCustomer.create({
         user: user.id,
         customerId: response.id,
@@ -317,31 +314,31 @@ class Provider extends ProviderAbstract {
         return false;
       });
 
-      if(!newCustomer)
-        return {
-          error: 'Creating new Stripe customer failed!'
-        };
-    } else {
-      newCustomer = customer;
+      if (!newCustomer) console.log('Creating new strhipe account filed');
+      return {
+        error: 'Creating new Stripe customer failed!',
+      };
     }
+    console.log('Created Strip Custommer', customer);
+    newCustomer = customer;
 
     try {
       const response = await this.client.paymentIntents.create({
-        amount: amount,
+        amount,
         currency: currency.toLowerCase(),
-        customer: newCustomer.customerId
+        customer: newCustomer.customerId,
       });
-      console.log("[Stripe response]", response.id)
+      console.log('[Stripe response]', response.id);
       return response;
     } catch (error) {
       return {
         error: error.raw.message,
-      }
+      };
     }
   }
 
   async createAlipayPaymentIntent(currency, amount, buyer) {
-    /*if(!this.client)
+    /* if(!this.client)
       console.log("Stripe Connectin Error !");
     let newCustomer;
 
@@ -368,16 +365,16 @@ class Provider extends ProviderAbstract {
       }
     } else {
       newCustomer = customer;
-    }*/
+    } */
 
-    /*return this.client.paymentIntents.create({
+    /* return this.client.paymentIntents.create({
       payment_method_types: ['alipay'],
       amount,
       currency: currency.toLowerCase(),
       customer: newCustomer.customerId,
     }).catch((error) => ({
       error: error.raw.message,
-    }));*/
+    })); */
   }
 
   async deletePaymentMethod(id, { dataSources: { repository }, user }) {
