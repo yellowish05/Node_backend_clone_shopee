@@ -116,7 +116,7 @@ module.exports.resolvers = {
   },
   DeliveryAddress: {
     addressId: async ({ address: { addressId } }) => addressId,
-    id: async ({ address: { _id } }) => _id,
+    id: async (deliveryAddress ) => deliveryAddress._id,
     street: async ({ address: { street } }) => street,
     city: async ({ address: { city } }) => city,
     region: async ({ address: { region } }, _, { dataSources: { repository } }) => repository.region.getById(region),
