@@ -181,7 +181,7 @@ module.exports.resolvers = {
           .catch((err) => {
             throw new Error(err.message);
           });
-    }),
+      }),
   },
   Mutation: {
     checkoutCart,
@@ -197,32 +197,34 @@ module.exports.resolvers = {
     payments: async (order, _, { dataSources: { repository } }) => (
       repository.paymentTransaction.getByIds(order.payments)
     ),
-    deliveryOrders: async (order, _, { dataSources: { repository } }) => (
-      repository.deliveryOrder.getByIds(order.deliveryOrders)
-    ),
+    deliveryOrders: async (order, _, { dataSources: { repository } }) => {
+      console.log('test====>', order.id, order.deliveryOrders);
+      return repository.deliveryOrder.getByIds(order.deliveryOrders);
+    },
     price: async ({ price, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     deliveryPrice: async ({ deliveryPrice, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency: currency });
+      // eslint-disable-next-line max-len
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     tax: async ({ tax, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: tax, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: tax, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     total: async ({ total, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
