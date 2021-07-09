@@ -32,7 +32,7 @@ module.exports = async function checkoutCart(
       if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
 
       order.deliveryOrders = null;
-      order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
+      // order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
       return repository.purchaseOrder.update(order);
     })
 };
