@@ -26,7 +26,7 @@ class DeliveryAddressRepository {
       'address.country': data.country,
       'address.zipCode': data.zipCode,
       'address.addressId': data.addressId,
-      'address.description': data.description
+      'address.description': data.description,
     });
 
     if (existingAddress) {
@@ -37,12 +37,12 @@ class DeliveryAddressRepository {
     const defaultCheck = await this.model.findOne({
       owner: data.owner,
       isDefault: true,
-      isDeleted: false
+      isDeleted: false,
     });
-    if (defaultCheck!==null) {
+    if (defaultCheck !== null) {
       isDefault = false;
     }
-    console.log('isDefault',isDefault,defaultCheck)
+    console.log('isDefault', isDefault, defaultCheck);
     const deliveryAddress = new this.model(
       {
         _id: uuid(),
@@ -78,7 +78,9 @@ class DeliveryAddressRepository {
 
   async getAll(query) {
     query.isDeleted = false;
-    return this.model.find(query);
+    const result = await this.model.find(query);
+    console.log('deliveryAddress', result);
+    return result;
   }
 
   async delete(id) {
