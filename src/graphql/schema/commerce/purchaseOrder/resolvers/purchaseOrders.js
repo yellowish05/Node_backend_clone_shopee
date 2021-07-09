@@ -17,13 +17,12 @@ module.exports = async (_, { filter = {}, sort = {}, page }, { dataSources: { re
     repository.purchaseOrder.getTotal(filter),
   ])
     .then(([collection, total]) => {
-      collection.map(item=>{
-        return item.deliveryOrders.map(deliveryOrder=>{
-          deliveryOrder=repository.deliveryOrder.getById(deliveryOrder)
-        })
-      })
       return {
-        collection,
+        collection.map(item=>{
+          console.log("item.deliveryOrders",item.deliveryOrders)
+          item.deliveryOrders= repository.deliveryOrder.getByIds(item.deliveryOrders)
+          return item;
+        }),
         pager: { ...pager, total },
       };
     })
