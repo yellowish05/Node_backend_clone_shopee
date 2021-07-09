@@ -24,7 +24,7 @@ module.exports = async (_, { filter = {}, sort = {}, page }, { dataSources: { re
           return item;
         })
       return {
-        tempCollection
+        collection:tempCollection
         ,
         pager: { ...pager, total },
       };
