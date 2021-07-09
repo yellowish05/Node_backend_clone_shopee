@@ -79,7 +79,7 @@ class DeliveryAddressRepository {
   async getAll(query) {
     query.isDeleted = false;
     const result = await this.model.find(query);
-    console.log('deliveryAddress', result);
+    // console.log('deliveryAddress', result);
     return result;
   }
 

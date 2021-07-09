@@ -10,9 +10,9 @@ class DeliveryOrderRepository {
   }
 
   async getByIds(ids) {
-    console.log({ ids });
+    // console.log({ ids });
     const deliveryOrders = await this.model.find({ _id: { $in: ids } });
-    console.log('deliveryOrders=====>', deliveryOrders);
+    // console.log('deliveryOrders=====>', deliveryOrders);
     return deliveryOrders;
   }
 
