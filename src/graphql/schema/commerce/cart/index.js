@@ -270,6 +270,7 @@ module.exports.resolvers = {
     seller: async ({ product }, _, { dataSources: { repository } }) => repository.product.getById(product).then((product) => repository.user.getById(product.seller)),
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
     deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
+      if (!rateId) return null;
       return repository.deliveryRate.getById(rateId)
         .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
     },

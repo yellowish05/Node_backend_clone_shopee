@@ -12,7 +12,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
       });
     item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
       .then((deliveryRate) => {
-        if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
+        // if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
         return deliveryRate;
       });
     if (item.productAttribute) { item.productAttribute = await repository.productAttributes.getById(item.productAttribute); }
