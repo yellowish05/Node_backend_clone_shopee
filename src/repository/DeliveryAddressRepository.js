@@ -72,6 +72,7 @@ class DeliveryAddressRepository {
         existingAddress.address.country = data.country;
         existingAddress.address.zipCode = data.zipCode;
         existingAddress.address.description = data.description;
+        existingAddress.isDefault = data.isDefault;
         return existingAddress.save();
       });
   }
@@ -81,6 +82,18 @@ class DeliveryAddressRepository {
     const result = await this.model.find(query);
     // console.log('deliveryAddress', result);
     return result;
+  }
+
+  async setAsDefault(id, user_id) {
+    return this.model.updateMany(
+      { owner: user_id },
+      { isDefault: false },
+      { multi: true },
+    )
+    .then(() => this.model.updateMany(
+      { _id: id },
+      { isDefault: true })
+    );
   }
 
   async delete(id) {

@@ -35,6 +35,7 @@ const schema = gql`
         phone:String
         email:String
         description: String
+        isDefault: Boolean = false
     }
     
     input BillingAddressInput {
@@ -58,6 +59,7 @@ const schema = gql`
         description: String
         addressId: String
         shippingAddress: String
+        isDefault: Boolean = false
     }
 
     extend type Query {
