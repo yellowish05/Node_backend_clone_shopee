@@ -70,6 +70,9 @@ module.exports = {
         return Promise.all(cartItems.map(async (item) => {
           item.product = await repository.product.getById(item.product);
           item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate);
+          if (!item.deliveryRate) {
+            throw new UserInputError(`Cart item with id "${item.id}" does not have valid delivery rate`);
+          }
           if (item.productAttribute) {
             item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
           }
