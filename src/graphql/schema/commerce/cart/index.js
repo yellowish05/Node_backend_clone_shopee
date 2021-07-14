@@ -7,6 +7,7 @@ const deleteCartItem = require('./resolvers/deleteCartItem');
 const updateCartItem = require('./resolvers/updateCartItem');
 const loadCart = require('./resolvers/loadCart');
 const selectCartItems = require('./resolvers/selectCartItems');
+const updateCartItemDeliveryRate = require('./resolvers/updateCartItemDeliveryRate');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -78,6 +79,7 @@ const schema = gql`
         """
         clearCart(selected: Boolean) : Cart! @auth(requires: USER)
         selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
+        updateCartItemDeliveryRate(id: ID!, deliveryRate: ID!): CartProductItem! @auth(requires: USER)
     }
 `;
 
@@ -103,6 +105,7 @@ module.exports.resolvers = {
         .then(() => loadCart(...args));
     },
     selectCartItems,
+    updateCartItemDeliveryRate,
   },
   Cart: {
     price: async ({ items }, args) => (
@@ -270,6 +273,7 @@ module.exports.resolvers = {
     seller: async ({ product }, _, { dataSources: { repository } }) => repository.product.getById(product).then((product) => repository.user.getById(product.seller)),
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
     deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
+      if (!rateId) return null;
       return repository.deliveryRate.getById(rateId)
         .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
     },

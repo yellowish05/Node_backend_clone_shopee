@@ -18,9 +18,9 @@ class UserCartItemRepository {
     if (typeof billingAddress !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof billingAddress}"`);
     }
-    if (typeof deliveryRate !== 'string') {
-      throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof deliveryRate}"`);
-    }
+    // if (typeof deliveryRate !== 'string') {
+    //   throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof deliveryRate}"`);
+    // }
 
     return productAttribute
       ? this.model.findOne({
@@ -51,9 +51,11 @@ class UserCartItemRepository {
   async add({
     productId, deliveryRateId, quantity, billingAddress, productAttribute, note,
   }, userId) {
-    return this.findOne({
-      productId, productAttribute, billingAddress, deliveryRate: deliveryRateId,
-    }, userId)
+    const query = { productId, productAttribute, billingAddress };
+    if (deliveryRateId) {
+      query.deliveryRate = deliveryRateId;
+    }
+    return this.findOne(query, userId)
       .then((cartItem) => {
         if (cartItem) {
           cartItem.quantity += quantity;
