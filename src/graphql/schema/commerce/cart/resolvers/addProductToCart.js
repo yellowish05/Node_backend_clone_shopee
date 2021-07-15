@@ -79,20 +79,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         ProductService.setProductQuantityFromAttributes(args.product),
       ])
         .then(() => repository.userCartItem.add(cartItemData, user.id))
-
-
-      // return repository.deliveryRate.getById(deliveryRate.id)
-      //   .then(async (response) => {
-      //     if (!response) { await repository.deliveryRate.create(deliveryRate.toObject()); }
-      //   })
-      //   .then(async () => {
-      //     await Promise.all([
-      //       ProductService.decreaseProductQuantity(args, repository),
-      //       ProductService.setProductQuantityFromAttributes(args.product)
-      //     ]);
-
-      //     return repository.userCartItem.add(cartItemData, user.id);
-      //   });
     })
     .catch((error) => { console.log(error);
       throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);
