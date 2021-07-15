@@ -76,6 +76,8 @@ const schema = gql`
 
   input PurchaseOrderFilterInput {
     statuses: [PurchaseOrderStatus!]
+    isPaid: Boolean
+    searchQuery: String
   }
 
   input RedirectionInput {

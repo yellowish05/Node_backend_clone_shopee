@@ -82,6 +82,7 @@
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
     "migrate-mongoose": "^4.0.0",
+    "minisearch": "^3.0.4",
     "moment": "^2.29.1",
     "mongoosastic": "^4.6.0",
     "mongoose": "^5.7.5",

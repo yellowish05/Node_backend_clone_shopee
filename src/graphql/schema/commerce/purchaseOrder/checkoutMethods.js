@@ -73,6 +73,9 @@ module.exports = {
           if (!item.deliveryRate) {
             throw new UserInputError(`Cart item with id "${item.id}" does not have valid delivery rate`);
           }
+          if (!item.billingAddress) {
+            throw new UserInputError(`Cart item with id "${item.id}" does not have billing address!`);
+          }
           if (item.productAttribute) {
             item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
           }

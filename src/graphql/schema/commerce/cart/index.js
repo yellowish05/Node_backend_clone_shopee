@@ -8,6 +8,7 @@ const updateCartItem = require('./resolvers/updateCartItem');
 const loadCart = require('./resolvers/loadCart');
 const selectCartItems = require('./resolvers/selectCartItems');
 const updateCartItemDeliveryRate = require('./resolvers/updateCartItemDeliveryRate');
+const updateCartItemBillingAddress = require('./resolvers/updateCartItemBillingAddress');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -32,6 +33,7 @@ const schema = gql`
       product: Product!
       deliveryIncluded: Boolean!
       deliveryAddress: DeliveryAddress
+      billingAddress: DeliveryAddress
       note: String
       selected: Boolean
     }
@@ -61,7 +63,7 @@ const schema = gql`
           product: ID!, 
           deliveryRate: ID, 
           quantity: Int! = 1,
-          billingAddress: ID!
+          billingAddress: ID
           productAttribute: ID, 
           metricUnit: ProductMetricUnit, 
           note: String
@@ -80,6 +82,7 @@ const schema = gql`
         clearCart(selected: Boolean) : Cart! @auth(requires: USER)
         selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
         updateCartItemDeliveryRate(id: ID!, deliveryRate: ID!): CartProductItem! @auth(requires: USER)
+        updateCartItemBillingAddress(ids: [ID!], billingAddress: ID!): [CartProductItem!] @auth(requires: USER)
     }
 `;
 
@@ -106,6 +109,7 @@ module.exports.resolvers = {
     },
     selectCartItems,
     updateCartItemDeliveryRate,
+    updateCartItemBillingAddress,
   },
   Cart: {
     price: async ({ items }, args) => (
@@ -277,6 +281,7 @@ module.exports.resolvers = {
       return repository.deliveryRate.getById(rateId)
         .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
     },
+    billingAddress: ({ billingAddress }, _, { dataSources: { repository } }) => repository.billingAddress.getById(billingAddress),
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
     productAttribute: async (cartItem, _, { dataSources: { repository } }) => repository.productAttributes.getById(cartItem.productAttribute),
   },
