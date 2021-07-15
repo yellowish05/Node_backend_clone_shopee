@@ -1,11 +1,15 @@
 const uuid = require('uuid/v4');
 
-function applyFilter(query, { buyer, statuses = [] }) {
+function applyFilter(query, { buyer, statuses = [], isPaid, searchQuery, ids = [] }) {
   if (!query.$and) query.$and = [];
   
   if (buyer) query.$and.push({ buyer });
 
   if (statuses.length) query.$and.push({ status: {$in: statuses} });
+
+  if (isPaid !== undefined && typeof isPaid === 'boolean') query.$and.push({ isPaid });
+
+  if (searchQuery) query.$and.push({ _id: { $in: ids } });
 }
 
 function transformSortInput({ feature, type }) {
