@@ -15,7 +15,7 @@ module.exports = async (_, { ids, billingAddress }, { dataSources: { repository 
     .then((matched) => {
       if (!matched) throw errorHandler.build(validator.errors);
       return Promise.all([
-        repository.userCartitem.getAll({ _id: { $in: ids } }),
+        repository.userCartItem.getAll({ _id: { $in: ids } }),
         repository.billingAddress.getById(billingAddress),
       ]);
     })
