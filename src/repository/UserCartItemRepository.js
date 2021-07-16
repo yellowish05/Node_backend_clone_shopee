@@ -15,9 +15,9 @@ class UserCartItemRepository {
     if (typeof userId !== 'string') {
       throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof userId}"`);
     }
-    if (typeof billingAddress !== 'string') {
-      throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof billingAddress}"`);
-    }
+    // if (typeof billingAddress !== 'string') {
+    //   throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof billingAddress}"`);
+    // }
     // if (typeof deliveryRate !== 'string') {
     //   throw new Error(`UserCartItem.findOne expected id as String, but got "${typeof deliveryRate}"`);
     // }
