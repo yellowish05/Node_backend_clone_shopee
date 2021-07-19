@@ -314,7 +314,7 @@ class Provider extends ProviderAbstract {
         return false;
       });
 
-      if (!newCustomer) console.log('Creating new strhipe account filed');
+      if (!newCustomer) console.log('Creating new strhipe account failed');
       return {
         error: 'Creating new Stripe customer failed!',
       };
