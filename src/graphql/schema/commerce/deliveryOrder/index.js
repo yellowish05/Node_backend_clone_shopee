@@ -34,6 +34,7 @@ const schema = gql`
       deliveryAddress: DeliveryAddress!
       proofPhoto: [Asset]
       carrier: carrierType
+      item: String
     }
 
     input UpdateDeliveryOrderInput {
