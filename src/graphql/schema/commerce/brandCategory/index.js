@@ -6,7 +6,7 @@ const updateBrandCategory = require('./resolvers/updateBrandCategory');
 const schema = gql`
     type BrandCategory {
       id: ID!
-      name: String!
+      name(language: LanguageList): String!
       isRecommended: Boolean!
       hashtags: [String]
     }
@@ -78,5 +78,8 @@ module.exports.resolvers = {
       })
     },
     updateBrandCategory,
-  }
+  },
+  BrandCategory: {
+    name: ({ name, translations }, { language }, { dataSources: { repository } }) => translations[language] || name,
+  },
 };

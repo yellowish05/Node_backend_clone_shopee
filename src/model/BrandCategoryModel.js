@@ -24,6 +24,7 @@ const schema = new Schema({
     default: [],
     index: true,
   },
+  translations: Object,
 });
 
 module.exports = new model(collectionName, schema);

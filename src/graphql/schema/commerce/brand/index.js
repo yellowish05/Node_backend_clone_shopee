@@ -8,7 +8,7 @@ const searchBrand = require('./resolvers/searchBrand');
 const schema = gql`
   type Brand {
     id: ID!
-    name: String!
+    name(language: LanguageList): String!
     brandCategories: [BrandCategory]
     productCategories: [ProductCategory]!
     images: [Asset]!
@@ -68,6 +68,7 @@ module.exports.resolvers = {
     brandBySlug: async (_, { slug }, { dataSources: { repository } }) => repository.brand.getBySlug(slug),
   },
   Brand: {
+    name: ({ translations, name}, { language }, { dataSources: { repository } }) => translations[language] || name,
     brandCategories: async (brand, _, { dataSources: { repository }}) => {
       if (!brand.brandCategories || !brand.brandCategories.length) {
         return [];
