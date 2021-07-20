@@ -3,8 +3,8 @@ const { gql } = require('apollo-server');
 const schema = gql`
   type LiveStreamExperience {
     id: ID!
-    name(locale: Locale): String!
-    description(locale: Locale): String!
+    name(language: LanguageList): String!
+    description(language: LanguageList): String!
     image: String
     hashtags: [String]
   }
@@ -31,5 +31,9 @@ module.exports.resolvers = {
       }
       return repository.liveStreamExperience.getAll(query);
     },
+  },
+  LiveStreamExperience: {
+    name: ({ name, translations }, { language }) => translations.name[language] || name,
+    description: ({ description, translations }, { language }) => translations.description[language] || description,
   },
 };

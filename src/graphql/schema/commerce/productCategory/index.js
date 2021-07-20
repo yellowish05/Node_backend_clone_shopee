@@ -6,7 +6,7 @@ const correctProductCategoryHierarchy = require('./resolvers/correctProductCateg
 const schema = gql`
   type ProductCategory {
     id: ID!
-    name: String!
+    name(language: LanguageList): String!
     level: Int!
     order: Int
     parent: ProductCategory
@@ -133,6 +133,7 @@ module.exports.resolvers = {
     correctProductCategoryHierarchy,
   },
   ProductCategory: {
+    name: ({ name, translations }, { language }) => translations[language] || name,
     parent: async (productCategory, _, { dataSources: { repository } }) => {
       if (!productCategory.parent) {
         return null;

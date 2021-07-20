@@ -31,6 +31,10 @@ const schema = new Schema({
       default: 0,
     },
   },
+  translations: {
+    name: Object,
+    description: Object,
+  }
 });
 
 module.exports = new model(collectionName, schema);
