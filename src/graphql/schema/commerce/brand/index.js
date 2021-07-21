@@ -8,7 +8,7 @@ const searchBrand = require('./resolvers/searchBrand');
 const schema = gql`
   type Brand {
     id: ID!
-    name(language: LanguageList): String!
+    name(language: LanguageList = EN): String!
     brandCategories: [BrandCategory]
     productCategories: [ProductCategory]!
     images: [Asset]!

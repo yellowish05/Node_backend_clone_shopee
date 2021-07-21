@@ -6,7 +6,7 @@ const { cdn } = require(path.resolve('config'));
 const schema = gql`
   type LiveStreamCategory {
     id: ID!
-    name(language: LanguageList): String!
+    name(language: LanguageList = EN): String!
     image: String
     hashtags: [String]
     slug: String
