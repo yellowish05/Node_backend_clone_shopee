@@ -68,7 +68,7 @@ module.exports.resolvers = {
     brandBySlug: async (_, { slug }, { dataSources: { repository } }) => repository.brand.getBySlug(slug),
   },
   Brand: {
-    name: ({ translations, name}, { language }, { dataSources: { repository } }) => translations[language] || name,
+    name: ({ translations, name}, { language }, { dataSources: { repository } }) => (translations && translations[language.toLowerCase()]) ? translations[language.toLowerCase()] : name,
     brandCategories: async (brand, _, { dataSources: { repository }}) => {
       if (!brand.brandCategories || !brand.brandCategories.length) {
         return [];
