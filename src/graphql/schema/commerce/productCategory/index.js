@@ -6,7 +6,7 @@ const correctProductCategoryHierarchy = require('./resolvers/correctProductCateg
 const schema = gql`
   type ProductCategory {
     id: ID!
-    name(language: LanguageList): String!
+    name(language: LanguageList = EN): String!
     level: Int!
     order: Int
     parent: ProductCategory

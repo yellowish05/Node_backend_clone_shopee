@@ -3,8 +3,8 @@ const { gql } = require('apollo-server');
 const schema = gql`
   type LiveStreamExperience {
     id: ID!
-    name(language: LanguageList): String!
-    description(language: LanguageList): String!
+    name(language: LanguageList = EN): String!
+    description(language: LanguageList = EN): String!
     image: String
     hashtags: [String]
   }
