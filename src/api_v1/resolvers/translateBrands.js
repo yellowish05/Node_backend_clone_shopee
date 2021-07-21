@@ -8,5 +8,8 @@ const activity = {
 };
 
 module.exports = async (req, res) => {
-  const query = { $or: [{"translations": {$exists: false}}, {"translations.en": {$exists: false}}] }
+  const query = { $or: [
+    {"translations": {$exists: false} },
+    {"translations.en": {$exists: false}}
+  ] };
 }
