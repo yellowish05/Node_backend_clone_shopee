@@ -24,4 +24,8 @@ app.route('/update-product-slug').post((req, res) => require('./resolvers/update
 app.route('/update-stream-slug').post((req, res) => require('./resolvers/updateStreamSlug')(req, res));
 app.route('/product-category-slug').patch((req, res) => require('./resolvers/updateProductCategorySlug')(req, res));
 
+// Translations
+app.route('/translate-brands').post((req, res) => require('./resolvers/translateBrands'));
+
+
 module.exports = app;
