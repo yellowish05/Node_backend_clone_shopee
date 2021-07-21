@@ -40,7 +40,7 @@ module.exports.resolvers = {
     },
   },
   LiveStreamCategory: {
-    name: ({ translations, name }, { language }, { dataSources: { repository } }) => translations[language] || name,
+    name: ({ translations, name }, { language }, { dataSources: { repository } }) => (translations && translations[language.toLowerCase()]) ? translations[language.toLowerCase()] : name,
     image: async (liveStreamCategory) => `${cdn.appAssets}${liveStreamCategory.imagePath}`,
   },
 };

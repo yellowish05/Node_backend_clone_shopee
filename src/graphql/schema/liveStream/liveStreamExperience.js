@@ -33,7 +33,7 @@ module.exports.resolvers = {
     },
   },
   LiveStreamExperience: {
-    name: ({ name, translations }, { language }) => translations.name[language] || name,
-    description: ({ description, translations }, { language }) => translations.description[language] || description,
+    name: ({ name, translations }, { language }) => (translations && translations.name && translations.name[language.toLowerCase()]) ? translations.name[language.toLowerCase()] : name,
+    description: ({ description, translations }, { language }) => (translations && translations.description && translations.description[language.toLowerCase()]) ? translations.description[language.toLowerCase()] : description,
   },
 };

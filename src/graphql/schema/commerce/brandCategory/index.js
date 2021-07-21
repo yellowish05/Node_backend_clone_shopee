@@ -80,6 +80,6 @@ module.exports.resolvers = {
     updateBrandCategory,
   },
   BrandCategory: {
-    name: ({ name, translations }, { language }, { dataSources: { repository } }) => translations[language] || name,
+    name: ({ name, translations }, { language }, { dataSources: { repository } }) => (translations && translations[language.toLowerCase()]) ? translations[language.toLowerCase()] : name,
   },
 };
