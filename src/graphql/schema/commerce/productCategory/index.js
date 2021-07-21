@@ -133,7 +133,7 @@ module.exports.resolvers = {
     correctProductCategoryHierarchy,
   },
   ProductCategory: {
-    name: ({ name, translations }, { language }) => translations[language] || name,
+    name: ({ name, translations }, { language }) => (translations && translations[language.toLowerCase()]) ? translations[language.toLowerCase()] : name,
     parent: async (productCategory, _, { dataSources: { repository } }) => {
       if (!productCategory.parent) {
         return null;
