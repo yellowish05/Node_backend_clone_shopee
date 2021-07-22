@@ -125,6 +125,10 @@ const schema = new Schema({
     required: true,
     unique: true,
   },
+  translated: {
+    type: Number,
+    default: 0,
+  },
 });
 
 schema.methods.getTagName = function getTagName() {
