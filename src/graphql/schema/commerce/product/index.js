@@ -74,7 +74,7 @@ const schema = gql`
     assets: [Asset!]!
     thumbnail: Asset
     attrs: [ProductAttribute]
-    category: ProductCategory!
+    category: ProductCategory
     # weight: Weight!
     shippingBox: ShippingBox!
     brand: Brand
