@@ -91,6 +91,7 @@ class UserCartItemRepository {
         cartItem.deliveryRate = deliveryRateId;
         cartItem.note = note;
         return cartItem.save();
+        console.log({cartItem})
       });
   }
 
