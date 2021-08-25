@@ -67,7 +67,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               repository.productInventoryLog.add(inventoryLog),
             ]);                    
           }
-
+          console.log({saveDeliveryRate,cartItemData})
           if (saveDeliveryRate) {
             cartItemData.deliveryRateId = saveDeliveryRate.id;
             return repository.userCartItem.update(args.id, cartItemData);
