@@ -20,6 +20,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
 
     return validator.check()
         .then(async (matched) => {
+            console.log("matched status", matched)
             if (!matched) {
                 throw errorHandler.build(validator.errors);
             }
