@@ -14,7 +14,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         [VerificationEmailTemplate.RESET_PASSWORD]: 'sendRecoverPasswordCode'
     }
 
-    const validator = new Validator(args, {
+    const validator = new Validator(args.data, {
         email: 'required|email'
     });
 
