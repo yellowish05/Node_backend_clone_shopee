@@ -15,8 +15,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
     }
 
     const validator = new Validator(args, {
-        email: 'required|email',
-        template: 'required',
+        email: 'required|email'
     });
 
     return validator.check()
@@ -27,7 +26,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         })
         .then(() => repository.verificationCode.create({ user: user.id }))
         .then((newCode) => {
-            EmailService[templateMapper[args.template]]({ code: newCode.code });
+            EmailService[templateMapper[VerificationEmailTemplate.SIGNUP]]({ code: newCode.code });
             return newCode
         })
         .catch((err) => {
