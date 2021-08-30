@@ -40,8 +40,8 @@ const schema = gql`
 
   extend type Mutation {
     sendCode2PhoneForUser(data: PhoneInfo!): Boolean!
-    sendCode2EmailForUser(data: EmailInfo!): Boolean!
-    sendVerificationCode(email: String!, template: VerificationEmailTemplateEnum!): VerificationInfo!
+    sendCode2EmailForUser(data: EmailInfo!): VerificationInfo!
+    sendVerificationCode(email: String!, template: VerificationEmailTemplateEnum!): Boolean!
     sendVerificationCode2Phone(data: PhoneInfo!): VerificationInfo!
     checkPhoneVerificationCode(data: VerificationCodeInfo): VerificationResult!
     checkEmailVerificationCode(data: VerificationCodeInfo): VerificationResult!
