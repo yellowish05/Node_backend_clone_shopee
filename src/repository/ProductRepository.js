@@ -1,17 +1,17 @@
 /* eslint-disable no-param-reassign */
 function elasticFilter(query, filter) {
   if (!query.$and) {
-      query.$and = [
-          { isDeleted: false },
-      ];
+    query.$and = [
+      { isDeleted: false },
+    ];
   }
   if (filter) {
-      query.$and.push({
-          $or: [
-              { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
-              { description: { $regex: `^.*${filter}.*`, $options: 'i' } },
-          ]
-      })
+    query.$and.push({
+      $or: [
+        { title: { $regex: `^.*${filter}.*`, $options: 'i' } },
+        { description: { $regex: `^.*${filter}.*`, $options: 'i' } },
+      ],
+    });
   }
 }
 
@@ -42,7 +42,6 @@ function transformSortInput({ feature, type }) {
 function applyFilter(query, {
   searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [],
 }) {
-
   if (!query.$and) {
     query.$and = [
       { isDeleted: false },
@@ -51,9 +50,9 @@ function applyFilter(query, {
 
   if (searchQuery) {
     $orWithTags = searchQuery.split(' ')
-      .map(piece => piece.trim())
-      .filter(piece => !!piece)
-      .map(piece => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
+      .map((piece) => piece.trim())
+      .filter((piece) => !!piece)
+      .map((piece) => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
     query.$and.push({
       $or: [
         { title: { $regex: `^.*${searchQuery}.*`, $options: 'i' } },
@@ -65,18 +64,17 @@ function applyFilter(query, {
   }
 
   if (price) {
-
     if (price.max) {
       // query.$and.push({
       //   $or: price.max.map(({ amount, currency }) => ({ price: { $lte: amount }, currency })),
       // });
-      query.$and.push({ sortPrice: {$lte: price.max1.amount} });
+      query.$and.push({ sortPrice: { $lte: price.max1.amount } });
     }
     if (price.min) {
       // query.$and.push({
       //   $or: price.min.map(({ amount, currency }) => ({ price: { $gte: amount }, currency })),
       // });
-      query.$and.push({ sortPrice: {$gte: price.min1.amount} });
+      query.$and.push({ sortPrice: { $gte: price.min1.amount } });
     }
   }
 
@@ -100,12 +98,12 @@ function applyFilter(query, {
 
   if (!isWholeSale) {
     query.$and.push({
-      wholesaleEnabled: {$ne: true}
-    })
+      wholesaleEnabled: { $ne: true },
+    });
   } else {
     query.$and.push({
-      wholesaleEnabled: true
-    })
+      wholesaleEnabled: true,
+    });
   }
 
   if (blackList && blackList.length > 0) {
@@ -116,13 +114,13 @@ function applyFilter(query, {
 
   if (isFeatured !== undefined) {
     query.$and.push({
-      isFeatured: isFeatured ? true : {$ne: true},
+      isFeatured: isFeatured ? true : { $ne: true },
     });
-  }  
+  }
 
   if (ids && ids.length > 0) {
     query.$and.push({
-      _id: { $in: ids }
+      _id: { $in: ids },
     });
   }
 
@@ -130,7 +128,7 @@ function applyFilter(query, {
     query.$and.push({ attrs: { $in: attributes } });
   }
 
-  query.$and.push({ status: {$nin: [ 'DRAFT' ]} })
+  query.$and.push({ status: { $nin: ['DRAFT'] } });
 }
 
 function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
@@ -149,9 +147,9 @@ function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
   }
 
   if (hashtags.length) {
-    hashtags.forEach(hashtag => {
+    hashtags.forEach((hashtag) => {
       $or.push({ hashtags: { $regex: `${hashtag}`, $options: 'i' } });
-    })
+    });
   }
 
   if ($or.length) {
@@ -182,8 +180,7 @@ class ProductRepository {
 
   async findDuplicate(data) {
     const product = await this.getById(data._id);
-    if (product)
-      return product;
+    if (product) { return product; }
 
     return this.model.findOne({
       title: data.title,
@@ -232,14 +229,13 @@ class ProductRepository {
         return existing.save();
       }
       return existing;
-    } else {
-      const product = new this.model(data);
-      return product.save();
     }
+    const product = new this.model(data);
+    return product.save();
   }
 
   async get({ filter, sort, page }) {
-    let query = {};
+    const query = {};
     applyFilter(query, filter);
     // if page.limit is not set, get all products without limit.
     const pager = {};
@@ -252,13 +248,13 @@ class ProductRepository {
       null,
       {
         sort: transformSortInput(sort),
-        ...pager
+        ...pager,
       },
     );
   }
 
   async getTotal(filter) {
-    let query = {};
+    const query = {};
     applyFilter(query, filter);
     return this.model.countDocuments(query);
   }
@@ -266,7 +262,7 @@ class ProductRepository {
   async get4Theme({ filter, sort, page }) {
     const query = {};
     applyFilter4Theme(query, filter);
-    
+
     // if page.limit is not set, get all products without limit.
     const pager = {};
     if (page && page.limit) {
@@ -316,10 +312,8 @@ class ProductRepository {
   async checkAmount(productId, quantity) {
     try {
       const product = await this.getById(productId);
-      if (!product)
-        throw Error(`Product with id "${productId}" does not exist!`);
-      if (product.quantity - quantity < 0) 
-        return false;
+      if (!product) { throw Error(`Product with id "${productId}" does not exist!`); }
+      if (product.quantity - quantity < 0) { return false; }
       return true;
     } catch (err) {
       throw new Error(err);
@@ -343,6 +337,69 @@ class ProductRepository {
         sort: transformSortInput(sort),
       },
     );
+  }
+
+  async getAllProductsByBrandAndCategory(brand_id, category_id, searchTexts) {
+    const match_query = {};
+    match_query.$and = [
+      { isDeleted: false },
+    ];
+    if (brand_id) { match_query.$and.push({ brand: brand_id }); }
+    if (category_id) { match_query.$and.push({ category: category_id }); }
+
+    const or_query = [];
+    searchTexts.map((word) => {
+      or_query.push({ title: { $regex: `^.*${word}.*`, $options: 'i' } });
+    });
+
+    match_query.$and.push({ $or: or_query });
+
+    return this.model.find(
+      match_query,
+      null,
+      {
+        limit: 300,
+        skip: 0,
+      },
+    ).sort({ createdAt: -1 });
+  }
+
+  async getAllProductsByIDs(ids) {
+    return this.model.aggregate([
+      { $match: { isDeleted: false } },
+      { $sort: { createdAt: -1 } },
+      { $match: { _id: { $in: ids } } },
+      {
+        $addFields: {
+          attrs: { $ifNull: ['$attrs', []] },
+          id: '$_id',
+        },
+      },
+      {
+        $lookup: {
+          from: 'productattributes',
+          localField: 'attrs',
+          foreignField: '_id',
+          as: 'attrs',
+        },
+      },
+      {
+        $lookup: {
+          from: 'brands',
+          localField: 'brand',
+          foreignField: '_id',
+          as: 'brand',
+        },
+      },
+      {
+        $lookup: {
+          from: 'productcategories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category',
+        },
+      },
+    ]);
   }
 }
 

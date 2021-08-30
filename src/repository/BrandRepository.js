@@ -5,21 +5,21 @@ function getSearchQueryByName(query) {
 }
 
 function applyFilter(query, {
-  searchQuery, hasProduct, hasImage, categoryId
+  searchQuery, hasProduct, hasImage, categoryId,
 }) {
-  console.log("searchQuery1",searchQuery,hasProduct,hasImage)
+  console.log('searchQuery1', searchQuery, hasProduct, hasImage);
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
-  if (searchQuery!=undefined && searchQuery!="") query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
-  if (hasProduct!=undefined) query.$and.push({ nProducts: { $gt: 0 } });
-  if (hasImage!=undefined) query.$and.push({ "images.0": { $exists: true } });
-  if (categoryId!=undefined) query.$and.push({ "brandCategories": categoryId});
+  if (searchQuery != undefined && searchQuery != '') query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
+  if (hasProduct != undefined) query.$and.push({ nProducts: { $gt: 0 } });
+  if (hasImage != undefined) query.$and.push({ 'images.0': { $exists: true } });
+  if (categoryId != undefined) query.$and.push({ brandCategories: categoryId });
 }
 
 class BrandRepository {
   constructor(model) {
     this.model = model;
   }
-  
+
   async getAll(query = {}) {
     return this.model.find(query).sort({ name: 1 });
   }
@@ -35,9 +35,9 @@ class BrandRepository {
   async getBySlug(slug) {
     return this.model.findOne({ slug });
   }
-  
+
   async get({ filter, page }) {
-    let query = {};
+    const query = {};
     applyFilter(query, filter);
     // if page.limit is not set, get all without limit.
     const pager = {};
@@ -45,7 +45,7 @@ class BrandRepository {
       pager.limit = page.limit;
       pager.skip = page.skip || 0;
     }
-    console.log("query",JSON.stringify(query))
+    console.log('query', JSON.stringify(query));
     return this.model.find(
       query,
       null,
@@ -57,7 +57,7 @@ class BrandRepository {
   }
 
   async getTotal(filter) {
-    let query = {};
+    const query = {};
     applyFilter(query, filter);
     return this.model.countDocuments(query);
   }
@@ -74,7 +74,11 @@ class BrandRepository {
   }
 
   async findByName(name) {
-    return await this.model.findOne({ name: name })
+    return await this.model.findOne({ name });
+  }
+
+  async findByNames(names) {
+    return await this.model.findOne({ name: { $in: names } });
   }
 
   async create(data) {
@@ -91,9 +95,8 @@ class BrandRepository {
 
     if (brand) {
       return brand;
-    } else {
-      return await this.create({ _id: uuid(), name: data.name });
     }
+    return await this.create({ _id: uuid(), name: data.name });
   }
 
   async getByCategoryAndTags(categoryIds = [], tags = []) {
@@ -101,18 +104,18 @@ class BrandRepository {
     const $or = [];
     if (Array.isArray(categoryIds) && categoryIds.length) {
       const $orCategory = [];
-      categoryIds.forEach(categoryId => {
+      categoryIds.forEach((categoryId) => {
         $orCategory.push({ brandCategories: categoryId });
-      })
+      });
       $or.push({ $or: $orCategory });
     }
 
     if (Array.isArray(tags) && tags.length) {
       const $orTags = [];
-      tags.forEach(tag => {
+      tags.forEach((tag) => {
         $orTags.push({ hashtags: { $regex: `${tag}`, $options: 'i' } });
       });
-      $or.push({$or: $orTags});
+      $or.push({ $or: $orTags });
     }
     if ($or.length) query.$or = $or;
     return this.model.find(query);
