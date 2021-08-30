@@ -11,7 +11,7 @@ const errorHandler = new ErrorHandler();
 module.exports = async (obj, args, { dataSources: { repository } }) => {
 
     const templateMapper = {
-        [VerificationEmailTemplate.RESET_PASSWORD]: 'sendRecoverPasswordCode'
+        [VerificationEmailTemplate.SIGNUP]: 'sendVerificationCode'
     }
 
     const validator = new Validator(args.data, {
@@ -26,7 +26,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         })
         .then(() => repository.verificationCode.createForSingup())
         .then((newCode) => {
-            EmailService[templateMapper[VerificationEmailTemplate.SIGNUP]]({ code: newCode.code });
+            EmailService[templateMapper[VerificationEmailTemplate.SIGNUP]]({ user:{email:args.data.email},code: newCode.code });
             return newCode
         })
         .catch((err) => {
