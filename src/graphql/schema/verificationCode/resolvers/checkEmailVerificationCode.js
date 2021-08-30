@@ -8,8 +8,8 @@ const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
 
-    const validator = new Validator(args, {
-        id: 'required',
+    const validator = new Validator(args.data, {
+        request_id: 'required',
         code:'required'
     });
 
@@ -19,7 +19,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
                 throw errorHandler.build(validator.errors);
             }
         })
-        .then(() => repository.verificationCode.checkVerificationCode({ id:args.id, code: args.code }))
+        .then(() => repository.verificationCode.checkVerificationCode({ id:args.data.request_id, code: args.data.code }))
         .then((status) => {
             if(status===true){
                 return {
