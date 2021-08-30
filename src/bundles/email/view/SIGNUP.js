@@ -17,7 +17,7 @@ module.exports = {
                                 <h3>Five Reasons</h3>
                                 <p>we know you'll love us!</p>
                                 <p>
-                                    <span class="title-color">Verification code for signup: <h3>${code}</h3>,</span> <br>
+                                    <span class="title-color">Verification code for signup: <h3>${code}</h3></span> <br>
                                 </p>
                                 <p>
                                     Thank you for signing up with Shoclef. We have lots of wonderful products, services, features, and deals for you. Here are our five main features that you can enjoy:
