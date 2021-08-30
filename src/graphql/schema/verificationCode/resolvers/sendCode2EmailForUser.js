@@ -24,7 +24,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
                 throw errorHandler.build(validator.errors);
             }
         })
-        .then(() => repository.verificationCode.create({ user: user.id }))
+        .then(() => repository.verificationCode.createForSingup())
         .then((newCode) => {
             EmailService[templateMapper[VerificationEmailTemplate.SIGNUP]]({ code: newCode.code });
             return newCode
