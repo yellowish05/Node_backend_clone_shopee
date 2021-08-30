@@ -6,6 +6,8 @@ const sendVerificationCode = require('./resolvers/sendVerificationCode');
 const sendVerificationCode2Phone = require('./resolvers/sendVerificationCode2Phone');
 const checkPhoneVerificationCode = require('./resolvers/checkPhoneVerificationCode');
 const sendCode2PhoneForUser = require('./resolvers/sendCode2PhoneForUser');
+const sendCode2EmailForUser = require('./resolvers/sendCode2EmailForUser');
+const checkEmailVerificationCode = require('./resolvers/checkEmailVerificationCode');
 
 const schema = gql`
   enum VerificationEmailTemplateEnum {
@@ -15,6 +17,10 @@ const schema = gql`
   input PhoneInfo {
     phone: String!,
     countryCode: String!
+  }
+
+  input EmailInfo {
+    email: String!
   }
 
   input VerificationCodeInfo {
@@ -34,9 +40,11 @@ const schema = gql`
 
   extend type Mutation {
     sendCode2PhoneForUser(data: PhoneInfo!): Boolean!
-    sendVerificationCode(email: String!, template: VerificationEmailTemplateEnum!): Boolean!
+    sendCode2EmailForUser(data: EmailInfo!): Boolean!
+    sendVerificationCode(email: String!, template: VerificationEmailTemplateEnum!): VerificationInfo!
     sendVerificationCode2Phone(data: PhoneInfo!): VerificationInfo!
     checkPhoneVerificationCode(data: VerificationCodeInfo): VerificationResult!
+    checkEmailVerificationCode(data: VerificationCodeInfo): VerificationResult!
   }
 `;
 
@@ -48,5 +56,7 @@ module.exports.resolvers = {
     sendVerificationCode,
     sendVerificationCode2Phone,
     checkPhoneVerificationCode,
+    sendCode2EmailForUser,
+    checkEmailVerificationCode
   },
 };

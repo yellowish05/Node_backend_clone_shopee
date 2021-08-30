@@ -93,6 +93,7 @@ const VerificationEmailTemplate = EnumFactory({
   PACKINGSLIP: 'PACKINGSLIP',
   PASSWORD_CHANGED: 'PASSWORD_CHANGED',
   NEW_ISSUE: 'NEW_ISSUE',
+  SIGNUP: 'SIGNUP',
 });
 
 const NotificationType = EnumFactory({
