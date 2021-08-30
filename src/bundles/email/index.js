@@ -27,7 +27,7 @@ class EmailService extends AbstractEmailService {
   sendVerificationCode(data) {
     const template = this.getTemplate(VerificationEmailTemplate.SIGNUP);
 
-    const params = this.getParams({ template, code: data.code });
+    const params = this.getParams({ template,user: data.user, code: data.code });
 
     return this.send(params);
   }
