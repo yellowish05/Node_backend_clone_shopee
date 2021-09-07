@@ -44,7 +44,7 @@ const schema = new Schema({
   },
   selected: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
