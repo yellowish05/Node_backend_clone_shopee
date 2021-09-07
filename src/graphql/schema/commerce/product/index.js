@@ -61,7 +61,7 @@ const schema = gql`
     """
     seller: User!
     title(language: LanguageList): String
-    description(language: LanguageList): String @ifDiffers(key: "status", value: "DRAFT")
+    description(language: LanguageList): String
     """
         Price in cents. Use the Currency for show it in correct format
     """
@@ -408,7 +408,7 @@ module.exports.resolvers = {
       }));
       return attributes;
     },
-  title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
+    title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
       if (!language) return title;
       return repository.productTranslation.getByProduct(id)
         .then((translation) => (translation && translation.title[language.toLowerCase()] ? translation.title[language.toLowerCase()] : title));
