@@ -70,7 +70,10 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
                 console.log("result =>", result);
                 if (result.messages[0].status != 0)
                     reject(result.messages[0]['error-text']);
-                if (err) reject(err);
+                if (err) {
+                  console.log("nexmore error", error)
+                  reject(err)
+                }
                 resolve({ id: result.request_id });
             });
         });
