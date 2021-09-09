@@ -52,8 +52,8 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
   } else {
     user = await activity.validateEmail(args, repository);
   }
-  
-  console.log("user => ", user);
+  console.log("viaPhone",viaPhone)
+  //console.log("user => ", user);
 
   return repository.verificationCode.deactivate(user.id)
     .then(() => repository.verificationCode.create({ user: user.id }))
