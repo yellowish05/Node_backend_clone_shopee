@@ -3,10 +3,10 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const generateDiscountCode = require('./resolvers/generateDiscountCode');
-
-const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
+const { DiscountValueType,DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
+
     enum DiscountValueType {
       ${DiscountValueType.toGQL()}
     }
@@ -32,13 +32,13 @@ const schema = gql`
     extend type Mutation {
         generateDiscountCode(
             value_type: DiscountValueType!
-            products:[Product]
-            product_categories:ProductCategory
+            products:[ID]
+            product_categories:[ID]
             all_product:Boolean
-            brands:[Brand]
-            brand_categoryies:BrandCategory
+            brands:[ID]
+            brand_categoryies:[ID]
             amount: Int!
-            privilege: DiscountPrivilege
+            privilege: DiscountPrivileges!
             startAt:Date!
             endAt:Date!
         ) : Discount! @auth(requires: USER)
