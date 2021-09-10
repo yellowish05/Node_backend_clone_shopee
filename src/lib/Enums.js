@@ -301,7 +301,8 @@ module.exports = {
   StreamRecordStatus,
   StreamChannelStatus,
   StreamRole,
-
+  DiscountPrivileges,
+  DiscountValueType,
   SourceType,
   MessageType,
   LoginProvider,
