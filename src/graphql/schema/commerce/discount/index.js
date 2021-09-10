@@ -2,7 +2,7 @@
 const path = require('path');
 const { gql } = require('apollo-server');
 
-const addProductToCart = require('./resolvers/addProductToCart');
+const generateDiscountCode = require('./resolvers/generateDiscountCode');
 
 const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
@@ -61,9 +61,9 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
     Query: {
-        cart: loadCart,
+        
     },
     Mutation: {
-
+        generateDiscountCode
     }
 };
