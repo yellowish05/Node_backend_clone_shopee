@@ -287,6 +287,15 @@ const IssueUrgency = EnumFactory({
   CRITICAL: "CRITICAL",
 });
 
+const DiscountValueType = EnumFactory({
+  PERCENT: "PERCENT",
+  FIXED: "FIXED",
+  FREE_SHIPPING: "FREE_SHIPPING",
+});
+const DiscountPrivileges = EnumFactory({
+  CUSTOMERS: "CUSTOMERS",
+  EVERYONEY: "EVERYONEY",
+});
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
