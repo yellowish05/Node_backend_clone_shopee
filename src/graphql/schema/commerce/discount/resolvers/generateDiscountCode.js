@@ -1,6 +1,6 @@
 const path = require('path');
 const { Validator } = require('node-input-validator');
-
+const uuid = require('uuid/v4');
 const ProductService = require(path.resolve('src/lib/ProductService'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server');
@@ -26,6 +26,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
                 code += candidates.charAt(Math.floor(Math.random() * candidates.length));
             }
             let data = {
+                _id: uuid(),
                 user: user.id,
                 code,
                 ...args
