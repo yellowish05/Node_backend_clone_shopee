@@ -77,7 +77,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             return repository.deliveryRate.create(deliveryRate.toObject())
             .then(() => repository.userCartItem.update(args.id, cartItemData));
           }else{
-            repository.userCartItem.getById(args.id);
+            return repository.userCartItem.update(args.id, cartItemData);
           }
           
         });
