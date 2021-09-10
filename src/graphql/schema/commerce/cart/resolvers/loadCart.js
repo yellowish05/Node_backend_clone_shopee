@@ -11,11 +11,14 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
         return product;
       });
     item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
-      .then((deliveryRate) => {
-        // if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
-        return deliveryRate;
-      });
-    if (item.productAttribute) { item.productAttribute = await repository.productAttributes.getById(item.productAttribute); }
+      .then((deliveryRate) => deliveryRate);
+    if (item.discount) {
+      item.discount = await repository.discount.getById(item.discount)
+        .then((discount) => discount);
+    }
+    if (item.productAttribute) {
+      item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
+    }
 
     return item;
   }))

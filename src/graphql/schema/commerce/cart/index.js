@@ -9,6 +9,7 @@ const loadCart = require('./resolvers/loadCart');
 const selectCartItems = require('./resolvers/selectCartItems');
 const updateCartItemDeliveryRate = require('./resolvers/updateCartItemDeliveryRate');
 const updateCartItemBillingAddress = require('./resolvers/updateCartItemBillingAddress');
+const addDiscountCodeToCart = require('./resolvers/addDiscountCodeToCart');
 
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
@@ -81,6 +82,7 @@ const schema = gql`
         """
         clearCart(selected: Boolean) : Cart! @auth(requires: USER)
         selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
+        addDiscountCodeToCart(discountCode: String!): Cart! @auth(requires: USER)
         updateCartItemDeliveryRate(id: ID!, deliveryRate: ID!): CartProductItem! @auth(requires: USER)
         updateCartItemBillingAddress(ids: [ID!], billingAddress: ID!): [CartProductItem!] @auth(requires: USER)
     }
@@ -110,6 +112,7 @@ module.exports.resolvers = {
     selectCartItems,
     updateCartItemDeliveryRate,
     updateCartItemBillingAddress,
+    addDiscountCodeToCart
   },
   Cart: {
     price: async ({ items }, args) => (

@@ -35,6 +35,40 @@ class UserCartItemRepository {
     return this.model.findOne({ _id: itemId });
   }
 
+  async applyDiscountCode(user, discount) {
+    const cartItems = await this.model.find({ user, selected: true });
+
+    cartItems.map((cartItem) => {
+      let p = 0;
+      if (discount.all_product === true) {
+        p = 1;
+      }
+      if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }
+      if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }
+      if (discount.isActive === false) {
+        p = 0;
+      }
+      const nowDateTime = new Date();
+      const startDateTime = new Date(discount.startAt);
+      const endDateTime = new Date(discount.endAt);
+      if (startDateTime > nowDateTime)p = 0;
+      if (endDateTime < nowDateTime) {
+        if (p === 1) {
+          cartItem.discount = discount.id;
+          cartItem.save();
+        }
+      }
+      return cartItem;
+    });
+    return cartItems;
+  }
+
   /**
    * @deprecated
    */
@@ -91,7 +125,6 @@ class UserCartItemRepository {
         cartItem.deliveryRate = deliveryRateId;
         cartItem.note = note;
         return cartItem.save();
-        console.log({cartItem})
       });
   }
 
