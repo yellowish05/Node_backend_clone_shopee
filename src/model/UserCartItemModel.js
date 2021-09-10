@@ -1,5 +1,4 @@
 const { Schema, model } = require('mongoose');
-const { ProductMetricUnits } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
@@ -21,6 +20,10 @@ const schema = new Schema({
   deliveryRate: {
     type: String,
     ref: 'DeliveryRate',
+  },
+  discount: {
+    type: String,
+    ref: 'Discount',
   },
   quantity: {
     type: Number,
@@ -48,4 +51,5 @@ const schema = new Schema({
   },
 });
 
+// eslint-disable-next-line new-cap
 module.exports = new model(collectionName, schema);
