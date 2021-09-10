@@ -5,7 +5,7 @@ const createdAtField = require('./commonFields/CreatedAtField');
 
 const { DiscountValueType,DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
-const collectionName = 'ReportComplaint';
+const collectionName = 'Discount';
 
 const schema = new Schema({
   ...uuidField(collectionName),
