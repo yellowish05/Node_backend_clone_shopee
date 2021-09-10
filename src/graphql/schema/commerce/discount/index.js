@@ -23,24 +23,13 @@ const schema = gql`
       brands:[Brand]
       brand_categoryies:BrandCategory
       amount: Int!
-      privilege: DiscountPrivilege
+      privilege: DiscountPrivileges
       startAt:Date
       endAt:Date
       isActive:Boolean
     }
 
-    
-
-    extend type Query {
-        """
-            Allows: authorized user
-        """
-    }
-
     extend type Mutation {
-        """
-            Allows: authorized user
-        """
         generateDiscountCode(
             value_type: DiscountValueType!
             products:[Product]
@@ -61,7 +50,7 @@ module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
     Query: {
-        
+       
     },
     Mutation: {
         generateDiscountCode
