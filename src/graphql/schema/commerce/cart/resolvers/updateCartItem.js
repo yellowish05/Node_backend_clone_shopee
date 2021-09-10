@@ -73,9 +73,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
             cartItemData.deliveryRateId = saveDeliveryRate.id;
             return repository.userCartItem.update(args.id, cartItemData);
           }
-
-          return repository.deliveryRate.create(deliveryRate.toObject())
+          if(deliveryRate){
+            return repository.deliveryRate.create(deliveryRate.toObject())
             .then(() => repository.userCartItem.update(args.id, cartItemData));
+          }else{
+            repository.userCartItem.getById(args.id);
+          }
+          
         });
     })
     .catch((error) => {
