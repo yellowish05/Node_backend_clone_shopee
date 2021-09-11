@@ -177,7 +177,7 @@ module.exports.resolvers = {
         if (pdf && pdf.length > 0) {
           return pdf;
         }
-
+        console.log("it is going to create invoice")
         return InvoiceService.getOrderDetails(id)
           .then(async (orderDetails) => InvoiceService.createInvoicePDF(orderDetails))
           .catch((err) => {
