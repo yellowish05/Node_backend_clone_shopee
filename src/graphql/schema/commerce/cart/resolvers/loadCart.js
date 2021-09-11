@@ -66,10 +66,11 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
       item.discount = null
       item.discountAmount = discountAmount
     }
+    console.log("item.discountAmount",item.discountAmount)
     if (item.productAttribute) {
       item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
     }
-    console.log("item.discountAmount",item.discountAmount)
+
     return item;
   }))
     .then((items) => ({ items })));
