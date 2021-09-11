@@ -242,7 +242,7 @@ module.exports.resolvers = {
               discountAmount = 0;
             }
           }
-          if (args.currency && args.currency !== discount.currency) {
+          if (args.currency && args.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
               { centsAmount: discountAmount, currency: discount.currency },
             );
