@@ -191,74 +191,74 @@ module.exports.resolvers = {
         })
     ),
     discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => {
-      Promise.all(items.map(async ({
+      return Promise.all(items.map(async ({
         discount, deliveryRate, product, quantity,
       }) => {
         let discountAmount = 0;
-          let isApplyDiscount = false;
+        let isApplyDiscount = false;
 
-          if (discount) {
-            const productBrandCategories = product.brand.brand.categories;
-            let commonBrandCategoriesCount = 0;
-            productBrandCategories.forEach((pbCategory) => {
-              if (discount.brand_categories.findIndex((dbc) => dbc === pbCategory.id > -1)) {
-                commonBrandCategoriesCount += 1;
-              }
-            });
-            if (discount.privilege === DiscountPrivileges.EVERYONEY) {
-              isApplyDiscount = true;
-            } else if (discount.privilege === DiscountPrivileges.CUSTOMERS
-              && user.isAnonymous === false) {
-              isApplyDiscount = true;
-            } else {
-              isApplyDiscount = false;
+        if (discount) {
+          const productBrandCategories = product.brand.brand.categories;
+          let commonBrandCategoriesCount = 0;
+          productBrandCategories.forEach((pbCategory) => {
+            if (discount.brand_categories.findIndex((dbc) => dbc === pbCategory.id > -1)) {
+              commonBrandCategoriesCount += 1;
             }
-            if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
-              isApplyDiscount = true;
-            } else if (discount.all_product === true) {
-              isApplyDiscount = true;
-            } else if (discount.brands.findIndex((brand) => brand === product.brand.id) > -1) {
-              isApplyDiscount = true;
-            } else if (commonBrandCategoriesCount > 0) {
-              isApplyDiscount = true;
-            } else if (discount.isActive === true) {
-              isApplyDiscount = true;
-            } else if (new Date(discount.startAt) < new Date() && new Date(discount.endAt) < new Date()) {
-              isApplyDiscount = true;
-            } else {
-              isApplyDiscount = false;
-            }
-            if (isApplyDiscount === true) {
-              if (discount.value_type === DiscountValueType.FREE_SHIPPING) {
-                if (deliveryRate.amount)discountAmount = deliveryRate.amount;
-              } else if (discount.value_type === DiscountValueType.FIXED) {
-                discountAmount = discount.amount;
-              } else if (discount.value_type === DiscountValueType.PERCENT) {
-                discountAmount = (discount.amount * product.price * quantity) / 100;
-              } else {
-                discountAmount = 0;
-              }
+          });
+          if (discount.privilege === DiscountPrivileges.EVERYONEY) {
+            isApplyDiscount = true;
+          } else if (discount.privilege === DiscountPrivileges.CUSTOMERS
+            && user.isAnonymous === false) {
+            isApplyDiscount = true;
+          } else {
+            isApplyDiscount = false;
+          }
+          if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
+            isApplyDiscount = true;
+          } else if (discount.all_product === true) {
+            isApplyDiscount = true;
+          } else if (discount.brands.findIndex((brand) => brand === product.brand.id) > -1) {
+            isApplyDiscount = true;
+          } else if (commonBrandCategoriesCount > 0) {
+            isApplyDiscount = true;
+          } else if (discount.isActive === true) {
+            isApplyDiscount = true;
+          } else if (new Date(discount.startAt) < new Date() && new Date(discount.endAt) < new Date()) {
+            isApplyDiscount = true;
+          } else {
+            isApplyDiscount = false;
+          }
+          if (isApplyDiscount === true) {
+            if (discount.value_type === DiscountValueType.FREE_SHIPPING) {
+              if (deliveryRate.amount) discountAmount = deliveryRate.amount;
+            } else if (discount.value_type === DiscountValueType.FIXED) {
+              discountAmount = discount.amount;
+            } else if (discount.value_type === DiscountValueType.PERCENT) {
+              discountAmount = (discount.amount * product.price * quantity) / 100;
             } else {
               discountAmount = 0;
             }
+          } else {
+            discountAmount = 0;
           }
-          if (args.currency && args.currency) {
-            const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-              { centsAmount: discountAmount, currency: 'USD' },
-            );
-            console.log({amountOfMoney})
-            return CurrencyService.exchange(amountOfMoney, args.currency)
-              .then((exchangedMoney) => {
-                const temp=exchangedMoney.getCentsAmount()
-                return temp
-              });
-          }
-          return discountAmount;
+        }
+        if (args.currency && args.currency) {
+          const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+            { centsAmount: discountAmount, currency: 'USD' },
+          );
+          console.log({ amountOfMoney })
+          return CurrencyService.exchange(amountOfMoney, args.currency)
+            .then((exchangedMoney) => {
+              const temp = exchangedMoney.getCentsAmount()
+              return temp
+            });
+        }
+        return discountAmount;
       }))
         .then((itemsSum) => {
-          console.log({itemsSum})
+          console.log({ itemsSum })
           const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
-          console.log({centsAmount})
+          console.log({ centsAmount })
           return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
         });
     },
