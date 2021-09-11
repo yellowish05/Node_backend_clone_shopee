@@ -244,7 +244,7 @@ module.exports.resolvers = {
           }
           if (args.currency && args.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-              { centsAmount: discountAmount, currency: discount.currency },
+              { centsAmount: discountAmount, currency: args.currency },
             );
             return CurrencyService.exchange(amountOfMoney, args.currency)
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
