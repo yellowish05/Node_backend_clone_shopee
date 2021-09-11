@@ -192,57 +192,9 @@ module.exports.resolvers = {
     ),
     discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => {
       return Promise.all(items.map(async ({
-        discount, deliveryRate, product, quantity,
+        discountAmount
       }) => {
-        let discountAmount = 0;
-        let isApplyDiscount = false;
-        //console.log({discount})
-        if (discount) {
-          //console.log("product=======>",product)
-          const brand=await repository.brand.getById(product.brand)
-          const productBrandCategories = brand.brandCategories||[];
-          console.log("brand",brand)
-          let commonBrandCategoriesCount = 0;
-          productBrandCategories.forEach((pbCategory) => {
-            if (discount.brand_categories.findIndex((dbc) => dbc === pbCategory.id > -1)) {
-              commonBrandCategoriesCount += 1;
-            }
-          });
-          if (discount.privilege === DiscountPrivileges.EVERYONEY) {
-            isApplyDiscount = true;
-          } else if (discount.privilege === DiscountPrivileges.CUSTOMERS
-            && user.isAnonymous === false) {
-            isApplyDiscount = true;
-          } else if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
-            isApplyDiscount = true;
-          } else if (discount.all_product === true) {
-            isApplyDiscount = true;
-          } else if (discount.brands.findIndex((brand) => brand === product.brand.id) > -1) {
-            isApplyDiscount = true;
-          } else if (commonBrandCategoriesCount > 0) {
-            isApplyDiscount = true;
-          } else if (discount.isActive === true) {
-            isApplyDiscount = true;
-          } else if (new Date(discount.startAt) < new Date() && new Date(discount.endAt) < new Date()) {
-            isApplyDiscount = true;
-          } else {
-            isApplyDiscount = false;
-          }
-          console.log({isApplyDiscount,discount})
-          if (isApplyDiscount === true) {
-            if (discount.value_type === DiscountValueType.FREE_SHIPPING) {
-              if (deliveryRate.amount) discountAmount = deliveryRate.amount;
-            } else if (discount.value_type === DiscountValueType.FIXED) {
-              discountAmount = discount.amount;
-            } else if (discount.value_type === DiscountValueType.PERCENT) {
-              discountAmount = (discount.amount * product.price * quantity) / 100;
-            } else {
-              discountAmount = 0;
-            }
-          } else {
-            discountAmount = 0;
-          }
-        }
+      
         if (args.currency && args.currency) {
           const amountOfMoney = CurrencyFactory.getAmountOfMoney(
             { centsAmount: discountAmount, currency: 'USD' },
@@ -265,7 +217,7 @@ module.exports.resolvers = {
     },
     total: async ({ items }, args) => (
       Promise.all(items.map(async ({
-        quantity, product, deliveryRate, metricUnit,
+        quantity, product, deliveryRate, metricUnit,discountAmount
       }) => {
         let value = 0;
         if (product) {
@@ -278,12 +230,12 @@ module.exports.resolvers = {
           }
           if (args.currency && args.currency !== itemCurrency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-              { centsAmount: unitPrice * quantity, currency: itemCurrency },
+              { centsAmount: (unitPrice-discountAmount) * quantity, currency: itemCurrency },
             );
             value += await CurrencyService.exchange(amountOfMoney, args.currency)
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
           } else {
-            value += unitPrice * quantity;
+            value += (unitPrice-discountAmount) * quantity;
           }
 
           // if (args.currency && args.currency !== product.currency) {
