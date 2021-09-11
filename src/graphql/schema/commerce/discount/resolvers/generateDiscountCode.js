@@ -7,7 +7,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 
 const errorHandler = new ErrorHandler();
 const codeLength=10
-const candidates='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*';
+const candidates='123456789ABCDEFGHJKLMNPQRSTUVWXYZ/!#';
 module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     const validator = new Validator(
         args,
