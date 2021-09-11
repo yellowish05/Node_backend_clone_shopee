@@ -258,6 +258,7 @@ module.exports.resolvers = {
           return discountAmount;
       }))
         .then((itemsSum) => {
+          console.log({itemsSum})
           const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
           return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
         });
