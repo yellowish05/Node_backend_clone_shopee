@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 const { ForbiddenError } = require('apollo-server');
+const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
 module.exports = async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
   .getAll({ user: user.id })
