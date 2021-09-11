@@ -14,11 +14,14 @@ const addDiscountCodeToCart = require('./resolvers/addDiscountCodeToCart');
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 
+const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
+
 const schema = gql`
     type Cart {
       items: [CartProductItem]!
       price(currency: Currency!): AmountOfMoney!
       deliveryPrice(currency: Currency!): AmountOfMoney!
+      discountPrice(currency: Currency!): AmountOfMoney!
       total(currency: Currency!): AmountOfMoney!
       
     }
@@ -105,18 +108,20 @@ module.exports.resolvers = {
       deleteCartItem(...args).then(() => loadCart(...args))
     ),
     clearCart: async (...args) => {
-      const [, { selected } , { dataSources: { repository }, user }] = args;
+      const [, { selected }, { dataSources: { repository }, user }] = args;
       return repository.userCartItem.clear(user.id, selected)
         .then(() => loadCart(...args));
     },
     selectCartItems,
     updateCartItemDeliveryRate,
     updateCartItemBillingAddress,
-    addDiscountCodeToCart
+    addDiscountCodeToCart,
   },
   Cart: {
     price: async ({ items }, args) => (
-      Promise.all(items.map(async ({ quantity, product, metricUnit, productAttribute }) => {
+      Promise.all(items.map(async ({
+        quantity, product, metricUnit, productAttribute,
+      }) => {
         if (!product && !productAttribute) { return 0; }
 
         const amountOfMoney = CurrencyFactory.getAmountOfMoney({
@@ -139,7 +144,7 @@ module.exports.resolvers = {
           let itemCurrency = product.currency;
           let unitPrice = product.price;
           if (metricUnit) {
-            let [selectedItem] = product.metrics.filter(metricItem => metricItem.metricUnit === metricUnit);
+            const [selectedItem] = product.metrics.filter((metricItem) => metricItem.metricUnit === metricUnit);
             itemCurrency = selectedItem.unitPrice.currency;
             unitPrice = selectedItem.unitPrice.amount;
           }
@@ -185,14 +190,85 @@ module.exports.resolvers = {
           return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
         })
     ),
+    discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => {
+      Promise.all(items.map(async ({
+        discount, deliveryRate, product, quantity,
+      }) => {
+        if (discount) {
+          let discountAmount = 0;
+          let isApplyDiscount = false;
+
+          if (discount) {
+            const productBrandCategories = product.brand.brand.categories;
+            let commonBrandCategoriesCount = 0;
+            productBrandCategories.forEach((pbCategory) => {
+              if (discount.brand_categories.findIndex((dbc) => dbc === pbCategory.id > -1)) {
+                commonBrandCategoriesCount += 1;
+              }
+            });
+            if (discount.privilege === DiscountPrivileges.EVERYONEY) {
+              isApplyDiscount = true;
+            } else if (discount.privilege === DiscountPrivileges.CUSTOMERS
+              && user.isAnonymous === false) {
+              isApplyDiscount = true;
+            } else {
+              isApplyDiscount = false;
+            }
+            if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
+              isApplyDiscount = true;
+            } else if (discount.all_product === true) {
+              isApplyDiscount = true;
+            } else if (discount.brands.findIndex((brand) => brand === product.brand.id) > -1) {
+              isApplyDiscount = true;
+            } else if (commonBrandCategoriesCount > 0) {
+              isApplyDiscount = true;
+            } else if (discount.isActive === true) {
+              isApplyDiscount = true;
+            } else if (new Date(discount.startAt) < new Date() && new Date(discount.endAt) < new Date()) {
+              isApplyDiscount = true;
+            } else {
+              isApplyDiscount = false;
+            }
+            if (isApplyDiscount === true) {
+              if (discount.value_type === DiscountValueType.FREE_SHIPPING) {
+                if (deliveryRate.amount)discountAmount = deliveryRate.amount;
+              } else if (discount.value_type === DiscountValueType.FIXED) {
+                discountAmount = discount.amount;
+              } else if (discount.value_type === DiscountValueType.PERCENT) {
+                discountAmount = (discount.amount * product.price * quantity) / 100;
+              } else {
+                discountAmount = 0;
+              }
+            } else {
+              discountAmount = 0;
+            }
+          }
+          if (args.currency && args.currency !== discount.currency) {
+            const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+              { centsAmount: discountAmount, currency: discount.currency },
+            );
+            return CurrencyService.exchange(amountOfMoney, args.currency)
+              .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+          }
+          return discountAmount;
+        }
+        return 0;
+      }))
+        .then((itemsSum) => {
+          const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
+          return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
+        });
+    },
     total: async ({ items }, args) => (
-      Promise.all(items.map(async ({ quantity, product, deliveryRate, metricUnit}) => {
+      Promise.all(items.map(async ({
+        quantity, product, deliveryRate, metricUnit,
+      }) => {
         let value = 0;
         if (product) {
           let unitPrice = product.price;
           let itemCurrency = product.currency;
           if (metricUnit) {
-            let [selectedItem] = product.metrics.filter(metricItem => metricItem.metricUnit === metricUnit);
+            const [selectedItem] = product.metrics.filter((metricItem) => metricItem.metricUnit === metricUnit);
             itemCurrency = selectedItem.unitPrice.currency;
             unitPrice = selectedItem.unitPrice.amount;
           }
@@ -236,13 +312,15 @@ module.exports.resolvers = {
     ),
   },
   CartProductItem: {
-    total: async ({ quantity, product, deliveryRate, metricUnit }, { currency }) => {
+    total: async ({
+      quantity, product, deliveryRate, metricUnit,
+    }, { currency }) => {
       let productTotal = product.price * quantity;
       let itemCurrency = product.currency;
       let deliveryTotal = deliveryRate ? deliveryRate.amount : 0;
 
       if (metricUnit && product.metrics && product.metrics.length) {
-        let [selectedItem] = product.metrics.filter(metricItem => metricItem.metricUnit === metricUnit);
+        const [selectedItem] = product.metrics.filter((metricItem) => metricItem.metricUnit === metricUnit);
         if (!selectedItem) {
           throw new UserInputError(`Product with id "${product._id}" does not have metric unit ${metricUnit}!`, { invalidArgs: [product] });
         }
@@ -279,10 +357,10 @@ module.exports.resolvers = {
     },
     seller: async ({ product }, _, { dataSources: { repository } }) => repository.product.getById(product).then((product) => repository.user.getById(product.seller)),
     deliveryIncluded: ({ deliveryRate }) => deliveryRate != null && typeof deliveryRate !== 'undefined',
-    deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } } ) => {
+    deliveryAddress: async ({ deliveryRate: rateId }, _, { dataSources: { repository } }) => {
       if (!rateId) return null;
       return repository.deliveryRate.getById(rateId)
-        .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
+        .then((deliveryRate) => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
     },
     billingAddress: ({ billingAddress }, _, { dataSources: { repository } }) => repository.billingAddress.getById(billingAddress),
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),

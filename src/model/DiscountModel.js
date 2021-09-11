@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
-const { DiscountValueType,DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
+const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
 const collectionName = 'Discount';
 
@@ -16,11 +16,11 @@ const schema = new Schema({
     ref: 'User',
     index: true,
   },
-  code:{
+  code: {
     type: String,
     required: true,
   },
-  value_type:{
+  value_type: {
     type: String,
     enum: DiscountValueType.toList(),
     required: true,
@@ -39,12 +39,12 @@ const schema = new Schema({
     type: Boolean,
     default: false,
   },
-  brands:[{
+  brands: [{
     type: String,
     ref: 'Brand',
     index: true,
   }],
-  brand_categoryies:[{
+  brand_categories: [{
     type: String,
     ref: 'BrandCategory',
     index: true,
@@ -53,14 +53,14 @@ const schema = new Schema({
     type: Number,
     required: true,
   },
-  privilege:{
+  privilege: {
     type: String,
     enum: DiscountPrivileges.toList(),
     required: true,
   },
   startAt: {
     type: Date,
-    required: true
+    required: true,
   },
   isActive: {
     type: Boolean,
@@ -68,7 +68,7 @@ const schema = new Schema({
   },
   endAt: {
     type: Date,
-    required: true
+    required: true,
   },
 });
 
