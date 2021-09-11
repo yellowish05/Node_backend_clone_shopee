@@ -19,8 +19,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         throw errorHandler.build(validator.errors);
       }
       const discount = await repository.discount.getItemByCode(args.discountCode);
-      const status = await repository.userCartItem.applyDiscountCode(user.id,discount);
-      console.log("add discount code result",{discount, status})
+      await repository.userCartItem.applyDiscountCode(user.id,discount);
+      // console.log("add discount code result",{discount, status})
       return ;
     })
     .then(() => loadCart({}, {}, { dataSources: { repository }, user }))
