@@ -15,9 +15,10 @@ const schema = gql`
       ${DiscountPrivileges.toGQL()}
     }
     type Discount {
-      user: User!
+      id:ID!
+      user: User
       code: String
-      value_type: DiscountValueType!
+      value_type: DiscountValueType
       products:[Product]
       product_categories:ProductCategory
       all_product:Boolean
