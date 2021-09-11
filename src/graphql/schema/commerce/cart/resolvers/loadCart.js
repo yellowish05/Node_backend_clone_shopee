@@ -12,6 +12,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
       });
     item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
       .then((deliveryRate) => deliveryRate);
+      console.log("item.discount",item.discount)
     if (item.discount) {
       item.discount = await repository.discount.getById(item.discount)
         .then((discount) => discount);
