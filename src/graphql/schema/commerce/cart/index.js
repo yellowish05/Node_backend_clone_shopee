@@ -194,8 +194,7 @@ module.exports.resolvers = {
       Promise.all(items.map(async ({
         discount, deliveryRate, product, quantity,
       }) => {
-        if (discount) {
-          let discountAmount = 0;
+        let discountAmount = 0;
           let isApplyDiscount = false;
 
           if (discount) {
@@ -251,8 +250,6 @@ module.exports.resolvers = {
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
           }
           return discountAmount;
-        }
-        return 0;
       }))
         .then((itemsSum) => {
           const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);

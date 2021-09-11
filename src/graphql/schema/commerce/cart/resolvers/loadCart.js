@@ -15,6 +15,8 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
     if (item.discount) {
       item.discount = await repository.discount.getById(item.discount)
         .then((discount) => discount);
+    }else{
+      item.discount=null
     }
     if (item.productAttribute) {
       item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
