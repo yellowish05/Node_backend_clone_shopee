@@ -242,7 +242,6 @@ module.exports.resolvers = {
               discountAmount = 0;
             }
           }
-          console.log("args.currency",args.currency)
           if (args.currency && args.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
               { centsAmount: discountAmount, currency: 'USD' },
@@ -251,7 +250,6 @@ module.exports.resolvers = {
             return CurrencyService.exchange(amountOfMoney, args.currency)
               .then((exchangedMoney) => {
                 const temp=exchangedMoney.getCentsAmount()
-                console.log("exchangeMoney", temp)
                 return temp
               });
           }
@@ -260,6 +258,7 @@ module.exports.resolvers = {
         .then((itemsSum) => {
           console.log({itemsSum})
           const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
+          console.log({centsAmount})
           return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
         });
     },
