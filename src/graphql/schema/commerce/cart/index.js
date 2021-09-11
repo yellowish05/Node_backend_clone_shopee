@@ -242,12 +242,18 @@ module.exports.resolvers = {
               discountAmount = 0;
             }
           }
+          console.log("args.currency",args.currency)
           if (args.currency && args.currency) {
             const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-              { centsAmount: discountAmount, currency: args.currency },
+              { centsAmount: discountAmount, currency: 'USD' },
             );
+            console.log({amountOfMoney})
             return CurrencyService.exchange(amountOfMoney, args.currency)
-              .then((exchangedMoney) => exchangedMoney.getCentsAmount());
+              .then((exchangedMoney) => {
+                const temp=exchangedMoney.getCentsAmount()
+                console.log("exchangeMoney", temp)
+                return temp
+              });
           }
           return discountAmount;
       }))
