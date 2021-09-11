@@ -6,6 +6,10 @@ class DiscountRepository {
   
     async getById(id) {
       return this.model.findOne({ _id: id });
+    }    
+    
+    async getItemByCode(code) {
+      return this.model.findOne({code});
     }
   
     async getByIds(ids) {
