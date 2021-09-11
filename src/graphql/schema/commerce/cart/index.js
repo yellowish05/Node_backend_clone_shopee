@@ -252,7 +252,7 @@ module.exports.resolvers = {
               .then((exchangedMoney) => {
                 const temp=exchangedMoney.getCentsAmount()
                 console.log("exchangeMoney", temp)
-                return temp
+                return temp.exchangeMoney
               });
           }
           return discountAmount;
