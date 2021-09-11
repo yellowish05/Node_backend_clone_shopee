@@ -196,8 +196,9 @@ module.exports.resolvers = {
       }) => {
         let discountAmount = 0;
         let isApplyDiscount = false;
-        console.log({discount})
+        //console.log({discount})
         if (discount) {
+          console.log("product=======>",product)
           const productBrandCategories = product.brand.brand.categories;
           let commonBrandCategoriesCount = 0;
           productBrandCategories.forEach((pbCategory) => {
