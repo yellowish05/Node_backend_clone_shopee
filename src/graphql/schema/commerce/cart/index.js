@@ -198,8 +198,9 @@ module.exports.resolvers = {
         let isApplyDiscount = false;
         //console.log({discount})
         if (discount) {
-          console.log("product=======>",product)
-          const productBrandCategories = product.brand.brand.categories;
+          //console.log("product=======>",product)
+          const brand=await repository.brand.getByid(product.brand)
+          const productBrandCategories = brand.categories;
           let commonBrandCategoriesCount = 0;
           productBrandCategories.forEach((pbCategory) => {
             if (discount.brand_categories.findIndex((dbc) => dbc === pbCategory.id > -1)) {
