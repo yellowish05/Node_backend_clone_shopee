@@ -199,7 +199,7 @@ module.exports.resolvers = {
         //console.log({discount})
         if (discount) {
           //console.log("product=======>",product)
-          const brand=await repository.brand.getByid(product.brand)
+          const brand=await repository.brand.getById(product.brand)
           const productBrandCategories = brand.categories;
           let commonBrandCategoriesCount = 0;
           productBrandCategories.forEach((pbCategory) => {
