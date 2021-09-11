@@ -37,7 +37,7 @@ class UserCartItemRepository {
 
   async applyDiscountCode(user, discount) {
     const cartItems = await this.model.find({ user, selected: true });
-
+    
     cartItems.map((cartItem) => {
       let p = 0;
       const nowDateTime = new Date();
