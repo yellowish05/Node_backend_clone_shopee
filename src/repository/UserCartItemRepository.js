@@ -40,29 +40,29 @@ class UserCartItemRepository {
 
     cartItems.map((cartItem) => {
       let p = 0;
-      if (discount.all_product === true) {
-        p = 1;
-      }
-      if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
-        p = 1;
-        return cartItem;
-      }
-      if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
-        p = 1;
-        return cartItem;
-      }
-      if (discount.isActive === false) {
-        p = 0;
-      }
       const nowDateTime = new Date();
       const startDateTime = new Date(discount.startAt);
       const endDateTime = new Date(discount.endAt);
-      if (startDateTime > nowDateTime)p = 0;
-      if (endDateTime < nowDateTime) {
-        if (p === 1) {
-          cartItem.discount = discount.id;
-          cartItem.save();
-        }
+      if (discount.all_product === true) {
+        p = 1;
+      }else if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }else if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }else if (discount.isActive === true) {
+        p = 1;
+      } else if(startDateTime<nowDateTime && nowDateTime< endDateTime){
+        p=1
+      }
+      else{
+        p=0
+      }
+      console.log("it is able to add discount code", p)
+      if (p === 1) {
+        cartItem.discount = discount.id;
+        cartItem.save();
       }
       return cartItem;
     });

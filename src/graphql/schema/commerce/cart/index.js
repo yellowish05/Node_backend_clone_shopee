@@ -196,7 +196,7 @@ module.exports.resolvers = {
       }) => {
         let discountAmount = 0;
         let isApplyDiscount = false;
-
+        console.log({discount})
         if (discount) {
           const productBrandCategories = product.brand.brand.categories;
           let commonBrandCategoriesCount = 0;
