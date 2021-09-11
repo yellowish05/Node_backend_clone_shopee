@@ -3,7 +3,8 @@ const path = require('path');
 const { gql } = require('apollo-server');
 
 const generateDiscountCode = require('./resolvers/generateDiscountCode');
-const { DiscountValueType,DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
+
+const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
 
 const schema = gql`
 
@@ -21,7 +22,7 @@ const schema = gql`
       product_categories:ProductCategory
       all_product:Boolean
       brands:[Brand]
-      brand_categoryies:BrandCategory
+      brand_categories:BrandCategory
       amount: Int!
       privilege: DiscountPrivileges
       startAt:Date
@@ -36,7 +37,7 @@ const schema = gql`
             product_categories:[ID]
             all_product:Boolean
             brands:[ID]
-            brand_categoryies:[ID]
+            brand_categories:[ID]
             amount: Int!
             privilege: DiscountPrivileges!
             startAt:Date!
@@ -49,10 +50,10 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-    Query: {
-       
-    },
-    Mutation: {
-        generateDiscountCode
-    }
+  Query: {
+
+  },
+  Mutation: {
+    generateDiscountCode,
+  },
 };
