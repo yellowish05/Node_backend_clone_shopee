@@ -18,6 +18,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
     if (item.discount) {
       item.discount = await repository.discount.getById(item.discount)
         .then((discount) => discount);
+        const discount=item.discount
       const brand = await repository.brand.getById(item.product.brand)
       const productBrandCategories = brand.brandCategories || [];
       console.log("brand", brand)
