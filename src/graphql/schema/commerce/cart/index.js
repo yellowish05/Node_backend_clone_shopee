@@ -33,7 +33,7 @@ const schema = gql`
       seller: User!
       total(currency: Currency! = USD): AmountOfMoney!
       productAttribute: ProductAttribute
-
+      discount:Discount
       product: Product!
       deliveryIncluded: Boolean!
       deliveryAddress: DeliveryAddress
@@ -365,6 +365,10 @@ module.exports.resolvers = {
       if (!rateId) return null;
       return repository.deliveryRate.getById(rateId)
         .then((deliveryRate) => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
+    },
+    discount: async ({ discount}, _, { dataSources: { repository } }) => {
+      if (!discount) return null;
+      return repository.discount.getById(discount)
     },
     billingAddress: ({ billingAddress }, _, { dataSources: { repository } }) => repository.billingAddress.getById(billingAddress),
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),
