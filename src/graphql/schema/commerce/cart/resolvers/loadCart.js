@@ -61,6 +61,7 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
       } else {
         discountAmount = 0;
       }
+      item.discountAmount = discountAmount
     } else {
       item.discount = null
       item.discountAmount = discountAmount
