@@ -210,10 +210,7 @@ module.exports.resolvers = {
           } else if (discount.privilege === DiscountPrivileges.CUSTOMERS
             && user.isAnonymous === false) {
             isApplyDiscount = true;
-          } else {
-            isApplyDiscount = false;
-          }
-          if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
+          } else if (discount.products.findIndex((pItem) => pItem === product.id) > -1) {
             isApplyDiscount = true;
           } else if (discount.all_product === true) {
             isApplyDiscount = true;
@@ -228,6 +225,7 @@ module.exports.resolvers = {
           } else {
             isApplyDiscount = false;
           }
+          console.log({isApplyDiscount,discount})
           if (isApplyDiscount === true) {
             if (discount.value_type === DiscountValueType.FREE_SHIPPING) {
               if (deliveryRate.amount) discountAmount = deliveryRate.amount;
