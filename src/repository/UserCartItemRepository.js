@@ -38,7 +38,7 @@ class UserCartItemRepository {
   async applyDiscountCode(user, discount) {
     const cartItems = await this.model.find({ user, selected: true });
     
-    cartItems.map((cartItem) => {
+    cartItems.map(async (cartItem) => {
       let p = 0;
       const nowDateTime = new Date();
       const startDateTime = new Date(discount.startAt);
@@ -62,7 +62,7 @@ class UserCartItemRepository {
       console.log("it is able to add discount code", p)
       if (p === 1) {
         cartItem.discount = discount.id;
-        cartItem.save();
+        await cartItem.save();
       }
       return cartItem;
     });
