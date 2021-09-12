@@ -22,9 +22,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       if(!discount){
         throw new ApolloError(`This discount code does not exist: ${args.discountCode}`, 400);
       }
-      await repository.userCartItem.applyDiscountCode(user.id,discount);
+      let res=await repository.userCartItem.applyDiscountCode(user.id,discount);
       // console.log("add discount code result",{discount, status})
-      return ;
+      return res;
     })
     .then(() => loadCart({}, {}, { dataSources: { repository }, user }))
     .catch((error) => {
