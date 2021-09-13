@@ -150,6 +150,11 @@ const schema = new Schema({
   seoTitle: {
     type: String
   },
+  // the time when the product is traslated at. 100: ex-translated.
+  translated: {
+    type: Number,
+    default: 0,
+  },
   sold: {
     type: Number,
     default: 0,
