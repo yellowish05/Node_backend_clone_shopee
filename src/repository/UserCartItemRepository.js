@@ -35,6 +35,39 @@ class UserCartItemRepository {
     return this.model.findOne({ _id: itemId });
   }
 
+  async applyDiscountCode(user, discount) {
+    const cartItems = await this.model.find({ user, selected: true });
+    for(let index=0;index<cartItems.length;index++){
+      let cartItem=cartItems[index];
+      let p = 0;
+      const nowDateTime = new Date();
+      const startDateTime = new Date(discount.startAt);
+      const endDateTime = new Date(discount.endAt);
+      if (discount.all_product === true) {
+        p = 1;
+      }else if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }else if (discount.products.findIndex((pro) => pro === cartItem.product) > -1) {
+        p = 1;
+        return cartItem;
+      }else if (discount.isActive === true) {
+        p = 1;
+      } else if(startDateTime<nowDateTime && nowDateTime< endDateTime){
+        p=1
+      }
+      else{
+        p=0
+      }
+      console.log("it is able to add discount code", p)
+      if (p === 1) {
+        cartItem.discount = discount.id;
+        await cartItem.save();
+      }
+    }
+    return cartItems;
+  }
+
   /**
    * @deprecated
    */
@@ -91,7 +124,6 @@ class UserCartItemRepository {
         cartItem.deliveryRate = deliveryRateId;
         cartItem.note = note;
         return cartItem.save();
-        console.log({cartItem})
       });
   }
 

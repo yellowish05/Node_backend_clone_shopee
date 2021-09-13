@@ -93,6 +93,7 @@ const VerificationEmailTemplate = EnumFactory({
   PACKINGSLIP: 'PACKINGSLIP',
   PASSWORD_CHANGED: 'PASSWORD_CHANGED',
   NEW_ISSUE: 'NEW_ISSUE',
+  SIGNUP: 'SIGNUP',
 });
 
 const NotificationType = EnumFactory({
@@ -286,12 +287,22 @@ const IssueUrgency = EnumFactory({
   CRITICAL: "CRITICAL",
 });
 
+const DiscountValueType = EnumFactory({
+  PERCENT: "PERCENT",
+  FIXED: "FIXED",
+  FREE_SHIPPING: "FREE_SHIPPING",
+});
+const DiscountPrivileges = EnumFactory({
+  CUSTOMERS: "CUSTOMERS",
+  EVERYONEY: "EVERYONEY",
+});
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
   StreamChannelStatus,
   StreamRole,
-
+  DiscountPrivileges,
+  DiscountValueType,
   SourceType,
   MessageType,
   LoginProvider,
