@@ -64,84 +64,84 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
       }
 
-      let { location } = args.data;
-      let address = null;
-      let addressRegion;
-      let tempCurrency;
-      if (args.data.address) {
-        const addressCountry = await repository.country.getById(args.data.address.country);
-        if (!addressCountry) {
-          throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
-        }
-        if (args.data.address.region !== null & args.data.address.region !== undefined) {
-          addressRegion = await repository.region.getById(args.data.address.region);
-          if (!addressRegion) {
-            throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
-          }
-        }
+      // let { location } = args.data;
+      // let address = null;
+      // let addressRegion;
+      // let tempCurrency;
+      // if (args.data.address) {
+      //   const addressCountry = await repository.country.getById(args.data.address.country);
+      //   if (!addressCountry) {
+      //     throw new UserInputError('Country does not exists', { invalidArgs: 'address' });
+      //   }
+      //   if (args.data.address.region !== null & args.data.address.region !== undefined) {
+      //     addressRegion = await repository.region.getById(args.data.address.region);
+      //     if (!addressRegion) {
+      //       throw new UserInputError('Region does not exists', { invalidArgs: 'address' });
+      //     }
+      //   }
 
-        address = {
-          ...args.data.address,
-          region: addressRegion,
-          country: addressCountry,
-        };
+      //   address = {
+      //     ...args.data.address,
+      //     region: addressRegion,
+      //     country: addressCountry,
+      //   };
 
-        tempCurrency = addressCountry ? addressCountry.currency : 'USD';
-        await repository.user.updateCurrency(user.id, tempCurrency);
-      }
+      //   tempCurrency = addressCountry ? addressCountry.currency : 'USD';
+      //   await repository.user.updateCurrency(user.id, tempCurrency);
+      // }
 
-      let addressObj = {
-        phone: args.data.phone,
-        email: args.data.email,
-      };
-      try {
-        if (location && !address) {
-          address = await Geocoder.reverse(location);
-          const geocodedCountry = await repository.country.getById(address.country.id);
-          if (!geocodedCountry) {
-            throw new UserInputError('Country does not exists', { invalidArgs: 'location' });
-          }
-          address.country = geocodedCountry.id;
-          addressObj = {
-            ...addressObj,
-            address: {
-              street: address.street,
-              city: address.city,
-              region: address.region ? address.region : null,
-              zipCode: address.zipCode,
-              country: address.country,
-            },
-          };
-        } else if (address) {
-          location = await Geocoder.geocode(address);
-          addressObj = {
-            ...addressObj,
-            address: {
-              street: args.data.address.street,
-              description: args.data.address.description,
-              city: args.data.address.city,
-              region: args.data.address.region,
-              zipCode: args.data.address.zipCode,
-              country: args.data.address.country,
-            },
-          };
-        } 
-        else {
-          // throw new ApolloError(`Please provide an address or location.`, 400);
-        }
-      } catch (error) {
-        throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
-      }
+      // let addressObj = {
+      //   phone: args.data.phone,
+      //   email: args.data.email,
+      // };
+      // try {
+      //   if (location && !address) {
+      //     address = await Geocoder.reverse(location);
+      //     const geocodedCountry = await repository.country.getById(address.country.id);
+      //     if (!geocodedCountry) {
+      //       throw new UserInputError('Country does not exists', { invalidArgs: 'location' });
+      //     }
+      //     address.country = geocodedCountry.id;
+      //     addressObj = {
+      //       ...addressObj,
+      //       address: {
+      //         street: address.street,
+      //         city: address.city,
+      //         region: address.region ? address.region : null,
+      //         zipCode: address.zipCode,
+      //         country: address.country,
+      //       },
+      //     };
+      //   } else if (address) {
+      //     location = await Geocoder.geocode(address);
+      //     addressObj = {
+      //       ...addressObj,
+      //       address: {
+      //         street: args.data.address.street,
+      //         description: args.data.address.description,
+      //         city: args.data.address.city,
+      //         region: args.data.address.region,
+      //         zipCode: args.data.address.zipCode,
+      //         country: args.data.address.country,
+      //       },
+      //     };
+      //   } 
+      //   else {
+      //     // throw new ApolloError(`Please provide an address or location.`, 400);
+      //   }
+      // } catch (error) {
+      //   throw new ApolloError(`Failed to store the address. Original error: ${error.message}`, 400);
+      // }
 
-      const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
+      // const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
       const tempCountry = await repository.country.getById(countryCode);
       await repository.user.updateCurrency(user.id, tempCountry.currency);
       const updateData = { };
       console.log("updateUser",args)
       args.data.name ? updateData.name = args.data.name : null;
-      args.data.nick_name ? updateData.name = args.data.nick_name : null;
-      args.data.country ? updateData.name = args.data.country : null;
-      args.data.hometown ? updateData.name = args.data.hometown : null;
+      args.data.nick_name ? updateData.nick_name = args.data.nick_name : null;
+      args.data.country ? updateData.country = args.data.country : null;
+      args.data.hometown ? updateData.hometown = args.data.hometown : null;
       args.data.email ? updateData.email = args.data.email : null;
       args.data.phone ? updateData.phone = args.data.phone : null;
       args.data.photo ? updateData.photo = args.data.photo : null;
