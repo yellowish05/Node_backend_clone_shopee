@@ -64,7 +64,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
       }
 
-      // let { location } = args.data;
+      let { location } = args.data;
       // let address = null;
       // let addressRegion;
       // let tempCurrency;
