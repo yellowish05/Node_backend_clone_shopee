@@ -11,8 +11,8 @@ function filterWithHasProduct(query, hasProduct) {
 function matchHashtag(category, tags) {
   if (!tags.length) return false;
 
-  for (let hashtag of (category.hashtags || [])) {
-    for (let tag of tags) {
+  for (const hashtag of (category.hashtags || [])) {
+    for (const tag of tags) {
       if (hashtag.includes(tag)) return true;
     }
   }
@@ -22,14 +22,13 @@ function matchHashtag(category, tags) {
 function getAllUnderParent(allCategories, ids = [], tags) {
   if (ids.length === 0) return [];
 
-  let categories = allCategories.filter(category => ids.includes(category._id) || ids.includes(category.parent) || matchHashtag(category, tags));
-  const newIds = categories.map(category => category._id);
-  const diff = newIds.filter(id => !ids.includes(id));
+  const categories = allCategories.filter((category) => ids.includes(category._id) || ids.includes(category.parent) || matchHashtag(category, tags));
+  const newIds = categories.map((category) => category._id);
+  const diff = newIds.filter((id) => !ids.includes(id));
   if (diff.length === 0) {
-    return allCategories.filter(category => newIds.includes(category._id));
-  } else {
-    return getAllUnderParent(allCategories, newIds, tags);
+    return allCategories.filter((category) => newIds.includes(category._id));
   }
+  return getAllUnderParent(allCategories, newIds, tags);
 }
 
 class ProductCategoryRepository {
@@ -44,7 +43,7 @@ class ProductCategoryRepository {
   async getById(id) {
     return this.model.findOne({ _id: id });
   }
-  
+
   async getBySlug(slug) {
     return this.model.findOne({ slug });
   }
@@ -61,9 +60,7 @@ class ProductCategoryRepository {
 
   async getUnderParents(ids, tags = []) {
     return this.getAll()
-      .then(categories => {
-        return getAllUnderParent(categories, ids, tags);
-      });
+      .then((categories) => getAllUnderParent(categories, ids, tags));
   }
 
   async findByIds(ids) {
@@ -78,6 +75,10 @@ class ProductCategoryRepository {
       null,
       { limit, skip, sort: { order: 1 } },
     );
+  }
+
+  async findByNames(names) {
+    return this.model.findOne({ name: { $in: names } });
   }
 
   async load(query, { skip, limit }) {
