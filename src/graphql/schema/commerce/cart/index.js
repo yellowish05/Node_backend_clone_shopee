@@ -83,7 +83,7 @@ const schema = gql`
         """
             Allows: authorized user
         """
-        clearCart(selected: Boolean) : Cart! @auth(requires: USER)
+        clearCart(selected: Boolean, language: String, currency: Currency) : Cart! @auth(requires: USER)
         selectCartItems(ids: [ID]!, selected: Boolean = true): Cart! @auth(requires: USER)
         addDiscountCodeToCart(discountCode: String!): Cart! @auth(requires: USER)
         updateCartItemDeliveryRate(id: ID!, deliveryRate: ID!): CartProductItem! @auth(requires: USER)
