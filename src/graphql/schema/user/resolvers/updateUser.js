@@ -134,8 +134,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       // }
 
       // const countryCode = (addressObj.address ? addressObj.address.country : userObj.address.country).toUpperCase()
-      const tempCountry = await repository.country.getById(countryCode);
-      await repository.user.updateCurrency(user.id, tempCountry.currency);
+      // const tempCountry = await repository.country.getById(countryCode);
+      // await repository.user.updateCurrency(user.id, tempCountry.currency);
       const updateData = { };
       console.log("updateUser",args)
       args.data.name ? updateData.name = args.data.name : null;
