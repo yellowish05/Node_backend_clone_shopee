@@ -146,7 +146,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       args.data.phone ? updateData.phone = args.data.phone : null;
       args.data.photo ? updateData.photo = args.data.photo : null;
       location ? updateData.location = location : null;
-      addressObj.address ? updateData.address = addressObj.address : null;
+      // addressObj.address ? updateData.address = addressObj.address : null;
       args.data.gender ? updateData.gender = args.data.gender : null;
       args.data.color ? updateData.color = args.data.color: null;
       
