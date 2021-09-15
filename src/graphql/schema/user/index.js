@@ -149,7 +149,6 @@ const schema = gql`
       nick_name: String
       country: String
       hometown: String
-      name: String
       countryCode: String
       address: AddressInput
       location: LatLngInput
