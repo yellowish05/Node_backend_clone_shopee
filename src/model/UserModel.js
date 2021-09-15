@@ -43,6 +43,18 @@ const schema = new Schema({
     type: String,
     required: false,
   },
+  country: {
+    type: String,
+    required: false,
+  },
+  hometown: {
+    type: String,
+    required: false,
+  },
+  nick_name: {
+    type: String,
+    required: false,
+  },
   photo: {
     type: String,
     ref: 'Asset',

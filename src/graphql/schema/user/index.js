@@ -146,6 +146,9 @@ const schema = gql`
     input UpdateUserInput {
       id: ID!
       name: String
+      nick_name: String
+      country: String
+      hometown: String
       countryCode: String
       address: AddressInput
       location: LatLngInput

@@ -235,6 +235,9 @@ class UserRepository {
     user.address = data.address || user.address;
     user.gender = data.gender || user.gender;
     user.color = data.color || user.color;
+    user.nick_name = data.color || user.nick_name;
+    user.country = data.color || user.country;
+    user.hometown = data.color || user.hometown;
 
     if (data.provider && data.providerId) {
       user.providers[data.provider] = data.providerId;

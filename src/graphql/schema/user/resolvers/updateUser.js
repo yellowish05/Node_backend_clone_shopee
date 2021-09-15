@@ -139,6 +139,9 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       const updateData = { };
       console.log("updateUser",args)
       args.data.name ? updateData.name = args.data.name : null;
+      args.data.nick_name ? updateData.name = args.data.nick_name : null;
+      args.data.country ? updateData.name = args.data.country : null;
+      args.data.hometown ? updateData.name = args.data.hometown : null;
       args.data.email ? updateData.email = args.data.email : null;
       args.data.phone ? updateData.phone = args.data.phone : null;
       args.data.photo ? updateData.photo = args.data.photo : null;
