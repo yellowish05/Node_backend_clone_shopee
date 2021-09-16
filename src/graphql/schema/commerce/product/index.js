@@ -416,7 +416,8 @@ module.exports.resolvers = {
     description: async ({ id, description }, { language }, { dataSources: { repository } }) => {
       if (!language) return description;
       return repository.productTranslation.getByProduct(id)
-        .then((translation) => (translation && translation.description[language.toLowerCase()] ? translation.description[language.toLowerCase()] : description));
+        .then((translation) => translation.description[language.toLowerCase()])
+        .catch(error => description);
     },
     sold: ({ sold }) => Number(sold) > 0 ? Number(sold) : 0,
   },
