@@ -62,6 +62,7 @@ const schema = gql`
     seller: User!
     title(language: LanguageList): String
     description(language: LanguageList): String
+    descriptionImages: [String]
     """
         Price in cents. Use the Currency for show it in correct format
     """

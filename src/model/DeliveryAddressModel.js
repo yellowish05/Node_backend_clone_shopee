@@ -44,10 +44,6 @@ const schema = new Schema({
     type: String,
     required: false,
   },
-  isDefault: {
-    type: Boolean,
-    default: false,
-  },
 });
 
 module.exports = new model(collectionName, schema);
