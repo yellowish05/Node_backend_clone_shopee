@@ -41,6 +41,10 @@ const schema = new Schema({
     type: String,
     index: true,
   },
+  descriptionImages: {
+    type: [{ type: String }],
+    default: [],
+  },
   price: {
     type: Number,
     required: true,
