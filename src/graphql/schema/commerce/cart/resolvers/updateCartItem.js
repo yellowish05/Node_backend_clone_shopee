@@ -47,7 +47,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       if (args.billingAddress) {
         cartItemData.billingAddress = args.billingAddress;
       }
-      console.log({deliveryRate})
+
       if (deliveryRate) {
         cartItemData.deliveryRateId = deliveryRate.id;
       }
