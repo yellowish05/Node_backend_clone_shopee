@@ -48,6 +48,9 @@ const schema = gql`
       rating: RateStats!
       isAnonymous: Boolean!
       anonymousId: String
+      nick_name: String
+      country: String
+      hometown: String
     }
 
     type FollowStats {
@@ -128,6 +131,9 @@ const schema = gql`
       photo: ID
       gender: GenderType
       color: ColorInput
+      nick_name: String
+      country: String
+      hometown: String
     }
 
     input NewUserInput {
