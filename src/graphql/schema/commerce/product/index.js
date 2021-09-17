@@ -39,7 +39,7 @@ const schema = gql`
     price(currency: Currency): AmountOfMoney!
     oldPrice(currency: Currency): AmountOfMoney
     quantity: Int!
-    variation: [Variation]
+    variation(language: LanguageList): [Variation]
     asset: Asset
     sku: String
   }
@@ -444,6 +444,12 @@ module.exports.resolvers = {
       return amountOfMoney;
     },
     quantity: async ({ quantity }) => (typeof quantity === 'number' ? Math.floor(quantity) : 0),
+    variation: async ({ id, variation }, { language }, { dataSources: { repository } }) => {
+      if (!language) return variation;
+      return repository.variationTranslation.getByAttribute(id)
+        .then(variationTranslation => variationTranslation.variations.map(({ name, value }) => ({ name, value: value[language.toLowerCase()] })))
+        .catch(() => variation);
+    },
   },
   ProductMetricItem: {
     unitPrice: async ({ unitPrice }, args, { dataSources: {repository} }) => {
