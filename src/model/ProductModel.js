@@ -93,19 +93,21 @@ const schema = new Schema({
     enum: MarketType.toList(),
     required: true,
   }],
-  // weight: {
-  //   type: {
-  //     value: {
-  //       type: Number,
-  //       required: true,
-  //     },
-  //     unit: {
-  //       type: String,
-  //       enum: WeightUnitSystem.toList(),
-  //       required: true,
-  //     },
-  //   },
-  // },
+  weight: {
+    type: {
+      value: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      unit: {
+        type: String,
+        enum: WeightUnitSystem.toList(),
+        required: true,
+        default: WeightUnitSystem.toList()[0],
+      },
+    },
+  },
   shippingBox: {
     type: String,
     ref: 'ShippingBox',
@@ -171,7 +173,11 @@ const schema = new Schema({
   },
   href: {
     type: String,
-  }
+  },
+  handleId: {
+    type: String,
+    required: true,
+  },
 });
 
 schema.indexes([
