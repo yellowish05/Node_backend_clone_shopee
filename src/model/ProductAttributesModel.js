@@ -19,6 +19,7 @@ const schema = new Schema({
   },
   discountPrice: {
     type: Number,
+    default: 0,
   },
   oldPrice: {
     type: Number,
