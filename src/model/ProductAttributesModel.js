@@ -47,6 +47,10 @@ const schema = new Schema({
     default: null,
     unique: true,
   },
+  translated: {
+    type: Number,
+    default: 0,
+  },
 });
 
 schema.indexes([
