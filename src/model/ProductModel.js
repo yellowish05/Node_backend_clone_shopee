@@ -140,8 +140,8 @@ const schema = new Schema({
     unique: true,
   },
   isFeatured: {
-    type: Number,
-    default: 0,
+    type: Boolean,
+    default: false,
   },
   slug: {
     type: String
