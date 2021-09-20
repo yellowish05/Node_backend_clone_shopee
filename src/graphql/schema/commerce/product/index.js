@@ -23,6 +23,7 @@ const productsByTheme = require('./resolvers/productsByTheme');
 const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags');
 const correctProductInventoryLog = require('./resolvers/correctProductInventoryLog');
 const updateProductHashtags = require('./resolvers/updateProductHashtags');
+const popularProducts = require('./resolvers/productPage/popularProducts');
 
 
 const schema = gql`
@@ -220,6 +221,7 @@ const schema = gql`
     productAttributes(productId: ID!): [ProductAttribute!]!
     productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
     productBySlug(slug: String!): Product
+    popularProducts(productId: ID!, limit: Int = 10): [Product!]
   }
 
   input ProductMetricItemInput {
@@ -320,6 +322,7 @@ module.exports.resolvers = {
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
     productsByTheme,
     productBySlug: async (_, { slug }, { dataSources: { repository }}) => repository.product.getBySlug(slug),
+    popularProducts,
   },
   Mutation: {
     addProduct,
