@@ -4,6 +4,12 @@ const createdAtField = require('./commonFields/CreatedAtField');
 
 const collectionName = 'ProductVariation';
 
+const TranslationSchema = new Schema({
+  name: Object,
+  description: Object,
+  displayName: Object,
+}, { _id: false });
+
 const schema = new Schema({
   ...uuidField(collectionName),
   ...createdAtField,
@@ -36,6 +42,10 @@ const schema = new Schema({
       ref: "ProductCategory",
     }],
     default: [],
+  },
+  translation: {
+    type: TranslationSchema,
+    default: null,
   },
 });
 

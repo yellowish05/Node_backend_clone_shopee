@@ -28,7 +28,7 @@ const schema = gql`
     """
       - used to name the filter row in the group filter.
     """
-    displayName: String!
+    displayName(language: LanguageList): String!
   }
 
   input ProductVariationInput {
@@ -128,5 +128,10 @@ module.exports.resolvers = {
     updateProductVariation,
     deleteProductVariation,
     uploadBulkProductVariations,
+  },
+  ProductVariation: {
+    displayName: ({ displayName, translation }, { language = "EN" }, { dataSources: { repository } }) => {
+      return Promise.resolve().then(() => translation.displayName[language.toLowerCase()]).catch(() => (displayName));
+    },
   },
 };
