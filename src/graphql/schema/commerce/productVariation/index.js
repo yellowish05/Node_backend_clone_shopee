@@ -131,7 +131,9 @@ module.exports.resolvers = {
   },
   ProductVariation: {
     displayName: ({ displayName, translation }, { language = "EN" }, { dataSources: { repository } }) => {
-      return Promise.resolve().then(() => translation.displayName[language.toLowerCase()]).catch(() => (displayName));
+      return Promise.resolve().then(() => translation.displayName[language.toLowerCase()])
+        .then(dn => dn || displayName)
+        .catch(() => displayName);
     },
   },
 };
