@@ -136,7 +136,7 @@ module.exports.resolvers = {
         .catch(() => displayName);
     },
     values: ({ values, translation }, { language = "EN" }) => {
-      return Promise.resolve().then(() => translation.values.map(val => val[language.toLowerCase()]))
+      return Promise.resolve().then(() => translation.values.map((val, i) => val[language.toLowerCase()] || values[i]))
         .then((tValues) => {
           if (tValues.length < values.length) throw new Error('Translation wrong!');
           return tValues;
