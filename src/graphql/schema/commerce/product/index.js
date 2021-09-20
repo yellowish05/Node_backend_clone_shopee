@@ -24,6 +24,7 @@ const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags
 const correctProductInventoryLog = require('./resolvers/correctProductInventoryLog');
 const updateProductHashtags = require('./resolvers/updateProductHashtags');
 const popularProducts = require('./resolvers/productPage/popularProducts');
+const recommendProducts = require('./resolvers/productPage/recommendProducts');
 
 
 const schema = gql`
@@ -323,6 +324,7 @@ module.exports.resolvers = {
     productsByTheme,
     productBySlug: async (_, { slug }, { dataSources: { repository }}) => repository.product.getBySlug(slug),
     popularProducts,
+    recommendProducts,
   },
   Mutation: {
     addProduct,
