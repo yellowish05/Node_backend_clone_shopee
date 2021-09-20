@@ -5,8 +5,7 @@ const createdAtField = require('./commonFields/CreatedAtField');
 const collectionName = 'ProductVariation';
 
 const TranslationSchema = new Schema({
-  name: Object,
-  description: Object,
+  values: [Object],
   displayName: Object,
 }, { _id: false });
 
