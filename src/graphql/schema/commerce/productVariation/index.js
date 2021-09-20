@@ -19,7 +19,7 @@ const schema = gql`
     """
     name: String!
     description: String
-    values: [String!]!
+    values(language: LanguageList): [String!]!
     """
       - used in productAttributes.variations.name
       - must be unique in the collection
@@ -130,10 +130,18 @@ module.exports.resolvers = {
     uploadBulkProductVariations,
   },
   ProductVariation: {
-    displayName: ({ displayName, translation }, { language = "EN" }, { dataSources: { repository } }) => {
+    displayName: ({ displayName, translation }, { language = "EN" }) => {
       return Promise.resolve().then(() => translation.displayName[language.toLowerCase()])
         .then(dn => dn || displayName)
         .catch(() => displayName);
     },
+    values: ({ values, translation }, { language = "EN" }) => {
+      return Promise.resolve().then(() => translation.values.map(val => val[language.toLowerCase()]))
+        .then((tValues) => {
+          if (tValues.length < values.length) throw new Error('Translation wrong!');
+          return tValues;
+        })
+        .catch(() => values);
+    }
   },
 };
