@@ -223,6 +223,7 @@ const schema = gql`
     productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
     productBySlug(slug: String!): Product
     popularProducts(productId: ID!, limit: Int = 10): [Product!]
+    recommendProducts(productId: ID!, limit: Int = 10): [Product!]
   }
 
   input ProductMetricItemInput {
