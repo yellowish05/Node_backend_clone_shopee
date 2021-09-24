@@ -24,6 +24,7 @@ class VerificationCodeRepository {
 
     return verificationCode.save();
   }
+
   async createForSingup() {
     let code = '';
     for (let i = 0; i < this.codeLength; i += 1) {
@@ -37,6 +38,7 @@ class VerificationCodeRepository {
 
     return verificationCode.save();
   }
+
   async deactivate(id) {
     if (!id) {
       throw Error('User id for deactivate codes is required!');
@@ -57,16 +59,18 @@ class VerificationCodeRepository {
     }
     return this.model.findOne({ code, inActive: true });
   }
-  async checkVerificationCode({id,code}) {
+
+  async checkVerificationCode({ id, code }) {
     if (!code) {
       throw Error('verifiction code is required!');
     }
-    let checkCode=await this.model.findOne({ code, _id:id });
-    if (!checkCode){
-      return false
+    const checkCode = await this.model.findOne({ code, _id: id });
+    if (!checkCode) {
+      return false;
     }
-    return true
+    return true;
   }
+
   async addCode(id, code) {
     if (!id) {
       throw Error('User id for deactivate codes is required!');
