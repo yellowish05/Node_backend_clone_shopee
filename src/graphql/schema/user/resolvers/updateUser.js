@@ -32,10 +32,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
        * Use case when user is registered with Facebook provider with phone number and not an email
        */
       try {
-        userObj = await repository.user.getById(user._id)
+        userObj = await repository.user.getById(user._id);
         if (!userObj.email) {
           if (args.data.email) {
-            let checkEmail = await repository.user.findByEmail(args.data.email)
+            const checkEmail = await repository.user.findByEmail(args.data.email);
             if (checkEmail) {
               throw new Error('Email already taken');
             }
@@ -55,6 +55,13 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
           || !phoneUtil.isPossibleNumber(validNumber)) {
           throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
         }
+
+        await repository.user.findByPhone(args.data.phone)
+          .then((existingUser) => {
+            if (existingUser && existingUser.id !== user.id) {
+              throw new UserInputError('Phone number already taken.', { invalidArgs: 'phone' });
+            }
+          });
       }
 
       if (args.data.photo) {
@@ -64,7 +71,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         }
       }
 
-      let { location } = args.data;
+      const { location } = args.data;
       // let address = null;
       // let addressRegion;
       // let tempCurrency;
@@ -125,7 +132,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       //         country: args.data.address.country,
       //       },
       //     };
-      //   } 
+      //   }
       //   else {
       //     // throw new ApolloError(`Please provide an address or location.`, 400);
       //   }
@@ -137,7 +144,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       // const tempCountry = await repository.country.getById(countryCode);
       // await repository.user.updateCurrency(user.id, tempCountry.currency);
       const updateData = { };
-      console.log("updateUser",args)
+      console.log('updateUser', args);
       args.data.name ? updateData.name = args.data.name : null;
       args.data.nick_name ? updateData.nick_name = args.data.nick_name : null;
       args.data.country ? updateData.country = args.data.country : null;
@@ -148,8 +155,8 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       location ? updateData.location = location : null;
       // addressObj.address ? updateData.address = addressObj.address : null;
       args.data.gender ? updateData.gender = args.data.gender : null;
-      args.data.color ? updateData.color = args.data.color: null;
-      
+      args.data.color ? updateData.color = args.data.color : null;
+
       return repository.user.update(user.id, updateData).catch((error) => {
         throw new ApolloError(`Failed to update user. Original error: ${error.message}`, 400);
       });

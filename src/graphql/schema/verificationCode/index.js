@@ -57,6 +57,6 @@ module.exports.resolvers = {
     sendVerificationCode2Phone,
     checkPhoneVerificationCode,
     sendCode2EmailForUser,
-    checkEmailVerificationCode
+    checkEmailVerificationCode,
   },
 };

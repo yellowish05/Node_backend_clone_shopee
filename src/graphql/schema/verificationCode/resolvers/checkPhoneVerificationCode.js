@@ -38,7 +38,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
         request_id: args.data.request_id,
         code: args.data.code,
       }, (err, result) => {
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', { result });
         if (result.status != 0) {
           let message = result.error_text.replace('Nexmo', 'Shoclef');
           message = message.replace(`Request '${args.data.request_id}'`, 'Your request');

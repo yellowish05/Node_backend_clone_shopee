@@ -1,5 +1,5 @@
 const path = require('path');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError } = require('apollo-server');
 
 const { nexmoConfig } = require(path.resolve('config'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
@@ -49,38 +49,31 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
   } else {
     user = await activity.validateEmail(args, repository);
   }
-  console.log('viaPhone', viaPhone);
-  // console.log("user => ", user);
 
   return repository.verificationCode.deactivate(user.id)
-    .then(() => repository.verificationCode.create({ user: user.id }))
-    .then((newCode) => {
-      console.log('new code => ', newCode);
+    .then(() => {
       if (viaPhone) {
         // send verification code to phone by sms
-        console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', { toPhone: args.phone });
         return new Promise((resolve, reject) => {
-          nexmo.message.sendSms(
-            'Shoclef',
-            // args.phone,
-            '+18885555555',
-            newCode.code,
-            (err, result) => {
-              console.log('result =>', result);
-              if (result.messages[0].status != 0) reject(result.messages[0]['error-text']);
-              if (err) {
-                console.log('nexmore error', error);
-                reject(err);
-              }
-              resolve({ id: result.request_id });
-            },
-          );
+          nexmo.verify.request({
+            number: args.phone.replace('+', ''),
+            brand: 'Shoclef',
+            code_length: '6',
+          }, (err, result) => {
+            if (err) reject(err);
+            if (result && result.status !== '0') reject(result.error_text);
+            else resolve(result.request_id);
+          });
         });
       }
-      return EmailService.sendRecoverPasswordCode({ user, code: newCode.code });
+      return repository.verificationCode.create({ user: user.id })
+        .then((newCode) => EmailService.sendRecoverPasswordCode({ user, code: newCode.code }));
     })
-    .then(() => true)
+    .then((requestId) => {
+      if (viaPhone) return { success: true, request_id: requestId };
+      return { success: true, request_id: null };
+    })
     .catch((err) => {
-      throw new ApolloError(err);
+      throw new UserInputError(err);
     });
 };
