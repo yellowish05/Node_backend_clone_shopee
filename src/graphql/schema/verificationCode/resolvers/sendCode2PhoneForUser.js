@@ -42,29 +42,20 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       if (!user) {
         throw new UserInputError('User does not exists');
       }
-      console.log('user => ', user);
       return user;
     })
     .then((user) => (
       repository.verificationCode.deactivate(user.id)
-        .then(() => repository.verificationCode.create({ user: user.id }))
-        .then((newCode) => {
-          // send verification code to phone by sms
-          console.log('new code => ', newCode);
-          return new Promise((resolve, reject) => {
-            nexmo.message.sendSms(
-              'Shoclef',
-              args.data.phone.replace('+', ''),
-              newCode.code,
-              (err, result) => {
-                console.log('result =>', result);
-                if (result.messages[0].status != 0) { reject(result.messages[0]['error-text']); }
-                if (err) reject(err);
-                resolve({ id: result.request_id });
-              },
-            );
+        .then(() => new Promise((resolve, reject) => {
+          nexmo.verify.request({
+            number: args.data.phone.replace('+', ''),
+            brand: 'Shoclef',
+            code_length: '6',
+          }, (err, result) => {
+            if (err) return reject(err);
+            return resolve({ id: result.request_id });
           });
-        })
+        }))
         .catch((err) => {
           throw new ApolloError(err);
         })
