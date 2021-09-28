@@ -52,6 +52,7 @@ function transformFilter({
   // product,
   isFeatured = null,
   products = null,
+  videoTags = [],
 }) {
   const emptyQuery = {};
   const query = {
@@ -59,12 +60,16 @@ function transformFilter({
   };
 
   if (searchQuery) {
-    const $or = searchQuery.split(' ')
-      .map((piece) => piece.trim())
-      .filter((piece) => !!piece)
-      .map((piece) => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
+    const pieces = searchQuery.split(' ');
+    const $or = pieces.map((piece) => ({ hashtags: { $regex: `${piece}`, $options: 'i' } }));
     $or.push({ title: { $regex: `^.*${searchQuery}.*`, $options: 'i' }})
+    $or = $or.concat(pieces.map(piece => ({ videoTags: piece })));
     query.$and.push({ $or });
+  }
+
+  if (videoTags.length > 0) {
+    const $and = videoTags.map(tag => ({ videoTags: tag }));
+    query.$and.push({ $and });
   }
 
   if (experiences.length > 0) {
