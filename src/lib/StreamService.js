@@ -2,7 +2,7 @@
 const path = require('path');
 const { slugify } = require('transliteration');
 const repository = require(path.resolve('src/repository'));
-const { StreamChannelStatus } = require(path.resolve('src/lib/Enums'));
+const { StreamChannelStatus, VideoTag } = require(path.resolve('src/lib/Enums'));
 
 
 class StreamService {
@@ -33,6 +33,9 @@ class StreamService {
     return this.repository.streamChannel.load(liveStream.channel)
       .then(streamChannel => {
         streamChannel.status = liveStream.status = status;
+        videoTags = liveStream.videoTags || [];
+        videoTags.push(VideoTag.Streaming);
+        liveStream.videoTags = videoTags.filter((tag, i, self) => self.indexOf(tag) === i);
         return Promise.all([ liveStream.save(), streamChannel.save() ]);
       })
   }

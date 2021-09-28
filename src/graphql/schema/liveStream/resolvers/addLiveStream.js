@@ -5,7 +5,7 @@ const { UserInputError, ApolloError, ForbiddenError } = require('apollo-server')
 const { slugify } = require('transliteration');
 
 const {
-  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole,SourceType
+  StreamChannelStatus, StreamChannelType, StreamRecordStatus, StreamRole, SourceType, VideoTag,
 } = require(path.resolve('src/lib/Enums'));
 const logger = require(path.resolve('config/logger'));
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
@@ -196,6 +196,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         thumbnail: args.data.thumbnail,
         isFeatured: args.data.isFeatured,
         hashtags: args.data.hashtags || [],
+        videoTags: [VideoTag.New],
         slug: await generateSlug({ title: args.data.title }, repository),
       });
     })

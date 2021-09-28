@@ -1,7 +1,7 @@
 const path = require('path');
 const { gql, withFilter } = require('apollo-server');
 
-const { OrientationMode, SubscriptionType } = require(path.resolve('src/lib/Enums'));
+const { OrientationMode, SubscriptionType, VideoTag } = require(path.resolve('src/lib/Enums'));
 
 const addLiveStream = require('./resolvers/addLiveStream');
 const addLiveStreamForAdmin = require('./resolvers/addLiveStreamForAdmin');
@@ -31,6 +31,10 @@ const pubsub = require(path.resolve('config/pubsub'));
 const schema = gql`
   enum OrientationMode {
     ${OrientationMode.toGQL()}
+  }
+
+  enum VideoTag {
+    ${VideoTag.toGQL()}
   }
 
   type LiveStreamStats {
@@ -81,6 +85,7 @@ const schema = gql`
     thumbnail: Asset
     isFeatured: Boolean
     hashtags: [String]
+    videoTags: [String]
     slug: String
   }
 
