@@ -75,10 +75,12 @@ const schema = new Schema({
   realViews: {
     type: Number,
     required: true,
+    index: true,
   },
   realLikes: {
     type: Number,
     required: true,
+    index: true,
   },
   fakeViews: {
     type: Number,
