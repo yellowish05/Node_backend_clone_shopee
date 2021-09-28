@@ -2,7 +2,9 @@ const path = require('path');
 // const stream = require('getstream');
 const md5 = require('md5');
 
-const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
+const {
+  Currency, PushNotification, MeasureSystem, LanguageList,
+} = require(path.resolve('src/lib/Enums'));
 const UserService = require(path.resolve('src/lib/UserService'));
 
 
@@ -16,8 +18,8 @@ function elasticFilter(filter) {
       $or: [
         { email: { $regex: `^.*${filter}.*`, $options: 'i' } },
         { name: { $regex: `^.*${filter}.*`, $options: 'i' } },
-      ]
-    })
+      ],
+    });
   }
   return query.$and.length > 0 ? query : emptyQuery;
 }
@@ -160,7 +162,7 @@ class UserRepository {
         currency: data.settings.currency,
         measureSystem: data.settings.measureSystem,
       },
-      phone: data.phone
+      phone: data.phone,
     });
 
     return user.save();
@@ -181,7 +183,7 @@ class UserRepository {
       throw Error(`Email "${data.email}" is already taken!`);
     }
     let user;
-    if(!data.email) {
+    if (!data.email) {
       user = new this.model({
         _id: data._id,
         name: data.name,
@@ -309,7 +311,7 @@ class UserRepository {
   async findByPhoneAndPassword({ phone, password }) {
     const query = {
       password: md5(password),
-      phone: phone,
+      phone,
     };
 
     return this.model.findOne(query);
@@ -368,12 +370,12 @@ class UserRepository {
 
   async es_search(filter, page) {
     return this.model.find(
-        elasticFilter(filter),
-        null,
-        {
-          limit: page.limit,
-          skip: page.skip,
-        },
+      elasticFilter(filter),
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
     );
   }
 
@@ -403,7 +405,7 @@ class UserRepository {
         limit: page.limit,
         skip: page.skip,
       },
-  );
+    );
   }
 }
 
