@@ -296,6 +296,15 @@ const DiscountPrivileges = EnumFactory({
   CUSTOMERS: "CUSTOMERS",
   EVERYONEY: "EVERYONEY",
 });
+
+const VideoTag = EnumFactory({
+  New: 'New',
+  Streaming: 'Streaming',
+  Trending: 'Trending',
+  Hot: 'Hot',
+});
+
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
@@ -336,4 +345,5 @@ module.exports = {
   IssueStatus,
   UserRoles,
   IssueUrgency,
+  VideoTag,
 };
