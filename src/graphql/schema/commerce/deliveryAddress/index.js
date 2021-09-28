@@ -59,6 +59,7 @@ const schema = gql`
         description: String
         addressId: String
         shippingAddress: String
+        phone: String
         isDefault: Boolean = false
     }
 
