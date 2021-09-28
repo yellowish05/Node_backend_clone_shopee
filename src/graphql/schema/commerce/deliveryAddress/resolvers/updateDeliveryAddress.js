@@ -8,9 +8,8 @@ const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery')
 const errorHandler = new ErrorHandler();
 
 module.exports = async (_, { id, data }, { dataSources: { repository }, user }) => {
-  console.log({ ...data, id })
   const validator = new Validator({ ...data, id }, {
-    // id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
+    id: ['required', ['regex', '[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}']],
     addressId: 'required',
     label: 'required',
     street: 'required',
@@ -22,7 +21,6 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
   return validator.check()
     .then(async (matched) => {
-      console.log({matched})
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
@@ -69,7 +67,6 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       }).then(() => shippingAddressItem)
     })
     .catch((error) => {
-      console.log({id},error)
       throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
     });
 };
