@@ -67,7 +67,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       }).then(() => shippingAddressItem)
     })
     .catch((error) => {
-      console.log({id})
+      console.log({id},error)
       throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
     });
 };
