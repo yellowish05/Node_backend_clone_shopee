@@ -21,6 +21,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
   return validator.check()
     .then(async (matched) => {
+      console.log({matched})
       if (!matched) {
         throw errorHandler.build(validator.errors);
       }
@@ -67,7 +68,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       }).then(() => shippingAddressItem)
     })
     .catch((error) => {
-      console.log({id})
+      console.log({id},error)
       throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
     });
 };
