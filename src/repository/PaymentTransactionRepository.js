@@ -19,6 +19,9 @@ class PaymentTransactionRepository {
     const document = new this.model(data);
     return document.save();
   }
+  async getAll(query={}) {
+    return this.model.find(query);
+  }
 }
 
 module.exports = PaymentTransactionRepository;
