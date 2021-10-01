@@ -232,6 +232,7 @@ class UserRepository {
       throw Error(`User "${data.email}" used already`);
     }
     // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+    console.log("data.email",data.email)
     user.email = data.email || user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
