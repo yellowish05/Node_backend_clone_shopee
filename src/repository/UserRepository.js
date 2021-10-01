@@ -227,7 +227,7 @@ class UserRepository {
       throw Error(`User "${id}" does not exist!`);
     }
 
-    const emailUser=await findByEmail(data.email)
+    const emailUser=await this.findByEmail(data.email)
     if (emailUser) {
       throw Error(`User "${data.email}" used already`);
     }
