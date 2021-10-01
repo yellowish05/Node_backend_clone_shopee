@@ -228,14 +228,15 @@ class UserRepository {
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
     }
-
-    const emailUser=await this.findByEmail(data.email)
-    if (emailUser) {
-      throw Error(`User "${data.email}" used already`);
+    if (data.email){
+      const emailUser=await this.findByEmail(data.email)
+      if (emailUser) {
+        throw Error(`User "${data.email}" used already`);
+      }
+      // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+      console.log("data.email",data.email)
+      user.email = data.email || user.email;
     }
-    // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
-    console.log("data.email",data.email)
-    user.email = data.email || user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
     user.photo = data.photo || user.photo;
