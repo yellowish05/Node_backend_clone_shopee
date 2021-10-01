@@ -229,7 +229,12 @@ class UserRepository {
       throw Error(`User "${id}" does not exist!`);
     }
 
-    user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+    const emailUser=findByEmail(data.email)
+    if (emailUser) {
+      throw Error(`User "${data.email}" used already`);
+    }
+    // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+    user.email = data.email || user.email;
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
     user.photo = data.photo || user.photo;
