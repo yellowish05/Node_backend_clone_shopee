@@ -31,7 +31,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         if (!userObj.email) {
           if (args.data.email) {
             const checkEmail = await repository.user.findByEmail(args.data.email);
-            if (checkEmail) {
+            if (checkEmail && checkEmail.id !== user.id) {
               throw new Error('Email already taken');
             }
           }
