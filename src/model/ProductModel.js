@@ -39,8 +39,11 @@ const schema = new Schema({
   },
   description: {
     type: String,
-    required: true,
     index: true,
+  },
+  descriptionImages: {
+    type: [{ type: String }],
+    default: [],
   },
   price: {
     type: Number,
@@ -90,19 +93,21 @@ const schema = new Schema({
     enum: MarketType.toList(),
     required: true,
   }],
-  // weight: {
-  //   type: {
-  //     value: {
-  //       type: Number,
-  //       required: true,
-  //     },
-  //     unit: {
-  //       type: String,
-  //       enum: WeightUnitSystem.toList(),
-  //       required: true,
-  //     },
-  //   },
-  // },
+  weight: {
+    type: {
+      value: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      unit: {
+        type: String,
+        enum: WeightUnitSystem.toList(),
+        required: true,
+        default: WeightUnitSystem.toList()[0],
+      },
+    },
+  },
   shippingBox: {
     type: String,
     ref: 'ShippingBox',
@@ -135,8 +140,8 @@ const schema = new Schema({
     unique: true,
   },
   isFeatured: {
-    type: Number,
-    default: 0,
+    type: Boolean,
+    default: false,
   },
   slug: {
     type: String
@@ -149,6 +154,11 @@ const schema = new Schema({
   }],
   seoTitle: {
     type: String
+  },
+  // the time when the product is traslated at. 100: ex-translated.
+  translated: {
+    type: Number,
+    default: 0,
   },
   sold: {
     type: Number,
@@ -163,7 +173,11 @@ const schema = new Schema({
   },
   href: {
     type: String,
-  }
+  },
+  handleId: {
+    type: String,
+    required: true,
+  },
 });
 
 schema.indexes([

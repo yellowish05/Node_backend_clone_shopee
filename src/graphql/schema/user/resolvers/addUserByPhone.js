@@ -10,7 +10,9 @@ const errorHandler = new ErrorHandler();
 
 const activity = {
   createUser: async (args, repository) => {
-    const { phone, countryCode, password, anonymousId } = args;
+    const {
+      phone, countryCode, password, anonymousId,
+    } = args;
     const anonymousUser = anonymousId ? await repository.user.findByAnonymousId(anonymousId) : null;
     if (anonymousUser) {
       anonymousUser.isAnonymous = false;
@@ -28,7 +30,7 @@ const activity = {
       password,
     }, { roles: ['USER'] });
   },
-}
+};
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
   const validator = new Validator(args.data, {

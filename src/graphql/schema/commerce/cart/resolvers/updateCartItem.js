@@ -44,12 +44,12 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         quantity: args.quantity,
         note: args.note,
       };
-      console.log({deliveryRate})
-      if (deliveryRate) {
-        cartItemData.deliveryRateId = deliveryRate.id;
-      }
       if (args.billingAddress) {
         cartItemData.billingAddress = args.billingAddress;
+      }
+
+      if (deliveryRate) {
+        cartItemData.deliveryRateId = deliveryRate.id;
       }
       return repository.deliveryRate.getById(deliveryRate ? deliveryRate.id : userCartItem.deliveryRate)
         .then(async (saveDeliveryRate) => {
@@ -62,24 +62,23 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
               productAttribute: userCartItem.productAttribute,
               type: InventoryLogType.BUYER_CART,
               shift: userCartItem.quantity - args.quantity,
-            };    
+            };
             await Promise.all([
               ProductService.setProductQuantityFromAttributes(userCartItem.product),
               repository.productInventoryLog.add(inventoryLog),
             ]);                    
           }
-          console.log({saveDeliveryRate,cartItemData})
+          console.log({saveDeliveryRate, cartItemData});
           if (saveDeliveryRate) {
             cartItemData.deliveryRateId = saveDeliveryRate.id;
             return repository.userCartItem.update(args.id, cartItemData);
           }
-          if(deliveryRate){
+          if (deliveryRate) {
             return repository.deliveryRate.create(deliveryRate.toObject())
             .then(() => repository.userCartItem.update(args.id, cartItemData));
-          }else{
+          } else {
             return repository.userCartItem.update(args.id, cartItemData);
-          }
-          
+          }          
         });
     })
     .catch((error) => {

@@ -23,6 +23,8 @@ const productsByTheme = require('./resolvers/productsByTheme');
 const uploadBulkProductHashtags = require('./resolvers/uploadBulkProductHashtags');
 const correctProductInventoryLog = require('./resolvers/correctProductInventoryLog');
 const updateProductHashtags = require('./resolvers/updateProductHashtags');
+const popularProducts = require('./resolvers/productPage/popularProducts');
+const recommendProducts = require('./resolvers/productPage/recommendProducts');
 
 
 const schema = gql`
@@ -39,7 +41,7 @@ const schema = gql`
     price(currency: Currency): AmountOfMoney!
     oldPrice(currency: Currency): AmountOfMoney
     quantity: Int!
-    variation: [Variation]
+    variation(language: LanguageList): [Variation]
     asset: Asset
     sku: String
   }
@@ -61,7 +63,8 @@ const schema = gql`
     """
     seller: User!
     title(language: LanguageList): String
-    description(language: LanguageList): String @ifDiffers(key: "status", value: "DRAFT")
+    description(language: LanguageList): String
+    descriptionImages: [String]
     """
         Price in cents. Use the Currency for show it in correct format
     """
@@ -219,6 +222,8 @@ const schema = gql`
     productAttributes(productId: ID!): [ProductAttribute!]!
     productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
     productBySlug(slug: String!): Product
+    popularProducts(productId: ID!, limit: Int = 10): [Product!]
+    recommendProducts(productId: ID!, limit: Int = 10): [Product!]
   }
 
   input ProductMetricItemInput {
@@ -319,6 +324,8 @@ module.exports.resolvers = {
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
     productsByTheme,
     productBySlug: async (_, { slug }, { dataSources: { repository }}) => repository.product.getBySlug(slug),
+    popularProducts,
+    recommendProducts,
   },
   Mutation: {
     addProduct,
@@ -408,7 +415,7 @@ module.exports.resolvers = {
       }));
       return attributes;
     },
-  title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
+    title: async ({ id, title }, { language }, { dataSources: { repository } }) => {
       if (!language) return title;
       return repository.productTranslation.getByProduct(id)
         .then((translation) => (translation && translation.title[language.toLowerCase()] ? translation.title[language.toLowerCase()] : title));
@@ -416,7 +423,8 @@ module.exports.resolvers = {
     description: async ({ id, description }, { language }, { dataSources: { repository } }) => {
       if (!language) return description;
       return repository.productTranslation.getByProduct(id)
-        .then((translation) => (translation && translation.description[language.toLowerCase()] ? translation.description[language.toLowerCase()] : description));
+        .then((translation) => translation.description[language.toLowerCase()])
+        .catch(error => description);
     },
     sold: ({ sold }) => Number(sold) > 0 ? Number(sold) : 0,
   },
@@ -442,6 +450,12 @@ module.exports.resolvers = {
       return amountOfMoney;
     },
     quantity: async ({ quantity }) => (typeof quantity === 'number' ? Math.floor(quantity) : 0),
+    variation: async ({ id, variation }, { language }, { dataSources: { repository } }) => {
+      if (!language) return variation;
+      return repository.variationTranslation.getByAttribute(id)
+        .then(variationTranslation => variationTranslation.variations.map(({ name, value }) => ({ name, value: value[language.toLowerCase()] })))
+        .catch(() => variation);
+    },
   },
   ProductMetricItem: {
     unitPrice: async ({ unitPrice }, args, { dataSources: {repository} }) => {

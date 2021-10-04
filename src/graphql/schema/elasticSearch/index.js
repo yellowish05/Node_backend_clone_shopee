@@ -1,6 +1,7 @@
 const { gql } = require('apollo-server');
 
 const elasticSearch = require('./resolvers/elasticSearch');
+const searchProducts = require('./resolvers/searchProducts');
 
 const schema = gql`
     type Result {
@@ -15,24 +16,34 @@ const schema = gql`
         pager: Pager
     }
 
+    type ProductsCollection {
+        collection: [Product!]!
+        pager: Pager
+    }
+
     extend type Query {
         elasticSearch(
             category: String!
             searchKey: String!
             page: PageInput = {}
         ): ResultCollection!
+        searchProducts(
+            searchKey: String!
+            page: PageInput = {}
+        ): ProductsCollection!
     }
 `;
 
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
-    Query: {
-        elasticSearch
-    },
-    Result: {
-        assets: async ({ assets }, _, { dataSources: { repository } }) => (
-            repository.asset.load(assets)
-        ),
-    },
+  Query: {
+    elasticSearch,
+    searchProducts,
+  },
+  Result: {
+    assets: async ({ assets }, _, { dataSources: { repository } }) => (
+      repository.asset.load(assets)
+    ),
+  },
 };

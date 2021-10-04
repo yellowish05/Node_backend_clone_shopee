@@ -49,14 +49,15 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
           throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
         }
 
-        return EasyPost.addAddress({ phone: user.phone, email: user.email, address: data }).then((response) => repository.billingAddress.create({
-          region,
-          owner: user.id,
-          addressId: response.id,
-          ...data,
-        })).catch((error) => {
-          throw new ApolloError(`Failed to create Billing Address. Original error: ${error.message}`, 400);
-        });
+        return EasyPost.addAddress({ phone: user.phone, email: user.email, address: data })
+          .then((response) => repository.billingAddress.create({
+            region,
+            owner: user.id,
+            addressId: response.id,
+            ...data,
+          })).catch((error) => {
+            throw new ApolloError(`Failed to create Billing Address. Original error: ${error.message}`, 400);
+          });
       })
       .catch((error) => {
         throw new ApolloError(`Failed to add Billing Address. Original error: ${error.message}`, 400);

@@ -1,18 +1,15 @@
 const path = require('path');
-const { Validator } = require('node-input-validator');
-const { UserInputError, ApolloError } = require('apollo-server');
+const { UserInputError } = require('apollo-server');
 
 const { nexmoConfig } = require(path.resolve('config'));
-const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
-const nev = require('node-email-validator');
 
 const { EmailService } = require(path.resolve('src/bundles/email'));
 const Nexmo = require('nexmo');
 
 const nexmo = new Nexmo({
-    apiKey: nexmoConfig.apiKey,
-    apiSecret: nexmoConfig.apiSecret,
+  apiKey: nexmoConfig.apiKey,
+  apiSecret: nexmoConfig.apiSecret,
 });
 
 const activity = {
@@ -20,15 +17,15 @@ const activity = {
     const validNumber = await phoneUtil.parse(args.phone);
 
     if (!phoneUtil.isValidNumberForRegion(validNumber, args.countryCode)) {
-        if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
+      if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
             || phoneUtil.getRegionCodeForNumber(validNumber) !== args.countryCode
             || !phoneUtil.isPossibleNumber(validNumber)) {
-            throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
-        }
+        throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
+      }
     }
     const user = await repository.user.findByPhone(args.phone);
     if (!user) {
-        throw new UserInputError('User does not exist!');
+      throw new UserInputError('User does not exist!');
     }
     return user;
   },
@@ -42,7 +39,7 @@ const activity = {
     }
     return user;
   },
-}
+};
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
   const viaPhone = args.countryCode && args.phone;
@@ -52,37 +49,31 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
   } else {
     user = await activity.validateEmail(args, repository);
   }
-  console.log("viaPhone",viaPhone)
-  //console.log("user => ", user);
 
   return repository.verificationCode.deactivate(user.id)
-    .then(() => repository.verificationCode.create({ user: user.id }))
-    .then((newCode) => {
-      console.log("new code => ", newCode);
+    .then(() => {
       if (viaPhone) {
         // send verification code to phone by sms
         return new Promise((resolve, reject) => {
-          nexmo.message.sendSms(
-            'Shoclef',
-            args.phone.replace("+", ""),
-            newCode.code,
-            (err, result) => {
-                console.log("result =>", result);
-                if (result.messages[0].status != 0)
-                    reject(result.messages[0]['error-text']);
-                if (err) {
-                  console.log("nexmore error", error)
-                  reject(err)
-                }
-                resolve({ id: result.request_id });
-            });
+          nexmo.verify.request({
+            number: args.phone.replace('+', ''),
+            brand: 'Shoclef',
+            code_length: '6',
+          }, (err, result) => {
+            if (err) reject(err);
+            if (result && result.status !== '0') reject(result.error_text);
+            else resolve(result.request_id);
+          });
         });
-      } else {
-        return EmailService.sendRecoverPasswordCode({ user, code: newCode.code });
-      }            
+      }
+      return repository.verificationCode.create({ user: user.id })
+        .then((newCode) => EmailService.sendRecoverPasswordCode({ user, code: newCode.code }));
     })
-    .then(() => true)
+    .then((requestId) => {
+      if (viaPhone) return { success: true, request_id: requestId };
+      return { success: true, request_id: null };
+    })
     .catch((err) => {
-        throw new ApolloError(err);
-    })
+      throw new UserInputError(err);
+    });
 };

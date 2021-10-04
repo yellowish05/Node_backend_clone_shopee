@@ -41,7 +41,7 @@ module.exports = {
     userAssets: process.env.CDN_USER_ASSETS_DOMAIN,
     vendorBuckets: process.env.CDN_VENDOR_DASHBOARD_BUCKET,
     razington: process.env.CDN_REZINGTON_VENDOR_IMAGES_UPLOADS,
-    aliexpress: process.env.CDN_ALIEXPRESS_SCRAPPED_IMAGES_FULL_SIZE
+    aliexpress: process.env.CDN_ALIEXPRESS_SCRAPPED_IMAGES_FULL_SIZE,
   },
   aws: {
     agora_api_key: process.env.AWS_AGORA_ACCESS_KEY_ID || null,
@@ -54,13 +54,13 @@ module.exports = {
     aliexpress_scrapped: process.env.AWS_ALIEXPRESS_SCAPPED_IMAGES,
     media_region_id: parseInt(process.env.AWS_MEDIA_REGION_ID || 0, 10),
     aws_api_key: process.env.AWS_APP_KEY,
-    aws_access_key: process.env.AWS_APP_SECRET
+    aws_access_key: process.env.AWS_APP_SECRET,
   },
   google: {
     places_uri: 'https://maps.googleapis.com/maps/api/place',
     api_key: process.env.GOOGLE_API_KEY || null,
     oauth_uri: 'https://www.googleapis.com/oauth2/v1',
-    translation_credential: process.env.GOOGLE_APPLICATION_CREDENTIALS
+    translation_credential: process.env.GOOGLE_APPLICATION_CREDENTIALS,
   },
   facebook: {
     api_uri: 'https://graph.facebook.com',
@@ -92,7 +92,7 @@ module.exports = {
   email: {
     from: process.env.ELASTIC_EMAIL_FROM,
     bodyType: 'HTML',
-    supportEmail: 'support@gxjiteng.com',
+    supportEmail: process.env.COMPANY_EMAIL || 'info@email.shoclef.com',
     elasticEmailOptions: {
       apiKey: process.env.ELASTIC_EMAIL_API_KEY,
       apiUri: 'https://api.elasticemail.com/',
@@ -104,27 +104,27 @@ module.exports = {
       apiVersion: '2010-12-01',
       accessKeyId: process.env.AWS_APP_KEY,
       secretAccessKey: process.env.AWS_APP_SECRET,
-      region: process.env.LOGS_CLOUD_WATCH_REGION
+      region: process.env.LOGS_CLOUD_WATCH_REGION,
     },
-    from: 'Crystal.ding1@gmail.com',
-    configurationSetName: 'sendemail'
+    from: process.env.COMPANY_EMAIL || 'info@shoclef.com',
+    configurationSetName: 'sendemail',
   },
   awsSMTP: {
     headers: {
       'X-SES-CONFIGURATION-SET': 'sendemail',
-      'X-SES-MESSAGE-TAGS': "key0=value0",
-      'X-SES-MESSAGE-TAGS': "key1=value1"
+      'X-SES-MESSAGE-TAGS': 'key0=value0',
+      'X-SES-MESSAGE-TAGS': 'key1=value1',
     },
     config: {
-      host: "email-smtp.eu-central-1.amazonaws.com",
+      host: 'email-smtp.eu-central-1.amazonaws.com',
       port: 587,
       secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.AWS_SES_SMTP_USER,
-        pass: process.env.AWS_SES_SMTP_PASS
-      }
+        pass: process.env.AWS_SES_SMTP_PASS,
+      },
     },
-    from: 'Crystal.ding1@gmail.com',
+    from: process.env.COMPANY_EMAIL || 'info@shoclef.com',
     // from: '吉腾 <Onboard@gxjiteng.com>',
     fromOther: '吉腾 <Info@gxjiteng.com>',
   },
@@ -172,7 +172,7 @@ module.exports = {
         pay_channel_ID: process.env.PAYMENT_LINE_PAY_CHANNEL_ID,
         pay_channel_secret: process.env.PAYMENT_LINE_PAY_CHANNEL_SECRET,
         confirmURL: process.env.PAYMENT_LINE_PAY_CONFIRM_URL,
-        cancelUrl: process.env.PAYMENT_LINE_PAY_CANCEL_URL
+        cancelUrl: process.env.PAYMENT_LINE_PAY_CANCEL_URL,
       },
       unionpay: {
         mode: process.env.PAYMENT_UNIONPAY_MODE,
@@ -197,7 +197,7 @@ module.exports = {
     uri: 'https://api.easypost.com/v2',
     // api_key: env === 'development' ? process.env.EASY_POST_TEST_API_KEY : process.env.EASY_POST_PROD_API_KEY
     api_key: process.env.EASY_POST_PROD_API_KEY,
-    deliveryRateCacheTTL: 60 * 60 * 24 * 7
+    deliveryRateCacheTTL: 60 * 60 * 24 * 7,
   },
   redis: {
     host: process.env.REDIS_HOST,
@@ -209,17 +209,17 @@ module.exports = {
   oneSignal: {
     restApi_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_RESTAPIKEY,
     auth_key: process.env.PUSH_NOTIFICATION_ONESIGNAL_AUTHKEY,
-    app_id: process.env.PUSH_NOTIFICATION_ONESIGNAL_APPID
+    app_id: process.env.PUSH_NOTIFICATION_ONESIGNAL_APPID,
   },
   nexmoConfig: {
     apiKey: process.env.NEXMO_API_KEY,
-    apiSecret: process.env.NEXMO_API_SECRET
+    apiSecret: process.env.NEXMO_API_SECRET,
   },
   xRapidAPIConfig: {
     apiKey: process.env.X_RAPIDAPI_KEY,
     host: process.env.X_RAPIDAPI_HOST,
     url: process.env.X_RAPIDAPI_TRANSLATE_URL,
-  },  
+  },
   internal: {
     translation: process.env.INTERNAL_PYTHON_TRANSLATION,
   },

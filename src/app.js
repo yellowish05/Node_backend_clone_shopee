@@ -19,7 +19,7 @@ const stripSDK = require('stripe')(stripe.secret);
 
 const { PurchaseOrderStatus } = require(path.resolve('src/lib/Enums'));
 
-var multiparty = require('connect-multiparty');
+const multiparty = require('connect-multiparty');
 
 const multipartymiddleware = multiparty();
 
@@ -44,9 +44,9 @@ const app = express();
 app.use(express.json({ limit: '50000mb' }));
 app.use(express.urlencoded({ limit: '50000mb', extended: true }));
 // app.use(morgan('combined', { stream: logger.stream }));
-const expressip = require("express-ip");
+const expressip = require('express-ip');
 
-app.set("trust proxy", true);
+app.set('trust proxy', true);
 app.use(expressip().getIpInfoMiddleware);
 app.get('/health', (req, res) => {
   res.send({ status: 'pass' });
@@ -86,18 +86,18 @@ app.use('/viewers', viewersRouters);
 app.use('/pages', pageRouters);
 app.use('/api/v1', ApiV1Routers);
 
-app.route('/upload').post(multipartymiddleware, function (req, res) {
-  let file = req.files.file;
-  fs.readFile(file.path, function (err, data) {
-    AgoraService.upload(data, function (location) {
+app.route('/upload').post(multipartymiddleware, (req, res) => {
+  const { file } = req.files;
+  fs.readFile(file.path, (err, data) => {
+    AgoraService.upload(data, (location) => {
       res.send(location);
-      fs.unlink(file.path, function (err) {
+      fs.unlink(file.path, (err) => {
         console.log('Temp File Deleted');
-      })
-      //AgoraService.publish(location);
-    })
-  })
-})
+      });
+      // AgoraService.publish(location);
+    });
+  });
+});
 
 app.post('/invoice', async (req, res) => {
   const orderDetails = await InvoiceService.getOrderDetails(req.body.pid, req.body.userID);
@@ -110,21 +110,21 @@ app.post('/invoice', async (req, res) => {
   res.status(200).send(PDFs);
 });
 function apiRequest(options) {
-  const request = require("request");
-  let res = "";
+  const request = require('request');
+  let res = '';
   request(options, (error, response) => {
     if (error) {
-      console.log("request error", error);
+      console.log('request error', error);
       return [];
     }
     try {
       res = response.body;
     } catch (e) {
-      console.log("api error", response);
+      console.log('api error', response);
     }
   });
-  const deasync = require("deasync");
-  while (res === "") {
+  const deasync = require('deasync');
+  while (res === '') {
     deasync.runLoopOnce();
   }
   try {
@@ -135,30 +135,30 @@ function apiRequest(options) {
   // console.log('response.status',res)
   return res;
 }
-app.get("/location", async (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
+app.get('/location', async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, x-timebase"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, x-timebase',
   );
   const { ip } = req;
-  if (ip === "::ffff:127.0.0.1") {
-    return res.send({ state: -1, message: "It is not working on localhost" });
+  if (ip === '::ffff:127.0.0.1') {
+    return res.send({ state: -1, message: 'It is not working on localhost' });
     // ip = '103.125.234.111';
   }
   const filter = {
-    method: "GET",
+    method: 'GET',
     url: `https://api.geoapify.com/v1/ipinfo?&ip=${ip}&apiKey=1b48259b810e48ddb151889f9ea58db0`,
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
-    body: "",
+    body: '',
   };
   const locationInfo = apiRequest(filter);
   if (locationInfo === null) {
     return res.send({
       state: -2,
-      message: "Location api is not working, Please check api key",
+      message: 'Location api is not working, Please check api key',
     });
   }
   try {
@@ -208,13 +208,13 @@ app.use(cors({
 }));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Origin', '*');
   res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, x-timebase"
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, x-timebase',
   );
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
     return res.status(200).json({});
   }
   next();
