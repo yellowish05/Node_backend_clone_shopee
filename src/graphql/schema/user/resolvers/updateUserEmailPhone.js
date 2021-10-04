@@ -16,10 +16,10 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     email: 'email',
   });
 
-  let validNumber;
-  if (args.data.phone) {
-    validNumber = await phoneUtil.parse(args.data.phone);
-  }
+  // let validNumber;
+  // if (args.data.phone) {
+  //   validNumber = await phoneUtil.parse(args.data.phone);
+  // }
 
   let userObj;
 
