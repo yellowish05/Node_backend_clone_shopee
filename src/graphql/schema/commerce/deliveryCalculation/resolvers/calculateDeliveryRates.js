@@ -83,8 +83,8 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => {
             if (!product.customCarrier) { throw new UserInputError('Seller has not sellected any carrier', { invalidArgs: 'product' }); }
           }
 
-          if (!seller.name || !seller.phone) {
-            throw new Error('Seller account has no username or phone specified');
+          if (!seller.name) { // || !seller.phone
+            throw new Error('Seller account has no username specified');
           }
 
           // if (!user.name || !user.phone) {
