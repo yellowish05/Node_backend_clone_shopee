@@ -24,17 +24,20 @@ module.exports = async (obj, { data }, { dataSources: { repository }, user }) =>
       }
     })
     .then(() => {
-      return EasyPost.addParcel(data).then(response => repository.shippingBox.create({
-        parcelId: response.id,
-        label: data.label,
-        owner: user.id,
-        width: data.width,
-        height: data.height,
-        length: data.length,
-        weight: data.weight,
-        unit: data.unit,
-        unitWeight: data.unitWeight
-      })
+      return EasyPost.addParcel(data).then(response => {
+        console.log("addParcel", response)
+        repository.shippingBox.create({
+          parcelId: response.id,
+          label: data.label,
+          owner: user.id,
+          width: data.width,
+          height: data.height,
+          length: data.length,
+          weight: data.weight,
+          unit: data.unit,
+          unitWeight: data.unitWeight
+        })
+      }
       )
     })
     .catch((error) => {
