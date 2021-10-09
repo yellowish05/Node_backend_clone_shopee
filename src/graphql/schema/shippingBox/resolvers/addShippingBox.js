@@ -1,5 +1,5 @@
 const path = require('path');
-const { Validator } = require('node-input-validator');
+const niv = require('node-input-validator');
 
 const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const { ApolloError } = require('apollo-server');
@@ -7,12 +7,18 @@ const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery')
 const errorHandler = new ErrorHandler();
 
 module.exports = async (obj, { data }, { dataSources: { repository }, user }) => {
-  const validator = new Validator(data, {
+  niv.extend('greater', ({ value, args }, validator) => {
+    return (value > (args[0] || 0));
+  });
+  niv.extendMessages({
+    greater: 'The :attribute field must be greater than :value',
+  });
+  const validator = new niv.Validator(data, {
     label: 'required',
-    width: 'required|min:0|decimal',
-    height: 'required|min:0|decimal',
-    length: 'required|min:0|decimal',
-    weight: 'required|min:0|decimal',
+    width: 'required|greater:0|min:0|decimal',
+    height: 'required|greater:0|min:0|decimal',
+    length: 'required|greater:0|min:0|decimal',
+    weight: 'required|greater:0|min:0|decimal',
     unit: 'required',
     unitWeight: 'required'
   });
