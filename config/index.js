@@ -126,7 +126,7 @@ module.exports = {
     },
     from: process.env.COMPANY_EMAIL || 'info@shoclef.com',
     // from: '吉腾 <Onboard@gxjiteng.com>',
-    fromOther: '吉腾 <Info@gxjiteng.com>',
+    fromOther: 'Shoclef <Onboard@shoclef.com>',
   },
   shoclefCompany: {
     seller: {
