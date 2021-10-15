@@ -16,25 +16,6 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     email: 'email',
   });
 
-  let validNumber;
-  if (args.data.phone) {
-    validNumber = await phoneUtil.parse(args.data.phone);
-  }
-  if (args.data.phone && !phoneUtil.isValidNumberForRegion(validNumber, args.data.countryCode)) {
-    if ((phoneUtil.getRegionCodeForNumber(validNumber) !== 'AR' && phoneUtil.getRegionCodeForNumber(validNumber) !== 'MX')
-      || phoneUtil.getRegionCodeForNumber(validNumber) !== args.data.countryCode
-      || !phoneUtil.isPossibleNumber(validNumber)) {
-      throw new UserInputError('The phone number must be a valid phone number.', { invalidArgs: 'phone' });
-    }
-
-    await repository.user.findByPhone(args.data.phone)
-      .then((existingUser) => {
-        if (existingUser && existingUser.id !== user.id) {
-          throw new UserInputError('Phone number already taken.', { invalidArgs: 'phone' });
-        }
-      });
-  }
-
   let userObj;
 
   return validator.check()
@@ -50,7 +31,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         if (!userObj.email) {
           if (args.data.email) {
             const checkEmail = await repository.user.findByEmail(args.data.email);
-            if (checkEmail) {
+            if (checkEmail && checkEmail.id !== user.id) {
               throw new Error('Email already taken');
             }
           }

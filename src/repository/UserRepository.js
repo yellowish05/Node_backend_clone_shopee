@@ -229,8 +229,8 @@ class UserRepository {
       throw Error(`User "${id}" does not exist!`);
     }
     if (data.email){
-      const emailUser=await this.findByEmail(data.email)
-      if (emailUser) {
+      const emailUser = await this.findByEmail(data.email)
+      if (emailUser && emailUser._id !== id) {
         throw Error(`User "${data.email}" used already`);
       }
       // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;

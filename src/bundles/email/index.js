@@ -101,6 +101,7 @@ class EmailService extends AbstractEmailService {
             return InvoiceService.getSalesOrderDetails(saleOrder.id)
               .then(async (orderDetails) => InvoiceService.createPackingSlip(orderDetails))
               .catch((err) => {
+                console.log('[Email][104]', err)
                 throw new Error(err.message);
               });
         })

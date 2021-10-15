@@ -164,13 +164,14 @@ module.exports.InvoiceService = {
 
     const saleOrder = await request(`${baseURL}graphql`, saleOrderQuery, variables);
     const orderDate = saleOrder.saleOrder.purchaseOrder.createdAt;
+    const region = saleOrder.saleOrder.items[0].seller.organization.address.region;
     const shippingFrom = {
       name: saleOrder.saleOrder.items[0].seller.name,
       phone: saleOrder.saleOrder.items[0].seller.phone,
       email: saleOrder.saleOrder.items[0].seller.email,
       street: saleOrder.saleOrder.items[0].seller.organization.address.street,
       city: saleOrder.saleOrder.items[0].seller.organization.address.city,
-      state: saleOrder.saleOrder.items[0].seller.organization.address.region.name,
+      state: region ? region.name : "",
       country: saleOrder.saleOrder.items[0].seller.organization.address.country.name,
     };
 
