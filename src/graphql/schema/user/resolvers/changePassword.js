@@ -25,7 +25,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
     phone: 'phoneNumber',
     verificationCode: 'required|string',
     newPassword: 'required|minLength:6|regex:^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])',
-    '*': 'any:password,request_id',
   });
 
   return validator.check()
