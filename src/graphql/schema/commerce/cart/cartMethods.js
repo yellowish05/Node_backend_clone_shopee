@@ -8,11 +8,10 @@ const { getAmountOfWeight, getUnits } = require(path.resolve('src/lib/WeightFact
 
 const _this = {
   getDeliveryPrice: async ({ items }, args) => {
-    console.log('[Items]', items);
     // delivery price for simple rule
-    const cents4SimpleRule = await items
+    const cents4SimpleRule = await Promise.all(items
       .filter(({ shippingRule }) => shippingRule === ShippingRuleType.SIMPLE)
-      .reduce(async (sum, { quantity, deliveryRate}) => {
+      .map(async ({ quantity, deliveryRate }) => {
         let centsAmount = 0;
         if (deliveryRate) {
           centsAmount = deliveryRate.amount * quantity;
@@ -25,8 +24,9 @@ const _this = {
               .then((exchangedMoney) => exchangedMoney.getCentsAmount());
           }
         }
-        return sum + centsAmount;
-      }, 0);
+        return centsAmount;
+      }))
+      .then((centAmounts) => centAmounts.reduce((sum, cent) => sum + cent, 0));
     // delivery price for advanced rule
     const mapCountry2Item = {};
     items
@@ -35,13 +35,14 @@ const _this = {
         const country = item.deliveryAddress.address.country;
         if (!mapCountry2Item[country]) mapCountry2Item[country] = [];
         mapCountry2Item[country].push(item);
-      });//console.log('[mapCountry2Item]', mapCountry2Item, items);
+      });
     // split the items according to the delivery country.
     const cents4AdvancedRule = await Promise.all(Object.keys(mapCountry2Item)
       .map(async (country) => {
         const countryItems = mapCountry2Item[country];
         const weight = _this.getTotalWeight(countryItems);
         const price = await _this.getTotalPrice(countryItems, args.currency);
+        console.log('[WeightPrice]', weight, price);
         return advancedShippingRule({
           weight,
           price,
@@ -49,8 +50,6 @@ const _this = {
         });
       }))
       .then((ASRs) => ASRs.reduce((cents, ASR) => cents + ASR.shippingFee.getCentsAmount() + ASR.handlingFee.getCentsAmount(), 0));
-    
-    console.log('[CentAmount]', cents4SimpleRule, cents4AdvancedRule);
     return CurrencyFactory.getAmountOfMoney({ centsAmount: cents4SimpleRule + cents4AdvancedRule, currency: args.currency });
   },
   getTotalWeight: (cartItems) => {
@@ -63,6 +62,7 @@ const _this = {
         return amountOfWeight.toKG();
       })
       .reduce((sum, kg) => sum + kg, 0);
+    console.log('[TotalKG]', totalKG);
     return getAmountOfWeight({ weight: totalKG, unit: WeightUnitSystem.KILOGRAM });
   },
   getTotalPrice: async (cartItems, currency = null) => {

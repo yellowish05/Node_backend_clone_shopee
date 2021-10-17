@@ -172,7 +172,7 @@ module.exports.resolvers = {
           return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
         })
     ),
-    deliveryPrice: ({ items }, args) => getDeliveryPrice({ items }, args).catch(error => console.log('[Cart.deliveryPrice]', error)),
+    deliveryPrice: getDeliveryPrice,
     discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => {
       return Promise.all(items.map(async ({
         discountAmount
@@ -182,7 +182,6 @@ module.exports.resolvers = {
           const amountOfMoney = CurrencyFactory.getAmountOfMoney(
             { centsAmount: discountAmount, currency: 'USD' },
           );
-          console.log({ amountOfMoney })
           return CurrencyService.exchange(amountOfMoney, args.currency)
             .then((exchangedMoney) => {
               const temp = exchangedMoney.getCentsAmount()
@@ -200,7 +199,7 @@ module.exports.resolvers = {
     },
     total: async ({ items }, args) => (
       Promise.all(items.map(async ({
-        quantity, product, deliveryRate, metricUnit,discountAmount
+        quantity, product, productAttribute, deliveryRate, metricUnit, discountAmount
       }) => {
         let value = 0;
         const entity = productAttribute || product;

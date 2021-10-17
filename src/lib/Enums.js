@@ -69,6 +69,8 @@ const SizeUnitSystem = EnumFactory({
 const WeightUnitSystem = EnumFactory({
   OUNCE: 'OUNCE',
   GRAM: 'GRAM',
+  KILOGRAM: 'KILOGRAM',
+  POUND: 'POUND',
 });
 
 const currencyEnum = {};

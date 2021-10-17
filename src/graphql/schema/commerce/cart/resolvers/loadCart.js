@@ -67,11 +67,13 @@ const activity = {
 module.exports = async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
   .getAll({ user: user.id })
   .then((items) => Promise.all(items.map(async (item) => {
-    // item.product = await repository.product.getById(item.product)
-    //   .then((product) => {
-    //     // if (!product) { throw new ForbiddenError(`Product with id "${item.product}" does not exist`); }
-    //     return product;
-    //   });
+    item = item.toObject();
+    item.id = item._id;
+    item.product = await repository.product.getById(item.product)
+      .then((product) => {
+        if (!product) { throw new ForbiddenError(`Product with id "${item.product}" does not exist`); }
+        return product;
+      });
     if (item.productAttribute) {
       item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
     }
@@ -84,14 +86,13 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
     //shpping rule & delivery address
     item.shippingRule = await repository.organization.getByOwner(item.product.seller)
       .then((organization) => organization.shippingRule)
-      .catch(() => ShippingRuleType.SIMPLE);console.log('[ShippingRule]', item.shippingRule);
+      .catch(() => ShippingRuleType.SIMPLE);
     item.deliveryAddress = await repository.deliveryRate.getById(item.deliveryRate)
       .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress))
-      .catch(() => null);console.log('[deliveryAddress]', item.deliveryAddress, item);
+      .catch(() => null);
     if (!item.deliveryAddress) throw new ForbiddenError('DeliveryAddress does not exist');
     item = await activity.processDiscount({ item }, repository);
-    console.log("item.discountAmount",item.toObject());
+    
     return item;
   }))
-  .then((items) => ({ items })))
-  .catch(error => console.log('[LoadCart]', error));
+  .then((items) => ({ items })));
