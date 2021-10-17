@@ -2,20 +2,10 @@
 const { ForbiddenError } = require('apollo-server');
 const path = require('path');
 
-const { DiscountValueType, DiscountPrivileges } = require(path.resolve('src/lib/Enums'));
+const { DiscountValueType, DiscountPrivileges, ShippingRuleType } = require(path.resolve('src/lib/Enums'));
 
-module.exports = async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
-  .getAll({ user: user.id })
-  .then((items) => Promise.all(items.map(async (item) => {
-    item.product = await repository.product.getById(item.product)
-      .then((product) => {
-        if (!product) { throw new ForbiddenError(`Product with id "${item.product}" does not exist`); }
-
-        return product;
-      });
-    item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
-      .then((deliveryRate) => deliveryRate);
-    console.log("item.discount", item.discount)
+const activity = {
+  processDiscount: async ({ item } , repository) => {
     let discountAmount = 0;
     let isApplyDiscount = false;
     if (item.discount) {
@@ -70,11 +60,38 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
       item.discount = null
       item.discountAmount = discountAmount
     }
-    console.log("item.discountAmount",item.discountAmount)
+    return item;
+  }
+};
+
+module.exports = async (_, args, { dataSources: { repository }, user }) => repository.userCartItem
+  .getAll({ user: user.id })
+  .then((items) => Promise.all(items.map(async (item) => {
+    // item.product = await repository.product.getById(item.product)
+    //   .then((product) => {
+    //     // if (!product) { throw new ForbiddenError(`Product with id "${item.product}" does not exist`); }
+    //     return product;
+    //   });
     if (item.productAttribute) {
       item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
     }
+    item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
+      .then((deliveryRate) => {
+        if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
+        return deliveryRate;
+      });
 
+    //shpping rule & delivery address
+    item.shippingRule = await repository.organization.getByOwner(item.product.seller)
+      .then((organization) => organization.shippingRule)
+      .catch(() => ShippingRuleType.SIMPLE);console.log('[ShippingRule]', item.shippingRule);
+    item.deliveryAddress = await repository.deliveryRate.getById(item.deliveryRate)
+      .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress))
+      .catch(() => null);console.log('[deliveryAddress]', item.deliveryAddress, item);
+    if (!item.deliveryAddress) throw new ForbiddenError('DeliveryAddress does not exist');
+    item = await activity.processDiscount({ item }, repository);
+    console.log("item.discountAmount",item.toObject());
     return item;
   }))
-    .then((items) => ({ items })));
+  .then((items) => ({ items })))
+  .catch(error => console.log('[LoadCart]', error));
