@@ -27,14 +27,15 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
     'assets.length': 'You can not upload more than 9 images!',
   });
 
-  let product, foundBrand;
+  let product; let
+    foundBrand;
 
   validator.addPostRule(async (provider) => Promise.all([
     repository.product.getById(provider.inputs.id),
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
     repository.shippingBox.findOne(provider.inputs.shippingBox),
-    repository.asset.load(provider.inputs.thumbnailId)
+    repository.asset.load(provider.inputs.thumbnailId),
   ])
     .then(([foundProduct, category, brand, shippingBox, thumbnail]) => {
       if (!foundProduct) {
@@ -110,30 +111,31 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.hashtags = productData.hashtags = ProductService.composeHashtags(data.hashtags || product.hashtags, foundBrand);
       // resize thumbnail
       const thumbnail = await repository.asset.getById(thumbnailId);
-      
-      if (thumbnail &&  (
-        !thumbnail.resolution ||
-        (thumbnail.resolution.width && thumbnail.resolution.width > 200))) {
+
+      if (thumbnail && (
+        !thumbnail.resolution
+        || (thumbnail.resolution.width && thumbnail.resolution.width > 200))) {
         await AssetService.resizeImage({ assetId: thumbnailId, width: 200 });
       }
 
       const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-        { centsAmount: data.price, currency: data.currency })
-      const sortPrice = await CurrencyService.exchange(amountOfMoney, "USD")
+        { centsAmount: data.price, currency: data.currency },
+      );
+      const sortPrice = await CurrencyService.exchange(amountOfMoney, 'USD')
         .then((exchangedMoney) => exchangedMoney.getCentsAmount());
-      product.sortPrice = sortPrice
+      product.sortPrice = sortPrice;
       product.wholesaleEnabled = data.wholesaleEnabled || false;
       product.metrics = [];
       if (data.metrics && data.metrics.length > 0) {
-        data.metrics.forEach(metricItem => {
+        data.metrics.forEach((metricItem) => {
           product.metrics.push({
             metricUnit: metricItem.metricUnit,
             minCount: metricItem.minCount || 0,
             unitPrice: {
               amount: CurrencyFactory.getAmountOfMoney({ currencyAmount: metricItem.unitPrice.amount, currency: metricItem.unitPrice.currency }).getCentsAmount(),
-              currency: metricItem.unitPrice.currency
+              currency: metricItem.unitPrice.currency,
             },
-            quantity: metricItem.quantity
+            quantity: metricItem.quantity,
           });
         });
       }
@@ -156,9 +158,8 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         // repository.productInventoryLog.getByProductId(product.id),
         inventoryPromise,
       ])
-        .then(async ([updatedProduct, inventory]) => {
+        .then(async ([updatedProduct, inventory]) =>
           // await repository.productInventoryLog.update(inventory.id, updatedProduct.quantity);
-          return updatedProduct;
-        });
+          updatedProduct);
     });
 };

@@ -5,6 +5,7 @@ const { Promise } = require('bluebird');
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
 const axios = require('axios');
+
 const jsonFile = 'http://www.floatrates.com/daily/usd.json';
 
 async function exchangeOnSupportedCurrencies(price) {

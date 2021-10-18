@@ -10,7 +10,7 @@ const requireDir = require('require-dir');
 const { awsSMTP } = require(path.resolve('config'));
 const templates = requireDir('./view');
 
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 class AbstractEmailService {
   getTemplate(name) {
@@ -38,12 +38,12 @@ class AbstractEmailService {
 
   async send(params) {
     logger.debug(`[EMAIL]: try send email ${JSON.stringify(params)}`);
-    let transporter = nodemailer.createTransport(awsSMTP.config);
+    const transporter = nodemailer.createTransport(awsSMTP.config);
     try {
       const res = await transporter.sendMail(params);
       return res;
     } catch (error) {
-      console.log("send email error =>", JSON.stringify(error));
+      console.log('send email error =>', JSON.stringify(error));
     }
   }
 }
