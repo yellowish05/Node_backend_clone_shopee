@@ -69,7 +69,7 @@ function makeInvoicePdfList(orderItems, pdf) {
                                             <tr>
                                                 <td align="left" mc:edit="text104" class="text_color_767676 center_content" style="line-height: 1;color: #767676;font-size: 12px; font-weight: 400; font-family: 'Open Sans', Helvetica, sans-serif; mso-line-height-rule: exactly;">
                                                     <div class="editable-text">
-                                                        <span class="text_container">PRICE: ${price.formatted}</span><br>
+                                                        <span class="text_container">PRICE: ${price.amount} ${price.currency}</span><br>
                                                         <span class="text_container">QTY: ${item.quantity}</span>
                                                     </div>
                                                 </td>
@@ -167,6 +167,6 @@ module.exports = {
             </td>
         </tr><!-- END body -->
         ${footer()}`, args,
-    );
+        );
   },
 };
