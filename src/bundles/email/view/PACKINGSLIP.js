@@ -7,14 +7,14 @@ const layout = require(path.resolve('src/view/simple.layout.email'));
 const footer = require(path.resolve('src/view/footer.email'));
 
 function makeInvoicePdfList(orderItems, pdf) {
-  let listString = '';
-  orderItems
-    ? orderItems.map((item) => {
-      const url = item.productAttribute ? item.productAttribute.asset.url : item.product.assets[0].url;
-      const price = item.productAttribute ? item.productAttribute.price : item.product.price;
-      const id = item.productAttribute ? item.productAttribute.id : item.product.id;
-      const sku = item.productAttribute ? item.productAttribute.sku : item.product.sku;
-      listString += `<!-- row-1 -->
+    let listString = '';
+    orderItems
+    ? orderItems.map(item => {
+        const url = item.productAttribute ? item.productAttribute.asset.url : item.product.assets[0].url;
+        const price = item.productAttribute ? item.productAttribute.price : item.product.price;
+        const id = item.productAttribute ? item.productAttribute.id : item.product.id;
+        const sku = item.productAttribute ? item.productAttribute.sku : item.product.sku;
+        listString = listString + `<!-- row-1 -->
         <tr>
             <td bgcolor="#ffffff" style="padding: 0 20px;border: 1px solid #ebebeb;border-radius: 5px;">
                 <table border="0" cellpadding="0" cellspacing="0">
@@ -67,7 +67,7 @@ function makeInvoicePdfList(orderItems, pdf) {
                                             <tr>
                                                 <td align="left" mc:edit="text104" class="text_color_767676 center_content" style="line-height: 1;color: #767676;font-size: 12px; font-weight: 400; font-family: 'Open Sans', Helvetica, sans-serif; mso-line-height-rule: exactly;">
                                                     <div class="editable-text">
-                                                        <span class="text_container">PRICE: ${price.formatted}</span><br>
+                                                        <span class="text_container">PRICE: ${price.amount} ${price.currency}</span><br>
                                                         <span class="text_container">QTY: ${item.quantity}</span><br>
                                                         <span class="text_container">SKU: - ${sku}</span><br>
                                                         <span class="text_container">PRODUCT ID: ${id}</span>
@@ -116,16 +116,16 @@ function makeInvoicePdfList(orderItems, pdf) {
         <!-- horizontal gap -->
         <tr><td height="25"></td></tr>`;
     })
-    : listString = '';
-  return listString;
+    : listString = ''
+    return listString;
 }
 module.exports = {
   subject: 'Your product was sold!',
   build({ code, ...args }) {
-    const { data } = args;
+    const data = args.data;
     return layout(
-      `${header({ title: '', description: '' })
-      }<!-- body -->
+        header({title: '', description: ''}) + 
+        `<!-- body -->
         <tr>
             <td>
                 <table class="table1" width="600" align="center" border="0" cellspacing="0" cellpadding="0">
@@ -160,14 +160,13 @@ module.exports = {
                                 </tr><!-- END email details -->
     
                                 <!-- horizontal gap -->
-                                <tr><td height="40"></td></tr>${makeInvoicePdfList(data.orderItems, data.invoicePdf)}
+                                <tr><td height="40"></td></tr>` + makeInvoicePdfList(data.orderItems, data.invoicePdf) + `
                             </table><!-- END body-container -->
                         </td>
                     </tr>
                 </table>
             </td>
         </tr><!-- END body -->
-    ${footer()}`, args,
-    );
+    ` + footer(), args);
   },
 };

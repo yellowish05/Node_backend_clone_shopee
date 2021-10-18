@@ -24,16 +24,14 @@ class EmailService extends AbstractEmailService {
 
     return this.send(params);
   }
-
   sendVerificationCode(data) {
-    console.log('sendVerificationCode', data);
+    console.log("sendVerificationCode",data)
     const template = this.getTemplate(VerificationEmailTemplate.SIGNUP);
 
-    const params = this.getParams({ template, user: data.user, code: data.code });
+    const params = this.getParams({ template,user: data.user, code: data.code });
 
     return this.send(params);
   }
-
   sendPasswordChanged(data) {
     const template = this.getTemplate(VerificationEmailTemplate.PASSWORD_CHANGED);
 
@@ -43,7 +41,7 @@ class EmailService extends AbstractEmailService {
   }
 
   sendPurchasedInfo(data, type) {
-    const template = (type == 'invoice')
+    const template = ( type == "invoice" ) 
       ? this.getTemplate(VerificationEmailTemplate.INVOICE)
       : this.getTemplate(VerificationEmailTemplate.PACKINGSLIP);
 
@@ -78,11 +76,11 @@ class EmailService extends AbstractEmailService {
           orderId: itemsDetail.purchaseOrder.id,
           invoicePdf,
           createdAt: itemsDetail.purchaseOrder.createdAt,
-          orderItems: itemsDetail.purchaseOrder.items,
-        }, 'invoice');
+          orderItems: itemsDetail.purchaseOrder.items
+        }, "invoice");
       })
       .catch((err) => {
-        throw new Error(err.message);
+          throw new Error(err.message);
       });
   }
 
@@ -91,41 +89,42 @@ class EmailService extends AbstractEmailService {
       filter: { purchaseOrder: data.id },
       page: {
         limit: 0,
-        skip: 0,
+        skip: 0
       },
       user: null,
     });
 
     await Promise.all(saleOrders.map(async (saleOrder) => repository.saleOrder.getPackingSlip(saleOrder.id)
-      .then((orders) => {
-        if (orders && orders.length > 0) { return orders; }
+        .then((orders) => {
+            if (orders && orders.length > 0) { return orders; }
 
-        return InvoiceService.getSalesOrderDetails(saleOrder.id)
-          .then(async (orderDetails) => InvoiceService.createPackingSlip(orderDetails))
-          .catch((err) => {
-            console.log('[Email][104]', err);
+            return InvoiceService.getSalesOrderDetails(saleOrder.id)
+              .then(async (orderDetails) => InvoiceService.createPackingSlip(orderDetails))
+              .catch((err) => {
+                console.log('[Email][104]', err)
+                throw new Error(err.message);
+              });
+        })
+        .then(async (invoicePdf) => {
+          const saleOrderQuery = gql`${getSaleOrderForEmail}`;
+          const variables = {
+            orderID: saleOrder.id,
+          };
+          const itemsDetail = await request(`${baseURL}graphql`, saleOrderQuery, variables);
+          const seller = itemsDetail.saleOrder.seller;
+          seller.type = 'seller';
+          await this.sendPurchasedInfo({
+              user: seller,
+              orderId: itemsDetail.saleOrder.id,
+              invoicePdf,
+              createdAt: itemsDetail.saleOrder.createdAt,
+              orderItems: itemsDetail.saleOrder.items
+          }, "packingSlip")
+        })
+        .catch((err) => {
             throw new Error(err.message);
-          });
-      })
-      .then(async (invoicePdf) => {
-        const saleOrderQuery = gql`${getSaleOrderForEmail}`;
-        const variables = {
-          orderID: saleOrder.id,
-        };
-        const itemsDetail = await request(`${baseURL}graphql`, saleOrderQuery, variables);
-        const { seller } = itemsDetail.saleOrder;
-        seller.type = 'seller';
-        await this.sendPurchasedInfo({
-          user: seller,
-          orderId: itemsDetail.saleOrder.id,
-          invoicePdf,
-          createdAt: itemsDetail.saleOrder.createdAt,
-          orderItems: itemsDetail.saleOrder.items,
-        }, 'packingSlip');
-      })
-      .catch((err) => {
-        throw new Error(err.message);
-      })));
+        }),
+    ))
   }
 
   async notifyNewIssue(issue) {
@@ -133,10 +132,8 @@ class EmailService extends AbstractEmailService {
     const emails = category && category.notifyEmails.length ? category.notifyEmails : [email.supportEmail];
     const template = this.getTemplate(VerificationEmailTemplate.NEW_ISSUE);
     return Promise.all(emails.map((email) => {
-      const params = this.getParams({
-        template, issue, category, user: { email }, data: true,
-      });
-      this.send(params);
+      const params = this.getParams({ template, issue, category, user: { email }, data: true });
+      this.send(params)
     }));
   }
 }

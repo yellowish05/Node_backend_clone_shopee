@@ -173,30 +173,33 @@ module.exports.resolvers = {
         })
     ),
     deliveryPrice: getDeliveryPrice,
-    discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => Promise.all(items.map(async ({
-      discountAmount,
-    }) => {
-      if (args.currency && args.currency) {
-        const amountOfMoney = CurrencyFactory.getAmountOfMoney(
-          { centsAmount: discountAmount, currency: 'USD' },
-        );
-        return CurrencyService.exchange(amountOfMoney, args.currency)
-          .then((exchangedMoney) => {
-            const temp = exchangedMoney.getCentsAmount();
-            return temp;
-          });
-      }
-      return discountAmount;
-    }))
-      .then((itemsSum) => {
-        console.log({ itemsSum });
-        const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
-        console.log({ centsAmount });
-        return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
-      }),
+    discountPrice: async ({ items }, args, { user, dataSources: { repository } }) => {
+      return Promise.all(items.map(async ({
+        discountAmount
+      }) => {
+      
+        if (args.currency && args.currency) {
+          const amountOfMoney = CurrencyFactory.getAmountOfMoney(
+            { centsAmount: discountAmount, currency: 'USD' },
+          );
+          return CurrencyService.exchange(amountOfMoney, args.currency)
+            .then((exchangedMoney) => {
+              const temp = exchangedMoney.getCentsAmount()
+              return temp
+            });
+        }
+        return discountAmount;
+      }))
+        .then((itemsSum) => {
+          console.log({ itemsSum })
+          const centsAmount = itemsSum.reduce((total, itemSum) => total + itemSum, 0);
+          console.log({ centsAmount })
+          return CurrencyFactory.getAmountOfMoney({ centsAmount, currency: args.currency });
+        });
+    },
     total: async ({ items }, args) => (
       Promise.all(items.map(async ({
-        quantity, product, productAttribute, deliveryRate, metricUnit, discountAmount,
+        quantity, product, productAttribute, deliveryRate, metricUnit, discountAmount
       }) => {
         let value = 0;
         const entity = productAttribute || product;
@@ -218,7 +221,7 @@ module.exports.resolvers = {
           const deliveryPrice = await getDeliveryPrice({ items }, args);
           return CurrencyFactory.getAmountOfMoney({
             centsAmount: centsAmount + deliveryPrice.getCentsAmount(),
-            currency: args.currency,
+            currency: args.currency
           });
         })
     ),
@@ -255,7 +258,7 @@ module.exports.resolvers = {
           .then((exchangedMoney) => exchangedMoney.getCentsAmount());
       }
 
-      if (deliveryTotal > 0 && currency !== deliveryRate.currency) {
+      if (deliveryTotal > 0  && currency !== deliveryRate.currency) {
         const amountOfMoney = CurrencyFactory.getAmountOfMoney({
           centsAmount: deliveryRate.amount, currency: deliveryRate.currency,
         });
@@ -280,9 +283,9 @@ module.exports.resolvers = {
       return repository.deliveryRate.getById(rateId)
         .then((deliveryRate) => repository.deliveryAddress.getById(deliveryRate.deliveryAddress));
     },
-    discount: async ({ discount }, _, { dataSources: { repository } }) => {
+    discount: async ({ discount}, _, { dataSources: { repository } }) => {
       if (!discount) return null;
-      return repository.discount.getById(discount);
+      return repository.discount.getById(discount)
     },
     billingAddress: ({ billingAddress }, _, { dataSources: { repository } }) => repository.billingAddress.getById(billingAddress),
     product: async (cartItem, _, { dataSources: { repository } }) => repository.product.getById(cartItem.product),

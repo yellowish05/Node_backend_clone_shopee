@@ -323,7 +323,7 @@ module.exports.resolvers = {
     previewBulkProducts,
     productAttributes: async (_, { productId }, { dataSources: { repository } }) => repository.productAttributes.getByProduct(productId),
     productsByTheme,
-    productBySlug: async (_, { slug }, { dataSources: { repository } }) => repository.product.getBySlug(slug),
+    productBySlug: async (_, { slug }, { dataSources: { repository }}) => repository.product.getBySlug(slug),
     popularProducts,
     recommendProducts,
   },
@@ -424,9 +424,9 @@ module.exports.resolvers = {
       if (!language) return description;
       return repository.productTranslation.getByProduct(id)
         .then((translation) => translation.description[language.toLowerCase()])
-        .catch((error) => description);
+        .catch(error => description);
     },
-    sold: ({ sold }) => (Number(sold) > 0 ? Number(sold) : 0),
+    sold: ({ sold }) => Number(sold) > 0 ? Number(sold) : 0,
   },
   ProductAttribute: {
     asset: async ({ asset }, _, { dataSources: { repository } }) => (
@@ -453,17 +453,17 @@ module.exports.resolvers = {
     variation: async ({ id, variation }, { language }, { dataSources: { repository } }) => {
       if (!language) return variation;
       return repository.variationTranslation.getByAttribute(id)
-        .then((variationTranslation) => variationTranslation.variations.map(({ name, value }) => ({ name, value: value[language.toLowerCase()] })))
+        .then(variationTranslation => variationTranslation.variations.map(({ name, value }) => ({ name, value: value[language.toLowerCase()] })))
         .catch(() => variation);
     },
   },
   ProductMetricItem: {
-    unitPrice: async ({ unitPrice }, args, { dataSources: { repository } }) => {
+    unitPrice: async ({ unitPrice }, args, { dataSources: {repository} }) => {
       let amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: unitPrice.amount, currency: unitPrice.currency });
       if (args.currency && args.currency !== unitPrice.currency) {
         amountOfMoney = CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
-    },
+    }
   },
 };
