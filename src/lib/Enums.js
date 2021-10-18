@@ -69,6 +69,8 @@ const SizeUnitSystem = EnumFactory({
 const WeightUnitSystem = EnumFactory({
   OUNCE: 'OUNCE',
   GRAM: 'GRAM',
+  KILOGRAM: 'KILOGRAM',
+  POUND: 'POUND',
 });
 
 const currencyEnum = {};
@@ -262,6 +264,13 @@ const IssueStatus = EnumFactory({
   SOLVED: "SOLVED",
 });
 
+const ProductStatus = EnumFactory({
+  ALL: 'ALL',
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  DRAFT: 'DRAFT',
+});
+
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
@@ -304,6 +313,11 @@ const VideoTag = EnumFactory({
   Hot: 'Hot',
 });
 
+const ShippingRuleType = EnumFactory({
+  SIMPLE: 'SIMPLE',
+  ADVANCED: 'ADVANCED',
+});
+
 
 module.exports = {
   StreamChannelType,
@@ -339,6 +353,7 @@ module.exports = {
   BannerAdType,
   BannerLayoutType,
   BannerType,
+  ProductStatus,
   GenderType,
   RatingTarget,
   SubscriptionType,
@@ -346,4 +361,5 @@ module.exports = {
   UserRoles,
   IssueUrgency,
   VideoTag,
+  ShippingRuleType,
 };

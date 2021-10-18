@@ -26,6 +26,8 @@ app.route('/update-product-slug').post((req, res) => require('./resolvers/update
 app.route('/update-stream-slug').post((req, res) => require('./resolvers/updateStreamSlug')(req, res));
 app.route('/product-category-slug').patch((req, res) => require('./resolvers/updateProductCategorySlug')(req, res));
 
+app.route('/init-seller-default-shipping-rule').post((req, res) => require('./resolvers/initSellerShippingRuleType')(req, res));
+app.route('/init-product-default-weight').post((req, res) => require('./resolvers/initProductWeight')(req, res));
 // Fix DB Errors
 app.route('/fix-brand-product-category').patch((req, res) => require('./resolvers/fixProductCategoryOfBrand')(req, res));
 

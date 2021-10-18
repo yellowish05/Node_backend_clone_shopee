@@ -35,6 +35,8 @@ const schema = gql`
       proofPhoto: [Asset]
       carrier: carrierType
       item: String
+      shppingRule: ShippingRuleType
+      deliveryPriceGroup: DeliveryPriceGroup
     }
 
     input UpdateDeliveryOrderInput {
@@ -96,6 +98,7 @@ module.exports.resolvers = {
         id: carrierInfo.id,
         name: carrierInfo.name,
       };
-    }
+    },
+    deliveryPriceGroup: ({ priceGroup }, _, { dataSources: { repository } }) => repository.deliveryPriceGroup.getById(priceGroup),
   },
 };

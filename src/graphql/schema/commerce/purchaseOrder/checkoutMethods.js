@@ -1,5 +1,7 @@
+const path = require('path');
 const { UserInputError } = require('apollo-server');
 const OrderFactory = require('./OrderFactory');
+const { ShippingRuleType } = require(path.resolve('src/lib/Enums'));
 
 const createSaleOrders = async ({
   orderItems, deliveryOrders, cartItems, currency, buyerId, purchaseOrder,
@@ -70,6 +72,12 @@ module.exports = {
         return Promise.all(cartItems.map(async (item) => {
           item.product = await repository.product.getById(item.product);
           item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate);
+          item.deliveryAddress = await repository.deliveryRate.getById(item.deliveryRate)
+            .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress))
+            .catch(() => null);
+          item.shippingRule = await repository.organization.getByOwner(item.product.seller)
+            .then((organization) => organization.shippingRule)
+            .catch(() => ShippingRuleType.SIMPLE);
           if (!item.deliveryRate) {
             throw new UserInputError(`Cart item with id "${item.id}" does not have valid delivery rate`);
           }
@@ -127,11 +135,6 @@ module.exports = {
     const deliveryOrders = await factory.createDeliveryOrders()
     .then((items) => Promise.all(
       items.map(async (item, index) => {
-        if (item.deliveryAddress) {
-          item.deliveryAddressInfo = await repository.deliveryAddress.getById(
-            item.deliveryAddress
-          );
-        }
         return repository.deliveryOrder.create({ ...item, item: orderItems[index].id });
       }),
     ));

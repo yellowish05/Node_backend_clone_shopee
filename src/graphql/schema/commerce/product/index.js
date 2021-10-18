@@ -78,7 +78,7 @@ const schema = gql`
     thumbnail: Asset
     attrs: [ProductAttribute]
     category: ProductCategory
-    # weight: Weight!
+    weight: Weight!
     shippingBox: ShippingBox!
     brand: Brand
     relatedLiveStreams(limit: Int = 1): [LiveStream]!
