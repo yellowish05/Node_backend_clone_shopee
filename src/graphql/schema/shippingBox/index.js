@@ -3,6 +3,7 @@ const { gql } = require('apollo-server');
 
 const { SizeUnitSystem, WeightUnitSystem } = require(path.resolve('src/lib/Enums'));
 const addShippingBox = require('./resolvers/addShippingBox');
+const updateShippingBox = require('./resolvers/updateShippingBox');
 const removeShippingBox = require('./resolvers/removeShippingBox');
 
 const schema = gql`
@@ -40,6 +41,7 @@ const schema = gql`
     extend type Mutation {
       """Allows: authorized user"""
       addShippingBox(data: ShippingBoxInput!): ShippingBox! @auth(requires: USER)
+      updateShippingBox(id: ID!, data: ShippingBoxInput!): ShippingBox! @auth(requires: USER)
       """Allows: authorized user"""
       removeShippingBox(id: ID!): Boolean! @auth(requires: USER)
     }
@@ -55,6 +57,7 @@ module.exports.resolvers = {
   },
   Mutation: {
     addShippingBox,
+    updateShippingBox,
     removeShippingBox,
   },
 };
