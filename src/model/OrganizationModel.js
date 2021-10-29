@@ -46,6 +46,10 @@ const schema = new Schema({
     enum: ShippingRuleType.toList(),
     default: ShippingRuleType.SIMPLE
   },
+  // status: {
+  //   type: Boolean,
+  //   default: false,
+  // },
 });
 
 schema.methods.getTagName = function getTagName() {

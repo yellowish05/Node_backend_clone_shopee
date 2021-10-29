@@ -1,9 +1,10 @@
-const uuid = require('uuid/v4');
-const path = require('path');
-const { providers: { EasyPost } } = require(path.resolve('src/bundles/delivery'));
+const uuid = require("uuid/v4");
+const path = require("path");
+const {
+  providers: { EasyPost },
+} = require(path.resolve("src/bundles/delivery"));
 
 class ShippingBoxRepository {
-
   constructor(model) {
     this.model = model;
   }
@@ -33,16 +34,19 @@ class ShippingBoxRepository {
     if (boxExist) {
       return boxExist;
     } else {
-      const parcelId = await EasyPost.addParcel(data).then(shippingBox => {
+      const parcelId = await EasyPost.addParcel(data).then((shippingBox) => {
         return shippingBox.id;
       });
-      data = { parcelId: parcelId, ...data }
+      data = { parcelId: parcelId, ...data };
       return this.create(data);
     }
   }
 
   async findByLabelAndOwner(data) {
-    return this.model.findOne({ label: data.label || 'null', owner: data.owner });
+    return this.model.findOne({
+      label: data.label || "null",
+      owner: data.owner,
+    });
   }
 
   async remove(id) {

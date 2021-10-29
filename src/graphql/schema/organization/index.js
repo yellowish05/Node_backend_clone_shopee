@@ -3,6 +3,7 @@ const path = require('path');
 
 const { MarketType, ShippingRuleType } = require(path.resolve('src/lib/Enums'));
 
+const addOrganization = require('./resolvers/addOrganization');
 const updateOrganization = require('./resolvers/updateOrganization');
 
 const schema = gql`
@@ -44,6 +45,7 @@ const schema = gql`
 
   extend type Mutation {
     """Allows: authorized user"""
+    # addOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
     updateOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
   }
 `;
@@ -57,6 +59,7 @@ module.exports.resolvers = {
     },
   },
   Mutation: {
+    // addOrganization,
     updateOrganization,
   },
   Organization: {
