@@ -137,7 +137,7 @@ const schema = new Schema({
   sku: {
     type: String,
     default: null,
-    unique: true,
+    // unique: true,
   },
   isFeatured: {
     type: Boolean,
