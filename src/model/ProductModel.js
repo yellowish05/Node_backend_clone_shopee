@@ -137,7 +137,7 @@ const schema = new Schema({
   sku: {
     type: String,
     default: null,
-    // unique: true,
+    unique: true,
   },
   isFeatured: {
     type: Boolean,
@@ -174,7 +174,6 @@ const schema = new Schema({
   href: {
     type: String,
   },
-  
   handleId: {
     type: String,
     required: false,
