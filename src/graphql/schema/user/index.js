@@ -204,7 +204,11 @@ const schema = gql`
       updateUserEmailPhone (data: UserInput!): User! @auth(requires: USER)
       updateUsers (data: [UpdateUserInput!]!): [UserInfo!] @auth(requires: ADMIN)
       updateSeller (data: UpdateUserInput!): UserInfo! @auth(requires: ADMIN)
-      changePassword(email: String, password: String, phone: String, request_id: String,  verificationCode: String!, newPassword: String!): Boolean!
+      """
+        - email, phone: required one of two
+        - password, verificationCode: required one of two
+      """
+      changePassword(email: String, password: String, phone: String, request_id: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: ADMIN)
       requestResetPassword(email: String, phone: String, countryCode: String): RequestRestPasswordResponse!
