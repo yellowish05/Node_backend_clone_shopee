@@ -73,6 +73,11 @@ const WeightUnitSystem = EnumFactory({
   POUND: 'POUND',
 });
 
+const ProductAppType = EnumFactory({
+  SHOCLEF: "SHOCLEF",
+  SHOCLEFGOLD: "SHOCLEF_GOLD"
+})
+
 const currencyEnum = {};
 fs.readdirSync(path.resolve('src/lib/CurrencyFactory/currencies/')).forEach((file) => {
   const { name } = path.parse(file);
@@ -368,4 +373,5 @@ module.exports = {
   IssueUrgency,
   VideoTag,
   ShippingRuleType,
+  ProductAppType
 };

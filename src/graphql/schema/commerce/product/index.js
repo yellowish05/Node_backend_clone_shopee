@@ -4,7 +4,7 @@ const { gql } = require('apollo-server');
 
 const { CurrencyService } = require(path.resolve('src/lib/CurrencyService'));
 const { CurrencyFactory } = require(path.resolve('src/lib/CurrencyFactory'));
-const { ProductMetricUnits } = require(path.resolve('src/lib/Enums'));
+const { ProductMetricUnits, ProductAppType } = require(path.resolve('src/lib/Enums'));
 const addProduct = require('./resolvers/addProduct');
 const updateProduct = require('./resolvers/updateProduct');
 const deleteProduct = require('./resolvers/deleteProduct');
@@ -30,6 +30,10 @@ const recommendProducts = require('./resolvers/productPage/recommendProducts');
 const schema = gql`
   enum ProductMetricUnit {
     ${ProductMetricUnits.toGQL()}
+  }
+
+  enum ProductAppType { 
+    ${ProductAppType.toGQL()}
   }
 
   type ProductAttribute {
@@ -142,6 +146,7 @@ const schema = gql`
     # todo need implement filtering by quantity
     # quantity: IntRangeInput = {min: 1}
     categories: [ID!]
+    app: ProductAppType = SHOCLEF
     brands: [ID!] = []
     brandNames: [String!] = []
     """This price in currency (like 23.45)"""
