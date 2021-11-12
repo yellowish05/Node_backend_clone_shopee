@@ -7,13 +7,20 @@ class VerificationCodeRepository {
     this.codeLength = 6;
   }
 
-  async create({ user }) {
-    if (!user) {
-      throw Error('User is required!');
-    }
+  generateNewCode() {
     let code = '';
     for (let i = 0; i < this.codeLength; i += 1) {
       code += this.candidates.charAt(Math.floor(Math.random() * this.candidates.length));
+    }
+    return code;
+  }
+
+  async create({ user, code, requestId }) {
+    if (!user) {
+      throw Error('User is required!');
+    }
+    if (!code && !requestId) {
+      code = this.generateNewCode();
     }
 
     const verificationCode = new this.model({
@@ -23,6 +30,10 @@ class VerificationCodeRepository {
     });
 
     return verificationCode.save();
+  }
+
+  async getById(id) {
+    return this.model.findOne({ _id: id, isActive: true });
   }
 
   async createForSingup() {
@@ -57,7 +68,7 @@ class VerificationCodeRepository {
     if (!code) {
       throw Error('verifiction code is required!');
     }
-    return this.model.findOne({ code, inActive: true });
+    return this.model.findOne({ code, isActive: true });
   }
 
   async checkVerificationCode({ id, code }) {
@@ -65,10 +76,7 @@ class VerificationCodeRepository {
       throw Error('verifiction code is required!');
     }
     const checkCode = await this.model.findOne({ code, _id: id });
-    if (!checkCode) {
-      return false;
-    }
-    return true;
+    return !!checkCode;
   }
 
   async addCode(id, code) {
