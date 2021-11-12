@@ -100,6 +100,8 @@ const schema = gql`
     seoTitle: String
     sold: Int
     hashtags: [String]
+    createdAt: Date
+
   }
 
   type failedProducts{
