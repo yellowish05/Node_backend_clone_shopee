@@ -112,7 +112,7 @@ const schema = new Schema({
     type: String,
     enum: ProductAppType.toList(),
     required: true,
-    default: ProductAppType.toList()[0]
+    default: ProductAppType.SHOCLEF
   },
   shippingBox: {
     type: String,

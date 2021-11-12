@@ -1,6 +1,4 @@
-const { ProductAppType } = require("../lib/Enums")
 /* eslint-disable no-param-reassign */
-
 function elasticFilter(query, filter) {
   if (!query.$and) {
     query.$and = [
@@ -42,7 +40,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [], app = ProductAppType.toList()[0]
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [], app = ProductAppType.SHOCLEF
 }) {
   if (!query.$and) {
     query.$and = [
