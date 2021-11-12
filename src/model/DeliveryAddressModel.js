@@ -29,6 +29,9 @@ const schema = new Schema({
     default: false,
     index: true,
   },
+  deliveryAddressInfo: {
+    type: Object,
+  },
   isDefault: {
     type: Boolean,
     default: false,
@@ -36,6 +39,10 @@ const schema = new Schema({
   phone: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
+    required: false,
   },
 });
 

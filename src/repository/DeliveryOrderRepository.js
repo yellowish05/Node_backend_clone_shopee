@@ -10,8 +10,10 @@ class DeliveryOrderRepository {
   }
 
   async getByIds(ids) {
-    // console.log('order ids',ids);
-    return this.model.find({ _id: { $in: ids } });
+    // console.log({ ids });
+    const deliveryOrders = await this.model.find({ _id: { $in: ids } });
+    // console.log('deliveryOrders=====>', deliveryOrders);
+    return deliveryOrders;
   }
 
   async getAll() {
@@ -32,8 +34,8 @@ class DeliveryOrderRepository {
 
   async create(data) {
     const document = new this.model({
-      _id: uuid(),
       ...data,
+      _id: data._id || uuid(),
     });
     return document.save();
   }

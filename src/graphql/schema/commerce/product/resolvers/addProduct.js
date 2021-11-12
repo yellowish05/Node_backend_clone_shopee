@@ -96,6 +96,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
       productData.metaDescription = data.metaDescription || false;
       productData.metaTags = data.metaTags || [];
       productData.seoTitle = data.seoTitle || "";
+      productData.sku = productId;
       productData.hashtags = ProductService.composeHashtags(data.hashtags, foundBrand);
       // resize thumbnail
       const thumbnail = await repository.asset.getById(thumbnailId);

@@ -53,11 +53,29 @@ class RatingRepository {
   }
 
   async create(data) {
-    if (!data._id) data = { ...data, _id: uuid() };
-    // return this.model.findOneAndRemove({ tag: data.tag, user: data.user })
-    //   .then(() => this.model.create(data));
-    const review = new this.model(data);
-    return review.save();
+    let insertItem = data;
+    let checkReview = await this.model.findOne({
+      tag: insertItem.tag,
+      user: insertItem.user,
+    });
+    if (checkReview !== null) {
+      checkReview = Object.assign(checkReview, insertItem);
+      checkReview.save()
+      return checkReview;
+    }
+    if (!insertItem._id) insertItem = { ...data, _id: uuid() };
+    const review = new this.model(insertItem);
+    await review.save();
+    console.log("insertItem",insertItem)
+    review.id=review._id
+    return review;
+  }
+  
+  async getByProduct(id, userId) {
+    return this.model.findOne({
+      tag: `Product:${id}`,
+      user: userId,
+    });
   }
 
   async getAverage(tag) {

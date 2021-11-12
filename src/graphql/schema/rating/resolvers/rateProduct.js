@@ -19,18 +19,21 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
       }
     })
     .then(() => repository.product.getById(args.product))
-    .then((product) => {
+    .then(async (product) => {
       if (!product) {
         throw new UserInputError('Product does not exists', { invalidArgs: 'product' });
       }
-      return repository.rating.create({
-        tag: product.getTagName(),
+      const tag = product.getTagName();
+      const review = await repository.rating.create({
+        tag,
         user: user.id,
         rating: args.rating,
+        product: args.product,
+        media: args.media,
         message: args.message,
       });
+      return review;
     })
-    .then(() => true)
     .catch((error) => {
       throw new ApolloError(`Failed to rate Product. Original error: ${error.message}`, 400);
     });

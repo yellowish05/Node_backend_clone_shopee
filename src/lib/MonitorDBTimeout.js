@@ -17,7 +17,7 @@ const activity = {
   },
   notify2Discord: ({ message, title, description }) => {
     return axios.post(discordWebhook, {
-      "username": "Xiufu Web",
+      "username": "Shoclef Web",
       "content": message,
       "embeds": [
         {

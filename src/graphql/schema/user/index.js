@@ -8,6 +8,7 @@ const addNewUser = require('./resolvers/addNewUser');
 const addUserBySocial = require('./resolvers/addUserBySocial');
 const addUserByPhone = require('./resolvers/addUserByPhone');
 const updateUser = require('./resolvers/updateUser');
+const updateUserEmailPhone = require('./resolvers/updateUserEmailPhone');
 const updateUsers = require('./resolvers/updateUsers');
 const changePassword = require('./resolvers/changePassword');
 const changeDeviceId = require('./resolvers/changeDeviceId');
@@ -45,6 +46,11 @@ const schema = gql`
       color: Color
       followStats: FollowStats
       rating: RateStats!
+      isAnonymous: Boolean!
+      anonymousId: String
+      nick_name: String
+      country: String
+      hometown: String
     }
 
     type FollowStats {
@@ -81,6 +87,11 @@ const schema = gql`
       pager: Pager
     }
 
+    type RequestRestPasswordResponse {
+      success: Boolean!
+      request_id: String
+    }
+
     enum UserSortFeature {
       CREATED_AT
       PRICE
@@ -107,6 +118,7 @@ const schema = gql`
     input RegistrationInput {
       email: String!
       password: String!
+      anonymousId: String
     }
 
     input ColorInput {
@@ -124,6 +136,9 @@ const schema = gql`
       photo: ID
       gender: GenderType
       color: ColorInput
+      nick_name: String
+      country: String
+      hometown: String
     }
 
     input NewUserInput {
@@ -154,12 +169,14 @@ const schema = gql`
     input SocialLoginInput {
       provider: LoginProvider!
       token: String!
+      anonymousId: String
     }
 
     input PhoneLoginInput {
       phone: String!,
       countryCode: String!
       password: String!
+      anonymousId: String
     }
 
 
@@ -184,12 +201,17 @@ const schema = gql`
       addUserBySocial (data: SocialLoginInput!): User!
       """Allows: authorized user"""
       updateUser (data: UserInput!): User! @auth(requires: USER)
+      updateUserEmailPhone (data: UserInput!): User! @auth(requires: USER)
       updateUsers (data: [UpdateUserInput!]!): [UserInfo!] @auth(requires: ADMIN)
       updateSeller (data: UpdateUserInput!): UserInfo! @auth(requires: ADMIN)
-      changePassword(email: String!, password: String,  verificationCode: String, newPassword: String!): Boolean!
+      """
+        - email, phone: required one of two
+        - password, verificationCode: required one of two
+      """
+      changePassword(email: String, password: String, phone: String, request_id: String,  verificationCode: String, newPassword: String!): Boolean!
       changeDeviceId(deviceId: String!): Boolean! @auth(requires: USER)
       uploadBulkUsers(path: String!): [User!]! @auth(requires: ADMIN)
-      requestResetPassword(email: String, phone: String): Boolean!
+      requestResetPassword(email: String, phone: String, countryCode: String): RequestRestPasswordResponse!
       deleteUser(id: ID!): DeleteResult! @auth(requires: ADMIN)
 
       """
@@ -213,22 +235,15 @@ module.exports.resolvers = {
       if (!user.streamToken) {
         const userUpdate = await repository.user.update(user.id, {});
         return userUpdate;
-      } else {
-        return user;
       }
+      return user;
     },
     getUserById: async (_, { id }, { dataSources: { repository } }) => (
       repository.user.getById(id)
     ),
-    getUserByPhone: async (_, { phone }, { dataSources: { repository } }) => {
-      return repository.user.findByPhone(phone);
-    },
-    getUserByEmail: async (_, { email }, { dataSources: { repository } }) => {
-      return repository.user.findByEmail(email)
-    },
-    getUserByName: async (_, { name }, { dataSources: { repository } }) => {
-      return repository.user.findByName(name);
-    },
+    getUserByPhone: async (_, { phone }, { dataSources: { repository } }) => repository.user.findByPhone(phone),
+    getUserByEmail: async (_, { email }, { dataSources: { repository } }) => repository.user.findByEmail(email),
+    getUserByName: async (_, { name }, { dataSources: { repository } }) => repository.user.findByName(name),
     userList,
   },
   Mutation: {
@@ -236,6 +251,7 @@ module.exports.resolvers = {
     addUserBySocial,
     addUserByPhone,
     updateUser,
+    updateUserEmailPhone,
     changePassword,
     uploadBulkUsers,
     changeDeviceId,
@@ -253,10 +269,10 @@ module.exports.resolvers = {
     organization(user, args, { dataSources: { repository } }) {
       return repository.organization.getByUser(user.id);
     },
-    isOnline(user, _, { dataSources: { repository }}) {
+    isOnline(user, _, { dataSources: { repository } }) {
       return !!user.isOnline;
     },
-    followStats(user) { return user },
+    followStats(user) { return user; },
     rating: async (user, _, { dataSources: { repository } }) => ({
       average: repository.rating.getAverage(user.getTagName()),
       total: repository.rating.getTotal({ tag: user.getTagName() }),
@@ -284,26 +300,26 @@ module.exports.resolvers = {
     organization(user, args, { dataSources: { repository } }) {
       return repository.organization.getByUser(user.id);
     },
-    followStats(user) { return user }
+    followStats(user) { return user; },
   },
   FollowStats: {
     following(user, { skip, limit }, { dataSources: { repository } }) {
-      const userIds = user.following.filter(tag => tag.includes('User:')).map(tag => tag.replace('User:', '')).slice(skip, limit);
-      return repository.user.paginate({ query: { _id: {$in: userIds} }, page: { skip: 0, limit } });
+      const userIds = user.following.filter((tag) => tag.includes('User:')).map((tag) => tag.replace('User:', '')).slice(skip, limit);
+      return repository.user.paginate({ query: { _id: { $in: userIds } }, page: { skip: 0, limit } });
     },
     nFollowing(user, _, { dataSources: { repository } }) {
       return (user.following || []).length;
     },
     followers(user, { skip, limit }, { dataSources: { repository } }) {
-      return repository.user.paginate({ query: { following: user.getTagName() }, page: { skip, limit }});
+      return repository.user.paginate({ query: { following: user.getTagName() }, page: { skip, limit } });
     },
-    nFollowers(user, _, { dataSources: { repository}}) {
+    nFollowers(user, _, { dataSources: { repository } }) {
       return repository.user.countAll({ following: user.getTagName() });
     },
     isFollowing(target, _, { dataSources: { repository }, user: me }) {
       return me && target.id !== me.id && me.following.includes(target.getTagName());
     },
-    isFollowed(target, _, { dataSources: { repository}, user: me }) {
+    isFollowed(target, _, { dataSources: { repository }, user: me }) {
       return me && target.id !== me.id && target.following.includes(me.getTagName());
     },
   },

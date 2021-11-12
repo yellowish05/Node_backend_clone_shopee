@@ -39,8 +39,8 @@ class SaleOrderRepository {
 
   async find({ user }) {
     return this.model.find({ seller: user.id });
-  }  
-  
+  }
+
   async delete(id) {
     return this.model.remove({ _id: id });
   }
@@ -80,9 +80,10 @@ class SaleOrderRepository {
   }
 
   async addPackingSlip(id, url) {
-    const saleOrder = await this.getById(id);
-    saleOrder.packingslip = url;
-    return saleOrder.save();
+    // const saleOrder = await this.getById(id);
+    // saleOrder.packingslip = url;
+    // return saleOrder.save();
+    return this.model.findOneAndUpdate({ _id: id }, { packingslip: url }, { new: true });
   }
 
   async getPackingSlip(id) {

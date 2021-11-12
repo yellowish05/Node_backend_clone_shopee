@@ -1,13 +1,18 @@
 const { gql } = require('apollo-server');
 const path = require('path');
 
-const { MarketType } = require(path.resolve('src/lib/Enums'));
+const { MarketType, ShippingRuleType } = require(path.resolve('src/lib/Enums'));
 
+const addOrganization = require('./resolvers/addOrganization');
 const updateOrganization = require('./resolvers/updateOrganization');
 
 const schema = gql`
   enum MarketType {
     ${MarketType.toGQL()}
+  }
+  
+  enum ShippingRuleType {
+    ${ShippingRuleType.toGQL()}
   }
 
   type Organization {
@@ -20,6 +25,7 @@ const schema = gql`
     workInMarketTypes: [MarketType]!
     rating: Float!
     customCarrier: CustomCarrier
+    shippingRule: ShippingRuleType!
   }
 
   input OrganizationInput {
@@ -39,6 +45,7 @@ const schema = gql`
 
   extend type Mutation {
     """Allows: authorized user"""
+    # addOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
     updateOrganization(data: OrganizationInput): Organization! @auth(requires: USER)
   }
 `;
@@ -52,6 +59,7 @@ module.exports.resolvers = {
     },
   },
   Mutation: {
+    // addOrganization,
     updateOrganization,
   },
   Organization: {

@@ -34,6 +34,9 @@ const schema = gql`
       deliveryAddress: DeliveryAddress!
       proofPhoto: [Asset]
       carrier: carrierType
+      item: String
+      shppingRule: ShippingRuleType
+      deliveryPriceGroup: DeliveryPriceGroup
     }
 
     input UpdateDeliveryOrderInput {
@@ -83,8 +86,8 @@ module.exports.resolvers = {
     proofPhoto: async ({ proofPhoto }, _, { dataSources: { repository } }) => (
       proofPhoto ? repository.asset.getById(proofPhoto) : null
     ),
-    deliveryAddress: async (order, _, { dataSources: { repository } }) => (
-      repository.deliveryAddress.getById(order.deliveryAddress)
+    deliveryAddress: async ({ deliveryAddress, deliveryAddressInfo }, _, { dataSources: { repository } }) => (
+      deliveryAddressInfo || repository.deliveryAddress.getById(deliveryAddress, true)
     ),
     carrier: async ({ carrier }, _, { dataSources: { repository } }) => {
       let carrierInfo = await repository.customCarrier.getById(carrier);
@@ -95,6 +98,7 @@ module.exports.resolvers = {
         id: carrierInfo.id,
         name: carrierInfo.name,
       };
-    }
+    },
+    deliveryPriceGroup: ({ priceGroup }, _, { dataSources: { repository } }) => repository.deliveryPriceGroup.getById(priceGroup),
   },
 };

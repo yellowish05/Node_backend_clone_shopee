@@ -24,7 +24,14 @@ class EmailService extends AbstractEmailService {
 
     return this.send(params);
   }
+  sendVerificationCode(data) {
+    console.log("sendVerificationCode",data)
+    const template = this.getTemplate(VerificationEmailTemplate.SIGNUP);
 
+    const params = this.getParams({ template,user: data.user, code: data.code });
+
+    return this.send(params);
+  }
   sendPasswordChanged(data) {
     const template = this.getTemplate(VerificationEmailTemplate.PASSWORD_CHANGED);
 
@@ -94,6 +101,7 @@ class EmailService extends AbstractEmailService {
             return InvoiceService.getSalesOrderDetails(saleOrder.id)
               .then(async (orderDetails) => InvoiceService.createPackingSlip(orderDetails))
               .catch((err) => {
+                console.log('[Email][104]', err)
                 throw new Error(err.message);
               });
         })

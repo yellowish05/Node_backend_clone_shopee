@@ -10,6 +10,7 @@ const schema = new Schema({
   user: {
     type: String,
     ref: 'User',
+    default:"for_signup",
     required: true,
   },
   code: String,

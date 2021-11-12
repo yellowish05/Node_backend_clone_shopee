@@ -39,6 +39,7 @@ const schema = new Schema({
       default: 0,
     },
   },
+  translations: Object,
 });
 
 module.exports = new model(collectionName, schema);

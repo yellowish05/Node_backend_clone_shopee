@@ -1,10 +1,12 @@
 const path = require('path');
 // const stream = require('getstream');
+const md5 = require('md5');
 
-const { Currency, PushNotification, MeasureSystem, LanguageList } = require(path.resolve('src/lib/Enums'));
+const {
+  Currency, PushNotification, MeasureSystem, LanguageList,
+} = require(path.resolve('src/lib/Enums'));
 const UserService = require(path.resolve('src/lib/UserService'));
 
-const md5 = require('md5');
 
 function elasticFilter(filter) {
   const emptyQuery = {};
@@ -16,8 +18,8 @@ function elasticFilter(filter) {
       $or: [
         { email: { $regex: `^.*${filter}.*`, $options: 'i' } },
         { name: { $regex: `^.*${filter}.*`, $options: 'i' } },
-      ]
-    })
+      ],
+    });
   }
   return query.$and.length > 0 ? query : emptyQuery;
 }
@@ -160,7 +162,7 @@ class UserRepository {
         currency: data.settings.currency,
         measureSystem: data.settings.measureSystem,
       },
-      phone: data.phone
+      phone: data.phone,
     });
 
     return user.save();
@@ -181,7 +183,7 @@ class UserRepository {
       throw Error(`Email "${data.email}" is already taken!`);
     }
     let user;
-    if(!data.email) {
+    if (!data.email) {
       user = new this.model({
         _id: data._id,
         name: data.name,
@@ -226,8 +228,15 @@ class UserRepository {
     if (!user) {
       throw Error(`User "${id}" does not exist!`);
     }
-
-    user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+    if (data.email){
+      const emailUser = await this.findByEmail(data.email)
+      if (emailUser && emailUser._id !== id) {
+        throw Error(`User "${data.email}" used already`);
+      }
+      // user.email = (!user.email && data.email) ? (data.email).toLowerCase() : user.email;
+      console.log("data.email",data.email)
+      user.email = data.email || user.email;
+    }
     user.name = data.name || user.name;
     user.phone = data.phone || user.phone;
     user.photo = data.photo || user.photo;
@@ -235,6 +244,9 @@ class UserRepository {
     user.address = data.address || user.address;
     user.gender = data.gender || user.gender;
     user.color = data.color || user.color;
+    user.nick_name = data.nick_name || user.nick_name;
+    user.country = data.country || user.country;
+    user.hometown = data.hometown || user.hometown;
 
     if (data.provider && data.providerId) {
       user.providers[data.provider] = data.providerId;
@@ -306,7 +318,7 @@ class UserRepository {
   async findByPhoneAndPassword({ phone, password }) {
     const query = {
       password: md5(password),
-      phone: phone,
+      phone,
     };
 
     return this.model.findOne(query);
@@ -327,6 +339,10 @@ class UserRepository {
 
   async findByProvider(provider, value) {
     return await this.model.findOne({ [`providers.${provider}`]: value });
+  }
+
+  async findByAnonymousId(anonymousId) {
+    return this.model.findOne({ anonymousId });
   }
 
   async changePassword(userId, password) {
@@ -361,12 +377,12 @@ class UserRepository {
 
   async es_search(filter, page) {
     return this.model.find(
-        elasticFilter(filter),
-        null,
-        {
-          limit: page.limit,
-          skip: page.skip,
-        },
+      elasticFilter(filter),
+      null,
+      {
+        limit: page.limit,
+        skip: page.skip,
+      },
     );
   }
 
@@ -396,7 +412,7 @@ class UserRepository {
         limit: page.limit,
         skip: page.skip,
       },
-  );
+    );
   }
 }
 

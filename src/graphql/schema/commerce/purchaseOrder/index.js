@@ -46,7 +46,7 @@ const schema = gql`
     """ In future buyer will be able to pay by few paymnets to one Order"""
     payments: [PaymentTransactionInterface!]
     """ Address for ship products """
-    deliveryOrders: [DeliveryOrder]!
+    deliveryOrders: [DeliveryOrder]
     cancelationReason: String
     error: String
     publishableKey: String
@@ -76,6 +76,8 @@ const schema = gql`
 
   input PurchaseOrderFilterInput {
     statuses: [PurchaseOrderStatus!]
+    isPaid: Boolean
+    searchQuery: String
   }
 
   input RedirectionInput {
@@ -96,6 +98,7 @@ const schema = gql`
     allPurchaseOrders: [PurchaseOrder]!
     purchaseOrders(filter: PurchaseOrderFilterInput = {}, sort: PurcahseOrderSortInput = {}, page: PageInput = {}): PurchaseOrderCollection!  @auth(requires: USER)
     purchaseOrder(id: ID!): PurchaseOrder
+    productReview(id:ID!):Review
     orderList(
       filter: PurchaseOrderFilterInput = {}, 
       page: PageInput = {},
@@ -113,7 +116,7 @@ const schema = gql`
     checkoutCart(
       currency: Currency!, 
       provider: PaymentMethodProviders!,
-      customCarrierPrice:Float,
+      customCarrierPrice: Float,
       """Required only for PayPal & UnionPay"""
       redirection: RedirectionInput, 
       """Required only for Braintree"""
@@ -163,6 +166,9 @@ module.exports.resolvers = {
     purchaseOrder: async (_, { id }, { dataSources: { repository } }) => (
       repository.purchaseOrder.getById(id)
     ),
+    productReview: async (_, { id }, { dataSources: { repository }, user }) => (
+      repository.rating.getByProduct(id, user)
+    ),
     purchaseOrders,
     orderList,
     purchaseOrderListByProduct,
@@ -171,13 +177,13 @@ module.exports.resolvers = {
         if (pdf && pdf.length > 0) {
           return pdf;
         }
-
+        console.log("it is going to create invoice")
         return InvoiceService.getOrderDetails(id)
           .then(async (orderDetails) => InvoiceService.createInvoicePDF(orderDetails))
           .catch((err) => {
             throw new Error(err.message);
           });
-    }),
+      }),
   },
   Mutation: {
     checkoutCart,
@@ -197,28 +203,29 @@ module.exports.resolvers = {
       repository.deliveryOrder.getByIds(order.deliveryOrders)
     ),
     price: async ({ price, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: price, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     deliveryPrice: async ({ deliveryPrice, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency: currency });
+      // eslint-disable-next-line max-len
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: deliveryPrice, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     tax: async ({ tax, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: tax, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: tax, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }
       return amountOfMoney;
     },
     total: async ({ total, currency }, args) => {
-      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency: currency });
+      const amountOfMoney = CurrencyFactory.getAmountOfMoney({ centsAmount: total, currency });
       if (args.currency && args.currency !== currency) {
         return CurrencyService.exchange(amountOfMoney, args.currency);
       }

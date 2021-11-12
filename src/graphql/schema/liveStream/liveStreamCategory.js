@@ -6,7 +6,7 @@ const { cdn } = require(path.resolve('config'));
 const schema = gql`
   type LiveStreamCategory {
     id: ID!
-    name(locale: Locale): String!
+    name(language: LanguageList = EN): String!
     image: String
     hashtags: [String]
     slug: String
@@ -40,6 +40,7 @@ module.exports.resolvers = {
     },
   },
   LiveStreamCategory: {
+    name: ({ translations, name }, { language }, { dataSources: { repository } }) => (translations && translations[language.toLowerCase()]) ? translations[language.toLowerCase()] : name,
     image: async (liveStreamCategory) => `${cdn.appAssets}${liveStreamCategory.imagePath}`,
   },
 };

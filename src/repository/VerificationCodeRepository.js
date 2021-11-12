@@ -25,6 +25,20 @@ class VerificationCodeRepository {
     return verificationCode.save();
   }
 
+  async createForSingup() {
+    let code = '';
+    for (let i = 0; i < this.codeLength; i += 1) {
+      code += this.candidates.charAt(Math.floor(Math.random() * this.candidates.length));
+    }
+
+    const verificationCode = new this.model({
+      code,
+      _id: uuid(),
+    });
+
+    return verificationCode.save();
+  }
+
   async deactivate(id) {
     if (!id) {
       throw Error('User id for deactivate codes is required!');
@@ -44,6 +58,17 @@ class VerificationCodeRepository {
       throw Error('verifiction code is required!');
     }
     return this.model.findOne({ code, inActive: true });
+  }
+
+  async checkVerificationCode({ id, code }) {
+    if (!code) {
+      throw Error('verifiction code is required!');
+    }
+    const checkCode = await this.model.findOne({ code, _id: id });
+    if (!checkCode) {
+      return false;
+    }
+    return true;
   }
 
   async addCode(id, code) {

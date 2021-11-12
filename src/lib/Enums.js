@@ -69,6 +69,8 @@ const SizeUnitSystem = EnumFactory({
 const WeightUnitSystem = EnumFactory({
   OUNCE: 'OUNCE',
   GRAM: 'GRAM',
+  KILOGRAM: 'KILOGRAM',
+  POUND: 'POUND',
 });
 
 const currencyEnum = {};
@@ -93,6 +95,7 @@ const VerificationEmailTemplate = EnumFactory({
   PACKINGSLIP: 'PACKINGSLIP',
   PASSWORD_CHANGED: 'PASSWORD_CHANGED',
   NEW_ISSUE: 'NEW_ISSUE',
+  SIGNUP: 'SIGNUP',
 });
 
 const NotificationType = EnumFactory({
@@ -261,6 +264,13 @@ const IssueStatus = EnumFactory({
   SOLVED: "SOLVED",
 });
 
+const ProductStatus = EnumFactory({
+  ALL: 'ALL',
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  DRAFT: 'DRAFT',
+});
+
 const languageEnum = {};
 languages.forEach((item) => {
   // const name = item.iso639_1.toUpperCase();
@@ -286,12 +296,36 @@ const IssueUrgency = EnumFactory({
   CRITICAL: "CRITICAL",
 });
 
+const DiscountValueType = EnumFactory({
+  PERCENT: "PERCENT",
+  FIXED: "FIXED",
+  FREE_SHIPPING: "FREE_SHIPPING",
+});
+const DiscountPrivileges = EnumFactory({
+  CUSTOMERS: "CUSTOMERS",
+  EVERYONEY: "EVERYONEY",
+});
+
+const VideoTag = EnumFactory({
+  New: 'New',
+  Streaming: 'Streaming',
+  Trending: 'Trending',
+  Hot: 'Hot',
+});
+
+const ShippingRuleType = EnumFactory({
+  SIMPLE: 'SIMPLE',
+  ADVANCED: 'ADVANCED',
+});
+
+
 module.exports = {
   StreamChannelType,
   StreamRecordStatus,
   StreamChannelStatus,
   StreamRole,
-
+  DiscountPrivileges,
+  DiscountValueType,
   SourceType,
   MessageType,
   LoginProvider,
@@ -319,10 +353,13 @@ module.exports = {
   BannerAdType,
   BannerLayoutType,
   BannerType,
+  ProductStatus,
   GenderType,
   RatingTarget,
   SubscriptionType,
   IssueStatus,
   UserRoles,
   IssueUrgency,
+  VideoTag,
+  ShippingRuleType,
 };

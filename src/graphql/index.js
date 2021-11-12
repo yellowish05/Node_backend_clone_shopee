@@ -1,4 +1,6 @@
+
 const { ApolloServer } = require('apollo-server-express');
+const responseCachePlugin = require('apollo-server-plugin-response-cache').default;
 const path = require('path');
 
 const config = require(path.resolve('config'));
@@ -6,7 +8,7 @@ const logger = require(path.resolve('config/logger'));
 const createSchema = require('./schema');
 
 const secureContextMiddlewareFactory = require(path.resolve('src/lib/ApolloSecureContextMiddleware'));
-const checkMongoTimedout = require(path.resolve('src/lib/MonitorDBTimeout'))
+const checkMongoTimedout = require(path.resolve('src/lib/MonitorDBTimeout'));
 
 module.exports = ({ repository }) => new ApolloServer({
   schema: createSchema(),
@@ -84,4 +86,10 @@ module.exports = ({ repository }) => new ApolloServer({
     };
   },
   dataSources: () => ({ repository }),
+  plugins: [
+    responseCachePlugin({}),
+  ],
+  cacheControl: {
+    defaultMaxAge: 10000,
+  },
 });

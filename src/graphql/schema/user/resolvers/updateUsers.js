@@ -29,7 +29,6 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       let addressRegion;
 
       if (!error && user.address) {
-
         const addressCountry = await repository.country.getById(user.address.country);
         if (!addressCountry) {
           error = true;
@@ -106,12 +105,12 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
             ...addressObj.address,
           },
         })
-        .then((result) => {
-          console.log('Updated User: ', result);
-        })
-        .catch((err) => {
-          error = true;
-        });
+          .then((result) => {
+            console.log('Updated User: ', result);
+          })
+          .catch((err) => {
+            error = true;
+          });
       }
     }
     await repository.user.getById(user.id)

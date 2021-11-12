@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { Currency, OrderItemStatus, ProductMetricUnits } = require('../lib/Enums');
+const { Currency, OrderItemStatus, ProductMetricUnits, ShippingRuleType } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -84,6 +84,11 @@ const schema = new Schema({
   note: {
     type: String,
     default: null,
+  },
+  shippingRule: {
+    type: String,
+    enum: ShippingRuleType.toList(),
+    default: ShippingRuleType.SIMPLE
   },
 });
 

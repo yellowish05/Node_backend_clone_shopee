@@ -38,41 +38,33 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       if (!region) {
         throw new UserInputError('Region does not exists', { invalidArgs: 'region' });
       }
-      return EasyPost.updateAddress({ address: data }).then(response => {
-        return repository.deliveryAddress.update({
-          id,
-          savedAddressId: response.id,
-          ...data,
-        }).then((shippingAddressItem) => {
-          return repository.billingAddress.findByShippingAddress(shippingAddressItem.id)
-            .then((billingAddress) => {
-              if (billingAddress && billingAddress.length > 0) {
-                Promise.all(
-                  billingAddress.map(async (item) => {
-                    await repository.billingAddress.update({
-                      id: item.id,
-                      shipping: true,
-                      savedAddressId: shippingAddressItem.address.addressId,
-                      shippingAddress: shippingAddressItem.id,
-                      label: shippingAddressItem.label,
-                      street: shippingAddressItem.address.street,
-                      city: shippingAddressItem.address.city,
-                      region: shippingAddressItem.address.region,
-                      country: shippingAddressItem.address.country,
-                      zipCode: shippingAddressItem.address.zipCode,
-                    })
-                  })
-                );
-              }
-              return shippingAddressItem;
-            }).catch((error) => {
-              console.log(error.message);
-              return shippingAddressItem;
-            })
-        })
-      }).catch((error) => {
-        throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);
-      });
+      return EasyPost.updateAddress({ address: data });
+    })
+    .then((response) => repository.deliveryAddress.update({
+      id,
+      savedAddressId: response.id,
+      ...data,
+    }))
+    .then((shippingAddressItem) => {
+      return repository.billingAddress.findByShippingAddress(shippingAddressItem.id).then((billingAddresses) => {
+        if (billingAddresses && billingAddresses.length > 0) {
+          return Promise.all(billingAddresses.map((billingAddress) => repository.billingAddress.update({
+            id: billingAddress.id,
+            shipping: true,
+            savedAddressId: shippingAddressItem.address.addressId,
+            shippingAddress: shippingAddressItem.id,
+            label: shippingAddressItem.label,
+            street: shippingAddressItem.address.street,
+            city: shippingAddressItem.address.city,
+            region: shippingAddressItem.address.region,
+            country: shippingAddressItem.address.country,
+            zipCode: shippingAddressItem.address.zipCode,
+          })))
+        }
+      }).then(() => {
+        // check default status
+        if (data.isDefault) return repository.deliveryAddress.setAsDefault(id, user.id)
+      }).then(() => shippingAddressItem)
     })
     .catch((error) => {
       throw new ApolloError(`Failed to Update Delivery Address. Original error: ${error.message}`, 400);

@@ -49,7 +49,9 @@ const schema = gql`
       tags: [String!]
       paymentMethod: PaymentMethod!
     }
-
+    extend type Query {
+        paymentTransactions: [PaymentTransactionInterface]! @auth(requires: USER)
+    }
     extend type Subscription {
       paymentTransactionProcessed(id: ID!): PaymentTransactionInterface! @auth(requires: USER)
     }
@@ -58,6 +60,9 @@ const schema = gql`
 module.exports.typeDefs = [schema];
 
 module.exports.resolvers = {
+  Query:{
+    paymentTransactions: async (_, args, { dataSources: { repository }, user }) => repository.paymentTransaction.getAll({ buyer: user.id }),
+  },
   Subscription: {
     paymentTransactionProcessed: {
       resolve: (payload) => payload,

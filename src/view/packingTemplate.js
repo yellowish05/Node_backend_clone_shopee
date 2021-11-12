@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const moment = require('moment');
 
 module.exports = async (orderDetails) => {
   let orderDetailsContent = '';
@@ -8,7 +9,8 @@ module.exports = async (orderDetails) => {
   await orderDetails.orderDetails.map((orderDetail) => {
     let items = '';
     orderDetail.items.map((item) => {
-      const deliveryDate = item.deliveryOrder.estimatedDeliveryDate ? item.deliveryOrder.estimatedDeliveryDate : 'N/A';
+      const deliveryDate = item.deliveryOrder.estimatedDeliveryDate
+        ? moment(item.deliveryOrder.estimatedDeliveryDate).format('ll') : 'N/A';
       const sku = item.product.sku ? item.product.sku : 'N/A';
 
       let variation = '';

@@ -3,12 +3,30 @@ const path = require('path');
 const { UserInputError } = require('apollo-server');
 const { Validator } = require('node-input-validator');
 const nev = require('node-email-validator');
-
-const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
+const md5 = require('md5');
 
 const { EmailService } = require(path.resolve('src/bundles/email'));
-
+const { ErrorHandler } = require(path.resolve('src/lib/ErrorHandler'));
 const errorHandler = new ErrorHandler();
+
+const activity = {
+  createUser: async (args, repository) => {
+    const { email, password, anonymousId } = args;
+    const anonymousUser = anonymousId ? await repository.user.findByAnonymousId(anonymousId) : null;
+    if (anonymousUser) {
+      anonymousUser.isAnonymous = false;
+      anonymousUser.anonymousId = null;
+      anonymousUser.email = email.toLowerCase();
+      anonymousUser.password = md5(password);
+      return anonymousUser.save();
+    }
+    return repository.user.create({
+      _id: uuid(),
+      email,
+      password,
+    }, { roles: ['USER'] });
+  },
+};
 
 module.exports = async (obj, args, { dataSources: { repository } }) => {
   const validator = new Validator(args.data, {
@@ -35,11 +53,7 @@ module.exports = async (obj, args, { dataSources: { repository } }) => {
       }
     })
     )
-    .then(() => repository.user.create({
-      _id: uuid(),
-      email: args.data.email,
-      password: args.data.password,
-    }, { roles: ['USER'] }))
+    .then(() => activity.createUser(args.data, repository))
     .then((user) => {
       EmailService.sendWelcome({ user });
       return user;

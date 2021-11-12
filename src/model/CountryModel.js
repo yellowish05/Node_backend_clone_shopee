@@ -14,6 +14,10 @@ const schema = new Schema({
     type: String,
     required: true,
   },
+  geonameId: {
+    type: String,
+    required: false,
+  },
   currency: {
     type: String,
     enum: Currency.toList(),

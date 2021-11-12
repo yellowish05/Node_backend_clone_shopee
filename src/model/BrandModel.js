@@ -67,6 +67,7 @@ const schema = new Schema({
     type: String,
     ref: 'ProductCategory',
   }],
+  translations: Object,
 });
 
 module.exports = new model(collectionName, schema);

@@ -16,6 +16,8 @@ morganBody(app, { stream: logger.stream, noColors: true, prettify: false });
 app.use('/translation', translationRouters);
 app.use('/temp', tempRouters); // this is for test and transform only
 
+
+
 app.route('/sync').post((req, res) => require('./resolvers/syncTables')(req, res));
 app.route('/sync-with-slug').post((req, res) => require('./resolvers/syncTablesWithSlug')(req, res));
 app.route('/sync-with-default').post((req, res) => require('./resolvers/syncWithDefault')(req, res));
@@ -23,5 +25,14 @@ app.route('/delete/:table').delete((req, res) => require('./resolvers/deleteAllT
 app.route('/update-product-slug').post((req, res) => require('./resolvers/updateProductSlug')(req, res));
 app.route('/update-stream-slug').post((req, res) => require('./resolvers/updateStreamSlug')(req, res));
 app.route('/product-category-slug').patch((req, res) => require('./resolvers/updateProductCategorySlug')(req, res));
+
+app.route('/init-seller-default-shipping-rule').post((req, res) => require('./resolvers/initSellerShippingRuleType')(req, res));
+app.route('/init-product-default-weight').post((req, res) => require('./resolvers/initProductWeight')(req, res));
+// Fix DB Errors
+app.route('/fix-brand-product-category').patch((req, res) => require('./resolvers/fixProductCategoryOfBrand')(req, res));
+
+// Translations
+app.route('/translate-brands').post((req, res) => require('./resolvers/translateBrands')(req, res));
+
 
 module.exports = app;

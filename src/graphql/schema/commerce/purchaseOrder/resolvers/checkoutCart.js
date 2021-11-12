@@ -8,7 +8,7 @@ const { NotificationType, OrderItemStatus, PaymentMethodProviders } = require(pa
 
 module.exports = async function checkoutCart(
   _,
-  { currency, provider,customCarrierPrice, redirection, paymentMethodNonce },
+  { currency, provider, customCarrierPrice, redirection, paymentMethodNonce },
   { dataSources: { repository }, user },
 ) {
   let cartItems = await checkout.loadCartAndValidate(user.id, repository);
@@ -17,11 +17,12 @@ module.exports = async function checkoutCart(
 
   // creating order and clean cart
   const order = await checkout.createOrder({
-    cartItems, currency, buyerId: user.id,customCarrierPrice
+    cartItems, currency, buyerId: user.id, customCarrierPrice,
   }, repository);
 
   // await checkout.clearUserCart(user.id, repository);
-
+  redirection.success+="&orderId="+order.id
+  redirection.cancel+="&orderId="+order.id
   // generate payments with Payment Provider data and update order
   return payPurchaseOrder({ order, provider, redirection, paymentMethodNonce, user })
     .then(async (result) => {
@@ -31,7 +32,7 @@ module.exports = async function checkoutCart(
       if (result.paymentClientSecret) { order.paymentClientSecret = result.paymentClientSecret; }
 
       order.deliveryOrders = null;
-      order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
+      // order.isPaid = [PaymentMethodProviders.PAYPAL].includes(provider) ? false : true;
       return repository.purchaseOrder.update(order);
     })
 };

@@ -23,7 +23,7 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
     })
     .then(() => Promise.all([
       repository.product.getById(args.product),
-      repository.deliveryRateCache.getById(args.deliveryRate),
+      args.deliveryRate ? repository.deliveryRateCache.getById(args.deliveryRate) : null,
       args.productAttribute ? repository.productAttributes.getById(args.productAttribute) : null,
     ]))
     .then(async ([product, deliveryRate, productAttr]) => {
@@ -61,23 +61,24 @@ module.exports = async (obj, args, { dataSources: { repository }, user }) => {
         metricUnit: args.metricUnit || null,
         note: args.note,
       };
-
-      if (!deliveryRate) { throw new ForbiddenError('Delivery Rate does not exist'); }
-
-      cartItemData.deliveryRateId = deliveryRate.id;
-
-      return repository.deliveryRate.getById(deliveryRate.id)
-        .then(async (response) => {
-          if (!response) { await repository.deliveryRate.create(deliveryRate.toObject()); }
-        })
-        .then(async () => {
-          await Promise.all([
-            ProductService.decreaseProductQuantity(args, repository),
-            ProductService.setProductQuantityFromAttributes(args.product)
-          ]);
-
-          return repository.userCartItem.add(cartItemData, user.id);
-        });
+      
+      // delivery rate is optional. but null at this stage, must be added on the checkout.
+      if (args.deliveryRate) {
+        if (!deliveryRate) { throw new ForbiddenError('Delivery Rate does not exist'); }
+        cartItemData.deliveryRateId = deliveryRate.id;
+        await repository.deliveryRate.getById(deliveryRate.id)
+          .then(async response => {
+            if (!response) {
+              await repository.deliveryRate.create(deliveryRate.toObject());
+            }
+          });
+      }
+      
+      return Promise.all([
+        ProductService.decreaseProductQuantity(args, repository),
+        ProductService.setProductQuantityFromAttributes(args.product),
+      ])
+        .then(() => repository.userCartItem.add(cartItemData, user.id))
     })
     .catch((error) => { console.log(error);
       throw new ApolloError(`Failed to add Product to Cart. Original error: ${error.message}`, 400);

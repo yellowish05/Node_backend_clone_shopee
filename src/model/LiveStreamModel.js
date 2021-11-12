@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { OrientationMode, StreamChannelStatus } = require('../lib/Enums');
+const { OrientationMode, StreamChannelStatus, VideoTag } = require('../lib/Enums');
 const createdAtField = require('./commonFields/CreatedAtField');
 const uuidField = require('./commonFields/UUIDField');
 
@@ -75,10 +75,12 @@ const schema = new Schema({
   realViews: {
     type: Number,
     required: true,
+    index: true,
   },
   realLikes: {
     type: Number,
     required: true,
+    index: true,
   },
   fakeViews: {
     type: Number,
@@ -120,10 +122,21 @@ const schema = new Schema({
     default: [],
     index: true,
   },
+  videoTags: {
+    type: [{
+      type: String,
+      enum: VideoTag.toList(),
+    }],
+    default: [],
+  },
   slug: {
     type: String,
     required: true,
     unique: true,
+  },
+  translated: {
+    type: Number,
+    default: 0,
   },
 });
 

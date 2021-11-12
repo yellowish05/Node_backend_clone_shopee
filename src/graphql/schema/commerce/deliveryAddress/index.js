@@ -21,6 +21,7 @@ const schema = gql`
         addressId: String
         description: String
         shippingAddress: String
+        email:String
         isDefault: Boolean
     }
 
@@ -32,7 +33,9 @@ const schema = gql`
         country: ID!
         zipCode: String
         phone:String
+        email:String
         description: String
+        isDefault: Boolean = false
     }
     
     input BillingAddressInput {
@@ -56,6 +59,8 @@ const schema = gql`
         description: String
         addressId: String
         shippingAddress: String
+        phone: String
+        isDefault: Boolean = false
     }
 
     extend type Query {
@@ -114,6 +119,7 @@ module.exports.resolvers = {
   },
   DeliveryAddress: {
     addressId: async ({ address: { addressId } }) => addressId,
+    id: async (deliveryAddress ) => deliveryAddress._id,
     street: async ({ address: { street } }) => street,
     city: async ({ address: { city } }) => city,
     region: async ({ address: { region } }, _, { dataSources: { repository } }) => repository.region.getById(region),
