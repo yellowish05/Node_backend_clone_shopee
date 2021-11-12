@@ -129,7 +129,7 @@ function applyFilter(query, {
   }
 
   query.$and.push({ status: {$nin: [ 'DRAFT' ]} });
-  //! add by Yin 
+  
   query.$and.push({ app: app });
 }
 
