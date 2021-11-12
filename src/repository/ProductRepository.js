@@ -40,7 +40,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [], app = 'shoclef'
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [], app = 'SHOCLEF'
 }) {
   if (!query.$and) {
     query.$and = [
