@@ -176,7 +176,7 @@ const schema = new Schema({
   },
   handleId: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 
