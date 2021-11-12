@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 require('mongoose-long')(require('mongoose'));
-const { Currency, WeightUnitSystem, MarketType, ProductMetricUnits } = require('../lib/Enums');
+const { Currency, WeightUnitSystem, MarketType, ProductMetricUnits, ProductAppType } = require('../lib/Enums');
 const uuidField = require('./commonFields/UUIDField');
 const createdAtField = require('./commonFields/CreatedAtField');
 
@@ -107,6 +107,12 @@ const schema = new Schema({
         default: WeightUnitSystem.toList()[0],
       },
     },
+  },
+  app: {
+    type: String,
+    enum: ProductAppType.toList(),
+    required: true,
+    default: ProductAppType.SHOCLEF
   },
   shippingBox: {
     type: String,
