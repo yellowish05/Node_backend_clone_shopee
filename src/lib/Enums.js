@@ -73,7 +73,7 @@ const WeightUnitSystem = EnumFactory({
   POUND: 'POUND',
 });
 
-const AppType = EnumFactory({
+const ProductAppType = EnumFactory({
   SHOCLEF: "SHOCLEF",
   SHOCLEFGOLD: "SHOCLEF_GOLD"
 })
@@ -373,5 +373,5 @@ module.exports = {
   IssueUrgency,
   VideoTag,
   ShippingRuleType,
-  AppType
+  ProductAppType
 };
