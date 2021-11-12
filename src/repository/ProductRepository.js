@@ -1,4 +1,6 @@
 /* eslint-disable no-param-reassign */
+const { ProductAppType } = require('../lib/Enums');
+
 function elasticFilter(query, filter) {
   if (!query.$and) {
     query.$and = [
