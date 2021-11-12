@@ -40,7 +40,7 @@ function transformSortInput({ feature, type }) {
 }
 
 function applyFilter(query, {
-  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [],
+  searchQuery, categories, brands, price, sellers, blackList, isWholeSale = false, isFeatured, ids = [], attributes = [], app = 'shoclef'
 }) {
 
   if (!query.$and) {
@@ -130,7 +130,9 @@ function applyFilter(query, {
     query.$and.push({ attrs: { $in: attributes } });
   }
 
-  query.$and.push({ status: {$nin: [ 'DRAFT' ]} })
+  query.$and.push({ status: {$nin: [ 'DRAFT' ]} });
+  //! add by Yin 
+  query.$and.push({ app: app });
 }
 
 function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
