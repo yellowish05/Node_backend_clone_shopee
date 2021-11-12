@@ -98,6 +98,11 @@ const VerificationEmailTemplate = EnumFactory({
   SIGNUP: 'SIGNUP',
 });
 
+const VerificationCodeStatus = EnumFactory({
+  REQUESTED: "REQUESTED",
+  VERIFIED: "VERIFIED",
+});
+
 const NotificationType = EnumFactory({
   SYSTEM: 'SYSTEM',
   MESSAGE: 'MESSAGE',
@@ -333,6 +338,7 @@ module.exports = {
   Currency,
   InventoryLogType,
   VerificationEmailTemplate,
+  VerificationCodeStatus,
   NotificationType,
   MeasureSystem,
   WeightUnitSystem,
