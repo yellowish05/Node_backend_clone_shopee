@@ -2,7 +2,7 @@ const path = require('path');
 
 const ProductService = require(path.resolve('src/lib/ProductService'));
 
-module.exports = async (_, { theme, page, sort }, { dataSources: { repository }, user }) => {
+module.exports = async (_, { theme, page, sort, app }, { dataSources: { repository }, user }) => {
   const pager = {
     limit: page.limit,
     skip: page.skip,
@@ -13,6 +13,7 @@ module.exports = async (_, { theme, page, sort }, { dataSources: { repository },
   const filter = { hashtags };
   filter.brands = brands.map(item => item._id);
   filter.productCategories = productCategories.map(item => item._id);
+  filter.app = app;
 
   return Promise.all([
     repository.product.get4Theme({ filter, page, sort }),

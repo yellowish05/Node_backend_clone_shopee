@@ -225,7 +225,7 @@ const schema = gql`
     product(id: ID!): Product
     previewBulkProducts(fileName:String!): String! @auth(requires: USER)
     productAttributes(productId: ID!): [ProductAttribute!]!
-    productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}): ProductCollection!
+    productsByTheme(theme: ID!, sort: ProductSortInput = {}, page: PageInput = {}, app: ProductAppType = SHOCLEF): ProductCollection!
     productBySlug(slug: String!): Product
     popularProducts(productId: ID!, limit: Int = 10): [Product!]
     recommendProducts(productId: ID!, limit: Int = 10): [Product!]

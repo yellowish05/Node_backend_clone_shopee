@@ -135,7 +135,7 @@ function applyFilter(query, {
   query.$and.push({ app: app });
 }
 
-function applyFilter4Theme(query, { brands, productCategories, hashtags }) {
+function applyFilter4Theme(query, { brands, productCategories, hashtags, app = ProductAppType.SHOCLEF }) {
   if (!query.$and) {
     query.$and = [
       { isDeleted: false, wholesaleEnabled: { $ne: true } },
