@@ -47,10 +47,10 @@ class ProductAttributesRepository {
   }
 
   async create(data) {
-    const productAttr = new this.model({
-      _id: uuid(),
-      ...data,
-    });
+    if(data._id===undefined) {
+      data._id=uuid()
+    }
+    const productAttr = new this.model(data);
     return productAttr.save();
   }
 
