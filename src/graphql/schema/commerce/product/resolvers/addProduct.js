@@ -160,6 +160,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
             _id: productAttrId,
             productId: product._id,
             quantity: attr.quantity,
+            sku: productAttrId,
             price: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.price || attr.oldPrice, currency: attr.currency }).getCentsAmount(), //attr.price,
             oldPrice: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.oldPrice || attr.price, currency: attr.currency }).getCentsAmount(), //attr.oldPrice,
             currency: attr.currency,
