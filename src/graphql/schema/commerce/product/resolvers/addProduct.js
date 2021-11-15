@@ -169,6 +169,7 @@ module.exports = async (_, { data }, { dataSources: { repository }, user }) => {
         });
         
         await Promise.all(productAttrs.map(attr => {
+          console.log("creating attr", attr._id, product.id)
           repository.productAttributes.create(attr);
         }));
         await product.save();
