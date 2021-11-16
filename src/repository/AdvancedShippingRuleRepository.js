@@ -18,6 +18,12 @@ class AdvancedShippingRuleRepository {
     this.model = model;
   }
 
+  create(data) {
+    if (!data._id) data = { ...data, _id: uuid() };
+    const rule = new this.model(data);
+    return rule.save();
+  }
+
   getById(id, isActive = null) {
     const query = { _id: id };
     considerActive(query, isActive);

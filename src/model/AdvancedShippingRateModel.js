@@ -3,11 +3,16 @@
  */
 const path = require("path");
 const { Schema, model } = require("mongoose");
+
+const uuidField = require("./commonFields/UUIDField");
+const createdAtField = require("./commonFields/CreatedAtField");
 const { Currency, WeightUnitSystem } = require("../lib/Enums");
 
 const collectionName = "AdvancedShippingRate";
 
 const schema = new Schema({
+  ...uuidField(collectionName),
+  ...createdAtField,
   rule: {
     type: String,
     ref: "AdvancedShippingRule",
