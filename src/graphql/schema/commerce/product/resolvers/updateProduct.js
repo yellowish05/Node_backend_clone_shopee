@@ -92,7 +92,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-      product.quantity = quantity;
+      product.quantity = productData.quantity;
       product.customCarrier = customCarrier ? customCarrier.id : null;
       product.customCarrierValue = customCarrier ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount() : 0;
 
