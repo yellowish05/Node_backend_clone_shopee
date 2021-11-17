@@ -41,6 +41,16 @@ class AdvancedShippingRateRepository {
 
     return this.model.deleteOne({ _id: id });
   }
+
+  deleteByRule(rule) {
+    if (typeof rule !== "string") {
+      throw new Error(
+        `AdvancedShippingRate.deleteByRule expected id as string, but got "${typeof rule}"`
+      );
+    }
+
+    return this.model.deleteMany({ rule });
+  }
 }
 
 module.exports = AdvancedShippingRateRepository;
