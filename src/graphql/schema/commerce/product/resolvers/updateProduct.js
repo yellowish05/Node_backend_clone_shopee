@@ -29,7 +29,7 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
 
   let product, foundBrand;
 
-  validator.addPostRule(async (provider) => Promise.all([
+  await validator.addPostRule(async (provider) => Promise.all([
     repository.product.getById(provider.inputs.id),
     repository.productCategory.getById(provider.inputs.category),
     repository.brand.getById(provider.inputs.brand),
@@ -85,14 +85,14 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
       const {
         quantity, price, discountPrice, thumbnailId, ...productData
       } = data;
-
+      console.log("test quantity",product.quantity,quantity)
       const deltaQty = quantity - product.quantity;
 
       product.title = productData.title;
       product.description = productData.description;
       product.price = CurrencyFactory.getAmountOfMoney({ currencyAmount: data.discountPrice || data.price, currency: data.currency }).getCentsAmount();
       product.oldPrice = data.discountPrice ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.price, currency: data.currency }).getCentsAmount() : null;
-      product.quantity = productData.quantity;
+      product.quantity = quantity;
       product.customCarrier = customCarrier ? customCarrier.id : null;
       product.customCarrierValue = customCarrier ? CurrencyFactory.getAmountOfMoney({ currencyAmount: data.customCarrierValue, currency: data.currency }).getCentsAmount() : 0;
 
@@ -138,8 +138,42 @@ module.exports = async (_, { id, data }, { dataSources: { repository }, user }) 
         });
       }
 
+
+      if (data.attrs && data.attrs.length && data.attrs.length > 0) {
+        let productAttrs = [];
+        product.attrs = [];
+        data.attrs.forEach(attr => {
+          const productAttrId = attr.id||uuid();
+          let index=product.attrs.findIndex(x=>x.id===productAttrId)
+          if(index>-1){
+            console.log("updating attr")
+            product.attrs[index]=productAttrId
+          }else{
+            console.log("creating attr")
+            product.attrs.push(productAttrId);
+          }
+          productAttrs.push({
+            _id: productAttrId,
+            productId: product._id,
+            quantity: attr.quantity,
+            sku: productAttrId,
+            price: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.price || attr.oldPrice, currency: attr.currency }).getCentsAmount(), //attr.price,
+            oldPrice: CurrencyFactory.getAmountOfMoney({ currencyAmount: attr.oldPrice || attr.price, currency: attr.currency }).getCentsAmount(), //attr.oldPrice,
+            currency: attr.currency,
+            variation: attr.variation,
+            asset: attr.asset,
+          });
+        });
+        
+        await Promise.all(productAttrs.map(attr => {
+          console.log("creating attr", attr._id, product.id)
+          repository.productAttributes.create(attr);
+        }));
+      }
+      
       let inventoryPromise = null;
-      if (deltaQty !== 0 && product.attrs.length === 0) {
+      
+      if (deltaQty !== 0) {// && product.attrs.length === 0
         const newInventoryLog = {
           _id: uuid(),
           product: product.id,
