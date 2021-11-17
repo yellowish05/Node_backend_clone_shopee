@@ -19,6 +19,7 @@ const { typeDefs: payoutOrderTypeDefs, resolvers: payoutOrderResolvers } = requi
 const { typeDefs: orderItemTypeDefs, resolvers: orderItemResolvers } = require('./orderItem');
 const { typeDefs: shippingAddressDefs, resolvers: shippingAddressResolvers } = require('./shippingAddress');
 const { typeDefs: discountDefs, resolvers: discountResolvers } = require('./discount');
+const { typeDefs: advancedShippingRuleDefs, resolvers: advancedShippingRuleResolvers } = require('./advancedShippingRule');
 
 const typeDefs = [].concat(
   brandTypeDefs,
@@ -39,7 +40,8 @@ const typeDefs = [].concat(
   carrierTypeDefs,
   customCarrierTypeDefs,
   shippingAddressDefs,
-  discountDefs
+  discountDefs,
+  advancedShippingRuleDefs,
 );
 
 const resolvers = merge(
@@ -61,7 +63,8 @@ const resolvers = merge(
   carrierResolvers,
   customCarrierResolvers,
   shippingAddressResolvers,
-  discountResolvers
+  discountResolvers,
+  advancedShippingRuleResolvers,
 );
 
 module.exports = {
