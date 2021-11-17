@@ -177,6 +177,7 @@ const schema = gql`
 
   """WO = WithOut"""
   input ProductAttrWOProductInput {
+    id: ID
     quantity: Int!
     price: Float!
     oldPrice: Float

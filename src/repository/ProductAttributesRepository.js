@@ -51,6 +51,7 @@ class ProductAttributesRepository {
       data._id=uuid()
     }
     const productAttr = new this.model(data);
+    console.log("saving attr")
     return productAttr.save();
   }
 
