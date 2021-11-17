@@ -33,7 +33,7 @@ class AdvancedShippingRateRepository {
   }
 
   delete(id) {
-    if (typeof itemId !== "string") {
+    if (typeof id !== "string") {
       throw new Error(
         `AdvancedShippingRate.delete expected id as String, but got "${typeof itemId}"`
       );

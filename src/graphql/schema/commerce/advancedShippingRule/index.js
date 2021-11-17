@@ -7,6 +7,7 @@ const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 // resolvers
 const addAdvancedShippingRule = require("./resolvers/addAdvancedShippingRule");
 const addAdvancedShippingRate = require("./resolvers/addAdvancedShippingRate");
+const deleteAdvancedShippingRate = require("./resolvers/deleteAdvancedShippingRate");
 
 const schema = gql`
   type AdvancedShippingRule {
@@ -63,6 +64,8 @@ const schema = gql`
     addAdvancedShippingRate(
       data: CreateAdvancedShippingRateInput
     ): AdvancedShippingRate! @auth(requires: USER)
+
+    deleteAdvancedShippingRate(id: ID!): Boolean! @auth(requires: USER)
   }
 `;
 
@@ -78,6 +81,7 @@ module.exports.resolvers = {
   Mutation: {
     addAdvancedShippingRule,
     addAdvancedShippingRate,
+    deleteAdvancedShippingRate,
   },
   AdvancedShippingRule: {
     country: ({ country }, _, { dataSources: { repository } }) =>
