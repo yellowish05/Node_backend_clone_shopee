@@ -5,13 +5,13 @@ const path = require('path');
 const { DiscountValueType, DiscountPrivileges, ShippingRuleType } = require(path.resolve('src/lib/Enums'));
 
 const activity = {
-  processDiscount: async ({ item } , repository) => {
+  processDiscount: async ({ item }, repository) => {
     let discountAmount = 0;
     let isApplyDiscount = false;
     if (item.discount) {
       item.discount = await repository.discount.getById(item.discount)
         .then((discount) => discount);
-        const discount=item.discount
+      const discount = item.discount
       const brand = await repository.brand.getById(item.product.brand)
       const productBrandCategories = brand.brandCategories || [];
       console.log("brand", brand)
@@ -77,22 +77,28 @@ module.exports = async (_, args, { dataSources: { repository }, user }) => repos
     if (item.productAttribute) {
       item.productAttribute = await repository.productAttributes.getById(item.productAttribute);
     }
-    item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
-      .then((deliveryRate) => {
-        if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
-        return deliveryRate;
-      });
+    if (item.deliveryRate) {
+      item.deliveryRate = await repository.deliveryRate.getById(item.deliveryRate)
+        .then((deliveryRate) => {
+          if (!deliveryRate) { throw new ForbiddenError('DeliveryRate does not exist'); }
+          return deliveryRate;
+        });
+    }
+
 
     //shpping rule & delivery address
     item.shippingRule = await repository.organization.getByOwner(item.product.seller)
       .then((organization) => organization.shippingRule)
       .catch(() => ShippingRuleType.SIMPLE);
-    item.deliveryAddress = await repository.deliveryRate.getById(item.deliveryRate)
-      .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress))
-      .catch(() => null);
-    if (!item.deliveryAddress) throw new ForbiddenError('DeliveryAddress does not exist');
+    if (item.deliveryAddress) {
+      item.deliveryAddress = await repository.deliveryRate.getById(item.deliveryRate)
+        .then(deliveryRate => repository.deliveryAddress.getById(deliveryRate.deliveryAddress))
+        .catch(() => null);
+    }
+
+    // if (!item.deliveryAddress) throw new ForbiddenError('DeliveryAddress does not exist');
     item = await activity.processDiscount({ item }, repository);
-    
+
     return item;
   }))
-  .then((items) => ({ items })));
+    .then((items) => ({ items })));
