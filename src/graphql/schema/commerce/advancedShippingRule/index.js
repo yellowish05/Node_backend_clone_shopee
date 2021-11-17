@@ -7,6 +7,7 @@ const { CurrencyFactory } = require(path.resolve("src/lib/CurrencyFactory"));
 // resolvers
 const addAdvancedShippingRule = require("./resolvers/addAdvancedShippingRule");
 const addAdvancedShippingRate = require("./resolvers/addAdvancedShippingRate");
+const updateAdvancedShippingRule = require("./resolvers/updateAdvancedShippingRule");
 const updateAdvancedShippingRate = require('./resolvers/updateAdvancedShippingRate');
 const deleteAdvancedShippingRule = require('./resolvers/deleteAdvancedShippingRule');
 const deleteAdvancedShippingRate = require("./resolvers/deleteAdvancedShippingRate");
@@ -33,7 +34,7 @@ const schema = gql`
     days: Int!
   }
 
-  input CreateAdvancedShippingRuleInput {
+  input AdvancedShippingRuleInput {
     name: String!
     country: String!
     region: String
@@ -71,13 +72,14 @@ const schema = gql`
 
   extend type Mutation {
     addAdvancedShippingRule(
-      data: CreateAdvancedShippingRuleInput
+      data: AdvancedShippingRuleInput
     ): AdvancedShippingRule! @auth(requires: USER)
 
     addAdvancedShippingRate(
       data: CreateAdvancedShippingRateInput
     ): AdvancedShippingRate! @auth(requires: USER)
 
+    updateAdvancedShippingRule(id: ID!, data: AdvancedShippingRuleInput!): AdvancedShippingRule! @auth(requires: USER)
     updateAdvancedShippingRate(id: ID!, data: UpdateAdvancedShippingRateInput!): AdvancedShippingRate! @auth(requires: USER)
     deleteAdvancedShippingRate(id: ID!): Boolean! @auth(requires: USER)
     deleteAdvancedShippingRule(id: ID!): Boolean! @auth(requires: USER)
@@ -96,6 +98,7 @@ module.exports.resolvers = {
   Mutation: {
     addAdvancedShippingRule,
     addAdvancedShippingRate,
+    updateAdvancedShippingRule,
     updateAdvancedShippingRate,
     deleteAdvancedShippingRule,
     deleteAdvancedShippingRate,

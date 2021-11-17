@@ -63,7 +63,7 @@ module.exports = (_, { id, data }, { dataSources: { repository }, user }) => {
       if (rule.owner !== user.id) {
         validator.addError("rule", "ownership", "You are not the owner!");
       }
-      if (validator.errors.length) {
+      if (Object.keys(validator.errors).length) {
         throw errorHandler.build(validator.errors);
       }
       return rate;
