@@ -46,7 +46,15 @@ const schema = gql`
   }
 
   extend type Query {
-    searchBrand(filter: BrandFilterInput = {}, page: PageInput = {}, hasProduct: Boolean = true, query: String): BrandCollection!
+    searchBrand(
+      filter: BrandFilterInput = {},
+      page: PageInput = {},
+      """
+      @deprecated
+      (use 'filter.hasProduct' instead.)
+      """
+      hasProduct: Boolean = true,
+      query: String): BrandCollection!
     allBrands(hasProduct: Boolean = true, hasLiveStream: Boolean): [Brand]!
     brand(id: ID!): Brand
     brandBySlug(slug: String!): Brand
