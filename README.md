@@ -1,5 +1,3 @@
-# xiufu88-website
-
 ## How to do  (local environment)
 
 #### this is for demo purpose 
