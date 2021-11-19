@@ -7,7 +7,6 @@ function getSearchQueryByName(query) {
 function applyFilter(query, {
   searchQuery, hasProduct, hasImage, categoryId,
 }) {
-  console.log('searchQuery1', searchQuery, hasProduct, hasImage);
   if (!query.$and) query.$and = [{ name: { $exists: true } }];
   if (searchQuery != undefined && searchQuery != '') query.$and.push({ name: { $regex: `${searchQuery}`, $options: 'i' } });
   if (hasProduct != undefined) query.$and.push({ nProducts: { $gt: 0 } });
@@ -45,7 +44,7 @@ class BrandRepository {
       pager.limit = page.limit;
       pager.skip = page.skip || 0;
     }
-    console.log('query', JSON.stringify(query));
+
     return this.model.find(
       query,
       null,
