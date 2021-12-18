@@ -1,10 +1,3 @@
-# xiufu88-website
-
-## How to do  (local environment)
-
-#### this is for demo purpose 
-#### test for deployment check - 4th change
-
 ## Environment
 1. add to `~/.profile` node env `export NODENV=development`
 2. copy 'credentials.example' folder as 'credentials' and update credentials.
